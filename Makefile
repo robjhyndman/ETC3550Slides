@@ -7,7 +7,6 @@ TARGETS=$(SOURCES:%.Rmd=%.pdf)
 	@Rscript -e "rmarkdown::render('$<')"
 
 default: $(TARGETS)
-	cp --update *.pdf ~/git/Website/static/etc3550
 
 clean:
 	rm -rf $(TARGETS)
