@@ -1,0 +1,848 @@
+---
+title: "ETC3550: Applied forecasting for business and economics"
+author: "Ch3. The forecasters' toolbox"
+date: "OTexts.org/fpp2/"
+fontsize: 14pt
+output:
+  beamer_presentation:
+    fig_width: 7
+    fig_height: 3.5
+    highlight: tango
+    theme: metropolis
+    keep_tex: true
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
+library(fpp2)
+source("nicefigs.R")
+options(width=45)
+```
+
+# Some simple forecasting methods
+
+## Some simple forecasting methods
+
+```{r ausbeer, fig.height=4.6, echo=FALSE}
+beer2 <- window(ausbeer, start=1992)
+autoplot(beer2) +
+  xlab("Year") + ylab("megalitres") +
+    ggtitle("Australian quarterly beer production")
+```
+
+\begin{textblock}{7}(0.2,8.7)
+\begin{alertblock}{}
+\small{How would you forecast these data?}
+\end{alertblock}
+\end{textblock}
+
+## Some simple forecasting methods
+
+```{r pigs, fig.height=4.6, echo=FALSE}
+autoplot(window(pigs/1e3, start=1990)) +
+  xlab("Year") + ylab("thousands") +
+  ggtitle("Number of pigs slaughtered in Victoria")
+```
+
+\begin{textblock}{7}(0.2,8.7)
+\begin{alertblock}{}
+\small{How would you forecast these data?}
+\end{alertblock}
+\end{textblock}
+
+## Some simple forecasting methods
+
+```{r dj, fig.height=4.6, echo=FALSE}
+autoplot(dj) + xlab("Day") +
+  ggtitle("Dow-Jones index") + ylab("")
+```
+
+\begin{textblock}{7}(0.2,8.7)
+\begin{alertblock}{}
+\small{How would you forecast these data?}
+\end{alertblock}
+\end{textblock}
+
+## Some simple forecasting methods
+
+\fontsize{13}{14}\sf
+
+### Average method
+
+  * Forecast of all future values is equal to mean of historical data $\{y_1,\dots,y_T\}$.
+  * Forecasts: $\hat{y}_{T+h|T} = \bar{y} = (y_1+\dots+y_T)/T$
+
+\pause
+
+### Naïve method
+
+  * Forecasts equal to last observed value.
+  * Forecasts: $\hat{y}_{T+h|T} =y_T$.
+  * Consequence of efficient market hypothesis.
+
+\pause
+
+### Seasonal naïve method
+
+  * Forecasts equal to last value from same season.
+  * Forecasts: $\hat{y}_{T+h|T} =y_{T+h-km}$ where $m=$ seasonal period and $k=\lfloor (h-1)/m\rfloor$+1.
+
+## Some simple forecasting methods
+
+### Drift method
+
+ * Forecasts equal to last value plus average change.
+ * Forecasts:\vspace*{-.7cm}
+
+ \begin{align*}
+ \hat{y}_{T+h|T} & =  y_{T} + \frac{h}{T-1}\sum_{t=2}^T (y_t-y_{t-1})\\
+                 & = y_T + \frac{h}{T-1}(y_T -y_1).
+ \end{align*}\vspace*{-0.2cm}
+
+   * Equivalent to extrapolating a line drawn between first and last observations.
+
+## Some simple forecasting methods
+
+```{r beerf, warning=FALSE, message=FALSE, echo=FALSE, fig.height=4.6}
+beer2 <- window(ausbeer,start=1992,end=c(2007,4))
+# Plot some forecasts
+autoplot(beer2) +
+  autolayer(meanf(beer2, h=11), PI=FALSE, series="Mean") +
+  autolayer(naive(beer2, h=11), PI=FALSE, series="Naïve") +
+  autolayer(snaive(beer2, h=11), PI=FALSE, series="Seasonal naïve") +
+  ggtitle("Forecasts for quarterly beer production") +
+  xlab("Year") + ylab("Megalitres") +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+## Some simple forecasting methods
+
+```{r djf,  message=FALSE, warning=FALSE, echo=FALSE, fig.height=4.6}
+# Set training data to first 250 days
+dj2 <- window(dj,end=250)
+# Plot some forecasts
+autoplot(dj2) +
+  autolayer(meanf(dj2, h=42), PI=FALSE, series="Mean") +
+  autolayer(rwf(dj2, h=42), PI=FALSE, series="Naïve") +
+  autolayer(rwf(dj2, drift=TRUE, h=42), PI=FALSE, series="Drift") +
+  ggtitle("Dow Jones Index (daily ending 15 Jul 94)") +
+  xlab("Day") + ylab("") +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+## Some simple forecasting methods
+
+  * Mean: `meanf(y, h=20)`
+  * Naïve:  `naive(y, h=20)`
+  * Seasonal naïve: `snaive(y, h=20)`
+  * Drift: `rwf(y, drift=TRUE, h=20)`
+
+\pause
+
+### Your turn
+
+ * Use these four functions to produce forecasts for `goog` and `auscafe`.
+ * Plot the results using `autoplot()`.
+
+#Box-Cox transformations
+
+##Variance stabilization
+
+\fontsize{13}{15}\sf
+
+If the data show different variation at different levels of the series, then a transformation can be useful.
+\pause
+
+Denote original observations as $y_1,\dots,y_n$ and transformed
+observations as $w_1, \dots, w_n$.
+\pause
+
+\begin{block}{\footnotesize Mathematical transformations for stabilizing
+variation}
+\begin{tabular}{llc}
+Square root & $w_t = \sqrt{y_t}$ & $\downarrow$ \\[0.2cm]
+Cube root & $w_t = \sqrt[3]{y_t}$ & Increasing \\[0.2cm]
+Logarithm & $w_t = \log(y_t)$  & strength
+\end{tabular}
+\end{block}
+\pause
+
+Logarithms, in particular, are useful because they are more interpretable:
+changes in a log value are \textbf{relative (percent) changes on the original
+scale.}
+
+##Variance stabilization
+
+```{r elec, echo=FALSE, fig.height=4.6}
+autoplot(elec^0.5) +
+  xlab("Year") + ylab("") +
+  ggtitle("Square root electricity production")
+```
+
+##Variance stabilization
+
+```{r elec2, echo=FALSE, fig.height=4.6}
+autoplot(elec^0.33333) +
+  xlab("Year") + ylab("") +
+  ggtitle("Cube root electricity production")
+```
+
+##Variance stabilization
+
+```{r elec3, echo=FALSE, fig.height=4.6}
+autoplot(log(elec)) +
+  xlab("Year") + ylab("") +
+  ggtitle("Log electricity production")
+```
+
+##Variance stabilization
+
+```{r elec4, echo=FALSE, fig.height=4.6}
+autoplot(-1/elec) +
+  xlab("Year") + ylab("") +
+  ggtitle("Inverse electricity production")
+```
+
+##Box-Cox transformations
+
+Each of these transformations is close to a member of the
+family of \textbf{Box-Cox transformations}:
+$$w_t = \left\{\begin{array}{ll}
+        \log(y_t),      & \quad \lambda = 0; \\
+        (y_t^\lambda-1)/\lambda ,         & \quad \lambda \ne 0.
+\end{array}\right.
+$$\pause
+
+* $\lambda=1$: (No substantive transformation)
+* $\lambda=\frac12$: (Square root plus linear transformation)
+* $\lambda=0$: (Natural logarithm)
+* $\lambda=-1$: (Inverse plus 1)
+
+##Box-Cox transformations
+
+```{r elec5, cache=TRUE, echo=FALSE}
+library(latex2exp)
+lambda <- seq(1, -1, by=-0.01)
+for(i in seq_along(lambda))
+{
+  savepdf(paste("elecBC",i,sep=""))
+  print(autoplot(BoxCox(elec,lambda[i])) + xlab("Year") +
+    ylab("") +
+    ggtitle(
+      TeX(paste("Transformed Australian electricity demand:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
+    ) +
+    scale_y_continuous(breaks=NULL,minor_breaks=NULL) +
+    theme(axis.title.y=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank()))
+  endpdf()
+}
+```
+
+\centerline{\animategraphics[controls,buttonsize=0.3cm,width=12.2cm]{4}{elecBC}{1}{201}}
+
+##Box-Cox transformations
+
+```{r elec6,echo=TRUE,fig.height=4}
+autoplot(BoxCox(elec,lambda=1/3))
+```
+
+##Box-Cox transformations
+
+* $y_t^\lambda$ for $\lambda$ close to zero behaves like logs.
+* If some $y_t=0$, then must have $\lambda>0$
+* if some $y_t<0$, no power transformation is possible unless all $y_t$ adjusted by \textbf{adding a constant to all values}.
+* Simple values of $\lambda$ are easier to explain.
+* Results are  relatively insensitive to  $\lambda$.
+* Often no transformation ($\lambda=1$) needed.
+* Transformation can have very large effect on PI.
+* Choosing $\lambda=0$ is a simple way to force forecasts to be positive
+
+## Automated Box-Cox transformations
+
+```{r elec7, echo=TRUE}
+(BoxCox.lambda(elec))
+```
+\pause
+
+* This attempts to balance the seasonal fluctuations and random variation across the series.
+* Always check the results.
+* A low value of $\lambda$ can give extremely large prediction intervals.
+
+##Back-transformation
+
+We must reverse the transformation (or \textit{back-transform}) to obtain
+forecasts on the original scale.  The reverse Box-Cox transformations are given
+by
+$$ y_t = \left\{\begin{array}{ll}
+        \exp(w_t),      & \quad \lambda = 0; \\
+        (\lambda W_t+1)^{1/\lambda} ,   & \quad \lambda \ne 0.
+\end{array}\right.$$
+
+##Back-transformation
+
+```{r elec8,echo=TRUE,fig.height=3.6}
+fit <- snaive(elec, lambda=1/3)
+autoplot(fit)
+```
+
+##Back-transformation
+
+```{r elec9,echo=TRUE,fig.height=4}
+autoplot(fit, include=120)
+```
+
+## Your turn
+
+Find a Box-Cox transformation that works for the `gas` data.
+
+## Bias adjustment
+
+  * Back-transformed point forecasts are medians.
+  * Back-transformed PI have the correct coverage.
+
+\pause
+
+**Back-transformed means**
+
+Let $X$ be have mean $\mu$ and variance $\sigma^2$.
+
+Let $f(x)$ be back-transformation function, and $Y=f(X)$.
+
+Taylor series expansion about $\mu$:
+$$
+f(X) = f(\mu) + (X-\mu)f'(\mu) + \frac{1}{2}(X-\mu)^2f''(\mu).$$\pause
+\begin{alertblock}{}
+\centerline{$\E[Y] = \E[f(X)] = f(\mu) + \frac12 \sigma^2[f''(\mu)]^2.$}
+\end{alertblock}
+
+## Bias adjustment
+
+\fontsize{13}{15}\sf
+
+**Box-Cox back-transformation:**\vspace*{-0.5cm}
+\begin{align*}
+y_t &= \left\{\begin{array}{ll}
+        \exp(w_t)      & \quad \lambda = 0; \\
+        (\lambda W_t+1)^{1/\lambda}  & \quad \lambda \ne 0.
+\end{array}\right. \\
+f(x) &= \begin{cases}
+                        e^x & \quad\lambda=0;\\
+ (\lambda x + 1)^{1/\lambda} & \quad\lambda\ne0.
+ \end{cases}\\
+f''(x) &= \begin{cases}
+                        e^x & \quad\lambda=0;\\
+ (1-\lambda)(\lambda x + 1)^{1/\lambda-2} & \quad\lambda\ne0.
+ \end{cases}
+\end{align*}\pause
+\begin{alertblock}{}
+\centerline{$\E[Y] = \begin{cases}
+                        e^\mu\left[1+\frac{\sigma^2}{2}\right] & \quad\lambda=0;\\
+ (\lambda \mu + 1)^{1/\lambda}\left[1+\frac{\sigma^2(1-\lambda)}{2(\lambda\mu+1)^2}\right] & \quad\lambda\ne0.
+ \end{cases}$}
+\end{alertblock}
+
+## Bias adjustment
+
+\fontsize{10}{10}\sf
+
+```{r biasadj, fig.height=3}
+fc <- rwf(eggs, drift=TRUE, lambda=0, h=50, level=80)
+fc2 <- rwf(eggs, drift=TRUE, lambda=0, h=50, level=80,
+  biasadj=TRUE)
+autoplot(eggs) +
+  autolayer(fc, series="Simple back transformation") +
+  autolayer(fc2$mean, series="Bias adjusted") +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+# Residual diagnostics
+
+## Fitted values
+
+ - $\hat{y}_{t|t-1}$ is the forecast of $y_t$ based on observations $y_1,\dots,y_t$.
+ - We call these "fitted values".
+ - Sometimes drop the subscript: $\hat{y}_t \equiv \hat{y}_{t|t-1}$.
+ - Often not true forecasts since parameters are estimated on all data.
+
+###For example:
+
+ - $\hat{y}_{t} = \bar{y}$ for average method.
+ - $\hat{y}_{t} = y_{t-1} + (y_{T}-y_1)/(T-1)$ for drift method.
+
+## Forecasting residuals
+
+\begin{block}{}
+\textbf{Residuals in forecasting:} difference between observed value and its fitted value: $e_t = y_t-\hat{y}_{t|t-1}$.
+\end{block}
+\pause\fontsize{13}{15}\sf
+
+\structure{Assumptions}
+
+  1. $\{e_t\}$ uncorrelated. If they aren't, then information left in  residuals that should be used in computing forecasts.
+  2. $\{e_t\}$ have mean zero. If they don't, then forecasts are biased.
+
+\pause
+
+\structure{Useful properties} (for prediction intervals)
+
+  3. $\{e_t\}$ have constant variance.
+  4. $\{e_t\}$ are normally distributed.
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj3, echo=TRUE}
+autoplot(goog200) +
+  xlab("Day") + ylab("Closing Price (US$)") +
+  ggtitle("Google Stock (daily ending 6 December 2013)")
+```
+
+## Example: Google stock price
+
+\structure{Na\"{\i}ve forecast:}
+
+\[\hat{y}_{t|t-1}= y_{t-1}\]\pause
+\[e_t = y_t-y_{t-1}\]\pause
+
+\begin{alertblock}{}
+Note: $e_t$ are one-step-forecast residuals
+\end{alertblock}
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj4, echo=TRUE, warning=FALSE}
+fits <- fitted(naive(goog200))
+autoplot(goog200, series="Data") +
+  autolayer(fits, series="Fitted") +
+  xlab("Day") + ylab("Closing Price (US$)") +
+  ggtitle("Google Stock (daily ending 6 December 2013)")
+```
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj5, echo=TRUE}
+res <- residuals(naive(goog200))
+autoplot(res) + xlab("Day") + ylab("") +
+  ggtitle("Residuals from naïve method")
+```
+
+## Example: Google stock price
+\fontsize{11}{11}\sf
+
+```{r dj6, warning=FALSE}
+gghistogram(res, add.normal=TRUE) +
+  ggtitle("Histogram of residuals")
+```
+
+## Example: Google stock price
+\fontsize{11}{11}\sf
+
+```{r dj7}
+ggAcf(res) + ggtitle("ACF of residuals")
+```
+
+## ACF of residuals
+
+  * We assume that the residuals are white noise (uncorrelated, mean zero, constant variance). If they aren't, then there is information left in  the residuals that should be used in computing forecasts.
+
+  * So a standard residual diagnostic is to check the ACF of the residuals of a forecasting method.
+
+  * We \emph{expect} these to look like white noise.
+
+## Portmanteau tests
+
+Consider a \textit{whole set} of $r_{k}$  values, and develop a test to see whether the set is significantly different from a zero set.\pause
+
+\begin{block}{Box-Pierce test\phantom{g}}
+\centerline{$\displaystyle
+Q = T \sum_{k=1}^h r_k^2$}
+where $h$  is max lag being considered and $T$ is number of observations.
+\end{block}
+
+  * If each $r_k$ close to zero, $Q$ will be **small**.
+  * If some $r_k$ values large (positive or negative), $Q$ will be **large**.
+
+## Portmanteau tests
+
+Consider a \textit{whole set} of $r_{k}$  values, and develop a test to see whether the set is significantly different from a zero set.
+
+\begin{block}{Ljung-Box test}
+\centerline{$\displaystyle
+ Q^* = T(T+2) \sum_{k=1}^h (T-k)^{-1}r_k^2$}
+where $h$  is max lag being considered and $T$ is number of observations.
+\end{block}
+
+  * My preferences: $h=10$ for non-seasonal data, $h=2m$ for seasonal data.
+  * Better performance, especially in small samples.
+
+\vspace*{10cm}
+
+## Portmanteau tests
+\fontsize{13}{15}\sf
+
+  * If data are WN, $Q^*$ has $\chi^2$ distribution with  $(h - K)$ degrees of freedom where $K=$ no.\ parameters in model.
+  * When applied to raw data, set $K=0$.
+  * For the Google example:
+
+\fontsize{11}{12}\sf
+
+```{r dj9, echo=TRUE}
+# lag=h and fitdf=K
+Box.test(res, lag=10, fitdf=0, type="Lj")
+```
+
+## `checkresiduals` function
+
+```{r dj10, echo=TRUE, fig.height=4}
+checkresiduals(naive(goog200))
+```
+
+## `checkresiduals` function
+
+```{r dj11, echo=FALSE}
+object <- naive(goog200)
+main <- paste("Residuals from", object$method)
+res <- residuals(object)
+# Do Ljung-Box test
+      LBtest <- Box.test(zoo::na.approx(res), fitdf=0, lag=10, type="Ljung")
+      LBtest$method <- "Ljung-Box test"
+      LBtest$data.name <- main
+      names(LBtest$statistic) <- "Q*"
+      print(LBtest)
+      cat(paste("Model df: ",0,".   Total lags used: ",10,"\n\n",sep=""))
+```
+
+## Your turn
+
+Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
+
+```r
+beer <- window(ausbeer, start=1992)
+fc <- snaive(beer)
+autoplot(fc)
+```
+
+Test if the residuals are white noise.
+
+```r
+checkresiduals(fc)
+```
+What do you conclude?
+
+# Evaluating forecast accuracy
+
+## Training and test sets
+
+```{r traintest, fig.height=1, echo=FALSE, cache=TRUE}
+train = 1:18
+test = 19:24
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+arrows(0,0.5,25,0.5,0.05)
+points(train, train*0+0.5, pch=19, col="blue")
+points(test,  test*0+0.5,  pch=19, col="red")
+text(26,0.5,"time")
+text(10,1,"Training data",col="blue")
+text(21,1,"Test data",col="red")
+```
+
+-   A model which fits the training data well will not necessarily forecast well.
+-   A perfect fit can always be obtained by using a model with enough parameters.
+-   Over-fitting a model to data is just as bad as failing to identify a systematic pattern in the data.
+  * The test set must not be used for \emph{any} aspect of model development or calculation of forecasts.
+  * Forecast accuracy is based only on the test set.
+
+## Forecast errors
+
+Forecast "error": the difference between an observed value and its forecast.
+$$
+  e_{T+h} = y_{T+h} - \hat{y}_{T+h|T},
+$$
+where the training data is given by $\{y_1,\dots,y_T\}$
+
+- Unlike residuals, forecast errors on the test set involve multi-step forecasts.
+- These are *true* forecast errors as the test data is not used in computing $\hat{y}_{T+h|T}$.
+
+## Measures of forecast accuracy
+
+```{r beeraccuracy, echo=FALSE, fig.height=4}
+beer2 <- window(ausbeer,start=1992,end=c(2007,4))
+beerfit1 <- meanf(beer2,h=10)
+beerfit2 <- rwf(beer2,h=10)
+beerfit3 <- snaive(beer2,h=10)
+tmp <- cbind(Data=window(ausbeer, start=1992),
+             Mean=beerfit1$mean,
+             Naive=beerfit2$mean,
+             SeasonalNaive=beerfit3$mean)
+autoplot(tmp) + xlab("Year") + ylab("Megalitres") +
+  ggtitle("Forecasts for quarterly beer production") +
+  scale_color_manual(values=c('#000000','#1b9e77','#d95f02','#7570b3'),
+                     breaks=c("Mean","Naive","SeasonalNaive"),
+                     name="Forecast Method")
+```
+
+## Measures of forecast accuracy
+
+\begin{tabular}{rl}
+$y_{T+h}=$ & $(T+h)$th observation, $h=1,\dots,H$ \\
+$\pred{y}{T+h}{T}=$ & its forecast based on data up to time $T$. \\
+$e_{T+h} =$  & $y_{T+h} - \pred{y}{T+h}{T}$
+\end{tabular}\vspace*{0.3cm}
+
+\begin{align*}
+\text{MAE} &= \text{mean}(|e_{T+h}|) \\[-0.2cm]
+\text{MSE} &= \text{mean}(e_{T+h}^2) \qquad
+&&\text{RMSE} &= \sqrt{\text{mean}(e_{T+h}^2)} \\[-0.1cm]
+\text{MAPE} &= 100\text{mean}(|e_{T+h}|/ |y_{T+h}|)
+\end{align*}\pause\vspace*{0.3cm}
+
+  * MAE, MSE, RMSE are all scale dependent.
+  * MAPE is scale independent but is only sensible if $y_t\gg 0$ for all $t$, and $y$ has a natural zero.
+
+## Measures of forecast accuracy
+
+\begin{block}{Mean Absolute Scaled Error}
+$$
+\text{MASE} = \text{mean}(|e_{T+h}|/Q)
+$$
+where $Q$ is a stable measure of the scale of the time series $\{y_t\}$.
+\end{block}
+Proposed by Hyndman and Koehler (IJF, 2006).
+
+For non-seasonal time series,
+$$
+  Q = (T-1)^{-1}\sum_{t=2}^T |y_t-y_{t-1}|
+$$
+works well. Then MASE is equivalent to MAE relative to a naïve method.
+
+\vspace*{10cm}
+
+## Measures of forecast accuracy
+
+\begin{block}{Mean Absolute Scaled Error}
+$$
+\text{MASE} = \text{mean}(|e_{T+h}|/Q)
+$$
+where $Q$ is a stable measure of the scale of the time series $\{y_t\}$.
+\end{block}
+Proposed by Hyndman and Koehler (IJF, 2006).
+
+For seasonal time series,
+$$
+  Q = (T-m)^{-1}\sum_{t=m+1}^T |y_t-y_{t-m}|
+$$
+works well. Then MASE is equivalent to MAE relative to a seasonal naïve method.
+
+\vspace*{10cm}
+
+## Measures of forecast accuracy
+
+```{r beeraccuracyagain, echo=FALSE, fig.height=4}
+autoplot(tmp) + xlab("Year") + ylab("Megalitres") +
+  ggtitle("Forecasts for quarterly beer production") +
+  scale_color_manual(values=c('#000000','#1b9e77','#d95f02','#7570b3'),
+                     breaks=c("Mean","Naive","SeasonalNaive"),
+                     name="Forecast Method")
+```
+
+## Measures of forecast accuracy
+\fontsize{11}{11}\sf
+
+```r
+beer2 <- window(ausbeer, start=1992, end=c(2007,4))
+beer3 <- window(ausbeer, start=2008)
+beerfit1 <- meanf(beer2, h=10)
+beerfit2 <- rwf(beer2, h=10)
+beerfit3 <- snaive(beer2, h=10)
+accuracy(beerfit1, beer3)
+accuracy(beerfit2, beer3)
+accuracy(beerfit3, beer3)
+```
+
+\fontsize{13}{15}\sf
+
+```{r beertable, echo=FALSE}
+beer3 <- window(ausbeer, start=2008)
+tab <- matrix(NA,ncol=4,nrow=3)
+tab[1,] <- accuracy(beerfit1, beer3)[2,c(2,3,5,6)]
+tab[2,] <- accuracy(beerfit2, beer3)[2,c(2,3,5,6)]
+tab[3,] <- accuracy(beerfit3, beer3)[2,c(2,3,5,6)]
+colnames(tab) <- c("RMSE","MAE","MAPE","MASE")
+rownames(tab) <- c("Mean method", "Naïve method", "Seasonal naïve method")
+knitr::kable(tab, digits=2)
+```
+
+## Poll: true or false?
+
+  1. Good forecast methods should have normally distributed residuals.
+  2. A model with small residuals will give good forecasts.
+  3. The best measure of forecast accuracy is MAPE.
+  4. If your model doesn't forecast well, you should make it more complicated.
+  5. Always choose the model with the best forecast accuracy as measured on the test set.
+
+##Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest2, fig.height=1, echo=FALSE, cache=TRUE}
+train = 1:18
+test = 19:24
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+arrows(0,0.5,25,0.5,0.05)
+points(train, train*0+0.5, pch=19, col="blue")
+points(test,  test*0+0.5,  pch=19, col="red")
+text(26,0.5,"time")
+text(10,1,"Training data",col="blue")
+text(21,1,"Test data",col="red")
+```
+
+\vspace*{10cm}
+
+##Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest3, fig.height=1, echo=FALSE, cache=TRUE}
+train = 1:18
+test = 19:24
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+arrows(0,0.5,25,0.5,0.05)
+points(train, train*0+0.5, pch=19, col="blue")
+points(test,  test*0+0.5,  pch=19, col="red")
+text(26,0.5,"time")
+text(10,1,"Training data",col="blue")
+text(21,1,"Test data",col="red")
+```
+
+**Time series cross-validation**
+
+```{r cv1, cache=TRUE, echo=FALSE, fig.height=4}
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,28),ylim=c(0,1),
+       xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+i <- 1
+for(j in 1:10)
+{
+  test <- (16+j):26
+  train <- 1:(15+j)
+  arrows(0,1-j/20,27,1-j/20,0.05)
+  points(train,rep(1-j/20,length(train)),pch=19,col="blue")
+  if(length(test) >= i)
+    points(test[i], 1-j/20, pch=19, col="red")
+  if(length(test) >= i)
+    points(test[-i], rep(1-j/20,length(test)-1), pch=19, col="gray")
+  else
+    points(test, rep(1-j/20,length(test)), pch=19, col="gray")
+}
+text(28,.95,"time")
+```
+
+\pause
+
+ * Forecast accuracy averaged over test sets.
+ * Also known as "evaluation on a rolling forecasting origin"
+
+ \vspace*{10cm}
+
+## tsCV function:
+
+\small
+
+```{r tscv, cache=TRUE}
+e <- tsCV(goog200, rwf, drift=TRUE, h=1)
+sqrt(mean(e^2, na.rm=TRUE))
+sqrt(mean(residuals(rwf(goog200, drift=TRUE))^2,
+                                     na.rm=TRUE))
+```
+
+A good way to choose the best forecasting model is to find the model with the smallest RMSE computed using time series cross-validation.
+
+## Pipe function
+
+\fontsize{12}{15}\sf
+
+Ugly code:
+```r
+e <- tsCV(goog200, rwf, drift=TRUE, h=1)
+sqrt(mean(e^2, na.rm=TRUE))
+sqrt(mean(residuals(rwf(goog200, drift=TRUE))^2,
+                                     na.rm=TRUE))
+```
+
+Better with a pipe:
+
+```r
+goog200 %>%
+  tsCV(forecastfunction=rwf, drift=TRUE, h=1) -> e
+e^2 %>% mean(na.rm=TRUE) %>% sqrt
+goog200 %>% rwf(drift=TRUE) %>% residuals -> res
+res^2 %>% mean(na.rm=TRUE) %>% sqrt
+```
+
+# Prediction intervals
+
+## Prediction intervals
+
+ * A forecast $\hat{y}_{T+h|T}$ is (usually) the mean of the conditional distribution $y_{T+h} \mid y_1, \dots, y_{T}$.
+ * A prediction interval gives a region within which we expect $y_{T+h}$ to lie with a specified probability.
+ * Assuming forecast errors are normally distributed, then a 95% PI is
+ \begin{alertblock}{}
+\centerline{$
+  \hat{y}_{T+h|T} \pm 1.96 \hat\sigma_h
+$}
+\end{alertblock}
+where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
+
+ * When $h=1$, $\hat\sigma_h$ can be estimated from the residuals.
+
+## Prediction intervals
+
+\small
+
+**Naive forecast with prediction interval:**
+
+```{r djpi, echo=TRUE, cache=TRUE}
+res_sd <- sqrt(mean(res^2, na.rm=TRUE))
+c(tail(goog200,1)) + 1.96 * res_sd * c(-1,1)
+```
+
+```{r djforecasts, echo=TRUE, cache=TRUE}
+naive(goog200, level=95)
+```
+
+## Prediction intervals
+
+ * Point forecasts are often useless without prediction intervals.
+ * Prediction intervals require a stochastic model (with random errors, etc).
+ * Multi-step forecasts for time series require a more sophisticated approach (with PI getting wider as the forecast horizon increases).
+
+## Prediction intervals
+
+\fontsize{14}{18}\sf
+
+Assume residuals are normal, uncorrelated, sd = $\hat\sigma$:
+
+\begin{block}{}
+\begin{tabular}{ll}
+\bf Mean forecasts: & $\hat\sigma_h = \hat\sigma\sqrt{1 + 1/T}$\\[0.2cm]
+\bf Naïve forecasts: & $\hat\sigma_h = \hat\sigma\sqrt{h}$\\[0.2cm]
+\bf Seasonal naïve forecasts & $\hat\sigma_h = \hat\sigma\sqrt{\lfloor (h-1)/m \rfloor + 1}$\\[0.2cm]
+\bf Drift forecasts: & $\hat\sigma_h = \hat\sigma\sqrt{h(1+h/T)}$.
+\end{tabular}
+\end{block}
+
+Note that when $h=1$ and $T$ is large, these all give the same approximate value $\hat\sigma$.
+
+## Prediction intervals
+
+  * Computed automatically using: `naive()`, `snaive()`, `rwf()`, `meanf()`, etc.
+  * Use `level` argument to control coverage.
+  * Check residual assumptions before believing them.
+  * Usually too narrow due to unaccounted uncertainty.

@@ -1,0 +1,485 @@
+---
+title: "ETC3550: Applied forecasting for business and economics"
+author: "Ch6. Time series decomposition"
+date: "OTexts.org/fpp2/"
+fontsize: 14pt
+output:
+  beamer_presentation:
+    fig_width: 7
+    fig_height: 3.5
+    highlight: tango
+    theme: metropolis
+    keep_tex: true
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
+library(fpp2)
+options(width=60)
+```
+
+#Time series components
+
+##Time series patterns
+
+**Recall**
+
+Trend
+:  pattern exists when there is a long-term increase or decrease in the data.
+
+Cyclic
+: pattern exists when data exhibit rises and falls that are *not of fixed period* (duration usually of at least 2 years).
+
+Seasonal
+: pattern exists when a series is influenced by seasonal factors (e.g., the quarter of the year, the month, or day of the week).
+
+##Time series decomposition
+
+\begin{block}{}\vspace*{-0.3cm}
+\[ y_t = f(S_t, T_t, R_t) \]
+\end{block}
+\begin{tabular}{@{}llp{8cm}@{}}
+where & $y_t=$ & data at period $t$ \\
+      & $T_t=$ & trend-cycle component at period $t$\\
+      & $S_t=$ & seasonal component at period $t$ \\
+      & $R_t=$ & remainder component at period $t$
+\end{tabular}
+\pause
+
+**Additive decomposition:** $y_t = S_t + T_t + R_t.$
+
+**Multiplicative decomposition:** $y_t = S_t \times T_t \times R_t.$
+
+##Time series decomposition
+
+  *  Additive model  appropriate if  magnitude of  seasonal fluctuations does not vary with level.
+  *  If seasonal are proportional to level of series, then multiplicative model appropriate.
+  *  Multiplicative decomposition more prevalent with economic series
+  *  Alternative: use a Box-Cox transformation, and then use additive decomposition.
+  *  Logs turn multiplicative relationship into an additive relationship:
+
+$$y_t = S_t \times T_t \times E_t \quad\Rightarrow\quad
+\log y_t = \log S_t + \log T_t + \log R_t.
+$$
+
+##Euro electrical equipment
+
+\fontsize{11}{14}\sf
+
+```{r elecequip-stl, fig.width=8, fig.height=4.3}
+fit <- stl(elecequip, s.window=7)
+autoplot(fit) + xlab("Year")
+```
+
+##Euro electrical equipment
+
+```{r elecequip3}
+ggsubseriesplot(seasonal(fit))
+```
+
+##Euro electrical equipment
+
+\fontsize{11}{13}\sf
+
+```{r elecequip-trend}
+autoplot(elecequip, series="Data") +
+  autolayer(trendcycle(fit), series="Trend-cycle")
+```
+
+##Helper functions
+  * `seasonal()` extracts the seasonal component
+  * `trendcycle()` extracts the trend-cycle component
+  * `remainder()` extracts the remainder component.
+  * `seasadj()` returns the seasonally adjusted series.
+
+## Your turn
+
+Repeat the decomposition using
+
+```r
+elecequip %>%
+  stl(s.window=7, t.window=11) %>%
+  autoplot()
+```
+
+What happens as you change `s.window` and `t.window`?
+
+# Seasonal adjustment
+
+##Seasonal adjustment
+
+  *  Useful by-product of decomposition:  an easy way to calculate seasonally adjusted data.
+  *  Additive decomposition: seasonally adjusted data given by
+$$y_t - S_t = T_t + R_t$$
+  *  Multiplicative decomposition: seasonally adjusted data given by
+$$y_t / S_t = T_t \times R_t$$
+
+##Euro electrical equipment
+
+\fontsize{11}{15}\sf
+
+```r
+fit <- stl(elecequip, s.window=7)
+autoplot(elecequip, series="Data") +
+  autolayer(seasadj(fit), series="Seasonally Adjusted")
+```
+
+```{r elecequip-sa, echo=FALSE}
+autoplot(elecequip, series="Data") +
+  autolayer(seasadj(fit), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("New orders index") +
+  ggtitle("Electrical equipment manufacturing (Euro area)") +
+  scale_colour_manual(values=c("gray","blue"),
+                     breaks=c("Data","Seasonally Adjusted"))
+```
+
+##Seasonal adjustment
+
+  * We use estimates of $S$ based on past values to seasonally adjust a current value.
+  *  Seasonally adjusted  series reflect **remainders** as well as **trend**. Therefore they are not "smooth"" and "downturns"" or "upturns" can be misleading.
+  *  It is better to use the trend-cycle component to look for turning points.
+
+##The ABS stuff-up
+
+\fullheight{abs1}
+
+##The ABS stuff-up
+
+\fullheight{abs2}
+
+##The ABS stuff-up
+
+\fullheight{abs3}
+
+##The ABS stuff-up
+
+\fontsize{11}{14}\sf
+
+```{r abs, echo=FALSE, fig.width=6, fig.height=4}
+x <- ts(c(5985.7,6040.6,6054.2,6038.3,6031.3,6036.1,6005.4,6024.3,6045.9,6033.8,6125.4,5971.3,
+  6050.7,6096.2,6087.7,6075.6,6095.7,6103.9,6078.5,6157.8,6164.0,6188.8,6257.2,6112.9,
+  6207.2,6278.7,6224.9,6273.4,6269.9,6314.1,6281.4,6360.0,6320.2,6342.0,6426.6,6253.0,
+  6356.5,6428.1,6426.3,6412.4,6413.9,6425.3,6393.7,6502.7,6445.3,6433.3,6506.9,6355.5,
+  6432.4,6497.4,6431.6,6440.9,6414.3,6425.9,6379.3,6443.5,6421.1,6366.8,6370.1,6172.0,
+  6263.9,6310.3,6254.5,6272.8,6266.5,6295.0,6241.2,6358.2,6336.1,6377.5,6456.5,6251.4,
+  6365.4,6503.2,6477.6,6489.7,6499.0,6528.7,6466.1,6579.8,6553.2,6576.1,6636.0,6452.4,
+  6595.7,6657.4,6588.8,6657.9,6659.4,6703.4,6675.5,6814.7,6771.1,6881.9,6910.8,6753.6,
+  6861.9,6961.9,6997.9,6979.0,7007.7,6991.5,6918.5,7040.6,7030.4,7034.2,7116.8,6902.5,
+  7022.3,7133.4,7109.6,7103.5,7128.9,7175.6,7092.3,7186.5,7177.4,7182.2,7330.7,7169.4,
+  7247.3,7397.4,7383.4,7354.8,7378.3,7383.1,7353.3,7503.2,7477.3,7508.6,7622.9,7423.8,
+  7566.5,7634.6,7678.4,7720.8,7711.0,7740.8,7715.3,7841.6,7806.5,7862.4,7935.5,7707.7,
+  7803.0,7874.1,7887.9,7908.5,7900.3,7919.4,7808.0,7905.5,7848.9,7826.9,7915.5,7641.3,
+  7708.7,7715.4,7717.2,7703.7,7678.1,7583.0,7620.7,7713.2,7638.0,7614.9,7712.2,7518.9,
+  7597.2,7646.2,7644.1,7631.4,7637.3,7668.3,7613.4,7709.7,7665.7,7587.4,7693.4,7533.7,
+  7531.0,7645.7,7572.6,7620.5,7627.9,7646.5,7589.4,7747.6,7738.8,7744.9,7842.1,7646.8,
+  7738.6,7824.2,7827.4,7857.9,7878.4,7966.0,7861.7,8054.4,7997.2,8003.3,8135.5,7928.4,
+  8049.9,8118.1,8174.6,8165.2,8205.6,8229.0,8165.9,8300.4,8232.6,8300.3,8395.7,8166.7,
+  8246.6,8280.4,8248.0,8297.1,8311.7,8332.1,8265.9,8373.0,8319.4,8314.4,8431.4,8235.2,
+  8291.4,8347.5,8343.1,8330.2,8345.6,8374.9,8250.3,8474.0,8405.2,8462.1,8540.5,8334.7,
+  8413.0,8460.0,8499.9,8482.5,8516.8,8541.9,8455.2,8653.2,8601.0,8554.3,8696.5,8477.4,
+  8556.5,8618.9,8631.9,8606.5,8673.2,8706.7,8603.6,8777.1,8755.3,8763.7,8900.7,8628.2,
+  8754.4,8830.7,8882.2,8865.0,8922.0,9020.0,8911.6,9061.3,8973.1,8912.7,9059.6,8834.9,
+  8920.9,8956.0,9023.6,9004.6,9021.9,9048.9,8971.9,9105.9,9058.7,9055.6,9177.1,8993.4,
+  9092.3,9128.5,9129.5,9134.7,9180.8,9194.5,9150.3,9303.5,9249.1,9286.7,9439.7,9281.7,
+  9372.6,9362.1,9365.6,9380.1,9370.4,9363.9,9327.0,9486.1,9447.8,9427.7,9573.6,9363.8,
+  9434.5,9506.4,9512.0,9533.5,9543.3,9553.1,9462.1,9668.6,9662.2,9652.9,9807.8,9634.4,
+  9744.6,9828.3,9856.3,9850.8,9896.6,9912.3,9870.3,10004.6,9949.7,9945.0,10074.7,9842.7,
+  9961.1,10048.7,10041.0,10082.1,10120.8,10170.8,10105.8,10299.5,10212.4,10201.6,10404.3,
+  10156.1,10277.0,10349.2,10362.9,10412.0,10436.3,10456.8,10406.4,10588.8,10520.5,10535.0,
+  10710.1,10524.9,10622.9,10677.4,10706.2,10690.3,10745.0,10761.9,10710.4,10854.5,10807.4,
+  10757.3,10915.6,10681.0,10776.7,10775.2,10792.7,10786.8,10770.9,10808.8,10707.3,10882.1,
+  10845.2,10829.2,11010.9,10809.9,10889.2,10928.9,10940.1,10957.4,11009.3,11030.5,10973.8,
+  11159.4,11129.0,11144.5,11295.0,11063.7,11146.2,11217.0,11186.5,11196.2,11221.3,11227.5,
+  11130.7,11321.2,11274.0,11240.6,11354.8,11159.0,11236.2,11332.4,11328.3,11389.0,11350.6,
+  11363.7,11259.8,11452.6,11401.9,11375.0,11518.4,11304.0,11424.3,11436.3,11482.2,11495.6,
+  11497.8,11486,11369,11547,11499,11472,11571,11354,11493,11562,11589,11595,11602,11590,
+  11622,11593), freq=12, start=c(1978,2))
+
+autoplot(x) +
+  ggtitle("Total employed") +
+  ylab("Thousands") + xlab("Year")
+```
+
+## The ABS stuff-up
+
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+autoplot(window(x, start=c(2005,1))) +
+  ggtitle("Total employed") +
+  ylab("Thousands") + xlab("Year")
+```
+
+##The ABS stuff-up
+
+\fontsize{10}{14}\sf
+
+```{r}
+ggseasonplot(window(x,start=c(2005,1)), year.labels=TRUE) +
+  ggtitle("Total employed") + ylab("Thousands")
+```
+
+##The ABS stuff-up
+
+```{r, fig.height=2, echo=FALSE}
+aug <- x[seq(7,440,by=12)]
+sep <- x[seq(8,440,by=12)]
+ggplot(data.frame(diff=sep-aug, x=rep(1,length(aug)))) +
+  geom_boxplot(aes(y=diff,x=1)) + coord_flip() +
+  ggtitle("Sep - Aug: total employed") + xlab("") + ylab("Thousands") +
+  scale_x_continuous(breaks=NULL, labels=NULL)
+```
+
+##The ABS stuff-up
+
+\fontsize{11}{14}\sf
+
+```{r, fig.height=3.5}
+x %>% window(start=2009) %>%
+ stl(s.window=11, robust=TRUE) -> fit
+autoplot(fit)
+```
+
+##The ABS stuff-up
+
+```{r, echo=FALSE}
+ggseasonplot(window(fit$time.series[,'seasonal'],start=2013,end=2013.999),
+             year.labels=FALSE) +
+  ggtitle("Seasonal component") +
+  guides(colour="none")
+```
+
+##The ABS stuff-up
+
+```{r}
+autoplot(seasadj(fit))
+```
+
+##The ABS stuff-up
+\fontsize{13}{15}\sf
+
+  *  August 2014 employment numbers higher than expected.
+  *  Supplementary survey usually conducted in August for employed people.
+  *  Most likely, some employed people were claiming to be unemployed in August to avoid supplementary questions.
+  *  Supplementary survey not run in 2014, so no motivation to lie about employment.
+  *  In previous years, seasonal adjustment fixed the problem.
+  *  The ABS has now adopted a new method to avoid the bias.
+
+##History of time series decomposition
+
+\fontsize{13}{15}\sf
+
+  *  Classical method originated in 1920s.
+  *  Census II method introduced in 1957. Basis for X-11 method and variants (including X-12-ARIMA, X-13-ARIMA)
+  *  STL method introduced in 1983
+  *  TRAMO/SEATS introduced in 1990s.
+\pause
+
+### National Statistics Offices
+ * ABS uses X-12-ARIMA
+ * US Census Bureau uses X-13-ARIMA-SEATS
+ * Statistics Canada uses X-12-ARIMA
+ * ONS (UK) uses X-12-ARIMA
+ * EuroStat use X-13-ARIMA-SEATS
+
+#X-11 decomposition
+
+##X-11 decomposition
+
+\fontsize{11}{14}\sf
+
+```r
+library(seasonal)
+fit <- seas(elecequip, x11="")
+autoplot(fit)
+```
+
+```{r x11, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4}
+library(seasonal)
+fit <- seas(elecequip, x11="")
+autoplot(fit) +
+  ggtitle("X11 decomposition of electrical equipment index")
+```
+
+## (Dis)advantages of X-11
+
+**Advantages**
+
+  *  Relatively robust to outliers
+  *  Completely automated choices for trend and seasonal changes
+  *  Very widely tested on economic data over a long period of time.
+
+\pause
+
+**Disadvantages**
+
+  *  No prediction/confidence intervals
+  *  Ad hoc method with no underlying model
+  *  Only developed for quarterly and monthly data
+
+##Extensions: X-12-ARIMA and X-13-ARIMA
+
+  *  The X-11, X-12-ARIMA and X-13-ARIMA methods are based on Census II decomposition.
+  *  These allow adjustments for trading days and other explanatory variables.
+  *  Known outliers can be omitted.
+  *  Level shifts and ramp effects can be modelled.
+  *  Missing values estimated and replaced.
+  *  Holiday factors (e.g., Easter, Labour Day) can be estimated.
+
+# SEATS decomposition
+
+## SEATS decomposition
+
+\fontsize{11}{14}\sf
+
+```r
+library(seasonal)
+fit <- seas(elecequip)
+autoplot(fit)
+```
+
+```{r seats, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4}
+library(seasonal)
+fit <- seas(elecequip)
+autoplot(fit) +
+  ggtitle("SEATS decomposition of electrical equipment index")
+```
+
+## SEATS decomposition
+
+```{r seats-seasadj, echo=FALSE, warning=FALSE}
+autoplot(elecequip, series="Data") +
+  autolayer(trendcycle(fit), series="Trend") +
+  autolayer(seasadj(fit), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("New orders index") +
+  ggtitle("Electrical equipment manufacturing (Euro area)") +
+  scale_colour_manual(values=c("gray","blue","red"),
+                     breaks=c("Data","Seasonally Adjusted","Trend"))
+```
+
+## SEATS decomposition
+
+\fontsize{11}{14}\sf
+
+```{r elecequip-seats, echo=TRUE}
+ggsubseriesplot(seasonal(fit)) + ylab("Seasonal")
+```
+
+## (Dis)advantages of SEATS
+
+**Advantages**
+
+  * Model-based
+  * Smooth trend estimate
+  * Allows estimates at end points
+  * Allows changing seasonality
+  * Developed for economic data
+
+\pause
+
+**Disadvantages**
+
+  *  Only developed for quarterly and monthly data
+
+#STL decomposition
+
+##STL decomposition
+
+\fontsize{13}{14}\sf
+
+  *  STL: "Seasonal and Trend decomposition using Loess"
+  *  Very versatile and robust.
+  *  Unlike X-12-ARIMA, STL will handle any type of seasonality.
+  *  Seasonal component allowed to change over time, and rate of change controlled by user.
+  *  Smoothness of trend-cycle also controlled by user.
+  *  Robust to outliers
+  *  Not trading day or calendar adjustments.
+  *  Only additive.
+  *  Take logs to get multiplicative decomposition.
+  *  Use Box-Cox transformations to get other decompositions.
+
+##STL decomposition
+
+\fontsize{10}{14}\sf
+
+```{r stlagain, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
+fit <- stl(elecequip, s.window=5, robust=TRUE)
+autoplot(fit) +
+  ggtitle("STL decomposition of electrical equipment index")
+```
+
+##STL decomposition
+
+\fontsize{10}{14}\sf
+
+```{r stlagain2, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
+fit <- stl(elecequip, s.window="periodic", robust=TRUE)
+autoplot(fit) +
+  ggtitle("STL decomposition of electrical equipment index")
+```
+
+##STL decomposition
+
+```r
+stl(elecequip,s.window=5)
+
+stl(elecequip, t.window=15,
+  s.window="periodic", robust=TRUE)
+```
+
+  *  `t.window` controls wiggliness of trend component.
+  *  `s.window` controls variation on seasonal component.
+
+## STL decomposition
+\fontsize{12}{14}\sf
+
+```{r mstl, fig.width=8, fig.height=4}
+elecequip %>% mstl() %>% autoplot()
+```
+
+* `mstl()` chooses `s.window=13`
+* Can include a `lambda` argument.
+
+#Forecasting and decomposition
+
+##Forecasting and decomposition
+
+  *  Forecast seasonal component by repeating the last year
+  *  Forecast seasonally adjusted data using non-seasonal time series method.
+  *  Combine forecasts of seasonal component with forecasts of seasonally adjusted data to get forecasts of original data.
+  *  Sometimes a decomposition is useful just for understanding the data before building a separate forecasting model.
+
+##Electrical equipment
+
+\fontsize{11}{14}\sf
+
+```{r elecequip4, echo=TRUE}
+fit <- stl(elecequip, t.window=13, s.window="periodic")
+fit %>% seasadj() %>% naive() %>%
+  autoplot() + ylab("New orders index") +
+  ggtitle("ETS forecasts of seasonally adjusted data")
+```
+
+##Electrical equipment
+
+\fontsize{10}{14}\sf
+
+```{r elecequip5, echo=TRUE}
+fit %>% forecast(method='naive') %>%
+  autoplot() + ylab("New orders index") + xlab("Year")
+```
+
+##Forecasting and decomposition
+
+\fontsize{11}{14}\sf
+
+```{r stlf}
+elecequip %>% stlf(method='naive') %>%
+  autoplot() + ylab("New orders index") + xlab("Year")
+```
+
+##Decomposition and prediction intervals
+
+  *  It is common to take the prediction intervals from the seasonally adjusted forecasts and modify them with the seasonal component.
+  *  This ignores the uncertainty in the seasonal component estimate.
+  *  It also ignores the uncertainty in the future seasonal pattern.

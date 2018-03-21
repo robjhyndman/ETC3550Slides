@@ -1,0 +1,146 @@
+---
+title: "ETC3550: Applied forecasting for business and economics"
+author: "&nbsp;"
+date: "&nbsp;"
+fontsize: 14pt
+output:
+  beamer_presentation:
+    fig_width: 8
+    fig_height: 5
+    highlight: tango
+    theme: metropolis
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
+library(fpp2)
+library(ggplot2)
+```
+
+## Contact details
+
+###Lecturer
+
+**Professor Rob Hyndman**
+
+  - Room E762, Menzies Building
+  - Email: Rob.Hyndman@monash.edu
+
+###Tutor
+
+**Puwasala Gamakumara**
+
+  - Email: Puwasala.Gamakumara@monash.edu
+
+## Brief bio
+
+  - Professor of Statistics, Monash University
+  - Editor-in-Chief, *International Journal of Forecasting*
+
+###How my forecasting methodology is used:
+   - Pharmaceutical Benefits Scheme
+   - Cancer incidence and mortality
+   - Electricity demand
+   - Ageing population
+   - Fertilizer sales
+
+\begin{textblock}{5.9}(6.6,8.2)\begin{alertblock}{}\Large robjhyndman.com\end{alertblock}\end{textblock}
+
+##Unit objectives
+
+  1. To obtain an understanding of common statistical methods used in business and economic forecasting.
+  2. To develop the computer skills required to forecast business and economic time series data;
+  3. To gain insights into the problems of implementing and operating large scale forecasting systems for use in business.
+
+### Teaching and learning approach
+
+Two 50 minute classes and a one 80 minute computer lab session each week for 12 weeks.
+
+## R
+
+\placefig{.4}{1.2}{width=6cm}{Rlogo}
+
+\placefig{7}{3.5}{width=5.5cm}{RStudio-Ball}
+\begin{textblock}{5.5}(7,3)\centerline{\structure{RStudio}}\end{textblock}
+
+## Key reference
+
+\begin{block}{}\bf
+\hangafter=1\hangindent=.3cm
+ {Hyndman, R.~J. \& Athanasopoulos, G. (2018) \emph{Forecasting: principles and practice}, 2nd edition}
+\end{block}\pause
+\begin{alertblock}{}\Large
+\centerline{\bf OTexts.org/fpp2/}
+\end{alertblock}
+
+\pause
+
+  * Free and online
+  * Data sets in associated R package `fpp2`
+  * R code for examples
+
+### Install required packages
+```
+install.packages("fpp2", dependencies=TRUE)
+```
+
+## Outline
+
+\hbox{\hspace*{-0.5cm}\begin{tabular}{rp{8cm}l}
+\toprule
+\textbf{Week} & \textbf{Topic} & \textbf{Chapter} \\
+\midrule
+1      & Introduction to forecasting and R    & 1 \\
+2      & Introduction to forecasting and R    & 2\\
+3      & Time series graphics \& decomposition & 3,6\\
+4--5   & Exponential smoothing       & 7  \\
+6--8   & Forecasting with ARIMA models  & 8 \\
+9--10 & Multiple regression and forecasting & 5 \\
+11     & Dynamic regression & 9 \\
+12 & Advanced methods & 11\\
+\bottomrule
+\end{tabular}}
+
+## Assessment
+
+  - Nine short weekly assignments, worth 2% or 4% each.
+  - One project due at the end of the semester, worth 20%.
+  - Exam (2 hours): 60%.
+
+\pause
+
+\begin{tabular}{lll}
+	\toprule
+	  \textbf{Task}  & \textbf{Due Date}     & \textbf{Value} \\
+  \midrule
+    Assignments    & Mon 11:59pm each week & 2 or 4\% each\\
+	  Project        & Fri 25 May            & 20\%           \\
+	  Final exam     & Official exam period  & 60\%           \\
+  \bottomrule
+\end{tabular}
+
+\pause
+
+  - Need at least 45\% for exam, and 50\% for total.
+
+## Moodle site
+
+  - Includes all lecture notes, handouts, assignments
+  - Forum for asking questions, etc.
+  - Assignment submissions
+
+## DataCamp
+
+\centerline{\includegraphics[width=12.8cm]{datacampR}}
+
+ * All students must complete this course by Monday 5 March.
+
+## DataCamp
+
+\centerline{\includegraphics[width=13cm]{datacampforecasting}}
+
+ * We will do one chapter at a time throughout the semester.
+
+

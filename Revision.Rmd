@@ -1,0 +1,282 @@
+---
+title: "ETC3550: Applied forecasting for business and economics"
+author: "Revision"
+date: "OTexts.org/fpp2/"
+fontsize: 14pt
+output:
+  beamer_presentation:
+    keep_tex: true
+    theme: metropolis
+    fig_height: 4.5
+    fig_width: 7
+    highlight: tango
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE,
+  dev.args=list(bg=grey(0.9), pointsize=11))
+library(fpp2)
+```
+
+
+# Some case studies
+
+## CASE STUDY 1: Paperware company
+
+\fontsize{11}{13}\sf
+
+\begin{textblock}{7.6}(0.2,1.5)
+\textbf{Problem:} Want forecasts of each of hundreds of
+items. Series can be stationary, trended or seasonal. They currently
+have a large forecasting program written in-house but it doesn't seem
+to produce sensible forecasts. They want me to tell them what is
+wrong and fix it.
+
+\textbf{Additional information}
+\begin{itemize}\itemsep=0cm\parskip=0cm
+  \item  Program  written in COBOL making numerical calculations limited. It is not possible to do any optimisation.
+  \item Their programmer has little experience in numerical computing.
+  \item They employ no statisticians and want the program to produce forecasts automatically.
+\end{itemize}
+\end{textblock}
+
+\placefig{8}{1.}{width=4.8cm}{tableware2}
+
+
+## CASE STUDY 1: Paperware company
+
+### Methods currently used
+A
+: 12 month average
+
+C
+: 6 month average
+
+E
+: straight line regression over last 12 months
+
+G
+: straight line regression over last 6 months
+
+H
+: average slope between last year's and this year's values.
+  (Equivalent to differencing at lag 12 and taking mean.)
+
+I
+: Same as H except over 6 months.
+
+K
+: I couldn't understand the explanation.
+
+
+## CASE STUDY 2: PBS
+
+\fontsize{13.5}{15.5}\sf
+
+  * In 2001: \$4.5 billion budget, under-forecasted by \$800 million.
+  * Thousands of products. Seasonal demand.
+  * Subject to covert marketing, volatile products, uncontrollable expenditure.
+  * Although monthly data available for 10 years, data are aggregated to annual values, and only the first three years are used in estimating the forecasts.
+  * All forecasts being done with the \texttt{FORECAST} function in MS-Excel!
+
+
+\begin{alertblock}<2>{}
+\textbf{Problem:} How to do the forecasting better?
+\end{alertblock}
+\vspace{5cm}
+
+
+## CASE STUDY 3: Car fleet company
+
+**Client:** One of Australia's largest car fleet companies
+
+**Problem:** how to forecast resale value of vehicles? How
+should this affect leasing and sales policies?
+
+\pause
+
+### Additional information
+ - They can provide a large amount of data on previous vehicles and their eventual resale values.
+ - The resale values are currently estimated by a group of specialists. They see me as a threat and do not cooperate.
+
+
+## CASE STUDY 4: Airline
+
+\fontsize{12}{14}\sf
+
+```{r, fig.height=3.5}
+autoplot(melsyd[,"Economy.Class"],
+  main="Economy class passengers: Melbourne-Sydney",
+  xlab="Year",ylab="Thousands")
+```
+
+
+
+## CASE STUDY 4: Airline
+
+**Problem:** how to forecast passenger traffic on major routes?
+
+### Additional information
+
+  * They can provide a large amount of data on previous routes.
+  * Traffic is affected by school holidays, special events such as
+the Grand Prix, advertising campaigns, competition behaviour, etc.
+  * They have a highly capable team of people who are able to do
+most of the computing.
+
+
+# Review of topics covered
+
+## 1. Introduction to forecasting and R
+
+ - `ts` objects
+ - seasonal periods
+ - frequency, start, end
+ - You don't have to write R code for the exam, but you do have to read R code.
+
+## 2. Time series graphics
+
+ - time plot
+ - season plot
+ - subseries plot
+ - lag plot
+ - ACF
+
+## 3. The forecasters' toolbox
+
+  - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE
+  - Training/test sets. Out-of-sample accuracy
+  - Problem of over-fitting.
+  - Time series cross-validation
+  - Box-Cox transformations to stabilize changing variance. Back-transformations after forecasting.
+  - Residual diagnostics: ACF, white noise, LB test.
+  - Simple methods: naive, seasonal naive, drift, \rlap{mean.}
+  - Simple models: Random walk (with drift).
+  - One-step prediction intervals based on RMSE
+
+## 6: Time series decomposition
+
+  - Describing a time series: seasonality, trend, cycles, changing variance, unusual features.
+  - Difference between seasonality and cyclicity
+  - Seasonal adjustment
+  - Classical decomposition: should know how to do
+  - Moving averages
+  - X-12-ARIMA and STL: should know how to interpret
+  - Advantages/disadvantages of each method
+  - Forecasting and decomposition
+
+
+## 7: Exponential smoothing
+
+  - Simple exponential smoothing.
+  - Holt's local trend method
+  - Damped trend methods
+  - Holt-Winters seasonal method (additive and multiplicative versions)
+  - ETS state space formulation
+  - Interpretation of `ets()` output in R.
+  - Computing forecasts by setting future $\varepsilon_t$ to 0.
+  - Assumptions for prediction intervals
+  - Formula sheet provided
+
+## 8: ARIMA models
+
+  - Stationarity.
+  - Differencing: first-differences and seasonal-differences. What to use when.
+  - Unit root tests: how to interpret results.
+  - White noise, random walk, AR($p$), MA($q$), ARMA($p$,$q$),
+        ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_s$.
+  - Backshift operator notation
+  - ACF, PACF.  Model identification.
+  - ARIMA models, Seasonal ARIMA models
+  - Order selection and goodness of fit (AICc)
+
+## 8: ARIMA models (cont'd)
+
+  - Expanding out an ARIMA model for forecasting
+  - Finding point forecasts for given ARIMA process
+  - Assumptions for prediction intervals
+  - One-step prediction intervals based on RMSE
+  - Effect of differencing on forecasts.
+  - Effect of a constant on forecasts.
+  - ARIMA vs ETS
+
+
+## 5: Multiple regression
+
+  - Interpretation of coefficients as marginal effects (taking account of the effect of all other predictors in the model)
+  - Residual diagnostics: scatterplots of residuals vs predictors and residuals vs fitted values.
+  - Dummy variables, seasonal dummies, piecewise linear trends, interventions
+  - AIC, AICc, BIC, $R^2$, adjusted $R^2$
+  - Matrix formulation
+  - Multicollinearity
+  - Interpretation of R output.
+
+## 9: Dynamic regression models
+
+  - Regression with ARMA errors
+  - Using lagged predictors
+  - Difference between regression residuals and ARIMA residuals.
+  - When estimating, need to difference all variables if errors non-stationary
+  - Problems with OLS and autocorrelated errors
+  - Forecasting for regression models with ARMA errors
+
+# Exam
+
+## Exam
+
+  - Five questions, all to be attempted.
+
+  - Q1: Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required.
+  - Q2: Describing a time series, choosing a forecasting method
+  - Q3: ETS models
+  - Q4: ARIMA model
+  - Q5: Regression or dynamic regression.
+
+  - Formula page as for ETC2450 2016.
+
+## Exam
+
+**Preparing for the exam**
+
+  - 2014, 2015 and 2016 exams from ETC2450 to be put on Moodle with solutions.
+  - Exercises on Exercise sheets.  Make sure you have done them all!
+  - Identify your weak points and practice them.
+  - Write your own summary of the material covered.
+  - Practice explaining the material to a class-mate.
+
+\pause
+
+###Help available
+See Earo in first instance.
+
+
+
+## Useful resources for forecasters
+
+**Organization:**
+
+ * International Institute of Forecasters.
+
+**Annual Conference:**
+
+ * International Symposium on Forecasting, Cairns.
+   June 2017.
+
+**Journals:**
+
+ * International Journal of Forecasting
+ * Foresight
+
+###
+Links to all of the above at **www.forecasters.org**
+
+
+
+## Happy forecasting
+
+###
+Good forecasters are not smarter than everyone else, they merely have their ignorance better organised.
+
+
