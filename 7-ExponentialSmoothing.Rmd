@@ -9,16 +9,13 @@ output:
     fig_height: 3.5
     highlight: tango
     theme: metropolis
-    keep_tex: true
     includes:
       in_header: header.tex
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
-library(fpp)
-library(ggplot2)
-library(magrittr)
+library(fpp2)
 source("nicefigs.R")
 ```
 

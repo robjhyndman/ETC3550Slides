@@ -9,7 +9,6 @@ output:
     fig_height: 3.5
     highlight: tango
     theme: metropolis
-    keep_tex: true
     includes:
       in_header: header.tex
 ---
@@ -152,7 +151,7 @@ autoplot(a10) + ylab("$ million") + xlab("Year") +
 \fontsize{12}{14}\sf
 
 ```{r maxtemp}
-autoplot(elecdaily[,"Temperature"]) + 
+autoplot(elecdaily[,"Temperature"]) +
   xlab("Week") + ylab("Max temperature")
 ```
 
@@ -161,7 +160,7 @@ autoplot(elecdaily[,"Temperature"]) +
 \fontsize{12}{14}\sf
 
 ```{r maxtemp2, warning=FALSE, message=FALSE}
-qplot(time(elecdaily), elecdaily[,"Temperature"]) + 
+qplot(time(elecdaily), elecdaily[,"Temperature"]) +
   xlab("Week") + ylab("Max temperature")
 ```
 
@@ -177,7 +176,7 @@ data.frame(
       low = "navy",
       mid = "yellow",
      high = "red", midpoint=28) +
-    ylab("") + scale_y_discrete(expand=c(0,0)) 
+    ylab("") + scale_y_discrete(expand=c(0,0))
 ```
 
 

@@ -5,7 +5,7 @@ date: "OTexts.org/fpp2/"
 fontsize: 14pt
 output:
   beamer_presentation:
-    keep_tex: true
+    keep_tex: no
     theme: metropolis
     fig_height: 4.5
     fig_width: 7

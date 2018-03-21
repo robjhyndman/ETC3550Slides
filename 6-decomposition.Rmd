@@ -9,7 +9,6 @@ output:
     fig_height: 3.5
     highlight: tango
     theme: metropolis
-    keep_tex: true
     includes:
       in_header: header.tex
 ---

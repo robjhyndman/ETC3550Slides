@@ -9,7 +9,6 @@ output:
     fig_height: 3.5
     highlight: tango
     theme: metropolis
-    keep_tex: true
     includes:
       in_header: header.tex
 ---
@@ -84,9 +83,9 @@ where $n_t$ is an ARMA process.
 \end{block}
 
 
-  * All variables in the model must be stationary. 
-  * If we estimate the model while any of these are non-stationary, the estimated coefficients can be incorrect. 
-  * Difference variables until all stationary. 
+  * All variables in the model must be stationary.
+  * If we estimate the model while any of these are non-stationary, the estimated coefficients can be incorrect.
+  * Difference variables until all stationary.
   * If necessary, apply same differencing to all variables.
 
 
@@ -150,7 +149,7 @@ y'_t &= \beta_1 x'_{1,t} + \dots + \beta_k x'_{k,t} + n'_t.\\
 ## US personal consumption and income
 
 ```{r usconsump}
-autoplot(uschange, facets=TRUE) + 
+autoplot(uschange, facets=TRUE) +
   xlab("Year") + ylab("") +
   ggtitle("Quarterly changes in US consumption and personal income")
 ```
@@ -173,7 +172,7 @@ ggplot(aes(x=Income,y=Consumption), data=as.data.frame(uschange)) +
 \fontsize{10}{14}\sf
 
 ```{r usconsump2, echo=TRUE, fig.height=3}
-(fit <- auto.arima(uschange[,1], 
+(fit <- auto.arima(uschange[,1],
     xreg=uschange[,2]))
 ```
 
@@ -181,7 +180,7 @@ ggplot(aes(x=Income,y=Consumption), data=as.data.frame(uschange)) +
 \fontsize{13}{15}\sf
 
 ```{r , echo=TRUE, fig.height=3.7}
-ggtsdisplay(residuals(fit, type='response'), 
+ggtsdisplay(residuals(fit, type='response'),
   main="ARIMA errors")
 ```
 
@@ -202,7 +201,7 @@ checkresiduals(fit, plot=FALSE)
 \fontsize{9}{12}\sf
 
 ```{r usconsump3, echo=TRUE, fig.height=3.}
-fcast <- forecast(fit, 
+fcast <- forecast(fit,
   xreg=rep(mean(uschange[,2]),8), h=8)
 autoplot(fcast) + xlab("Year") +
   ylab("Percentage change") +
@@ -245,8 +244,8 @@ autoplot(elec[,1:2], facets = TRUE)
 
 ```{r, echo=TRUE}
 # Matrix of regressors
-xreg <- cbind(MaxTemp = elec[,"Temperature"], 
-              MaxTempSq = elec[,"Temperature"]^2, 
+xreg <- cbind(MaxTemp = elec[,"Temperature"],
+              MaxTempSq = elec[,"Temperature"]^2,
               Workday = elec[,"Workday"])
 # Fit model
 (fit <- auto.arima(elec[,"Demand"], xreg=xreg))
@@ -478,7 +477,7 @@ change in $x_t$ is transferred to $y_t$.
 
 
 ```{r tvadvert}
-autoplot(insurance, facets=TRUE) + 
+autoplot(insurance, facets=TRUE) +
   xlab("Year") + ylab("") +
   ggtitle("Insurance advertising and quotations")
 ```
@@ -503,7 +502,7 @@ n_t &= 1.41n_{t-1} -093 n_{t-2} + 0.36n_{t-3} + e_t
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.3}
-fc <- forecast(fit, h=20, 
+fc <- forecast(fit, h=20,
   xreg=cbind(c(Advert[40,1],rep(10,19)), rep(10,20)))
 autoplot(fc)
 ```
@@ -513,7 +512,7 @@ autoplot(fc)
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.3}
-fc <- forecast(fit, h=20, 
+fc <- forecast(fit, h=20,
   xreg=cbind(c(Advert[40,1],rep(8,19)), rep(8,20)))
 autoplot(fc)
 ```
@@ -522,7 +521,7 @@ autoplot(fc)
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.3}
-fc <- forecast(fit, h=20, 
+fc <- forecast(fit, h=20,
   xreg=cbind(c(Advert[40,1],rep(6,19)), rep(6,20)))
 autoplot(fc)
 ```
