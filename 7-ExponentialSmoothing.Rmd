@@ -5,6 +5,7 @@ date: "OTexts.org/fpp2/"
 fontsize: 14pt
 output:
   beamer_presentation:
+    keep_tex: true
     fig_width: 7
     fig_height: 3.5
     highlight: tango
@@ -17,12 +18,13 @@ output:
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 library(fpp2)
 source("nicefigs.R")
+options(digits=4)
 ```
-
 
 #Simple exponential smoothing
 
 ##Simple methods
+\fontsize{14}{16}\sf
 
 Time series $y_1,y_2,\dots,y_T$.
 
@@ -42,7 +44,7 @@ Time series $y_1,y_2,\dots,y_T$.
 \begin{block}{Forecast equation}
 $\pred{y}{T+1}{T} = \alpha y_T + \alpha(1-\alpha) y_{T-1} + \alpha(1-\alpha)^2 y_{T-2}+ \cdots$
 \end{block}
-where $0 \le \alpha \le1$.\pause
+where $0 \le \alpha \le1$.\pause\vspace*{0.2cm}
 
 \small\begin{tabular}{lllll}
 \toprule
@@ -60,12 +62,14 @@ $y_{T-5}$    & $(0.2)(0.8)^5$  & $(0.4)(0.6)^5$   & $(0.6)(0.4)^5$  & $(0.8)(0.2
 
 
 ##Simple Exponential Smoothing
-\begin{block}{Component form}\vspace*{-0.8cm}
+\fontsize{14}{16}\sf
+
+\begin{block}{Component form}\vspace*{-0.4cm}
 \begin{align*}
 \text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
 \text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
 \end{align*}
-\end{block}
+\end{block}\vspace*{-0.2cm}
 
 * $\ell_t$ is the level (or the smoothed value) of the series at time t.
 * $\pred{y}{t+1}{t} = \alpha y_t + (1-\alpha) \pred{y}{t}{t-1}$\newline
@@ -87,13 +91,13 @@ $$
 
 ##Example: Oil production
 
-\fontsize{11}{12}\sf
+\fontsize{10}{11}\sf
 
 ```{r sesfit, echo=TRUE, cache=TRUE}
 oildata <- window(oil, start=1996)
 # Estimate parameters
 fc <- ses(oildata, h=5)
-summary(fc$model)
+summary(fc[["model"]])
 ```
 
 ```{r sesparam, echo=FALSE, cache=TRUE}
@@ -105,7 +109,7 @@ l0 <- fc$model$par[2]
 
 ##Example: Oil production
 
-\fontsize{9}{9}\sf
+\fontsize{8}{8}\sf\vspace*{-0.2cm}
 
 ```{r oilses, echo=FALSE, cache=TRUE}
 # Data set for table
@@ -155,14 +159,14 @@ autoplot(fc) +
 
 ##Holt's linear trend
 
-\begin{block}{Component form}\vspace*{-.6cm}
+\begin{block}{Component form}\vspace*{-.4cm}
 \begin{align*}
 \text{Forecast }&& \pred{y}{t+h}{t} &= \ell_{t} + hb_{t} \\
 \text{Level }&& \ell_{t} &= \alpha y_{t} + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
 \text{Trend }&& b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)b_{t-1},
 \end{align*}
 \end{block}
-\pause
+\pause\vspace*{-0.2cm}
 
   * Two smoothing parameters $\alpha$ and $\beta^*$ ($0\le\alpha,\beta^*\le1$).
   * $\ell_t$ level: weighted average between $y_t$ one-step ahead forecast for time $t$, $(\ell_{t-1} + b_{t-1}=\pred{y}{t}{t-1})$
@@ -170,14 +174,16 @@ autoplot(fc) +
   * Choose $\alpha, \beta^*, \ell_0, b_0$ to minimise SSE.
 
 ##Holt's method in R
+\fontsize{12}{15}\sf
 
 ```{r, fig.height=3.6, echo=TRUE}
 window(ausair, start=1990, end=2004) %>%
-  holt(h=5, PI=FALSE) %>% autoplot
+  holt(h=5, PI=FALSE) %>%
+  autoplot()
 ```
 
 ##Damped trend method
-\begin{block}{Component form}\vspace*{-0.6cm}
+\begin{block}{Component form}\vspace*{-0.4cm}
 \begin{align*}
 \pred{y}{t+h}{t} &= \ell_{t} + (\phi+\phi^2 + \dots + \phi^{h})b_{t} \\
 \ell_{t} &= \alpha y_{t} + (1 - \alpha)(\ell_{t-1} + \phi b_{t-1})\\
@@ -192,13 +198,17 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
   * Short-run forecasts trended, long-run forecasts constant.
 
 ##Example: Air passengers
+\fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=3.6}
 window(ausair, start=1990, end=2004) %>%
-  holt(damped=TRUE, h=5, PI=FALSE) %>% autoplot
+  holt(damped=TRUE, h=5, PI=FALSE) %>%
+  autoplot()
 ```
 
 ##Example: Sheep in Asia
+\fontsize{13}{15}\sf
+
 ```{r, echo=TRUE}
 livestock2 <- window(livestock, start=1970,
                      end=2000)
@@ -214,6 +224,7 @@ accuracy(fit3, livestock)
 ```
 
 ##Example: Sheep in Asia
+\fontsize{13}{15}\sf
 
 ```{r echo=FALSE}
 tab <- matrix(NA, ncol=3,nrow=10)
@@ -272,9 +283,10 @@ autoplot(tmp) + xlab("Year") +
 
 #Seasonal methods
 ##Holt-Winters additive method
+\fontsize{13}{15}\sf
 
 Holt and Winters extended Holt's method to capture seasonality.
-\begin{block}{Component form}\vspace*{-0.6cm}
+\begin{block}{Component form}\vspace*{-0.4cm}
 \begin{align*}
 \pred{y}{t+h}{t} &= \ell_{t} + hb _{t} + s_{t-m+\h+} \\
 \ell_{t} &= \alpha(y_{t} - s_{t-m}) + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
@@ -303,14 +315,15 @@ s_{t} &= \gamma (y_{t}-\ell_{t-1}-b_{t-1}) + (1-\gamma)s_{t-m},
 \fontsize{13}{15}\sf
 
 For when seasonal variations are changing proportional to the level of the series.
-\begin{block}{Component form}\vspace*{-0.6cm}
+
+\begin{block}{Component form}\vspace*{-0.4cm}
     \begin{align*}
         \pred{y}{t+h}{t} &= (\ell_{t} + hb_{t})s_{t-m+h_{m}^{+}}. \\
         \ell_{t} &= \alpha \frac{y_{t}}{s_{t-m}} + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
         b_{t} &= \beta^*(\ell_{t}-\ell_{t-1}) + (1 - \beta^*)b_{t-1}        \\
         s_{t} &= \gamma \frac{y_{t}}{(\ell_{t-1} + b_{t-1})} + (1 - \gamma)s_{t-m}
     \end{align*}
-\end{block}\fontsize{12}{14}\sf
+\end{block}\fontsize{12}{14}\sf\vspace*{-0.2cm}
 
   * With additive method $s_t$ is in absolute terms:\newline within each year $\sum_i s_i \approx 0$.
   * With multiplicative method $s_t$ is in relative terms:\newline within each year $\sum_i s_i \approx m$.
@@ -351,7 +364,7 @@ gridExtra::grid.arrange(p1,p2,ncol=2)
 
 ##Holt-Winters damped method
 Often the single most accurate forecasting method for seasonal data:
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}\vspace*{-0.4cm}
 \begin{align*}
 \pred{y}{t+h}{t} &= [\ell_{t} + (\phi+\phi^2 + \dots + \phi^{h})b_{t}]s_{t-m+\h+} \\
 \ell_{t} &= \alpha(y_{t} / s_{t-m}) + (1 - \alpha)(\ell_{t-1} + \phi b_{t-1})\\
@@ -373,7 +386,7 @@ Apply Holt-Winters’ multiplicative method to the `gas` data.
 # Taxonomy of exponential smoothing methods
 
 ##Exponential smoothing methods
-\fontsize{13}{15}\sf
+\fontsize{12}{14}\sf
 
 \begin{block}{}
 \begin{tabular}{ll|ccc}
@@ -408,7 +421,7 @@ There are also multiplicative trend methods (not recommended).
 
 
 ##R functions
-\fontsize{13}{15}\sf
+\fontsize{11.5}{15}\sf
 
 * Simple exponential smoothing: no trend. \newline
   `ses(y)`
@@ -453,7 +466,7 @@ There are also multiplicative trend methods (not recommended).
 
 
 ##Exponential smoothing methods
-\fontsize{13}{15}\sf
+\fontsize{12}{14}\sf
 
 \begin{block}{}
 \begin{tabular}{ll|ccc}
@@ -472,7 +485,7 @@ A\damped & (Additive damped) & A\damped,N & A\damped,A & A\damped,M
 \vspace*{10cm}
 
 ##Exponential smoothing methods
-\fontsize{13}{15}\sf
+\fontsize{12}{14}\sf
 
 \begin{block}{}
 \begin{tabular}{ll|ccc}
@@ -511,14 +524,14 @@ M,A,M: &Multiplicative Holt-Winters' method with multiplicative errors
 
 ##A model for SES
 
-\begin{block}{Component form}\vspace*{-0.6cm}
+\begin{block}{Component form}\vspace*{-0.4cm}
 \begin{align*}
 \text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
 \text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
 \end{align*}
 \end{block}\pause
 Forecast error: $e_t = y_t - \pred{y}{t}{t-1} = y_t - \ell_{t-1}$.\pause
-\begin{block}{Error correction form}\vspace*{-0.6cm}
+\begin{block}{Error correction form}\vspace*{-0.4cm}
 \begin{align*}
 y_t &= \ell_{t-1} + e_t\\
 \ell_{t}
@@ -531,7 +544,7 @@ Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\t
 
 ##ETS(A,N,N)
 
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}\vspace*{-0.4cm}
 \begin{align*}
 \text{Measurement equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
 \text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
@@ -553,7 +566,7 @@ SES with multiplicative errors.
     * $e_t = y_t - \pred{y}{t}{t-1} = \ell_{t-1}\varepsilon_t$
 
  \pause
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}\vspace*{-0.4cm}
 \begin{align*}
 \text{Measurement equation}&& y_t &= \ell_{t-1}(1 + \varepsilon_t)\\
 \text{State equation}&& \ell_t&=\ell_{t-1}(1+\alpha \varepsilon_t)
@@ -593,7 +606,7 @@ Holt's linear method with multiplicative errors.
 
 Holt-Winters additive method with additive errors.
 
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}\vspace*{-0.4cm}
 \begin{align*}
 \text{Forecast equation} && \hat{y}_{t+h|t} &= \ell_{t} + hb_{t} + s_{t-m+h_m^+}\\
 \text{Observation equation}&& y_t&=\ell_{t-1}+b_{t-1}+s_{t-m} + \varepsilon_t\\
@@ -625,10 +638,11 @@ Holt-Winters additive method with additive errors.
   * We will estimate models with the \Verb|ets()| function in the forecast package.
 
 ##Innovations state space models
+\fontsize{12}{14}\sf
 
 Let $\bm{x}_t = (\ell_t, b_t, s_t, s_{t-1}, \dots, s_{t-m+1})$ and
-$\varepsilon_t\stackrel{\mbox{\scriptsize iid}}{\sim
-\mbox{N}(0,\sigma^2)}$.
+$\varepsilon_t\stackrel{\mbox{\scriptsize iid}}{\sim}
+\mbox{N}(0,\sigma^2)$.
 \begin{block}{}
 \begin{tabular}{lcl}
 $y_t$ &=& $\underbrace{h(\bm{x}_{t-1})} +
@@ -645,7 +659,7 @@ Additive errors
   $k(x)=1$.\qquad $y_t = \mu_{t} + \varepsilon_t$.
 
 Multiplicative errors
-: \mbox{}\newline
+: \mbox{}\vspace*{-0.5cm}\newline
   $k(\bm{x}_{t-1}) = \mu_{t}$.\qquad $y_t = \mu_{t}(1 + \varepsilon_t)$.\newline
   $\varepsilon_t = (y_t - \mu_t)/\mu_t$ is relative error.
 
@@ -665,9 +679,9 @@ initial states $\bm{x}_0 = (\ell_0,b_0,s_0,s_{-1},\dots,s_{-m+1})$ by
 minimizing $L^*$.
 
 ##Parameter restrictions
-\fontsize{13}{15}\sf
+\fontsize{12}{14}\sf
 
-\structure{\textit{Usual} region}
+### *Usual* region
 
   * Traditional restrictions in the methods $0< \alpha,\beta^*,\gamma^*,\phi<1$\newline (equations interpreted as weighted averages).
   * In models we set $\beta=\alpha\beta^*$ and $\gamma=(1-\alpha)\gamma^*$.
@@ -675,7 +689,7 @@ minimizing $L^*$.
   * $0.8<\phi<0.98$ --- to prevent numerical difficulties.
  \pause
 
-\structure{\textit{Admissible} region}
+### *Admissible* region
 
   * To prevent observations in the distant past having a continuing effect on current forecasts.
   * Usually (but not always) less restrictive than the \textit{usual} region.
@@ -725,7 +739,7 @@ Method performed very well in M3 competition.
 
 
 ##Exponential smoothing models
-\fontsize{12}{14}\sf
+\fontsize{11}{12}\sf
 
 \begin{block}{}
 \begin{tabular}{ll|ccc}
@@ -810,7 +824,7 @@ etc.
 # ETS in R
 
 ##Example: drug sales
-\fontsize{8}{9}\sf
+\fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
 ets(h02)
@@ -818,7 +832,7 @@ ets(h02)
 
 
 ##Example: drug sales
-\fontsize{8}{9}\sf
+\fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
 ets(h02, model="AAA", damped=FALSE)
@@ -840,13 +854,13 @@ ets(h02, model="AAA", damped=FALSE)
 
 ##Example: drug sales
 ```{r, echo=TRUE, fig.height=4}
-h02 %>% ets %>% autoplot
+h02 %>% ets() %>% autoplot()
 ```
 
 ##Example: drug sales
 
 ```{r, echo=TRUE, fig.height=4}
-h02 %>% ets %>% forecast %>% autoplot
+h02 %>% ets() %>% forecast() %>% autoplot()
 ```
 
 
@@ -860,7 +874,7 @@ h02 %>% ets(model="AAA", damped=FALSE) %>% accuracy
 ```
 
 ##The `ets()` function
-\fontsize{9}{10}\sf
+\fontsize{8}{10}\sf
 
 `ets()` function also allows refitting model to new data set.
 
@@ -874,6 +888,7 @@ accuracy(forecast(fit1,10), test)
 ```
 
 ##The `ets()` function in R
+\fontsize{12}{13}\sf
 
 
 ```r
@@ -882,7 +897,7 @@ ets(y, model = "ZZZ", damped = NULL,
   lambda = NULL, biasadj = FALSE,
   lower = c(rep(1e-04, 3), 0.8),
   upper = c(rep(0.9999, 3), 0.98),
-  opt.crit = c("lik", "amse", "mse", "sigma", "mae"),
+  opt.crit = c("lik","amse","mse","sigma","mae"),
   nmse = 3,
   bounds = c("both", "usual", "admissible"),
   ic = c("aicc", "aic", "bic"),
@@ -891,14 +906,14 @@ ets(y, model = "ZZZ", damped = NULL,
 ```
 
 ##The `ets()` function in R
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 * `y` \newline The time series to be forecast.
 * `model` \newline use the ETS classification and notation: "N" for none, "A" for additive, "M" for multiplicative, or "Z" for automatic selection. Default `ZZZ` all components are selected using the information criterion.
 * `damped`
   * If `damped=TRUE`, then a damped trend will be used (either A\damped\ or M\damped).
   * `damped=FALSE`, then a non-damped trend will used.
-  * If `damped=NULL` (the default), then either a damped or a non-damped trend will be selected according to the information criterion chosen.
+  * If `damped=NULL` (default), then either a damped or a non-damped trend will be selected according to the information criterion chosen.
 
 
 ##The `ets()` function in R
@@ -907,12 +922,12 @@ ets(y, model = "ZZZ", damped = NULL,
   * `additive.only`\newline
       Only models with additive components will be considered if \Verb"additive.only=TRUE". Otherwise all models will be considered.
   * `lambda`\newline
-      Box-Cox transformation parameter. It will be ignored if `lambda=NULL` (the default value). Otherwise, the time series will be transformed before the model is estimated. When `lambda` is not `NULL`, `additive.only` is set to `TRUE`.
+      Box-Cox transformation parameter. It will be ignored if `lambda=NULL` (default). Otherwise, the time series will be transformed before the model is estimated. When `lambda` is not `NULL`, `additive.only` is set to `TRUE`.
   * `biadadj`\newline
       Uses bias-adjustment when undoing Box-Cox transformation for fitted values.
 
 ##The `ets()` function in R
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf\vspace*{-0.2cm}
 
 * `lower,upper` bounds for the parameter estimates of $\alpha$, $\beta^*$, $\gamma^*$ and $\phi$.
 * `opt.crit=lik` (default) optimisation criterion used for estimation.
@@ -920,14 +935,14 @@ ets(y, model = "ZZZ", damped = NULL,
 
     * \textit{usual} region -- `"bounds=usual"`;
     * \textit{admissible} region -- `"bounds=admissible"`;
-    * `"bounds=both"` (the default) requires the parameters to satisfy both sets of constraints.
+    * `"bounds=both"` (default) requires the parameters to satisfy both sets of constraints.
 
-* `ic=aicc` (the default) information criterion to be used in selecting models.
-* `restrict=TRUE` (the default) models that cause numerical difficulties are not considered in model selection.
+* `ic=aicc` (default) information criterion to be used in selecting models.
+* `restrict=TRUE` (default) models that cause numerical problems not considered in model selection.
 * `allow.multiplicative.trend` allows models with a multiplicative trend.
 
 ##The `forecast()` function in R
-\fontsize{13}{14.5}\sf
+\fontsize{13}{15}\sf\vspace*{-0.2cm}
 
 ```r
   forecast(object,
@@ -942,14 +957,18 @@ ets(y, model = "ZZZ", damped = NULL,
 * `h`: the number of periods to be forecast.
 * `level`: the confidence level for the prediction intervals.
 * `fan`: if `fan=TRUE`, suitable for fan plots.
-* `simulate`: If `TRUE`, prediction intervals generated via simulation rather than analytic formulae. Even if `FALSE` simulation will be used if no algebraic formulae exist.
 
 ##The `forecast()` function in R
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf\vspace*{-0.2cm}
 
+* `simulate`: If `TRUE`, prediction intervals generated via simulation rather than analytic formulae. Even if `FALSE` simulation will be used if no algebraic formulae exist.
 * `bootstrap`: If `bootstrap=TRUE` and \Verb"simulate=TRUE", then simulated prediction intervals use re-sampled errors rather than normally distributed errors.
 * `npaths`: The number of sample paths used in computing simulated prediction intervals.
 * `PI`: If `PI=TRUE`, then prediction intervals are produced; otherwise only point forecasts are calculated. If `PI=FALSE`, then `level`, `fan`, `simulate`, `bootstrap` and `npaths` are all ignored.
+
+##The `forecast()` function in R
+\fontsize{13}{15}\sf\vspace*{-0.2cm}
+
 * `lambda`: The Box-Cox transformation parameter. Ignored if `lambda=NULL`. Otherwise, forecasts are back-transformed via inverse Box-Cox transformation.
 * `biasadj`: Apply bias adjustment after Box-Cox?
 
