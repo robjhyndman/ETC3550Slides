@@ -329,7 +329,7 @@ f(X) = f(\mu) + (X-\mu)f'(\mu) + \frac{1}{2}(X-\mu)^2f''(\mu).$$\pause
 
 \fontsize{13}{15}\sf
 
-**Box-Cox back-transformation:**\vspace*{-0.5cm}
+**Box-Cox back-transformation:**
 \begin{align*}
 y_t &= \left\{\begin{array}{ll}
         \exp(w_t)      & \quad \lambda = 0; \\
@@ -361,7 +361,7 @@ fc2 <- rwf(eggs, drift=TRUE, lambda=0, h=50, level=80,
   biasadj=TRUE)
 autoplot(eggs) +
   autolayer(fc, series="Simple back transformation") +
-  autolayer(fc2$mean, series="Bias adjusted") +
+  autolayer(fc2, series="Bias adjusted", PI=FALSE) +
   guides(colour=guide_legend(title="Forecast"))
 ```
 
@@ -583,9 +583,9 @@ beerfit1 <- meanf(beer2,h=10)
 beerfit2 <- rwf(beer2,h=10)
 beerfit3 <- snaive(beer2,h=10)
 tmp <- cbind(Data=window(ausbeer, start=1992),
-             Mean=beerfit1$mean,
-             Naive=beerfit2$mean,
-             SeasonalNaive=beerfit3$mean)
+             Mean=beerfit1[["mean"]],
+             Naive=beerfit2[["mean"]],
+             SeasonalNaive=beerfit3[["mean"]])
 autoplot(tmp) + xlab("Year") + ylab("Megalitres") +
   ggtitle("Forecasts for quarterly beer production") +
   scale_color_manual(values=c('#000000','#1b9e77','#d95f02','#7570b3'),
