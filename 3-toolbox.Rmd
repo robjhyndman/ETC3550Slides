@@ -322,7 +322,7 @@ Taylor series expansion about $\mu$:
 $$
 f(X) = f(\mu) + (X-\mu)f'(\mu) + \frac{1}{2}(X-\mu)^2f''(\mu).$$\pause
 \begin{alertblock}{}
-\centerline{$\E[Y] = \E[f(X)] = f(\mu) + \frac12 \sigma^2[f''(\mu)]^2.$}
+\centerline{$\E[Y] = \E[f(X)] = f(\mu) + \frac12 \sigma^2 f''(\mu)$}
 \end{alertblock}
 
 ## Bias adjustment
