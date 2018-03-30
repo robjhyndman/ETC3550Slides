@@ -175,6 +175,14 @@ scale.}
 ## Variance stabilization
 
 ```{r elec, echo=FALSE, fig.height=4.6}
+autoplot(elec) +
+  xlab("Year") + ylab("") +
+  ggtitle("Australian electricity production")
+```
+
+## Variance stabilization
+
+```{r elec1, echo=FALSE, fig.height=4.6}
 autoplot(elec^0.5) +
   xlab("Year") + ylab("") +
   ggtitle("Square root electricity production")
