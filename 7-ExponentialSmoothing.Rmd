@@ -557,6 +557,52 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
   * Measurement equation: relationship between observations and states.
   * Transition equation(s): evolution of the state(s) through time.
 
+## ETS(A,A,N)
+
+Holt's linear method with additive errors.
+
+  * Assume $\varepsilon_t=y_t-\ell_{t-1}-b_{t-1} \sim \text{NID}(0,\sigma^2)$.
+  * Substituting into the error correction equations for Holt's linear method\vspace*{-0.2cm}
+  \begin{align*}
+      y_t&=\ell_{t-1}+b_{t-1}+\varepsilon_t\\
+      \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
+      b_t&=b_{t-1}+\alpha\beta^* \varepsilon_t
+  \end{align*}
+  * For simplicity, set $\beta=\alpha \beta^*$.
+
+
+## Your turn
+\large
+
+ * Write down the model for ETS(A,Ad,N)
+
+
+
+## ETS(A,A,A)
+
+Holt-Winters additive method with additive errors.
+
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\text{Forecast equation} && \hat{y}_{t+h|t} &= \ell_{t} + hb_{t} + s_{t+h-m(k+1)}\\
+\text{Observation equation}&& y_t&=\ell_{t-1}+b_{t-1}+s_{t-m} + \varepsilon_t\\
+\text{State equations}&& \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
+&&        b_t&=b_{t-1}+\beta \varepsilon_t \\
+&&s_t &= s_{t-m} + \gamma\varepsilon_t
+\end{align*}
+\end{block}
+
+* Forecast errors: $\varepsilon_{t} = y_t - \hat{y}_{t|t-1}$
+* $k$ is integer part of $(h-1)/m$.
+
+
+## Your turn
+\large
+
+
+ * Write down the model for ETS(A,N,A)
+
+
 ## ETS(M,N,N)
 
 SES with multiplicative errors.
@@ -577,19 +623,6 @@ SES with multiplicative errors.
 
   * Models with additive and multiplicative errors with the same parameters generate the same point forecasts but different prediction intervals.
 
-## ETS(A,A,N)
-
-Holt's linear method with additive errors.
-
-  * Assume $\varepsilon_t=y_t-\ell_{t-1}-b_{t-1} \sim \text{NID}(0,\sigma^2)$.
-  * Substituting into the error correction equations for Holt's linear method\vspace*{-0.2cm}
-  \begin{align*}
-      y_t&=\ell_{t-1}+b_{t-1}+\varepsilon_t\\
-      \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
-      b_t&=b_{t-1}+\alpha\beta^* \varepsilon_t
-  \end{align*}
-  * For simplicity, set $\beta=\alpha \beta^*$.
-
 ## ETS(M,A,N)
 
 Holt's linear method with multiplicative errors.
@@ -603,32 +636,14 @@ Holt's linear method with multiplicative errors.
   \end{align*}
   where again  $\beta=\alpha \beta^*$ and $\varepsilon_t \sim \text{NID}(0,\sigma^2)$.
 
-## ETS(A,A,A)
-
-Holt-Winters additive method with additive errors.
-
-\begin{block}{}\vspace*{-0.4cm}
-\begin{align*}
-\text{Forecast equation} && \hat{y}_{t+h|t} &= \ell_{t} + hb_{t} + s_{t+h-m(k+1)}\\
-\text{Observation equation}&& y_t&=\ell_{t-1}+b_{t-1}+s_{t-m} + \varepsilon_t\\
-\text{State equations}&& \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
-&&        b_t&=b_{t-1}+\beta \varepsilon_t \\
-&&s_t &= s_{t-m} + \gamma\varepsilon_t
-\end{align*}
-\end{block}
-
-* Forecast errors: $\varepsilon_{t} = y_t - \hat{y}_{t|t-1}$
-* $k$ is integer part of $(h-1)/m$.
-
-
 ## Additive error models
 
-\placefig{0}{1.2}{width=12.8cm,trim=0 120 0 0,clip=true}{fig_7_ets_add.pdf}
+\placefig{0}{1.5}{width=12.8cm,trim=0 120 0 0,clip=true}{fig_7_ets_add.pdf}
 
 
 ## Multiplicative error models
 
-\placefig{0}{1.2}{width=12.8cm,trim=0 120 0 0,clip=true}{fig_7_ets_multi.pdf}
+\placefig{0}{1.5}{width=12.8cm,trim=0 120 0 0,clip=true}{fig_7_ets_multi.pdf}
 
 
 ## Estimating ETS models
@@ -656,7 +671,7 @@ g(\bm{x}_{t-1})\varepsilon_t$\\
 
 
 Additive errors
-: \mbox{}\newline
+: \mbox{}\vspace*{-0.5cm}\newline
   $k(x)=1$.\qquad $y_t = \mu_{t} + \varepsilon_t$.
 
 Multiplicative errors
@@ -693,8 +708,8 @@ minimizing $L^*$.
 ### *Admissible* region
 
   * To prevent observations in the distant past having a continuing effect on current forecasts.
-  * Usually (but not always) less restrictive than the \textit{usual} region.
-  * For example for ETS(A,N,N): \newline \textit{usual} $0< \alpha <1$ --- \textit{admissible} is $0< \alpha <2$.
+  * Usually (but not always) less restrictive than the \textit{traditional} region.
+  * For example for ETS(A,N,N): \newline \textit{traditional} $0< \alpha <1$ --- \textit{admissible} is $0< \alpha <2$.
 
 ## Model selection
 \begin{block}{Akaike's Information Criterion}
@@ -770,6 +785,53 @@ Method performed very well in M3 competition.
 \end{tabular}
 \end{block}
 
+## Example: International tourists
+\fontsize{7.8}{8.7}\sf
+
+```{r, echo=TRUE}
+aust <- window(austourists, start=2005)
+fit <- ets(aust)
+summary(fit)
+```
+
+## Example: International tourists
+
+Model selected: ETS(M,A,M)
+\begin{align*}
+y_{t} &= (\ell_{t-1} + b_{t-1})s_{t-m}(1 + \varepsilon_t)\\
+\ell_t &= (\ell_{t-1} + b_{t-1})(1 + \alpha \varepsilon_t)\\
+b_t &=b_{t-1} + \beta(\ell_{t-1} + b_{t_1})\varepsilon_t\\
+s_t &=  s_{t-m}(1+ \gamma \varepsilon_t).
+\end{align*}
+
+$\hat\alpha=`r format(fit$par[1],nsmall=4,digits=4)`$, $\hat\beta=`r format(fit$par[2],nsmall=3,digits=3, scientific=FALSE)`$, and $\hat\gamma=`r format(fit$par[3],digits=2,nsmall=2, scientific=FALSE)`$.
+
+## Example: International tourists
+
+```{r MAMstates, fig.height=3.5,fig.width=6, echo=TRUE}
+autoplot(fit)
+```
+
+## Example: International tourists
+\fontsize{9.5}{12}\sf
+```{r, echo=TRUE}
+cbind('Residuals' = residuals(fit),
+      'Forecast errors' = residuals(fit, type='response')) %>%
+  autoplot(facet=TRUE) + xlab("Year") + ylab("")
+```
+
+## Residuals
+\fontsize{16}{18}\sf
+
+### Response residuals
+$$\hat{e}_t = y_t - \hat{y}_{t|t-1}$$
+
+### Innovation residuals
+Additive error model:
+$$\hat\varepsilon_t = y_t - \hat{y}_{t|t-1}$$
+
+Multiplicative error model:
+$$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
 
 
 ## Forecasting with ETS models
