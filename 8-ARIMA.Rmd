@@ -1448,13 +1448,15 @@ checkresiduals(fit)
 ```
 
 ## Cortecosteroid drug sales
+\fontsize{11}{15}\sf
+
 
 ```{r h02resb, echo=FALSE, fig.height=4}
 checkresiduals(fit, plot=FALSE)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{10}{14}\sf
+\fontsize{9}{14}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
 (fit <- auto.arima(h02, lambda=0, d=0, D=1, max.order=9,
@@ -1471,14 +1473,14 @@ checkresiduals(fit)
 
 
 ## Cortecosteroid drug sales
-\fontsize{13}{15}\sf
+\fontsize{11}{15}\sf
 
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{12}\sf
+\fontsize{10}{12}\sf
 
 Training data: July 1991 to June 2006
 
@@ -1546,7 +1548,8 @@ for(i in seq(length(rmse)))
   rmse[i] <- accuracy(fc, test)[2,"RMSE"]
   modelname[i] <- as.character(fit)
 }
-knitr::kable(data.frame(Model=modelname,RMSE=rmse),
+k <- order(rmse)
+knitr::kable(data.frame(Model=modelname[k],RMSE=rmse[k]),
              digits=4)
 ```
 
@@ -1562,7 +1565,7 @@ knitr::kable(data.frame(Model=modelname,RMSE=rmse),
 
 
 ## Cortecosteroid drug sales
-\fontsize{12}{14}\sf
+\fontsize{11}{14}\sf
 
 ```{r h02f, echo=TRUE, fig.height=3}
 fit <- Arima(h02, order=c(3,0,1), seasonal=c(0,1,2),
@@ -1587,9 +1590,10 @@ autoplot(forecast(fit)) +
 
   * Many ARIMA models have no exponential smoothing counterparts.
 
-  * ETS models all non-stationary. Models with seasonality or non-damped trend (or both) have two unit roots; all other models have one unit root.
+  * ETS models all non-stationary. Models with seasonality or non-damped trend (or both) have two unit roots; all other models have one unit \rlap{root.}
 
 
+\vspace*{10cm}
 
 
 
@@ -1613,7 +1617,7 @@ autoplot(forecast(fit)) +
 
 ## Your turn
 
-\fontsize{13}{14}\sf
+\fontsize{13}{13}\sf
 
 For the `condmilk` series:
 
