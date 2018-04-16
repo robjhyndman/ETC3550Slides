@@ -18,9 +18,9 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 library(fpp2)
 ```
 
-#Stationarity and differencing
+# Stationarity and differencing
 
-##Stationarity
+## Stationarity
 
 \begin{block}{Definition}
 If $\{y_t\}$ is a stationary time series, then for all $s$, the distribution of $(y_t,\dots,y_{t+s})$ does not depend on $t$.
@@ -32,58 +32,58 @@ A \textbf{stationary series} is:
 *  constant variance
 *  no patterns predictable in the long-term
 
-##Stationary?
+## Stationary?
 
 ```{r}
 autoplot(dj) + ylab("Dow Jones Index") + xlab("Day")
 ```
 
-##Stationary?
+## Stationary?
 
 ```{r}
 autoplot(diff(dj)) + ylab("Change in Dow Jones Index") + xlab("Day")
 ```
 
-##Stationary?
+## Stationary?
 
 ```{r}
 autoplot(strikes) + ylab("Number of strikes") + xlab("Year")
 ```
 
-##Stationary?
+## Stationary?
 
 ```{r}
 autoplot(hsales) + xlab("Year") + ylab("Total sales") +
   ggtitle("Sales of new one-family houses, USA")
 ```
 
-##Stationary?
+## Stationary?
 ```{r}
 autoplot(eggs) + xlab("Year") + ylab("$") +
   ggtitle("Price of a dozen eggs in 1993 dollars")
 ```
 
-##Stationary?
+## Stationary?
 ```{r}
 autoplot(window(pigs/1e3, start=1990)) + xlab("Year") + ylab("thousands") +
   ggtitle("Number of pigs slaughtered in Victoria")
 ```
 
-##Stationary?
+## Stationary?
 
 ```{r}
 autoplot(lynx) + xlab("Year") + ylab("Number trapped") +
   ggtitle("Annual Canadian Lynx Trappings")
 ```
 
-##Stationary?
+## Stationary?
 
 ```{r}
 autoplot(window(ausbeer, start=1992)) + xlab("Year") + ylab("megalitres") +
   ggtitle("Australian quarterly beer production")
 ```
 
-##Stationarity
+## Stationarity
 
 \begin{block}{Definition}
 If $\{y_t\}$ is a stationary time series, then for all $s$, the distribution of $(y_t,\dots,y_{t+s})$ does not depend on $t$.
@@ -93,7 +93,7 @@ Transformations help to \textbf{stabilize the variance}.
 
 For ARIMA modelling, we also need to \textbf{stabilize the mean}.
 
-##Non-stationarity in the mean
+## Non-stationarity in the mean
 \structure{Identifying non-stationary series}
 
 * time plot.
@@ -103,41 +103,41 @@ For ARIMA modelling, we also need to \textbf{stabilize the mean}.
 * For non-stationary data, the value of $r_1$ is often
      large and positive.
 
-##Example: Dow-Jones index
+## Example: Dow-Jones index
 
 ```{r}
 autoplot(dj) + ylab("Dow Jones Index") + xlab("Day")
 ```
 
-##Example: Dow-Jones index
+## Example: Dow-Jones index
 
 ```{r}
 ggAcf(dj)
 ```
 
-##Example: Dow-Jones index
+## Example: Dow-Jones index
 
 ```{r}
 autoplot(diff(dj)) + ylab("Change in Dow Jones Index") + xlab("Day")
 ```
 
-##Example: Dow-Jones index
+## Example: Dow-Jones index
 
 ```{r}
 ggAcf(diff(dj))
 ```
 
-##Differencing
+## Differencing
 
 * Differencing helps to \textbf{stabilize the mean}.
 * The differenced series is the \emph{change} between each observation
 in the original series: ${y'_t = y_t - y_{t-1}}$.
 * The differenced series will have only $T-1$ values since it is not possible to calculate a difference $y_1'$ for the first observation.
 
-##Second-order  differencing
+## Second-order  differencing
 
 Occasionally the differenced data will not appear stationary and it
-may be necessary to difference the data a second time:\pause\vspace*{-0.6cm}
+may be necessary to difference the data a second time:\pause
 \begin{align*}
 y''_{t}  &=  y'_{t}  - y'_{t - 1} \\
 &= (y_t - y_{t-1}) - (y_{t-1}-y_{t-2})\\
@@ -148,7 +148,7 @@ y''_{t}  &=  y'_{t}  - y'_{t - 1} \\
 * In practice,  it is almost never necessary to go beyond second-order
 differences.
 
-##Seasonal differencing
+## Seasonal differencing
 
 A seasonal difference is the difference between an observation and the corresponding observation from the previous year.\pause
 $${y'_t = y_t - y_{t-m}}$$
@@ -157,37 +157,37 @@ where $m=$ number of seasons.\pause
 * For monthly data $m=12$.
 * For quarterly data $m=4$.
 
-##Electricity production
+## Electricity production
 ```{r, echo=TRUE, fig.height=4}
 usmelec %>% autoplot()
 ```
 
-##Electricity production
+## Electricity production
 ```{r, echo=TRUE, fig.height=4}
 usmelec %>% log() %>% autoplot()
 ```
 
-##Electricity production
+## Electricity production
 
 ```{r, echo=TRUE, fig.height=3.5}
 usmelec %>% log() %>% diff(lag=12) %>%
   autoplot()
 ```
 
-##Electricity production
+## Electricity production
 ```{r, echo=TRUE, fig.height=3.5}
 usmelec %>% log() %>% diff(lag=12) %>%
   diff(lag=1) %>% autoplot()
 ```
 
-##Electricity production
+## Electricity production
 
 * Seasonally differenced series is closer to being stationary.
 * Remaining non-stationarity  can be removed with further first difference.
 
 If $y'_t = y_t - y_{t-12}$ denotes seasonally differenced series, then twice-differenced series i
 
-\begin{block}{}\vspace*{-0.8cm}
+\begin{block}{}
 \begin{align*}
 y^*_t &= y'_t - y'_{t-1} \\
       &= (y_t - y_{t-12}) - (y_{t-1} - y_{t-13}) \\
@@ -195,7 +195,7 @@ y^*_t &= y'_t - y'_{t-1} \\
 \end{align*}
 \end{block}\vspace*{10cm}
 
-##Seasonal differencing
+## Seasonal differencing
 
 When both seasonal and first differences are applied\dots\pause
 
@@ -207,7 +207,7 @@ which is done first---the result will be the same.
 It is important that if differencing is used, the differences are
 interpretable.
 
-##Interpretation of differencing
+## Interpretation of differencing
 
 * first differences are the change between \textbf{one observation and the
 next};
@@ -217,57 +217,44 @@ next}.
 
 But taking lag 3 differences for yearly data, for example, results in a model which cannot be sensibly interpreted.
 
-##Unit root tests
+## Unit root tests
 
 \structure{Statistical tests to determine the required order of differencing.}
 
-1. Augmented Dickey Fuller test: null hypothesis is that the data are non-stationary and non-seasonal.
-2. Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test: null  hypothesis is that the data are stationary and non-seasonal.
-3. Other tests available for seasonal data.
+  1. Augmented Dickey Fuller test: null hypothesis is that the data are non-stationary and non-seasonal.
+  2. Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test: null  hypothesis is that the data are stationary and non-seasonal.
+  3. Other tests available for seasonal data.
 
-##Dickey-Fuller test
+## KPSS test
+\fontsize{10}{11}\sf
 
-\structure{Test for ``unit root''}
-
-* Estimate regression model
-\[ y'_t = \phi y_{t-1} + b_1 y'_{t-1} + b_2 y'_{t-2} + \cdots + b_k y'_{t-k}
-\]
-where $y'_t$ denotes differenced series \rlap{$y_{t}-y_{t-1}$.}
-
-* Number of lagged terms, $k$, is usually set to be about 3.
-
-* If original series, $y_t$, needs differencing, $\hat\phi\approx 0$.
-
-* If $y_t$ is already stationary, $\hat\phi<0$.
-
-* In R: Use `tseries::adf.test()`.
-
-##Dickey-Fuller test in R
-
-```r
-tseries::adf.test(x,
- alternative = c("stationary", "explosive"),
- k = trunc((length(x)-1)^(1/3)))
+```{r, echo=TRUE}
+library(urca)
+summary(ur.kpss(goog))
 ```
 
 \pause
 
-* $k = \lfloor T - 1\rfloor^{1/3}$
-* Set alternative = `stationary`.
-
-\pause\footnotesize
 
 ```{r, echo=TRUE}
-tseries::adf.test(dj)
+ndiffs(goog)
 ```
 
-##How many differences?
+
+## Automatically selecting differences
+
+STL decomposition: $y_t = T_t+S_t+R_t$
+
+Seasonal strength $F_s = \max\big(0, 1-\frac{\text{Var}(R_t)}{\text{Var}(S_t+R_t)}\big)$
+
+If $F_s > 0.64$, do one seasonal difference.
+
+\pause\fontsize{12}{15}\sf\vspace*{1cm}
 
 ```{r, echo=TRUE}
-ndiffs(dj)
-nsdiffs(USAccDeaths)
+usmelec %>% log() %>% nsdiffs()
+usmelec %>% log() %>% diff(lag=12) %>% ndiffs()
 ```
-
 
 
 ## Your turn
@@ -275,7 +262,7 @@ nsdiffs(USAccDeaths)
 For the `visitors` series, find an appropriate differencing (after transformation if necessary) to obtain stationary data.
 
 
-##Backshift notation
+## Backshift notation
 
 A  very useful notational device is the backward  shift operator,  $B$,  which is used as follows:
 $$
@@ -293,7 +280,7 @@ same  month last year,''  then  $B^{12}$
 is used,  and  the
 notation is  $B^{12}y_{t}$  =  $y_{t-12}$.
 
-##Backshift notation
+## Backshift notation
 
 The   backward   shift  operator  is  convenient   for describing  the
 process  of  \textit{differencing}. \pause
@@ -311,7 +298,7 @@ then:
 y''_{t}  =  y_{t} -   2y_{t - 1}  +  y_{t - 2} = (1 - B)^{2} y_{t}\: .
 \]
 
-##Backshift notation
+## Backshift notation
 
 * Second-order difference  is  denoted   $(1- B)^{2}$.
 
@@ -323,7 +310,7 @@ $$(1 - B)^{d} y_{t}.$$
 * A seasonal difference followed by a first difference can be written as
 $$ (1-B)(1-B^m)y_t\: .$$
 
-##Backshift notation
+## Backshift notation
 
 The ``backshift'' notation is convenient because the terms can be multiplied
 together to see the combined effect.
@@ -333,15 +320,15 @@ together to see the combined effect.
 \end{align*}\pause
 For monthly data, $m=12$ and we obtain the same result as earlier.
 
-#Non-seasonal ARIMA models
+# Non-seasonal ARIMA models
 
-##Autoregressive models
+## Autoregressive models
 
 \begin{block}{Autoregressive (AR) models:}
 $$
-  y_{t}  =  c  +  \phi_{1}y_{t - 1}  +  \phi_{2}y_{t - 2}  +  \cdots  +  \phi_{p}y_{t - p}  + e_{t},
+  y_{t}  =  c  +  \phi_{1}y_{t - 1}  +  \phi_{2}y_{t - 2}  +  \cdots  +  \phi_{p}y_{t - p}  + \varepsilon_{t},
 $$
-where $e_t$ is white noise.  This is a multiple regression with \textbf{lagged values} of $y_t$ as predictors.
+where $\varepsilon_t$ is white noise.  This is a multiple regression with \textbf{lagged values} of $y_t$ as predictors.
 \end{block}
 
 ```{r arp, echo=FALSE, fig.height=3}
@@ -353,22 +340,21 @@ p2 <- autoplot(20 + arima.sim(list(ar = c(1.3, -0.7)), n = 100)) +
 gridExtra::grid.arrange(p1,p2,nrow=1)
 ```
 
-##AR(1) model
+## AR(1) model
 
 \begin{block}{}
-\centerline{$y_{t}    =   2 -0.8 y_{t - 1}  +  e_{t}$}
+\centerline{$y_{t}    =   2 -0.8 y_{t - 1}  +  \varepsilon_{t}$}
 \end{block}
+\rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-$e_t\sim N(0,1)$,\quad $T=100$.
-
-```{r, echo=FALSE, fig.height=2.6, fig.width=2.6}
+```{r, echo=FALSE, out.width="50%", fig.height=2.2, fig.width=2.2}
 p1
 ```
 
-##AR(1) model
+## AR(1) model
 
 \begin{block}{}
-\centerline{$y_{t}    =   c + \phi_1 y_{t - 1}  +  e_{t}$}
+\centerline{$y_{t}    =   c + \phi_1 y_{t - 1}  +  \varepsilon_{t}$}
 \end{block}
 
 
@@ -377,20 +363,19 @@ p1
 * When $\phi_1=1$ and $c\ne0$, $y_t$ is **equivalent to a RW with drift**
 * When $\phi_1<0$, $y_t$ tends to **oscillate between positive and negative values**.
 
-##AR(2) model
+## AR(2) model
 
 \begin{block}{}
-\centerline{$y_t = 8 + 1.3y_{t-1} - 0.7 y_{t-2} + e_t$}
+\centerline{$y_t = 8 + 1.3y_{t-1} - 0.7 y_{t-2} + \varepsilon_t$}
 \end{block}
+\rightline{$\varepsilon_t\sim N(0,1)$, \qquad $T=100$.}
 
-$e_t\sim N(0,1)$, \qquad $T=100$.
-
-```{r, fig.height=2.6, fig.width=2.6}
+```{r, fig.height=2.2, fig.width=2.2, out.width="50%"}
 p2
 ```
 
 
-##Stationarity conditions
+## Stationarity conditions
 
 
 We normally restrict autoregressive models to stationary data, and then some constraints on the values of the parameters are required.
@@ -400,17 +385,17 @@ Complex roots of $1-\phi_1 z - \phi_2 z^2 - \dots - \phi_pz^p$ lie outside the u
 \end{block}\pause
 
 * For $p=1$:  $-1<\phi_1<1$.
-* For $p=2$:\\ $-1<\phi_2<1\qquad \phi_2+\phi_1 < 1 \qquad \phi_2 -\phi_1 < 1$.
+* For $p=2$:\newline $-1<\phi_2<1\qquad \phi_2+\phi_1 < 1 \qquad \phi_2 -\phi_1 < 1$.
 * More complicated conditions hold for $p\ge3$.
 * Estimation software takes care of this.
 
-##Moving Average (MA) models
+## Moving Average (MA) models
 
 \begin{block}{Moving Average (MA) models:}
 $$
-  y_{t}  =  c +  e_t + \theta_{1}e_{t - 1}  +  \theta_{2}e_{t - 2}  +  \cdots  + \theta_{q}e_{t - q},
+  y_{t}  =  c +  \varepsilon_t + \theta_{1}\varepsilon_{t - 1}  +  \theta_{2}\varepsilon_{t - 2}  +  \cdots  + \theta_{q}\varepsilon_{t - q},
 $$
-where $e_t$ is white noise.
+where $\varepsilon_t$ is white noise.
 This is a multiple regression with  \textbf{past \emph{errors}}
 as predictors. \emph{Don't confuse this with moving average smoothing!}
 \end{block}
@@ -424,45 +409,42 @@ p2 <- autoplot(arima.sim(list(ma = c(-1, +0.8)), n = 100)) +
 gridExtra::grid.arrange(p1,p2,nrow=1)
 ```
 
-##MA(1) model
+## MA(1) model
 
 \begin{block}{}
-\centerline{$y_t = 20 + e_t + 0.8 e_{t-1}$}
+\centerline{$y_t = 20 + \varepsilon_t + 0.8 \varepsilon_{t-1}$}
 \end{block}
+\rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-$e_t\sim N(0,1)$,\quad $T=100$.
-
-```{r, fig.height=2.6, fig.width=2.6}
+```{r, fig.height=2.2, fig.width=2.2, out.width="50%"}
 p1
 ```
 
-##MA(2) model
+## MA(2) model
 
 \begin{block}{}
-\centerline{$y_t = e_t -e_{t-1} + 0.8 e_{t-2}$}
+\centerline{$y_t = \varepsilon_t -\varepsilon_{t-1} + 0.8 \varepsilon_{t-2}$}
 \end{block}
+\rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-$e_t\sim N(0,1)$,\quad $T=100$.
-
-```{r, fig.height=2.6, fig.width=2.6}
+```{r, fig.height=2.2, fig.width=2.2, out.width="50%"}
 p2
 ```
 
-##MA($\infty$) models
+## MA($\infty$) models
 
 It is possible to write any stationary AR($p$) process as an MA($\infty$) process.
 
 **Example: AR(1)**
-\vspace*{-0.8cm}
 \begin{align*}
-y_t &= \phi_1y_{t-1} + e_t\\
-&= \phi_1(\phi_1y_{t-2} + e_{t-1}) + e_t\\
-&= \phi_1^2y_{t-2} + \phi_1 e_{t-1} + e_t\\
-&= \phi_1^3y_{t-3} + \phi_1^2e_{t-2} + \phi_1 e_{t-1} + e_t\\
+y_t &= \phi_1y_{t-1} + \varepsilon_t\\
+&= \phi_1(\phi_1y_{t-2} + \varepsilon_{t-1}) + \varepsilon_t\\
+&= \phi_1^2y_{t-2} + \phi_1 \varepsilon_{t-1} + \varepsilon_t\\
+&= \phi_1^3y_{t-3} + \phi_1^2\varepsilon_{t-2} + \phi_1 \varepsilon_{t-1} + \varepsilon_t\\
 &\dots
 \end{align*}\pause
 Provided $-1 < \phi_1 < 1$:
-\[ y_t = e_t + \phi_1 e_{t-1} + \phi_1^2 e_{t-2} + \phi_1^3 e_{t-3} + \cdots
+\[ y_t = \varepsilon_t + \phi_1 \varepsilon_{t-1} + \phi_1^2 \varepsilon_{t-2} + \phi_1^3 \varepsilon_{t-3} + \cdots
 \]
 
 
@@ -473,7 +455,7 @@ Provided $-1 < \phi_1 < 1$:
 * Invertible models have some mathematical properties that make them easier to use in practice.
 * Invertibility of an ARIMA model is equivalent to forecastability of an ETS model.
 
-##Invertibility
+## Invertibility
 
 \begin{block}{General condition for invertibility}
 Complex roots of $1+\theta_1 z + \theta_2 z^2 + \dots + \theta_qz^q$ lie outside the unit circle on the complex plane.
@@ -481,16 +463,16 @@ Complex roots of $1+\theta_1 z + \theta_2 z^2 + \dots + \theta_qz^q$ lie outside
 
 * For $q=1$:  $-1<\theta_1<1$.
 * For $q=2$:\newline $-1<\theta_2<1\qquad \theta_2+\theta_1 >-1 \qquad \theta_1 -\theta_2 < 1$.
-* More complicated conditions hold for {$q\ge3$.}
+* More complicated conditions hold for $q\ge3$.
 * Estimation software takes care of this.
 
 
-##ARIMA models
+## ARIMA models
 
-\begin{block}{Autoregressive Moving Average models:}\vspace*{-0.7cm}
+\begin{block}{Autoregressive Moving Average models:}
 \begin{align*}
 y_{t}  &=  c  +  \phi_{1}y_{t - 1}  +  \cdots  +  \phi_{p}y_{t - p} \\
-& \hspace*{2.4cm}\text{} + \theta_{1}e_{t - 1} +  \cdots  + \theta_{q}e_{t - q} +  e_{t}.
+& \hspace*{2.4cm}\text{} + \theta_{1}\varepsilon_{t - 1} +  \cdots  + \theta_{q}\varepsilon_{t - q} +  \varepsilon_{t}.
 \end{align*}
 \end{block}\pause
 
@@ -499,11 +481,11 @@ y_{t}  &=  c  +  \phi_{1}y_{t - 1}  +  \cdots  +  \phi_{p}y_{t - p} \\
 * Conditions on coefficients ensure invertibility.
 \pause
 
-###Autoregressive Integrated Moving Average models
+### Autoregressive Integrated Moving Average models
 * Combine ARMA model with **differencing**.
 * $(1-B)^d y_t$ follows an ARMA  model.
 
-##ARIMA models
+## ARIMA models
 
 \structure{Autoregressive Integrated Moving Average models}
 \begin{block}{ARIMA($p, d, q$) model}
@@ -516,32 +498,51 @@ MA:& $q =$  order of the moving average part.
 
 * White noise model:  ARIMA(0,0,0)
 * Random walk:  ARIMA(0,1,0) with no constant
-* Random walk with drift:  ARIMA(0,1,0) with const.
+* Random walk with drift:  ARIMA(0,1,0) with \rlap{const.}
 * AR($p$): ARIMA($p$,0,0)
 * MA($q$): ARIMA(0,0,$q$)
 
-##Backshift notation for ARIMA
+## Backshift notation for ARIMA
 
-* ARMA model:\newline
-\hspace*{-1.4cm}\parbox{13cm}{\small\begin{align*}
+* ARMA model:\vspace*{-1cm}\newline
+\parbox{12cm}{\small\begin{align*}
+\hspace*{-1cm} 
 y_{t}  &=  c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
-           +  e_{t}  +  \theta_{1}Be_{t} + \cdots + \theta_qB^qe_{t} \\
-\text{or}\quad & (1-\phi_1B - \cdots - \phi_p B^p) y_t = c + (1 + \theta_1 B + \cdots + \theta_q B^q)e_t
+           +  \varepsilon_{t}  +  \theta_{1}B\varepsilon_{t} + \cdots + \theta_qB^q\varepsilon_{t} \\
+\hspace*{-1cm} 
+\text{or}\quad & (1-\phi_1B - \cdots - \phi_p B^p) y_t = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t
 \end{align*}}
+
 * ARIMA(1,1,1) model:
+
 \[
 \begin{array}{c c c c}
-(1 - \phi_{1} B) & (1  -  B) y_{t} &= &c + (1  + \theta_{1} B) e_{t}\\
+(1 - \phi_{1} B) & (1  -  B) y_{t} &= &c + (1  + \theta_{1} B) \varepsilon_{t}\\
 {\uparrow}  & {\uparrow}    &   &{\uparrow}\\
 {\text{AR(1)}} & {\text{First}}   &     &{\text{MA(1)}}\\
 & {\hbox to 0cm{\hss\text{difference}\hss}}\\
 \end{array}
 \]\pause
 Written out:
-$$y_t =   c + y_{t-1} + \phi_1 y_{t-1}- \phi_1 y_{t-2} + \theta_1e_{t-1} + e_t $$
+$$y_t =   c + y_{t-1} + \phi_1 y_{t-1}- \phi_1 y_{t-2} + \theta_1\varepsilon_{t-1} + \varepsilon_t $$
 
+## R model
 
-##US personal consumption
+\fontsize{13}{16}\sf
+
+\begin{block}{Intercept form}
+\centerline{$(1-\phi_1B - \cdots - \phi_p B^p) y_t' = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
+\end{block}
+
+\begin{block}{Mean form}
+\centerline{$(1-\phi_1B - \cdots - \phi_p B^p)(y_t' - \mu) = (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
+\end{block}
+
+ * $y_t' = (1-B)^d y_t$ 
+ * $\mu$ is the mean of $y_t'$. 
+ * $c = \mu(1-\phi_1 - \cdots - \phi_p )$.
+
+## US personal consumption
 
 ```{r}
 autoplot(uschange[,"Consumption"]) +
@@ -550,29 +551,49 @@ autoplot(uschange[,"Consumption"]) +
   ggtitle("US consumption")
 ```
 
-##US personal consumption
-\fontsize{11}{13}\sf
+## US personal consumption
+\fontsize{10}{11}\sf
 
 ```{r, echo=TRUE}
-(fit <- auto.arima(uschange[,"Consumption"],
-    seasonal=FALSE))
+(fit <- auto.arima(uschange[,"Consumption"]))
 ```
 
 \pause\vfill
 
-###ARIMA(0,1,1) model:
-\centerline{$y_t - y_{t-1} = e_t -0.7080 e_{t-1},$}
-where $e_t$ is white noise with standard deviation
-$`r round(sqrt(fit$sigma2),2)` = \sqrt{`r round(fit$sigma2,4)`}$.
 
-##US personal consumption
+```
+```{r usconsumptioncoefs, echo=FALSE}
+coef <- coefficients(fit)
+intercept <- coef['intercept'] * (1-coef['ar1'] - coef['ar2'])
+```
+
+```{r, include=FALSE}
+if(!identical(arimaorder(fit),c(p=2L,d=0L,q=2L)))
+  stop("Different model from expected")
+```
+
+### ARIMA(2,0,2) model:
+\centerline{$
+  y_t = c + `r format(coef['ar1'], nsmall=3, digits=3)`y_{t-1}
+          `r format(coef['ar2'], nsmall=3, digits=3)` y_{t-2}
+          `r format(coef['ma1'], nsmall=3, digits=3)` \varepsilon_{t-1}
+          + `r format(coef['ma2'], nsmall=3, digits=3)` \varepsilon_{t-2}
+          + \varepsilon_{t},
+$}
+where $c= `r format(coef['intercept'], nsmall=3, digits=3)` \times (1 - `r format(coef['ar1'], nsmall=3, digits=3)` + `r format(-coef['ar2'], nsmall=3, digits=3)`) = `r format(intercept, nsmall=3, digits=3)`$
+and $\varepsilon_t$ is white noise with a standard deviation of $`r format(sqrt(fit$sigma2), nsmall=3, digits=3)` = \sqrt{`r format(fit$sigma2, nsmall=3, digits=3)`}$. 
+
+
+## US personal consumption
+\fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 fit %>% forecast(h=10) %>% autoplot(include=80)
 ```
 
 
-##Understanding ARIMA models
+## Understanding ARIMA models
+\fontsize{14}{16}\sf
 
 * If $c=0$ and $d=0$, the long-term forecasts will go to zero.
 * If $c=0$ and $d=1$, the long-term forecasts will go to a non-zero constant.
@@ -585,13 +606,14 @@ fit %>% forecast(h=10) %>% autoplot(include=80)
 
 
 
-##Understanding ARIMA models
+## Understanding ARIMA models
+\fontsize{14}{15.5}\sf
 
-###Forecast variance and $d$
+### Forecast variance and $d$
   * The higher the value of $d$, the more rapidly the prediction intervals increase in size.
   * For $d=0$, the long-term forecast standard deviation will go to the standard deviation of the historical data.
 
-###Cyclic behaviour
+### Cyclic behaviour
   * For cyclic forecasts,  $p>2$ and some restrictions on coefficients are required.
   * If $p=2$, we need $\phi_1^2+4\phi_2<0$. Then average cycle of length
 \[
@@ -600,9 +622,9 @@ fit %>% forecast(h=10) %>% autoplot(include=80)
 
 
 
-#Estimation and order selection
+# Estimation and order selection
 
-##Maximum likelihood estimation
+## Maximum likelihood estimation
 
 Having identified the model order, we need to estimate the
 parameters $c$, $\phi_1,\dots,\phi_p$,
@@ -615,13 +637,13 @@ $$\sum_{t-1}^T e_t^2.$$
 * Non-linear optimization must be used in either case.
 * Different software will give different estimates.
 
-##Partial autocorrelations
+## Partial autocorrelations
 
 \structure{Partial autocorrelations} measure relationship\newline
 between $y_{t}$  and  $y_{t - k}$, when
 the effects of other time lags --- $1,
 2, 3, \dots, k - 1$ --- are removed.\pause
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}
 \begin{align*}
 \alpha_k&= \text{$k$th partial autocorrelation coefficient}\\
 &= \text{equal to the estimate of $b_k$ in regression:}\\
@@ -635,7 +657,7 @@ the effects of other time lags --- $1,
 * same critical values of $\pm 1.96/\sqrt{T}$ as for ACF.
 
 
-##Example: US consumption
+## Example: US consumption
 
 ```{r}
 uschange[,"Consumption"] %>% diff() %>%
@@ -645,7 +667,7 @@ uschange[,"Consumption"] %>% diff() %>%
     ggtitle("Differenced US consumption")
 ```
 
-##Example: US consumption
+## Example: US consumption
 
 
 ```{r usconsumptionacf}
@@ -657,8 +679,7 @@ gridExtra::grid.arrange(p1,p2,nrow=1)
 ## ACF and PACF interpretation
 
 **AR(1)**
-
-\vspace*{-0.8cm}\begin{align*}
+\begin{align*}
 \hspace*{1cm}\rho_k &= \phi_1^k\qquad\text{for $k=1,2,\dots$};\\
 \alpha_1 &= \phi_1 \qquad\alpha_k = 0\qquad\text{for $k=2,3,\dots$}.
 \end{align*}
@@ -685,8 +706,7 @@ So we have an AR($p$) model when
 ## ACF and PACF interpretation
 
 **MA(1)**
-
-\vspace*{-0.8cm}\begin{align*}
+\begin{align*}
 \hspace*{1cm}\rho_1 &= \theta_1\qquad \rho_k = 0\qquad\text{for $k=2,3,\dots$};\\
 \alpha_k &= -(-\theta_1)^k
 \end{align*}
@@ -708,7 +728,7 @@ So we have an MA($q$) model when
   * the PACF is  exponentially decaying or sinusoidal
   * there is a significant spike at lag $q$ in ACF, but none beyond $q$
 
-##Example: Mink trapping
+## Example: Mink trapping
 
 ```{r}
 autoplot(mink) +
@@ -717,7 +737,7 @@ autoplot(mink) +
   ggtitle("Annual number of minks trapped")
 ```
 
-##Example: Mink trapping
+## Example: Mink trapping
 
 ```{r}
 p1 <- ggAcf(mink,main="")
@@ -726,27 +746,25 @@ gridExtra::grid.arrange(p1,p2,nrow=1)
 ```
 
 
-##Information criteria
+## Information criteria
 
 \structure{Akaike's Information Criterion (AIC):}
 \centerline{$\text{AIC} = -2 \log(L) + 2(p+q+k+1),$}
 where $L$ is the likelihood of the data,\newline
-$k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause
+$k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause\vspace*{0.2cm}
 
 \structure{Corrected AIC:}
-\[
-\text{AICc} = \text{AIC} + \frac{2(p+q+k+1)(p+q+k+2)}{T-p-q-k-2}.
-\]\pause
+\centerline{$\text{AICc} = \text{AIC} + \frac{2(p+q+k+1)(p+q+k+2)}{T-p-q-k-2}.$}\pause\vspace*{0.2cm}
 
 \structure{Bayesian Information Criterion:}
-\centerline{$\text{BIC} = \text{AIC} + \log(T)(p+q+k-1).$}
-\pause\vspace*{-0.6cm}
+\centerline{$\text{BIC} = \text{AIC} + [\log(T)-2](p+q+k-1).$}
+\pause\vspace*{-0.2cm}
 \begin{block}{}Good models are obtained by minimizing either the AIC, \text{AICc}\ or BIC\@. Our preference is to use the \text{AICc}.\end{block}
 
 
-#ARIMA modelling in R
+# ARIMA modelling in R
 
-##How does auto.arima() work?
+## How does auto.arima() work?
 
 \begin{block}{A non-seasonal ARIMA process}
 \[
@@ -757,12 +775,12 @@ Need to select appropriate orders: \alert{$p,q, d$}
 
 \structure{Hyndman and Khandakar (JSS, 2008) algorithm:}
 
-  * Select no.\ differences \alert{$d$} and \alert{$D$} via unit root tests.
+  * Select no.\ differences \alert{$d$} and \alert{$D$} via KPSS test and seasonal strength measure.
   * Select \alert{$p,q$} by minimising AICc.
   * Use stepwise search to traverse model space.
 
-##How does auto.arima() work?
-\fontsize{12}{14}\sf
+## How does auto.arima() work?
+\fontsize{12}{13}\sf
 
 \begin{block}{}
 \centerline{$\text{AICc} = -2 \log(L) + 2(p+q+k+1)\left[1 +
@@ -792,48 +810,33 @@ Step 2:
 
 
 
-##Choosing your own model
+## Choosing your own model
 
 ```{r, echo=TRUE, fig.height=4}
 ggtsdisplay(internet)
 ```
 
-##Choosing your own model
-\fontsize{10}{12}\sf
-
-```{r, echo=TRUE}
-tseries::adf.test(internet)
-tseries::kpss.test(internet)
-```
-
-##Choosing your own model
-\fontsize{9.8}{12}\sf
-
-```{r, echo=TRUE}
-tseries::kpss.test(diff(internet))
-```
-
-##Choosing your own model
+## Choosing your own model
 
 ```{r, echo=TRUE, fig.height=4}
 ggtsdisplay(diff(internet))
 ```
 
-##Choosing your own model
+## Choosing your own model
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 (fit <- Arima(internet,order=c(3,1,0)))
 ```
 
-##Choosing your own model
+## Choosing your own model
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 auto.arima(internet)
 ```
 
-##Choosing your own model
+## Choosing your own model
 \fontsize{13}{15}\sf
 
 ```{r internettryharder, echo=TRUE, fig.height=4}
@@ -842,7 +845,7 @@ auto.arima(internet, stepwise=FALSE,
 ```
 
 
-##Choosing your own model
+## Choosing your own model
 
 ```r
 checkresiduals(fit)
@@ -853,14 +856,14 @@ checkresiduals(fit, test=FALSE)
 ```
 
 
-##Choosing your own model
+## Choosing your own model
 
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
 
-##Choosing your own model
+## Choosing your own model
 
 ```{r, echo=TRUE, fig.height=4}
 fit %>% forecast %>% autoplot
@@ -868,8 +871,8 @@ fit %>% forecast %>% autoplot
 
 
 
-##Modelling procedure with `Arima`
-\fontsize{13}{15}\sf
+## Modelling procedure with `Arima`
+\fontsize{12}{13}\sf
 
 1. Plot the data. Identify any unusual observations.
 2. If necessary, transform the data (using a Box-Cox transformation) to stabilize the variance.
@@ -881,8 +884,8 @@ fit %>% forecast %>% autoplot
 
 
 
-##Modelling procedure with `auto.arima`
-\fontsize{13}{15}\sf
+## Modelling procedure with `auto.arima`
+\fontsize{12}{13}\sf
 \vspace*{-0.4cm}
 
 1. Plot the data. Identify any unusual observations.
@@ -899,12 +902,12 @@ fit %>% forecast %>% autoplot
 
 \vspace*{-0.4cm}
 
-##Modelling procedure
+## Modelling procedure
 
 \centerline{\includegraphics[height=8.cm]{Figure-8-10}}
 
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 \fontsize{13}{15}\sf
 
 ```{r ee1, fig.height=3.3, echo=TRUE}
@@ -914,25 +917,25 @@ autoplot(eeadj) + xlab("Year") +
 ```
 
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 
 1. Time plot shows sudden changes, particularly big drop in 2008/2009 due to global economic environment. Otherwise nothing unusual and no need for  data adjustments.
 2. No evidence of changing variance, so no Box-Cox transformation.
 3. Data are clearly non-stationary, so we take first differences.
 
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 
 ```{r ee2, echo=TRUE, fig.height=4}
 ggtsdisplay(diff(eeadj), main="")
 ```
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 
 4. PACF is suggestive of AR(3). So initial candidate model is ARIMA(3,1,0). No other obvious candidates.
 5. Fit ARIMA(3,1,0) model along with variations: ARIMA(4,1,0), ARIMA(2,1,0), ARIMA(3,1,1), etc. ARIMA(3,1,1) has smallest \text{AICc} value.
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 \fontsize{10}{11}\sf
 
 ```{r, echo=TRUE}
@@ -940,7 +943,7 @@ fit <- Arima(eeadj, order=c(3,1,1))
 summary(fit)
 ```
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 
 6. ACF plot of residuals from ARIMA(3,1,1) model look like white noise.
 
@@ -952,21 +955,21 @@ checkresiduals(fit)
 checkresiduals(fit)
 ```
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
-##\large Seasonally adjusted electrical equipment
+## \large Seasonally adjusted electrical equipment
 
 ```{r, echo=TRUE}
 fit %>% forecast %>% autoplot
 ```
 
-#Forecasting
+# Forecasting
 
-##Point forecasts
+## Point forecasts
 
 1. Rearrange ARIMA equation so $y_t$ is on LHS.
 2. Rewrite equation by replacing $t$ by $T+h$.
@@ -975,53 +978,53 @@ fit %>% forecast %>% autoplot
 Start with $h=1$. Repeat for $h=2,3,\dots$.
 
 
-##Point forecasts
+## Point forecasts
 \fontsize{14}{14}\sf
 
 \structure{ARIMA(3,1,1) forecasts: Step 1}
 \begin{block}{}
-\centerline{$(1-\phi_1B -\phi_2B^2-\phi_3B^3)(1-B) y_t = (1+\theta_1B)e_{t},$}
+\centerline{$(1-\phi_1B -\phi_2B^2-\phi_3B^3)(1-B) y_t = (1+\theta_1B)\varepsilon_{t},$}
 \end{block}
 \pause\vspace*{-0.4cm}
 \begin{align*}
-\left[1-(1+\phi_1)B +(\phi_1-\phi_2)B^2 + (\phi_2-\phi_3)B^3 +\phi_3B^4\right] y_t\\ = (1+\theta_1B)e_{t},
+\left[1-(1+\phi_1)B +(\phi_1-\phi_2)B^2 + (\phi_2-\phi_3)B^3 +\phi_3B^4\right] y_t\\ = (1+\theta_1B)\varepsilon_{t},
 \end{align*}\pause\vspace*{-0.4cm}
 \begin{align*}
-y_t - (1+\phi_1)y_{t-1} +(\phi_1-\phi_2)y_{t-2} + (\phi_2-\phi_3)y_{t-3}\\ \mbox{}+\phi_3y_{t-4} = e_t+\theta_1e_{t-1}.
+y_t - (1+\phi_1)y_{t-1} +(\phi_1-\phi_2)y_{t-2} + (\phi_2-\phi_3)y_{t-3}\\ \mbox{}+\phi_3y_{t-4} = \varepsilon_t+\theta_1\varepsilon_{t-1}.
 \end{align*}\pause\vspace*{-0.4cm}
 \begin{align*}
-y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + e_t+\theta_1e_{t-1}.
+y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + \varepsilon_t+\theta_1\varepsilon_{t-1}.
 \end{align*}
 
 
-##Point forecasts (h=1)
+## Point forecasts (h=1)
 \fontsize{14}{14}\sf
 
 \begin{block}{}\vspace*{-0.6cm}
 \begin{align*}
-y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + e_t+\theta_1e_{t-1}.
+y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + \varepsilon_t+\theta_1\varepsilon_{t-1}.
 \end{align*}
 \end{block}\pause
 \structure{ARIMA(3,1,1) forecasts: Step 2}
 \begin{align*}
-y_{T+1} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbox{} -\phi_3y_{T-3} + e_{T+1}+\theta_1e_{T}.
+y_{T+1} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbox{} -\phi_3y_{T-3} + \varepsilon_{T+1}+\theta_1\varepsilon_{T}.
 \end{align*}\pause
 \structure{ARIMA(3,1,1) forecasts: Step 3}
 \begin{align*}
-\hat{y}_{T+1|T} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbox{} -\phi_3y_{T-3} + \theta_1\hat{e}_{T}.
+\hat{y}_{T+1|T} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbox{} -\phi_3y_{T-3} + \theta_1 \varepsilon_{T}.
 \end{align*}
 
-##Point forecasts (h=2)
+## Point forecasts (h=2)
 \fontsize{14}{14}\sf
 
 \begin{block}{}\vspace*{-0.6cm}
 \begin{align*}
-y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + e_t+\theta_1e_{t-1}.
+y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + \varepsilon_t+\theta_1\varepsilon_{t-1}.
 \end{align*}
 \end{block}\pause
 \structure{ARIMA(3,1,1) forecasts: Step 2}
 \begin{align*}
-y_{T+2} = (1+\phi_1)y_{T+1} -(\phi_1-\phi_2)y_{T} - (\phi_2-\phi_3)y_{T-1}\\\mbox{} -\phi_3y_{T-2} + e_{T+2}+\theta_1e_{T+1}.
+y_{T+2} = (1+\phi_1)y_{T+1} -(\phi_1-\phi_2)y_{T} - (\phi_2-\phi_3)y_{T-1}\\\mbox{} -\phi_3y_{T-2} + \varepsilon_{T+2}+\theta_1\varepsilon_{T+1}.
 \end{align*}\pause
 \structure{ARIMA(3,1,1) forecasts: Step 3}
 \begin{align*}
@@ -1030,7 +1033,7 @@ y_{T+2} = (1+\phi_1)y_{T+1} -(\phi_1-\phi_2)y_{T} - (\phi_2-\phi_3)y_{T-1}\\\mbo
 
 
 
-##Prediction intervals
+## Prediction intervals
 
 \begin{block}{95\% Prediction interval}
 $$\hat{y}_{T+h|T} \pm 1.96\sqrt{v_{T+h|T}}$$
@@ -1039,12 +1042,12 @@ where $v_{T+h|T}$ is estimated forecast variance.
 
 * $v_{T+1|T}=\hat{\sigma}^2$ for all ARIMA models regardless of parameters and orders.
 * Multi-step prediction intervals for ARIMA(0,0,$q$):
-\centerline{$\displaystyle y_t = e_t + \sum_{i=1}^q \theta_i e_{t-i}.$}
+\centerline{$\displaystyle y_t = \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}.$}
 \centerline{$\displaystyle
 v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad\text{for~} h=2,3,\dots.$}
 
 
-##Prediction intervals
+## Prediction intervals
 
 \begin{block}{95\% Prediction interval}
 $$\hat{y}_{T+h|T} \pm 1.96\sqrt{v_{T+h|T}}$$
@@ -1052,7 +1055,7 @@ where $v_{T+h|T}$ is estimated forecast variance.
 \end{block}
 
 * Multi-step prediction intervals for ARIMA(0,0,$q$):
-\centerline{$\displaystyle y_t = e_t + \sum_{i=1}^q \theta_i e_{t-i}.$}
+\centerline{$\displaystyle y_t = \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}.$}
 \centerline{$\displaystyle
 v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad\text{for~} h=2,3,\dots.$}
 
@@ -1062,7 +1065,7 @@ v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad
 * Other models beyond scope of this workshop.
 
 
-##Prediction intervals
+## Prediction intervals
 
 * Prediction intervals **increase in size with forecast horizon**.
 * Prediction intervals can be difficult to calculate by hand
@@ -1074,7 +1077,7 @@ v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad
 
 
 
-##Your turn
+## Your turn
 
 For the `usgdp` data:
 
@@ -1083,9 +1086,9 @@ For the `usgdp` data:
  * check the residual diagnostics;
  * produce forecasts of your fitted model. Do the forecasts look reasonable?
 
-#Backshift notation revisited
+# Backshift notation revisited
 
-##Backshift notation
+## Backshift notation
 
 A  very useful notational device is the backward  shift operator,  $B$,  which is used as follows:
 $$
@@ -1099,7 +1102,7 @@ $$\pause
 For  monthly  data, if we wish to shift attention  to  ``the same  month last year,''  then  $B^{12}$ is used,  and  the notation is  $B^{12}y_{t}$  =  $y_{t-12}$.
 
 
-##Backshift notation
+## Backshift notation
 
   * First difference: $1-B$.
   * Double difference:  $(1- B)^{2}$.
@@ -1112,7 +1115,7 @@ For  monthly  data, if we wish to shift attention  to  ``the same  month last ye
 &= y_t-y_{t-1}-y_{t-m}+y_{t-m-1}.
 \end{align*}
 
-##Backshift notation for ARIMA
+## Backshift notation for ARIMA
 \fontsize{13}{15}\sf
 
   * ARMA model:
@@ -1120,10 +1123,10 @@ For  monthly  data, if we wish to shift attention  to  ``the same  month last ye
   \vspace*{-0.9cm}
 \begin{align*}
 \hspace*{0.5cm} y_{t}  &=  c  +  \phi_{1}y_{t - 1}  +  \cdots  +  \phi_{p}y_{t - p}
- + e_t + \theta_{1}e_{t - 1} +  \cdots  + \theta_{q}e_{t - q}\\
+ + \varepsilon_t + \theta_{1}\varepsilon_{t - 1} +  \cdots  + \theta_{q}\varepsilon_{t - q}\\
        &=  c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
-           +  e_{t}  +  \theta_{1}Be_{t} + \cdots + \theta_qB^qe_{t} \\
-\phi(B)y_t & = c + \theta(B) e_t\\
+           +  \varepsilon_{t}  +  \theta_{1}B\varepsilon_{t} + \cdots + \theta_qB^q\varepsilon_{t} \\
+\phi(B)y_t & = c + \theta(B) \varepsilon_t\\
   & \hspace*{0.6cm} \text{where $\phi(B)= 1-\phi_1B - \cdots - \phi_p B^p$}\\
   & \hspace*{0.6cm} \text{and $\theta(B) = 1 + \theta_1 B + \cdots + \theta_q B^q$.}
 \end{align*}
@@ -1134,7 +1137,7 @@ For  monthly  data, if we wish to shift attention  to  ``the same  month last ye
 
 $$
 \begin{array}{c c c c}
-(1 - \phi_{1} B) & (1  -  B) y_{t} &= &c + (1  + \theta_{1} B) e_{t}\\
+(1 - \phi_{1} B) & (1  -  B) y_{t} &= &c + (1  + \theta_{1} B) \varepsilon_{t}\\
 \uparrow  & \uparrow    &   &\uparrow\\
 {\text{AR(1)}} & {\text{First}}   &     &{\text{MA(1)}}\\
 & {\hbox to 0cm{\hss\text{difference}\hss}}\\
@@ -1142,7 +1145,7 @@ $$
 $$
 
 
-##Backshift notation for ARIMA
+## Backshift notation for ARIMA
 \fontsize{13}{15}\sf
 
 
@@ -1152,7 +1155,7 @@ $$
 \begin{equation*}
   \arraycolsep=0.1cm
   \begin{array}{c c c c}
-    (1-\phi_1B - \cdots - \phi_p B^p) & (1-B)^d y_{t} &= &c + (1 + \theta_1 B + \cdots + \theta_q B^q)e_t\\
+    (1-\phi_1B - \cdots - \phi_p B^p) & (1-B)^d y_{t} &= &c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t\\
     {\uparrow} & {\uparrow} & &{\uparrow}\\
     {\text{AR($p$)}} & \hbox to 0cm{\hss\text{$d$ differences}\hss} & &{\text{MA($q$)}}\\
   \end{array}
@@ -1160,9 +1163,9 @@ $$
 
 
 
-#Seasonal ARIMA models
+# Seasonal ARIMA models
 
-##Seasonal ARIMA models
+## Seasonal ARIMA models
 
 | ARIMA | $~\underbrace{(p, d, q)}$ | $\underbrace{(P, D, Q)_{m}}$ |
 | ----: | :-----------------------: | :--------------------------: |
@@ -1175,11 +1178,11 @@ where $m =$ number of observations per year.
 
 
 
-##Seasonal ARIMA models
+## Seasonal ARIMA models
 
 E.g., ARIMA$(1, 1, 1)(1, 1, 1)_{4}$  model (without constant)\pause
 $$(1 - \phi_{1}B)(1 - \Phi_{1}B^{4}) (1 - B) (1 - B^{4})y_{t} ~= ~
-(1 + \theta_{1}B) (1 + \Theta_{1}B^{4})e_{t}.
+(1 + \theta_{1}B) (1 + \Theta_{1}B^{4})\varepsilon_{t}.
 $$\pause
 
 \setlength{\unitlength}{1mm}
@@ -1213,11 +1216,11 @@ $$\pause
 
 
 
-##Seasonal ARIMA models
+## Seasonal ARIMA models
 
 E.g., ARIMA$(1, 1, 1)(1, 1, 1)_{4}$  model (without constant)
 $$(1 - \phi_{1}B)(1 - \Phi_{1}B^{4}) (1 - B) (1 - B^{4})y_{t} ~= ~
-(1 + \theta_{1}B) (1 + \Theta_{1}B^{4})e_{t}.
+(1 + \theta_{1}B) (1 + \Theta_{1}B^{4})\varepsilon_{t}.
 $$
 
 All the factors can be multiplied out and the general model
@@ -1230,14 +1233,14 @@ y_{t}  &= (1 + \phi_{1})y_{t - 1} - \phi_1y_{t-2} + (1 + \Phi_{1})y_{t - 4}\\
 & \text{}  - \Phi_{1} y_{t - 8} +  (\Phi_{1}  +  \phi_{1} \Phi_{1}) y_{t - 9}
   - \phi_{1} \Phi_{1} y_{t  -  10}\\
   &\text{}
-+    e_{t} + \theta_{1}e_{t - 1} + \Theta_{1}e_{t - 4}  + \theta_{1}\Theta_{1}e_{t - 5}.
++    \varepsilon_{t} + \theta_{1}\varepsilon_{t - 1} + \Theta_{1}\varepsilon_{t - 4}  + \theta_{1}\Theta_{1}\varepsilon_{t - 5}.
 \end{align*}
 \vspace*{10cm}
 
 
 
 
-##Common ARIMA models
+## Common ARIMA models
 
 In the US Census Bureau uses the following models most often:\vspace*{0.5cm}
 
@@ -1254,7 +1257,7 @@ ARIMA(2,1,2)(0,1,1)$_m$& with no transformation\\
 
 
 
-##Seasonal ARIMA models
+## Seasonal ARIMA models
 The seasonal part of an AR or MA model will be seen in the seasonal lags of
 the PACF and ACF.
 
@@ -1269,27 +1272,27 @@ the PACF and ACF.
   *  exponential decay in the seasonal lags of the ACF
   * a single significant spike at lag 12 in the PACF.
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=3.6}
 autoplot(euretail) +
   xlab("Year") + ylab("Retail index")
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=4}
 euretail %>% diff(lag=4) %>% ggtsdisplay()
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=3.8}
 euretail %>% diff(lag=4) %>% diff() %>%
   ggtsdisplay()
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 
   * $d=1$ and $D=1$ seems necessary.
   * Significant spike at lag 1 in ACF suggests non-seasonal MA(1) component.
@@ -1297,7 +1300,7 @@ euretail %>% diff(lag=4) %>% diff() %>%
   * Initial candidate model: ARIMA(0,1,1)(0,1,1)$_4$.
   * We could also have started with ARIMA(1,1,0)(1,1,0)$_4$.
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=3.5}
 fit <- Arima(euretail, order=c(0,1,1),
@@ -1305,13 +1308,13 @@ fit <- Arima(euretail, order=c(0,1,1),
 checkresiduals(fit)
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 
   * ACF and PACF of residuals show significant spikes at lag 2, and maybe lag 3.
   * AICc of ARIMA(0,1,2)(0,1,1)$_4$ model is 74.36.
@@ -1325,7 +1328,7 @@ checkresiduals(fit)
 ```
 
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 \fontsize{12}{15}\sf
 
@@ -1334,34 +1337,34 @@ checkresiduals(fit)
   seasonal=c(0,1,1)))
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 checkresiduals(fit)
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 \fontsize{13}{15}\sf
 
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=4}
 autoplot(forecast(fit, h=12))
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 \fontsize{12}{14}\sf
 
 ```{r, echo=TRUE}
 auto.arima(euretail)
 ```
 
-##European quarterly retail trade
+## European quarterly retail trade
 \fontsize{12}{14}\sf
 
 ```{r euretailtryharder, echo=TRUE}
@@ -1369,7 +1372,7 @@ auto.arima(euretail, stepwise=FALSE, approximation=FALSE)
 ```
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 
 
 ```{r h02}
@@ -1379,13 +1382,13 @@ tmp <- cbind("H02 sales (million scripts)" = h02,
 autoplot(tmp, facets=TRUE) + xlab("Year") + ylab("")
 ```
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 ```{r h02b}
 ggtsdisplay(diff(lh02,12), xlab="Year",
   main="Seasonally differenced H02 scripts")
 ```
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 
   * Choose $D=1$ and $d=0$.
   * Spikes in PACF at lags 12 and 24 suggest seasonal AR(2) term.
@@ -1394,7 +1397,7 @@ ggtsdisplay(diff(lh02,12), xlab="Year",
 
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 
 
 | Model | AICc|
@@ -1408,7 +1411,7 @@ ggtsdisplay(diff(lh02,12), xlab="Year",
 | ARIMA(3,0,1)(1,1,1)$_{12}$ | $-484.25$ |
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{11}{14}\sf
 
 ```{r, echo=TRUE}
@@ -1417,19 +1420,19 @@ ggtsdisplay(diff(lh02,12), xlab="Year",
 ```
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 
 ```{r h02res, echo=TRUE, fig.height=4}
 checkresiduals(fit)
 ```
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 
 ```{r h02resb, echo=FALSE, fig.height=4}
 checkresiduals(fit, plot=FALSE)
 ```
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{10}{14}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
@@ -1438,7 +1441,7 @@ checkresiduals(fit, plot=FALSE)
 ```
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
@@ -1446,14 +1449,14 @@ checkresiduals(fit)
 ```
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{13}{15}\sf
 
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{11}{12}\sf
 
 Training data: July 1991 to June 2006
@@ -1487,7 +1490,7 @@ getrmse(h02,h=24,order=c(2,1,4),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(2,1,5),seasonal=c(0,1,1),lambda=0)
 ```
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{12}{14}\sf
 
 ```{r, cache=TRUE}
@@ -1527,7 +1530,7 @@ knitr::kable(data.frame(Model=modelname,RMSE=rmse),
 ```
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 
   * Models with lowest AICc values tend to give slightly better results than the other models.
   * AICc comparisons must have the same orders of differencing. But RMSE test set comparisons can involve any models.
@@ -1537,7 +1540,7 @@ knitr::kable(data.frame(Model=modelname,RMSE=rmse),
 
 
 
-##Cortecosteroid drug sales
+## Cortecosteroid drug sales
 \fontsize{12}{14}\sf
 
 ```{r h02f, echo=TRUE, fig.height=3}
@@ -1549,10 +1552,10 @@ autoplot(forecast(fit)) +
 
 
 
-#ARIMA vs ETS
+# ARIMA vs ETS
 
 
-##ARIMA vs ETS
+## ARIMA vs ETS
 
 
   * Myth that ARIMA models are more general than exponential smoothing.
@@ -1569,7 +1572,7 @@ autoplot(forecast(fit)) +
 
 
 
-##Equivalences
+## Equivalences
 
 \fontsize{12}{14}\sf
 
@@ -1587,7 +1590,7 @@ autoplot(forecast(fit)) +
 
 
 
-##Your turn
+## Your turn
 
 \fontsize{13}{14}\sf
 
