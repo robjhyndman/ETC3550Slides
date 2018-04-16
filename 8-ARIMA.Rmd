@@ -823,21 +823,21 @@ ggtsdisplay(diff(internet))
 ```
 
 ## Choosing your own model
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 (fit <- Arima(internet,order=c(3,1,0)))
 ```
 
 ## Choosing your own model
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 auto.arima(internet)
 ```
 
 ## Choosing your own model
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 ```{r internettryharder, echo=TRUE, fig.height=4}
 auto.arima(internet, stepwise=FALSE,
@@ -886,21 +886,18 @@ fit %>% forecast %>% autoplot
 
 ## Modelling procedure with `auto.arima`
 \fontsize{12}{13}\sf
-\vspace*{-0.4cm}
 
 1. Plot the data. Identify any unusual observations.
 2. If necessary, transform the data (using a Box-Cox transformation) to stabilize the variance.
 
-\vfill\vfill\vfill\vfill\vfill\vfill\vfill\vfill
+\vspace*{1.15cm}
 
 3. Use `auto.arima` to select a model.
 
-\vfill\vfill\vfill\vfill\vfill\vfill\vfill\vfill
+\vspace*{1.15cm}
 
 6. Check the residuals from your chosen model by plotting the ACF of the residuals, and doing a portmanteau test of the residuals. If they do not look like white noise, try a modified model.
 7. Once the residuals look like white noise, calculate forecasts.
-
-\vspace*{-0.4cm}
 
 ## Modelling procedure
 
@@ -908,7 +905,7 @@ fit %>% forecast %>% autoplot
 
 
 ## \large Seasonally adjusted electrical equipment
-\fontsize{13}{15}\sf
+\fontsize{11.5}{15}\sf
 
 ```{r ee1, fig.height=3.3, echo=TRUE}
 eeadj <- seasadj(stl(elecequip, s.window="periodic"))
@@ -927,7 +924,7 @@ autoplot(eeadj) + xlab("Year") +
 ## \large Seasonally adjusted electrical equipment
 
 ```{r ee2, echo=TRUE, fig.height=4}
-ggtsdisplay(diff(eeadj), main="")
+ggtsdisplay(diff(eeadj))
 ```
 
 ## \large Seasonally adjusted electrical equipment
@@ -936,16 +933,17 @@ ggtsdisplay(diff(eeadj), main="")
 5. Fit ARIMA(3,1,0) model along with variations: ARIMA(4,1,0), ARIMA(2,1,0), ARIMA(3,1,1), etc. ARIMA(3,1,1) has smallest \text{AICc} value.
 
 ## \large Seasonally adjusted electrical equipment
-\fontsize{10}{11}\sf
+\fontsize{10}{10}\sf
 
 ```{r, echo=TRUE}
-fit <- Arima(eeadj, order=c(3,1,1))
-summary(fit)
+(fit <- Arima(eeadj, order=c(3,1,1)))
 ```
 
 ## \large Seasonally adjusted electrical equipment
 
 6. ACF plot of residuals from ARIMA(3,1,1) model look like white noise.
+
+\fontsize{11}{11}\sf
 
 ```r
 checkresiduals(fit)
@@ -1000,7 +998,7 @@ y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{
 ## Point forecasts (h=1)
 \fontsize{14}{14}\sf
 
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}
 \begin{align*}
 y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + \varepsilon_t+\theta_1\varepsilon_{t-1}.
 \end{align*}
@@ -1017,7 +1015,7 @@ y_{T+1} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbo
 ## Point forecasts (h=2)
 \fontsize{14}{14}\sf
 
-\begin{block}{}\vspace*{-0.6cm}
+\begin{block}{}
 \begin{align*}
 y_t = (1+\phi_1)y_{t-1} -(\phi_1-\phi_2)y_{t-2} - (\phi_2-\phi_3)y_{t-3}\\\mbox{} -\phi_3y_{t-4} + \varepsilon_t+\theta_1\varepsilon_{t-1}.
 \end{align*}
@@ -1062,7 +1060,7 @@ v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad
 \pause
 
 * AR(1): Rewrite as MA($\infty$) and use above result.
-* Other models beyond scope of this workshop.
+* Other models beyond scope of this subject.
 
 
 ## Prediction intervals
@@ -1073,7 +1071,7 @@ v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad
 * Prediction intervals tend to be too narrow.
     * the uncertainty in the parameter estimates has not been accounted for.
     * the ARIMA model assumes historical patterns will not change during the forecast period.
-    * the ARIMA model assumes uncorrelated future errors
+    * the ARIMA model assumes uncorrelated future \rlap{errors}
 
 
 
@@ -1086,7 +1084,7 @@ For the `usgdp` data:
  * check the residual diagnostics;
  * produce forecasts of your fitted model. Do the forecasts look reasonable?
 
-# Backshift notation revisited
+<!-- # Backshift notation revisited
 
 ## Backshift notation
 
@@ -1162,7 +1160,7 @@ $$
 \end{equation*}
 
 
-
+ -->
 # Seasonal ARIMA models
 
 ## Seasonal ARIMA models
@@ -1191,21 +1189,21 @@ $$\pause
 \thinlines
 {\put(5,22){\vector(0,1){6}}}
 {\put(22,10){\vector(0,1){18}}}
-{\put(42,22){\vector(0,1){6}}}
-{\put(57,10){\vector(0,1){18}}}
-{\put(83,22){\vector(0,1){6}}}
-{\put(105,10){\vector(0,1){18}}}
+{\put(38,22){\vector(0,1){6}}}
+{\put(52,10){\vector(0,1){18}}}
+{\put(77,22){\vector(0,1){6}}}
+{\put(95,10){\vector(0,1){18}}}
 {\put(-10,17){$\left(\begin{array}{@{}c@{}} \text{Non-seasonal} \\ \text{AR(1)}
                     \end{array}\right)$}}
 {\put(12,5){$\left(\begin{array}{@{}c@{}} \text{Seasonal} \\ \text{AR(1)}
                     \end{array}\right)$}}
 {\put(25,17){$\left(\begin{array}{@{}c@{}} \text{Non-seasonal} \\ \text{difference}
                     \end{array}\right)$}}
-{\put(45,5){$\left(\begin{array}{@{}c@{}} \text{Seasonal} \\ \text{difference}
+{\put(40,5){$\left(\begin{array}{@{}c@{}} \text{Seasonal} \\ \text{difference}
                     \end{array}\right)$}}
-{\put(70,17){$\left(\begin{array}{@{}c@{}} \text{Non-seasonal} \\ \text{MA(1)}
+{\put(65,17){$\left(\begin{array}{@{}c@{}} \text{Non-seasonal} \\ \text{MA(1)}
                     \end{array}\right)$}}
-{\put(95,5){$\left(\begin{array}{@{}c@{}} \text{Seasonal} \\ \text{MA(1)}
+{\put(85,5){$\left(\begin{array}{@{}c@{}} \text{Seasonal} \\ \text{MA(1)}
                     \end{array}\right)$}}
 \end{picture}
 \end{footnotesize}
@@ -1242,7 +1240,7 @@ y_{t}  &= (1 + \phi_{1})y_{t - 1} - \phi_1y_{t-2} + (1 + \Phi_{1})y_{t - 4}\\
 
 ## Common ARIMA models
 
-In the US Census Bureau uses the following models most often:\vspace*{0.5cm}
+The US Census Bureau uses the following models most often:\vspace*{0.5cm}
 
 \begin{tabular}{|ll|}
 \hline
@@ -1310,15 +1308,24 @@ checkresiduals(fit)
 
 ## European quarterly retail trade
 
+\fontsize{13}{14}\sf
+
 ```{r, echo=FALSE}
 checkresiduals(fit, plot=FALSE)
 ```
 
 ## European quarterly retail trade
 
+```{r, echo=FALSE}
+aicc <- c(
+  Arima(euretail, order=c(0,1,2), seasonal=c(0,1,1))$aicc,
+  Arima(euretail, order=c(0,1,3), seasonal=c(0,1,1))$aicc
+  )
+```
+
   * ACF and PACF of residuals show significant spikes at lag 2, and maybe lag 3.
-  * AICc of ARIMA(0,1,2)(0,1,1)$_4$ model is 74.36.
-  * AICc of ARIMA(0,1,3)(0,1,1)$_4$ model is 68.53.
+  * AICc of ARIMA(0,1,2)(0,1,1)$_4$ model is `r round(aicc[1],2)`.
+  * AICc of ARIMA(0,1,3)(0,1,1)$_4$ model is `r round(aicc[2],2)`.
 \pause\vfill
 
 ```r
@@ -1368,7 +1375,8 @@ auto.arima(euretail)
 \fontsize{12}{14}\sf
 
 ```{r euretailtryharder, echo=TRUE}
-auto.arima(euretail, stepwise=FALSE, approximation=FALSE)
+auto.arima(euretail, 
+  stepwise=FALSE, approximation=FALSE)
 ```
 
 
@@ -1400,19 +1408,32 @@ ggtsdisplay(diff(lh02,12), xlab="Year",
 ## Cortecosteroid drug sales
 
 
-| Model | AICc|
-|:------: |:------:|
-| ARIMA(3,0,0)(2,1,0)$_{12}$ | $-475.12$ |
-| ARIMA(3,0,1)(2,1,0)$_{12}$ | $-476.31$ |
-| ARIMA(3,0,2)(2,1,0)$_{12}$ | $-474.88$ |
-| ARIMA(3,0,1)(1,1,0)$_{12}$ | $-463.40$ |
-| ARIMA(3,0,1)(0,1,1)$_{12}$ | $-483.67$ |
-| ARIMA(3,0,1)(0,1,2)$_{12}$ | $-485.48$ |
-| ARIMA(3,0,1)(1,1,1)$_{12}$ | $-484.25$ |
-
+```{r h02aicc, echo=FALSE}
+models <- rbind(
+  c(3,0,0,2,1,0),
+  c(3,0,1,2,1,0),
+  c(3,0,2,2,1,0),
+  c(3,0,1,1,1,0),
+  c(3,0,1,0,1,1),
+  c(3,0,1,0,1,2),
+  c(3,0,1,1,1,1))
+aicc <- numeric(NROW(models))
+modelname <- character(NROW(models))
+for(i in seq_along(aicc))
+{
+  fit <- Arima(lh02, order=models[i,1:3],
+          seasonal=models[i,4:6])
+  aicc[i] <- fit$aicc
+  modelname[i] <- as.character(fit)
+}
+modelname <- sub("\\[12\\]","$_{12}$",modelname)
+j <- order(aicc)
+knitr::kable(data.frame(Model=modelname,AICc=aicc)[j,], escape=FALSE,
+             digits=2, row.names=FALSE, align='cc', booktabs=TRUE)
+```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{14}\sf
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE}
 (fit <- Arima(h02, order=c(3,0,1), seasonal=c(0,1,2),
@@ -1442,7 +1463,7 @@ checkresiduals(fit, plot=FALSE)
 
 
 ## Cortecosteroid drug sales
-\fontsize{13}{15}\sf
+\fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 checkresiduals(fit)
