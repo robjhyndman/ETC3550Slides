@@ -19,9 +19,9 @@ library(fpp2)
 options(width=60)
 ```
 
-#Time series components
+# Time series components
 
-##Time series patterns
+## Time series patterns
 
 **Recall**
 
@@ -34,7 +34,7 @@ Cyclic
 Seasonal
 : pattern exists when a series is influenced by seasonal factors (e.g., the quarter of the year, the month, or day of the week).
 
-##Time series decomposition
+## Time series decomposition
 
 \begin{block}{}\vspace*{-0.3cm}
 \[ y_t = f(S_t, T_t, R_t) \]
@@ -51,7 +51,8 @@ where & $y_t=$ & data at period $t$ \\
 
 **Multiplicative decomposition:** $y_t = S_t \times T_t \times R_t.$
 
-##Time series decomposition
+## Time series decomposition
+\fontsize{13}{15}\sf
 
   *  Additive model  appropriate if  magnitude of  seasonal fluctuations does not vary with level.
   *  If seasonal are proportional to level of series, then multiplicative model appropriate.
@@ -63,7 +64,7 @@ $$y_t = S_t \times T_t \times E_t \quad\Rightarrow\quad
 \log y_t = \log S_t + \log T_t + \log R_t.
 $$
 
-##Euro electrical equipment
+## Euro electrical equipment
 
 \fontsize{11}{14}\sf
 
@@ -72,13 +73,13 @@ fit <- stl(elecequip, s.window=7)
 autoplot(fit) + xlab("Year")
 ```
 
-##Euro electrical equipment
+## Euro electrical equipment
 
 ```{r elecequip3}
 ggsubseriesplot(seasonal(fit))
 ```
 
-##Euro electrical equipment
+## Euro electrical equipment
 
 \fontsize{11}{13}\sf
 
@@ -87,7 +88,7 @@ autoplot(elecequip, series="Data") +
   autolayer(trendcycle(fit), series="Trend-cycle")
 ```
 
-##Helper functions
+## Helper functions
   * `seasonal()` extracts the seasonal component
   * `trendcycle()` extracts the trend-cycle component
   * `remainder()` extracts the remainder component.
@@ -107,7 +108,7 @@ What happens as you change `s.window` and `t.window`?
 
 # Seasonal adjustment
 
-##Seasonal adjustment
+## Seasonal adjustment
 
   *  Useful by-product of decomposition:  an easy way to calculate seasonally adjusted data.
   *  Additive decomposition: seasonally adjusted data given by
@@ -115,7 +116,7 @@ $$y_t - S_t = T_t + R_t$$
   *  Multiplicative decomposition: seasonally adjusted data given by
 $$y_t / S_t = T_t \times R_t$$
 
-##Euro electrical equipment
+## Euro electrical equipment
 
 \fontsize{11}{15}\sf
 
@@ -134,25 +135,25 @@ autoplot(elecequip, series="Data") +
                      breaks=c("Data","Seasonally Adjusted"))
 ```
 
-##Seasonal adjustment
+## Seasonal adjustment
 
   * We use estimates of $S$ based on past values to seasonally adjust a current value.
   *  Seasonally adjusted  series reflect **remainders** as well as **trend**. Therefore they are not "smooth"" and "downturns"" or "upturns" can be misleading.
   *  It is better to use the trend-cycle component to look for turning points.
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 \fullheight{abs1}
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 \fullheight{abs2}
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 \fullheight{abs3}
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 \fontsize{11}{14}\sf
 
@@ -209,7 +210,7 @@ autoplot(window(x, start=c(2005,1))) +
   ylab("Thousands") + xlab("Year")
 ```
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 \fontsize{10}{14}\sf
 
@@ -218,7 +219,7 @@ ggseasonplot(window(x,start=c(2005,1)), year.labels=TRUE) +
   ggtitle("Total employed") + ylab("Thousands")
 ```
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 ```{r, fig.height=2, echo=FALSE}
 aug <- x[seq(7,440,by=12)]
@@ -229,9 +230,9 @@ ggplot(data.frame(diff=sep-aug, x=rep(1,length(aug)))) +
   scale_x_continuous(breaks=NULL, labels=NULL)
 ```
 
-##The ABS stuff-up
+## The ABS stuff-up
 
-\fontsize{11}{14}\sf
+\fontsize{11}{11}\sf
 
 ```{r, fig.height=3.5}
 x %>% window(start=2009) %>%
@@ -239,7 +240,7 @@ x %>% window(start=2009) %>%
 autoplot(fit)
 ```
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 ```{r, echo=FALSE}
 ggseasonplot(window(fit$time.series[,'seasonal'],start=2013,end=2013.999),
@@ -248,13 +249,13 @@ ggseasonplot(window(fit$time.series[,'seasonal'],start=2013,end=2013.999),
   guides(colour="none")
 ```
 
-##The ABS stuff-up
+## The ABS stuff-up
 
 ```{r}
 autoplot(seasadj(fit))
 ```
 
-##The ABS stuff-up
+## The ABS stuff-up
 \fontsize{13}{15}\sf
 
   *  August 2014 employment numbers higher than expected.
@@ -264,7 +265,7 @@ autoplot(seasadj(fit))
   *  In previous years, seasonal adjustment fixed the problem.
   *  The ABS has now adopted a new method to avoid the bias.
 
-##History of time series decomposition
+## History of time series decomposition
 
 \fontsize{13}{15}\sf
 
@@ -281,9 +282,9 @@ autoplot(seasadj(fit))
  * ONS (UK) uses X-12-ARIMA
  * EuroStat use X-13-ARIMA-SEATS
 
-#X-11 decomposition
+# X-11 decomposition
 
-##X-11 decomposition
+## X-11 decomposition
 
 \fontsize{11}{14}\sf
 
@@ -316,7 +317,7 @@ autoplot(fit) +
   *  Ad hoc method with no underlying model
   *  Only developed for quarterly and monthly data
 
-##Extensions: X-12-ARIMA and X-13-ARIMA
+## Extensions: X-12-ARIMA and X-13-ARIMA
 
   *  The X-11, X-12-ARIMA and X-13-ARIMA methods are based on Census II decomposition.
   *  These allow adjustments for trading days and other explanatory variables.
@@ -380,9 +381,9 @@ ggsubseriesplot(seasonal(fit)) + ylab("Seasonal")
 
   *  Only developed for quarterly and monthly data
 
-#STL decomposition
+# STL decomposition
 
-##STL decomposition
+## STL decomposition
 
 \fontsize{13}{14}\sf
 
@@ -397,7 +398,7 @@ ggsubseriesplot(seasonal(fit)) + ylab("Seasonal")
   *  Take logs to get multiplicative decomposition.
   *  Use Box-Cox transformations to get other decompositions.
 
-##STL decomposition
+## STL decomposition
 
 \fontsize{10}{14}\sf
 
@@ -407,7 +408,7 @@ autoplot(fit) +
   ggtitle("STL decomposition of electrical equipment index")
 ```
 
-##STL decomposition
+## STL decomposition
 
 \fontsize{10}{14}\sf
 
@@ -417,7 +418,7 @@ autoplot(fit) +
   ggtitle("STL decomposition of electrical equipment index")
 ```
 
-##STL decomposition
+## STL decomposition
 
 ```r
 stl(elecequip,s.window=5)
@@ -439,16 +440,16 @@ elecequip %>% mstl() %>% autoplot()
 * `mstl()` chooses `s.window=13`
 * Can include a `lambda` argument.
 
-#Forecasting and decomposition
+# Forecasting and decomposition
 
-##Forecasting and decomposition
+## Forecasting and decomposition
 
   *  Forecast seasonal component by repeating the last year
   *  Forecast seasonally adjusted data using non-seasonal time series method.
   *  Combine forecasts of seasonal component with forecasts of seasonally adjusted data to get forecasts of original data.
   *  Sometimes a decomposition is useful just for understanding the data before building a separate forecasting model.
 
-##Electrical equipment
+## Electrical equipment
 
 \fontsize{11}{14}\sf
 
@@ -459,7 +460,7 @@ fit %>% seasadj() %>% naive() %>%
   ggtitle("ETS forecasts of seasonally adjusted data")
 ```
 
-##Electrical equipment
+## Electrical equipment
 
 \fontsize{10}{14}\sf
 
@@ -468,7 +469,7 @@ fit %>% forecast(method='naive') %>%
   autoplot() + ylab("New orders index") + xlab("Year")
 ```
 
-##Forecasting and decomposition
+## Forecasting and decomposition
 
 \fontsize{11}{14}\sf
 
@@ -477,7 +478,7 @@ elecequip %>% stlf(method='naive') %>%
   autoplot() + ylab("New orders index") + xlab("Year")
 ```
 
-##Decomposition and prediction intervals
+## Decomposition and prediction intervals
 
   *  It is common to take the prediction intervals from the seasonally adjusted forecasts and modify them with the seasonal component.
   *  This ignores the uncertainty in the seasonal component estimate.

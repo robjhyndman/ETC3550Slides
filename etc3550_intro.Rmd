@@ -21,14 +21,14 @@ library(ggplot2)
 
 ## Contact details
 
-###Lecturer
+### Lecturer
 
 **Professor Rob Hyndman**
 
   - Room E762, Menzies Building
   - Email: Rob.Hyndman@monash.edu
 
-###Tutor
+### Tutor
 
 **Puwasala Gamakumara**
 
@@ -39,7 +39,7 @@ library(ggplot2)
   - Professor of Statistics, Monash University
   - Editor-in-Chief, *International Journal of Forecasting*
 
-###How my forecasting methodology is used:
+### How my forecasting methodology is used:
    - Pharmaceutical Benefits Scheme
    - Cancer incidence and mortality
    - Electricity demand
@@ -48,7 +48,7 @@ library(ggplot2)
 
 \begin{textblock}{5.9}(6.6,8.2)\begin{alertblock}{}\Large robjhyndman.com\end{alertblock}\end{textblock}
 
-##Unit objectives
+## Unit objectives
 
   1. To obtain an understanding of common statistical methods used in business and economic forecasting.
   2. To develop the computer skills required to forecast business and economic time series data;

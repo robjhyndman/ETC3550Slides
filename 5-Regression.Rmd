@@ -999,7 +999,7 @@ If multicollinearity exists\dots
 * omitting variables can help.
 * combining variables can help.
 
-##Outliers and influential observations
+## Outliers and influential observations
 
 **Things to watch for**
 

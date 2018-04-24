@@ -664,15 +664,15 @@ uschange[,"Consumption"] %>% diff() %>%
   autoplot() +
     xlab("Year") +
     ylab("Quarterly percentage change") +
-    ggtitle("Differenced US consumption")
+    ggtitle("US consumption")
 ```
 
 ## Example: US consumption
 
 
 ```{r usconsumptionacf}
-p1 <- ggAcf(diff(uschange[,"Consumption"]),main="")
-p2 <- ggPacf(diff(uschange[,"Consumption"]),main="")
+p1 <- ggAcf(uschange[,"Consumption"],main="")
+p2 <- ggPacf(uschange[,"Consumption"],main="")
 gridExtra::grid.arrange(p1,p2,nrow=1)
 ```
 

@@ -30,7 +30,7 @@ A time series is stored in a `ts` object in R:
  - a list of numbers
  - information about times those numbers were recorded.
 
-###Example
+### Example
 
 ```{r tstable, echo=FALSE, cache=TRUE}
 x <- c(123,39,78,52,110)
@@ -255,7 +255,7 @@ The `arrivals` data set comprises quarterly international arrivals (in thousands
 
 # Seasonal or cyclic?
 
-##Time series patterns
+## Time series patterns
 
 Trend
   : pattern exists when there is a long-term increase or decrease in the data.
@@ -267,9 +267,9 @@ Cyclic
   : pattern exists when data exhibit rises and falls that are \emph{not of fixed period} (duration usually of at least 2 years).
 
 
-##Time series components
+## Time series components
 
-###Differences between seasonal and cyclic patterns:
+### Differences between seasonal and cyclic patterns:
 
 
 * seasonal pattern constant length; cyclic pattern variable length

@@ -328,7 +328,7 @@ autoplot(forecast(fit)) +
 ```
 
 
-##Statistical forecasting
+## Statistical forecasting
 
 \fontsize{14}{16}\sf
 
