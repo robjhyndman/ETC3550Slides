@@ -614,7 +614,7 @@ fit %>% forecast(h=10) %>% autoplot(include=80)
   * For $d=0$, the long-term forecast standard deviation will go to the standard deviation of the historical data.
 
 ### Cyclic behaviour
-  * For cyclic forecasts,  $p>2$ and some restrictions on coefficients are required.
+  * For cyclic forecasts,  $p\ge2$ and some restrictions on coefficients are required.
   * If $p=2$, we need $\phi_1^2+4\phi_2<0$. Then average cycle of length
 \[
   (2\pi)/\left[\text{arc cos}(-\phi_1(1-\phi_2)/(4\phi_2))\right].
@@ -1009,7 +1009,7 @@ y_{T+1} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbo
 \end{align*}\pause
 \structure{ARIMA(3,1,1) forecasts: Step 3}
 \begin{align*}
-\hat{y}_{T+1|T} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbox{} -\phi_3y_{T-3} + \theta_1 \varepsilon_{T}.
+\hat{y}_{T+1|T} = (1+\phi_1)y_{T} -(\phi_1-\phi_2)y_{T-1} - (\phi_2-\phi_3)y_{T-2}\\\mbox{} -\phi_3y_{T-3} + \theta_1 e_{T}.
 \end{align*}
 
 ## Point forecasts (h=2)
@@ -1033,7 +1033,7 @@ y_{T+2} = (1+\phi_1)y_{T+1} -(\phi_1-\phi_2)y_{T} - (\phi_2-\phi_3)y_{T-1}\\\mbo
 
 ## Prediction intervals
 
-\begin{block}{95\% Prediction interval}
+\begin{block}{95\% prediction interval}
 $$\hat{y}_{T+h|T} \pm 1.96\sqrt{v_{T+h|T}}$$
 where $v_{T+h|T}$ is estimated forecast variance.
 \end{block}\pause
@@ -1435,7 +1435,7 @@ knitr::kable(data.frame(Model=modelname,AICc=aicc)[j,], escape=FALSE,
 ## Cortecosteroid drug sales
 \fontsize{11}{12}\sf
 
-```{r, echo=TRUE}
+```{r arimah02, echo=TRUE}
 (fit <- Arima(h02, order=c(3,0,1), seasonal=c(0,1,2),
    lambda=0))
 ```
@@ -1443,7 +1443,7 @@ knitr::kable(data.frame(Model=modelname,AICc=aicc)[j,], escape=FALSE,
 
 ## Cortecosteroid drug sales
 
-```{r h02res, echo=TRUE, fig.height=4}
+```{r h02res, echo=TRUE, fig.height=4, dependson='arimah02'}
 checkresiduals(fit)
 ```
 
@@ -1451,23 +1451,48 @@ checkresiduals(fit)
 \fontsize{11}{15}\sf
 
 
-```{r h02resb, echo=FALSE, fig.height=4}
+```{r h02resb, echo=FALSE, fig.height=4, dependson='arimah02'}
 checkresiduals(fit, plot=FALSE)
 ```
 
+
 ## Cortecosteroid drug sales
-\fontsize{9}{14}\sf
+\fontsize{8}{10}\sf
+
+```{r h02auto, echo=TRUE, fig.height=3.6}
+(fit <- auto.arima(h02, lambda=0))
+```
+
+## Cortecosteroid drug sales
+\fontsize{10}{12}\sf
+
+```{r, echo=TRUE, fig.height=4, dependson='h02auto'}
+checkresiduals(fit)
+```
+
+
+## Cortecosteroid drug sales
+\fontsize{11}{15}\sf
+
+```{r, echo=FALSE, dependson='h02auto'}
+checkresiduals(fit, plot=FALSE)
+```
+
+
+
+## Cortecosteroid drug sales
+\fontsize{8}{10}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
-(fit <- auto.arima(h02, lambda=0, d=0, D=1, max.order=9,
+(fit <- auto.arima(h02, lambda=0, max.order=9,
   stepwise=FALSE, approximation=FALSE))
 ```
 
 
 ## Cortecosteroid drug sales
-\fontsize{12}{15}\sf
+\fontsize{10}{12}\sf
 
-```{r, echo=TRUE, fig.height=4}
+```{r, echo=TRUE, fig.height=4, dependson='h02tryharder'}
 checkresiduals(fit)
 ```
 
@@ -1475,7 +1500,7 @@ checkresiduals(fit)
 ## Cortecosteroid drug sales
 \fontsize{11}{15}\sf
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, dependson='h02tryharder'}
 checkresiduals(fit, plot=FALSE)
 ```
 
@@ -1504,13 +1529,12 @@ getrmse(h02,h=24,order=c(3,0,1),seasonal=c(1,1,0),lambda=0)
 getrmse(h02,h=24,order=c(3,0,1),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(3,0,1),seasonal=c(0,1,2),lambda=0)
 getrmse(h02,h=24,order=c(3,0,1),seasonal=c(1,1,1),lambda=0)
-getrmse(h02,h=24,order=c(4,0,3),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(3,0,3),seasonal=c(0,1,1),lambda=0)
-getrmse(h02,h=24,order=c(4,0,2),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(3,0,2),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(2,1,3),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(2,1,4),seasonal=c(0,1,1),lambda=0)
 getrmse(h02,h=24,order=c(2,1,5),seasonal=c(0,1,1),lambda=0)
+getrmse(h02,h=24,order=c(4,1,1),seasonal=c(2,1,2),lambda=0)
 ```
 
 ## Cortecosteroid drug sales
@@ -1525,13 +1549,12 @@ models <- rbind(
   c(3,0,1,0,1,1),
   c(3,0,1,0,1,2),
   c(3,0,1,1,1,1),
-  c(4,0,3,0,1,1),
   c(3,0,3,0,1,1),
-  c(4,0,2,0,1,1),
   c(3,0,2,0,1,1),
   c(2,1,3,0,1,1),
   c(2,1,4,0,1,1),
-  c(2,1,5,0,1,1))
+  c(2,1,5,0,1,1),
+  c(4,1,1,2,1,2))
 h <- 24
 train.end <- time(h02)[length(h02)-h]
 test.start <- time(h02)[length(h02)-h+1]
@@ -1558,11 +1581,7 @@ knitr::kable(data.frame(Model=modelname[k],RMSE=rmse[k]),
 
   * Models with lowest AICc values tend to give slightly better results than the other models.
   * AICc comparisons must have the same orders of differencing. But RMSE test set comparisons can involve any models.
-  * No model passes all the residual tests.
   * Use the best model available, even if it does not pass all tests.
-  * In this case, the ARIMA(3,0,1)(0,1,2)$_{12}$ has the lowest RMSE value and the best  AICc value for models with fewer than 6 parameters.
-
-
 
 ## Cortecosteroid drug sales
 \fontsize{11}{14}\sf
