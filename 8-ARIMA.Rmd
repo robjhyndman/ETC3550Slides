@@ -1444,7 +1444,7 @@ knitr::kable(data.frame(Model=modelname,AICc=aicc)[j,], escape=FALSE,
 ## Cortecosteroid drug sales
 
 ```{r h02res, echo=TRUE, fig.height=4, dependson='arimah02'}
-checkresiduals(fit)
+checkresiduals(fit, lag=36)
 ```
 
 ## Cortecosteroid drug sales
@@ -1452,7 +1452,7 @@ checkresiduals(fit)
 
 
 ```{r h02resb, echo=FALSE, fig.height=4, dependson='arimah02'}
-checkresiduals(fit, plot=FALSE)
+checkresiduals(fit, plot=FALSE,lag=36)
 ```
 
 
@@ -1467,7 +1467,7 @@ checkresiduals(fit, plot=FALSE)
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02auto'}
-checkresiduals(fit)
+checkresiduals(fit, lag=36)
 ```
 
 
@@ -1475,7 +1475,7 @@ checkresiduals(fit)
 \fontsize{11}{15}\sf
 
 ```{r, echo=FALSE, dependson='h02auto'}
-checkresiduals(fit, plot=FALSE)
+checkresiduals(fit, plot=FALSE, lag=36)
 ```
 
 
@@ -1493,7 +1493,7 @@ checkresiduals(fit, plot=FALSE)
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02tryharder'}
-checkresiduals(fit)
+checkresiduals(fit, lag=36)
 ```
 
 
@@ -1501,7 +1501,7 @@ checkresiduals(fit)
 \fontsize{11}{15}\sf
 
 ```{r, echo=FALSE, dependson='h02tryharder'}
-checkresiduals(fit, plot=FALSE)
+checkresiduals(fit, plot=FALSE, lag=36)
 ```
 
 ## Cortecosteroid drug sales
