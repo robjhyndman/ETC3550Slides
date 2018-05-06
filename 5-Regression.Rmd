@@ -27,7 +27,7 @@ library(fpp2)
 
 \begin{block}{}\vspace*{-0.3cm}
 \[
-  y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + e_t.
+  y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.
 \]
 \end{block}
 
@@ -41,7 +41,7 @@ in the model.
 
 That is, the coefficients measure the **marginal effects**.
 
-* $e_t$ is a white noise error term
+* $\varepsilon_t$ is a white noise error term
 
 
 
@@ -53,7 +53,7 @@ That is, the coefficients measure the **marginal effects**.
 quarters <- rownames(.preformat.ts(uschange))
 ```
 
-```{r ConsInc, echo=TRUE, cache=TRUE}
+```{r ConsInc, echo=TRUE, cache=TRUE, fig.height=3.5}
 autoplot(uschange[,c("Consumption","Income")]) +
   ylab("% change") + xlab("Year")
 ```
@@ -97,11 +97,12 @@ uschange %>%
 
 ## Example: US consumption expenditure
 
-\fontsize{7}{7}\sf
+\fontsize{7.4}{7.4}\sf
 
 ```{r usestim, echo=TRUE}
-fit.consMR <- tslm(Consumption ~
-  Income + Production + Unemployment + Savings, data=uschange)
+fit.consMR <- tslm(
+  Consumption ~ Income + Production + Unemployment + Savings,
+  data=uschange)
 summary(fit.consMR)
 ```
 
@@ -134,6 +135,76 @@ cbind(Data=uschange[,"Consumption"], Fitted=fitted(fit.consMR)) %>%
 checkresiduals(fit.consMR, test=FALSE)
 ```
 
+# Residual diagnostics
+
+##  Multiple regression and forecasting
+For forecasting purposes, we require the following assumptions:
+
+* $\varepsilon_t$ are uncorrelated and zero mean
+
+* $\varepsilon_t$ are uncorrelated with each $x_{j,t}$.
+\pause
+
+It is **useful** to also have $\varepsilon_t \sim \text{N}(0,\sigma^2)$ when producing prediction intervals or doing statistical tests.
+
+## Residual plots
+
+Useful for spotting outliers and whether the linear model was
+appropriate.
+
+* Scatterplot of residuals $\varepsilon_t$ against each predictor $x_{j,t}$.
+
+* Scatterplot residuals against the fitted values $\hat y_t$
+
+* Expect to see scatterplots resembling a horizontal band with
+no values too far from the band and no patterns such as curvature or
+increasing spread.
+
+## Residual patterns
+
+* If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
+
+* If a plot of the residuals vs any predictor **not** in the model shows a pattern, then the predictor should be added to the model.
+
+* If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
+
+
+## Breusch-Godfrey test
+
+**OLS regression:**
+$$
+y_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+u_{t}
+$$
+**Auxiliary regression:**
+$$
+{\hat {u}}_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+\rho_{1}{\hat {u}}_{t-1}+\dots +\rho_{p}{\hat {u}}_{t-p}+\varepsilon_{t}
+$$
+
+###
+If $R^{2}$ statistic is calculated for this model, then
+$$
+  (T-p)R^{2}\,\sim \,\chi_{p}^{2},
+$$
+when there is no serial correlation up to lag $p$, and $T=$ length of series.
+
+
+* Breusch-Godfrey test better than Ljung-Box for regression models.
+
+## US consumption again
+
+\fontsize{9}{13}\sf
+
+```{r}
+checkresiduals(fit.consMR, plot=FALSE)
+```
+
+### If the model fails the Breusch-Godfrey test \dots
+
+* The forecasts are not wrong, but have higher variance than they need to.
+* There is information in the residuals that we should exploit.
+* This is done with a regression model with ARMA errors.
+
+
 # Some useful predictors for linear models
 
 ## Trend
@@ -151,7 +222,7 @@ checkresiduals(fit.consMR, test=FALSE)
 \begin{textblock}{6}(0.4,1.5)
 If a categorical variable takes only two values (e.g., `Yes'
 or `No'), then an equivalent numerical variable can be constructed
-taking value 1 if yes and 0 if no. This is called a **dummy variable**.
+taking value 1 if yes and 0 if no. This is called a \textbf{dummy variable}.
 \end{textblock}
 
 \placefig{7.7}{1.}{width=5cm}{dummy2}
@@ -212,13 +283,13 @@ autoplot(beer) + xlab("Year") + ylab("megalitres") +
 
 \begin{block}{Regression model}
 \centering
-$y_t = \beta_0 + \beta_1 t + \beta_2d_{1,t} + \beta_3 d_{2,t} + \beta_4 d_{3,t} + e_t$
+$y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} + \varepsilon_t$
 \end{block}
 
 * $d_{i,t} = 1$ if $t$ is quarter $i$ and 0 otherwise.
 
 ## Beer production revisited
-\fontsize{8}{9}\sf
+\fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
 fit.beer <- tslm(beer ~ trend + season)
@@ -265,7 +336,7 @@ $$
 s_{k}(t) = \sin\left(\frac{2\pi k t}{m}\right)\qquad c_{k}(t) = \cos\left(\frac{2\pi k t}{m}\right)
 $$
 $$
-y_t = a + bt + \sum_{k=1}^K \left[\alpha_k s_k(t) + \beta_k c_k(t)\right] + e_t$$
+y_t = a + bt + \sum_{k=1}^K \left[\alpha_k s_k(t) + \beta_k c_k(t)\right] + \varepsilon_t$$
 
 * Every periodic function can be approximated by sums of sin and cos terms for large enough $K$.
 * Choose $K$ by minimizing AICc.
@@ -277,7 +348,7 @@ fit <- tslm(y ~ trend + fourier(y, K))
 
 ## Harmonic regression: beer production
 
-\fontsize{8}{9}\sf
+\fontsize{8}{8}\sf
 
 ```{r fourierbeer, echo=TRUE, cache=TRUE}
 fourier.beer <- tslm(beer ~ trend + fourier(beer, K=2))
@@ -337,7 +408,6 @@ Example: $x$ is advertising which has a delayed effect
 ## Nonlinear trend
 
 **Piecewise linear trend with bend at $\tau$**
-\vspace*{-0.6cm}
 \begin{align*}
 x_{1,t} &= t \\
 x_{2,t} &= \left\{ \begin{array}{ll}
@@ -431,9 +501,9 @@ autoplot(marathon) +
 ## Example: Boston marathon winning times
 
 ```{r residPiecewise, message=FALSE, warning=FALSE, cache=TRUE}
-checkresiduals(fit.pw)
+fit.pw$method <- "Piecewise linear regression model"
+checkresiduals(fit.pw, test=FALSE)
 ```
-
 
 ## Interpolating splines
 
@@ -537,86 +607,6 @@ autoplot(fc)
  * Equivalent to ARIMA(0,2,2) and Holt's method.
 
 
-# Residual diagnostics
-
-##  Multiple regression and forecasting
-For forecasting purposes, we require the following assumptions:
-
-* $e_t$ are uncorrelated and zero mean
-
-* $e_t$ are uncorrelated with each $x_{j,t}$.
-\pause
-
-It is **useful** to also have $e_t \sim \text{N}(0,\sigma^2)$ when producing prediction intervals or doing statistical tests.
-
-## Residual plots
-
-Useful for spotting outliers and whether the linear model was
-appropriate.
-
-* Scatterplot of residuals $e_t$ against each predictor $x_{j,t}$.
-
-* Scatterplot residuals against the fitted values $\hat y_t$
-
-* Expect to see scatterplots resembling a horizontal band with
-no values too far from the band and no patterns such as curvature or
-increasing spread.
-
-## Residual patterns
-
-* If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
-
-* If a plot of the residuals vs any predictor **not** in the model shows a pattern, then the predictor should be added to the model.
-
-* If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
-
-
-## Breusch-Godfrey test
-
-**OLS regression:**
-$$
-y_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+u_{t}
-$$
-**Auxiliary regression:**
-$$
-{\hat {u}}_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+\rho_{1}{\hat {u}}_{t-1}+\dots +\rho_{p}{\hat {u}}_{t-p}+\varepsilon_{t}
-$$
-
-###
-If $R^{2}$ statistic is calculated for this model, then
-$$
-  (T-p)R^{2}\,\sim \,\chi_{p}^{2},
-$$
-when there is no serial correlation up to lag $p$, and $T=$ length of series.
-
-
-* Ljung-Box test not recommended for regression models.
-
-## Beer production again
-
-\fontsize{9}{13}\sf
-
-```{r}
-checkresiduals(fit.beer, plot=FALSE)
-```
-
-\fontsize{13}{15}\sf
-
-### If the model fails the Breusch-Godfrey test \dots
-
-* The forecasts are not wrong, but have higher variance than they need to.
-* There is information in the residuals that we should exploit.
-* This is done with a regression model with ARMA errors which will be covered in week 12.
-
-## US consumption again
-
-\fontsize{9}{13}\sf
-
-```{r}
-checkresiduals(fit.consMR, plot=FALSE)
-```
-
-
 # Selecting predictors and forecast evaluation
 
 ## Selecting predictors
@@ -668,7 +658,7 @@ where $k=$ no.\ predictors and $T=$ no.\ observations.
 
 \begin{alertblock}{Maximizing $\bar{R}^2$ is equivalent to minimizing $\hat\sigma^2$.}
 \centerline{$\displaystyle
-\hat{\sigma}^2 = \frac{1}{T-k-1}\sum_{t=1}^T e_t^2$
+\hat{\sigma}^2 = \frac{1}{T-k-1}\sum_{t=1}^T \varepsilon_t^2$
 }
 \end{alertblock}
 
@@ -735,6 +725,7 @@ Leave-one-out cross-validation for regression can be carried out using the follo
 
 ###
 The best model is the one with minimum CV.
+
 
 
 ## Cross-validation
@@ -840,6 +831,23 @@ model.
 * Inference on coefficients of  final model will be wrong.
 
 
+## Cross-validation
+
+\fontsize{8}{8}\sf
+
+
+```{r, echo=TRUE}
+tslm(Consumption ~ Income + Production + Unemployment + Savings,
+  data=uschange) %>% CV()
+tslm(Consumption ~ Income + Production + Unemployment,
+  data=uschange) %>% CV()
+tslm(Consumption ~ Income + Production + Savings,
+  data=uschange) %>% CV()
+tslm(Consumption ~ Income + Unemployment + Savings,
+  data=uschange) %>% CV()
+tslm(Consumption ~ Production + Unemployment + Savings,
+  data=uschange) %>% CV()
+```
 
 # Forecasting with regression
 
@@ -865,16 +873,59 @@ $$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
  * A different model for each forecast horizon $h$.
 
 
+## Beer production
+\fontsize{10}{10}\sf
+
+```{r beeryetagain, echo=TRUE, fig.height=3.5}
+beer2 <- window(ausbeer, start=1992)
+fit.beer <- tslm(beer2 ~ trend + season)
+fcast <- forecast(fit.beer)
+autoplot(fcast) +
+  ggtitle("Forecasts of beer production using regression") +
+  xlab("Year") + ylab("megalitres")
+```
+
+## US Consumption
+\fontsize{10}{10}\sf
+
+```{r usconsumptionf, echo=TRUE}
+fit.consBest <- tslm(
+  Consumption ~ Income + Savings + Unemployment,
+  data = uschange)
+h <- 4
+newdata <- data.frame(
+    Income = c(1, 1, 1, 1),
+    Savings = c(0.5, 0.5, 0.5, 0.5),
+    Unemployment = c(0, 0, 0, 0))
+fcast.up <- forecast(fit.consBest, newdata = newdata)
+newdata <- data.frame(
+    Income = rep(-1, h),
+    Savings = rep(-0.5, h),
+    Unemployment = rep(0, h))
+fcast.down <- forecast(fit.consBest, newdata = newdata)
+```
+
+## US Consumption
+\fontsize{10}{10}\sf
+
+```{r usconsumptionf2, echo=TRUE, fig.height=3.5}
+autoplot(uschange[, 1]) +
+  ylab("% change in US consumption") +
+  autolayer(fcast.up, PI = TRUE, series = "increase") +
+  autolayer(fcast.down, PI = TRUE, series = "decrease") +
+  guides(colour = guide_legend(title = "Scenario"))
+```
+
 # Matrix formulation
 
 ## Matrix formulation
 
 \begin{block}{}
-$$y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + e_t.$$
+$$y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.$$
 \end{block}
 \pause
 
-Let $\bm{y} = (y_1,\dots,y_T)'$, $\bm{e} = (e_1,\dots,e_T)'$, $\bm{\beta} = (\beta_0,\beta_1,\dots,\beta_k)'$ and
+Let $\bm{y} = (y_1,\dots,y_T)'$, $\bm{\varepsilon} = (\varepsilon_1,\dots,\varepsilon_T)'$, $\bm{\beta} = (\beta_0,\beta_1,\dots,\beta_k)'$ and
 \[
 \bm{X} = \begin{bmatrix}
 1      & x_{1,1} & x_{2,1} & \dots & x_{k,1}\\
@@ -887,7 +938,7 @@ Let $\bm{y} = (y_1,\dots,y_T)'$, $\bm{e} = (e_1,\dots,e_T)'$, $\bm{\beta} = (\be
 Then
 
 ###
-$$\bm{y} = \bm{X}\bm{\beta} + \bm{e}.$$
+$$\bm{y} = \bm{X}\bm{\beta} + \bm{\varepsilon}.$$
 
 ## Matrix formulation
 
@@ -909,6 +960,7 @@ Differentiate wrt $\bm{\beta}$ gives
 \[
 \hat{\sigma}^2 = \frac{1}{T-k-1}(\bm{y} - \bm{X}\hat{\bm{\beta}})'(\bm{y} - \bm{X}\hat{\bm{\beta}})
 \]
+
 \structure{Note:} If you fall for the dummy variable trap, $(\bm{X}'\bm{X})$ is a singular matrix.
 
 ## Likelihood
@@ -934,7 +986,7 @@ which is maximized when $(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})$ is
 \bm{x}^*\hat{\bm{\beta}} = \bm{x}^*(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}
 \]
 \end{block}
-where $\bm{x}^*$ is a row vector containing the values of the regressors for the forecasts (in the same format as $\bm{X}$).
+where $\bm{x}^*$ is a row vector containing the values of the predictors for the forecasts (in the same format as $\bm{X}$).
 
 \pause
 
@@ -995,7 +1047,7 @@ If multicollinearity exists\dots
 
 * the numerical estimates of coefficients may be wrong (worse in Excel than in a statistics package)
 * don't rely on the $p$-values to determine significance.
-* there is no problem with model *predictions* provided the regressors used for forecasting are within the range used for fitting.
+* there is no problem with model *predictions* provided the predictors used for forecasting are within the range used for fitting.
 * omitting variables can help.
 * combining variables can help.
 
