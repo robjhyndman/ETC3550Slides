@@ -762,7 +762,7 @@ kcvplot(10,20)
 
 \begin{block}{}
 \[
-\text{AIC} = -2\log(L) + 2(k+1)
+\text{AIC} = -2\log(L) + 2(k+2)
 \]
 \end{block}
 where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
@@ -778,7 +778,7 @@ For small values of $T$, the AIC tends to select too many predictors, and so a b
 
 \begin{block}{}
 \[
-\text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{T-k-1}
+\text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{T-k-3}
 \]
 \end{block}
 
@@ -788,7 +788,7 @@ As with the AIC, the AIC$_{\text{C}}$ should be minimized.
 
 \begin{block}{}
 \[
-\text{BIC} = -2\log(L) + (k+1)\log(T)
+\text{BIC} = -2\log(L) + (k+2)\log(T)
 \]
 \end{block}
 where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
