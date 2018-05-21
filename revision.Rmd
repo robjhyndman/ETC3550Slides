@@ -148,20 +148,18 @@ most of the computing.
   - Box-Cox transformations to stabilize changing variance. Back-transformations after forecasting.
   - Residual diagnostics: ACF, white noise, LB test.
   - Simple methods: naive, seasonal naive, drift, \rlap{mean.}
-  - Simple models: Random walk (with drift).
   - One-step prediction intervals based on RMSE
 
 ## 6: Time series decomposition
 
   - Describing a time series: seasonality, trend, cycles, changing variance, unusual features.
   - Difference between seasonality and cyclicity
-  - Seasonal adjustment
-  - Classical decomposition: should know how to do
   - Moving averages
-  - X-12-ARIMA and STL: should know how to interpret
+  - Classical decomposition, X-12-ARIMA, STL: 
+      should know how to interpret.
+  - Seasonal adjustment
   - Advantages/disadvantages of each method
   - Forecasting and decomposition
-
 
 ## 7: Exponential smoothing
 
@@ -176,16 +174,17 @@ most of the computing.
   - Formula sheet provided
 
 ## 8: ARIMA models
+\fontsize{14}{16}\sf
 
   - Stationarity.
   - Differencing: first-differences and seasonal-differences. What to use when.
-  - Unit root tests: how to interpret results.
   - White noise, random walk, AR($p$), MA($q$), ARMA($p$,$q$),
         ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_s$.
   - Backshift operator notation
   - ACF, PACF.  Model identification.
   - ARIMA models, Seasonal ARIMA models
   - Order selection and goodness of fit (AICc)
+  - Interpretation of `Arima()` and `auto.arima()` output in R.
 
 ## 8: ARIMA models (cont'd)
 
@@ -200,15 +199,18 @@ most of the computing.
 
 ## 5: Multiple regression
 
-  - Interpretation of coefficients as marginal effects (taking account of the effect of all other predictors in the model)
+  - Interpretation of coefficients as marginal effects
   - Residual diagnostics: scatterplots of residuals vs predictors and residuals vs fitted values.
   - Dummy variables, seasonal dummies, piecewise linear trends, interventions
+  - Splines
+  - Harmonic regression
   - AIC, AICc, BIC, $R^2$, adjusted $R^2$
   - Matrix formulation
   - Multicollinearity
   - Interpretation of R output.
 
 ## 9: Dynamic regression models
+\fontsize{14}{16}\sf
 
   - Regression with ARMA errors
   - Using lagged predictors
@@ -216,6 +218,9 @@ most of the computing.
   - When estimating, need to difference all variables if errors non-stationary
   - Problems with OLS and autocorrelated errors
   - Forecasting for regression models with ARMA errors
+  - Stochastic vs deterministic trends
+  - Dynamic harmonic regression 
+  - Multiple seasonal series
 
 # Exam
 
@@ -227,15 +232,15 @@ most of the computing.
   - Q2: Describing a time series, choosing a forecasting method
   - Q3: ETS models
   - Q4: ARIMA model
-  - Q5: Regression or dynamic regression.
+  - Q5: Dynamic regression.
 
-  - Formula page as for ETC2450 2017.
+  - Formula page as for ETC3550 2017.
 
-## Exam
+## Exam: 6 June am
 
 **Preparing for the exam**
 
-  - 2015, 2016 and 2017 exams from ETC2450 to be put on Moodle with solutions.
+  - 2015, 2016 \& 2017 exams from ETC2450/ ETC3550 to go on Moodle with solutions.
   - Exercises.  Make sure you have done them all!
   - Identify your weak points and practice them.
   - Write your own summary of the material covered.
@@ -246,6 +251,7 @@ most of the computing.
 ### Help available
 See Puwasala in first instance.
 
+See me at 11am-1pm on Wednesday 30th.
 
 
 ## Useful resources for forecasters
