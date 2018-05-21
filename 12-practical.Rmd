@@ -1,0 +1,144 @@
+---
+title: "ETC3550: Applied forecasting for business and economics"
+author: "Ch12. Some practical forecasting issues"
+date: "OTexts.org/fpp2/"
+fontsize: 14pt
+output:
+  beamer_presentation:
+    fig_width: 7
+    fig_height: 3.5
+    highlight: tango
+    theme: metropolis
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
+library(fpp2)
+options(digits=4)
+```
+
+# Models for different frequencies
+
+## Models for different frequencies
+
+\vspace*{-0.2cm}
+
+### Models for annual data
+
+ * ETS, ARIMA, Dynamic regression
+\pause
+
+### Models for quarterly data
+
+ * ETS, ARIMA/SARIMA, Dynamic regression, Dynamic harmonic regression, STL+ETS, STL+ARIMA
+\pause
+
+### Models for monthly data
+
+ * ETS, ARIMA/SARIMA, Dynamic regression, Dynamic harmonic regression, STL+ETS, STL+ARIMA
+
+## Models for different frequencies
+
+### Models for weekly data
+
+ * ARIMA/SARIMA, Dynamic regression, Dynamic harmonic regression, STL+ETS, STL+ARIMA, TBATS
+\pause
+
+### Models for daily, hourly and other sub-daily data
+
+ * ARIMA/SARIMA, Dynamic regression, Dynamic harmonic regression, STL+ETS, STL+ARIMA, TBATS
+
+
+# Ensuring forecasts stay within limits
+
+## Positive forecasts
+
+```{r}
+eggs %>%
+  ets(model="AAN", damped=FALSE, lambda=0) %>%
+  forecast(h=50, biasadj=TRUE) %>%
+  autoplot()
+```
+
+
+# Forecast combinations
+
+## Forecast combinations
+
+>The results have been virtually unanimous: combining multiple forecasts leads to increased forecast accuracy. \dots In many cases one can make dramatic performance improvements by simply averaging the forecasts. (Clemen 1989)
+
+```{r combine1, message=FALSE, warning=FALSE}
+train <- window(auscafe, end=c(2012,9))
+h <- length(auscafe) - length(train)
+ETS <- forecast(ets(train), h=h)
+ARIMA <- forecast(auto.arima(train, lambda=0, biasadj=TRUE),
+  h=h)
+STL <- stlf(train, lambda=0, h=h, biasadj=TRUE)
+NNAR <- forecast(nnetar(train), h=h)
+TBATS <- forecast(tbats(train, biasadj=TRUE), h=h)
+Combination <- (ETS[["mean"]] + ARIMA[["mean"]] +
+  STL[["mean"]] + NNAR[["mean"]] + TBATS[["mean"]])/5
+```
+
+```{r combineplot, dependson="combine1", fig.cap="Point forecasts from various methods applied to Australian monthly expenditure on eating out."}
+autoplot(auscafe) +
+  autolayer(ETS, series="ETS", PI=FALSE) +
+  autolayer(ARIMA, series="ARIMA", PI=FALSE) +
+  autolayer(STL, series="STL", PI=FALSE) +
+  autolayer(NNAR, series="NNAR", PI=FALSE) +
+  autolayer(TBATS, series="TBATS", PI=FALSE) +
+  autolayer(Combination, series="Combination") +
+  xlab("Year") + ylab("$ billion") +
+  ggtitle("Australian monthly expenditure on eating out")
+```
+
+```{r combineaccuracy, dependson="combine1"}
+c(ETS = accuracy(ETS, auscafe)["Test set","RMSE"],
+  ARIMA = accuracy(ARIMA, auscafe)["Test set","RMSE"],
+  `STL-ETS` = accuracy(STL, auscafe)["Test set","RMSE"],
+  NNAR = accuracy(NNAR, auscafe)["Test set","RMSE"],
+  TBATS = accuracy(TBATS, auscafe)["Test set","RMSE"],
+  Combination =
+    accuracy(Combination, auscafe)["Test set","RMSE"])
+```
+
+# Missing values
+
+## Missing values
+
+**Functions which can handle missing values**
+ * `auto.arima()`, `Arima()`
+ * `tslm()`
+ * `nnetar()`
+
+**Models which cannot handle missing values**
+ * `ets()`
+ * `stl()`
+ * `stlf()`
+ * `tbats()`
+
+### What to do?
+ 1. Model section of data after last missing value.
+ 2. Estimate missing values with `na.interp()`.
+
+## Missing values
+
+```{r}
+gold2 <- na.interp(gold)
+autoplot(gold2, series="Interpolated") +
+  autolayer(gold, series="Original") +
+  scale_color_manual(
+    values=c(`Interpolated`="red",`Original`="gray"))
+```
+
+# Outliers
+
+## Outliers
+
+
+```{r, fig.height=3.4}
+autoplot(gold)
+tsoutliers(gold)
+```

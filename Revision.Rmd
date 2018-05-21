@@ -5,21 +5,20 @@ date: "OTexts.org/fpp2/"
 fontsize: 14pt
 output:
   beamer_presentation:
-    keep_tex: no
-    theme: metropolis
-    fig_height: 4.5
     fig_width: 7
+    fig_height: 3.5
     highlight: tango
+    theme: metropolis
     includes:
       in_header: header.tex
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE,
-  dev.args=list(bg=grey(0.9), pointsize=11))
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 library(fpp2)
+source("nicefigs.R")
+options(digits=4)
 ```
-
 
 # Some case studies
 
