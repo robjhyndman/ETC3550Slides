@@ -16,7 +16,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 library(fpp2)
-source("nicefigs.R")
 options(digits=4)
 ```
 
@@ -100,7 +99,6 @@ should this affect leasing and sales policies?
  - They can provide a large amount of data on previous vehicles and their eventual resale values.
  - The resale values are currently estimated by a group of specialists. They see me as a threat and do not cooperate.
 
-
 ## CASE STUDY 4: Airline
 
 \fontsize{12}{14}\sf
@@ -110,8 +108,6 @@ autoplot(melsyd[,"Economy.Class"],
   main="Economy class passengers: Melbourne-Sydney",
   xlab="Year",ylab="Thousands")
 ```
-
-
 
 ## CASE STUDY 4: Airline
 
@@ -133,7 +129,7 @@ most of the computing.
  - `ts` objects
  - seasonal periods
  - frequency, start, end
- - You don't have to write R code for the exam, but you do have to read R code.
+ - You don't have to write R code for the exam, but you do have to read and understand R code.
 
 ## 2. Time series graphics
 
@@ -233,14 +229,14 @@ most of the computing.
   - Q4: ARIMA model
   - Q5: Regression or dynamic regression.
 
-  - Formula page as for ETC2450 2016.
+  - Formula page as for ETC2450 2017.
 
 ## Exam
 
 **Preparing for the exam**
 
-  - 2014, 2015 and 2016 exams from ETC2450 to be put on Moodle with solutions.
-  - Exercises on Exercise sheets.  Make sure you have done them all!
+  - 2015, 2016 and 2017 exams from ETC2450 to be put on Moodle with solutions.
+  - Exercises.  Make sure you have done them all!
   - Identify your weak points and practice them.
   - Write your own summary of the material covered.
   - Practice explaining the material to a class-mate.
@@ -260,8 +256,8 @@ See Puwasala in first instance.
 
 **Annual Conference:**
 
- * International Symposium on Forecasting, Cairns.
-   June 2017.
+ * International Symposium on Forecasting, Boulder.
+   June 2018.
 
 **Journals:**
 
@@ -269,7 +265,7 @@ See Puwasala in first instance.
  * Foresight
 
 ###
-Links to all of the above at **www.forecasters.org**
+Links to all of the above at **forecasters.org**
 
 
 

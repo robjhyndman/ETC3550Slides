@@ -14,9 +14,9 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, cache=TRUE, warning=FALSE, message=FALSE)
 library(fpp2)
-options(digits=4)
+options(digits=3,width=50)
 ```
 
 # Models for different frequencies
@@ -54,6 +54,7 @@ options(digits=4)
 # Ensuring forecasts stay within limits
 
 ## Positive forecasts
+\fontsize{12}{12}\sf
 
 ```{r}
 eggs %>%
@@ -67,9 +68,37 @@ eggs %>%
 
 ## Forecast combinations
 
->The results have been virtually unanimous: combining multiple forecasts leads to increased forecast accuracy. \dots In many cases one can make dramatic performance improvements by simply averaging the forecasts. (Clemen 1989)
+### Clemen (1989)
+"The results have been virtually unanimous: combining multiple forecasts leads to increased forecast accuracy. \dots In many cases one can make dramatic performance improvements by simply averaging the forecasts."
 
-```{r combine1, message=FALSE, warning=FALSE}
+## Forecast combinations
+\fontsize{10}{10}\sf\vspace*{-0.2cm}
+```r
+train <- window(auscafe, end=c(2012,9))
+h <- length(auscafe) - length(train)
+ETS <- forecast(ets(train), h=h)
+ARIMA <- forecast(auto.arima(train, lambda=0, biasadj=TRUE),
+  h=h)
+STL <- stlf(train, lambda=0, h=h, biasadj=TRUE)
+NNAR <- forecast(nnetar(train), h=h)
+TBATS <- forecast(tbats(train, biasadj=TRUE), h=h)
+Combination <- (ETS[["mean"]] + ARIMA[["mean"]] +
+  STL[["mean"]] + NNAR[["mean"]] + TBATS[["mean"]])/5
+
+autoplot(auscafe) +
+  autolayer(ETS, series="ETS", PI=FALSE) +
+  autolayer(ARIMA, series="ARIMA", PI=FALSE) +
+  autolayer(STL, series="STL", PI=FALSE) +
+  autolayer(NNAR, series="NNAR", PI=FALSE) +
+  autolayer(TBATS, series="TBATS", PI=FALSE) +
+  autolayer(Combination, series="Combination") +
+  xlab("Year") + ylab("$ billion") +
+  ggtitle("Australian monthly expenditure on eating out")
+```
+
+## Forecast combinations
+\fontsize{10}{10}\sf\vspace*{-0.2cm}
+```{r combine1, message=FALSE, warning=FALSE, echo=FALSE}
 train <- window(auscafe, end=c(2012,9))
 h <- length(auscafe) - length(train)
 ETS <- forecast(ets(train), h=h)
@@ -82,7 +111,7 @@ Combination <- (ETS[["mean"]] + ARIMA[["mean"]] +
   STL[["mean"]] + NNAR[["mean"]] + TBATS[["mean"]])/5
 ```
 
-```{r combineplot, dependson="combine1", fig.cap="Point forecasts from various methods applied to Australian monthly expenditure on eating out."}
+```{r combineplot, dependson="combine1", echo=FALSE, fig.height=4.8}
 autoplot(auscafe) +
   autolayer(ETS, series="ETS", PI=FALSE) +
   autolayer(ARIMA, series="ARIMA", PI=FALSE) +
@@ -94,6 +123,8 @@ autoplot(auscafe) +
   ggtitle("Australian monthly expenditure on eating out")
 ```
 
+## Forecast combinations
+\fontsize{11}{15}\sf
 ```{r combineaccuracy, dependson="combine1"}
 c(ETS = accuracy(ETS, auscafe)["Test set","RMSE"],
   ARIMA = accuracy(ARIMA, auscafe)["Test set","RMSE"],
@@ -107,38 +138,59 @@ c(ETS = accuracy(ETS, auscafe)["Test set","RMSE"],
 # Missing values
 
 ## Missing values
+\fontsize{14}{15}\sf
 
 **Functions which can handle missing values**
+
  * `auto.arima()`, `Arima()`
  * `tslm()`
  * `nnetar()`
 
 **Models which cannot handle missing values**
+
  * `ets()`
  * `stl()`
  * `stlf()`
  * `tbats()`
+
+\pause
 
 ### What to do?
  1. Model section of data after last missing value.
  2. Estimate missing values with `na.interp()`.
 
 ## Missing values
-
+\fontsize{12}{12}\sf
 ```{r}
-gold2 <- na.interp(gold)
-autoplot(gold2, series="Interpolated") +
-  autolayer(gold, series="Original") +
-  scale_color_manual(
-    values=c(`Interpolated`="red",`Original`="gray"))
+autoplot(gold)
+```
+
+## Missing values
+\fontsize{12}{12}\sf
+```{r, fig.height=3}
+gold %>% na.interp() %>%
+  autoplot(series="Interpolated") +
+    autolayer(gold, series="Original") +
+    scale_color_manual(
+      values=c(`Interpolated`="red",`Original`="gray"))
 ```
 
 # Outliers
 
 ## Outliers
 
-
 ```{r, fig.height=3.4}
 autoplot(gold)
+```
+
+## Outliers
+
+```{r, fig.height=3.4}
 tsoutliers(gold)
+```
+
+## Outliers
+
+```{r, fig.height=3.4}
+gold %>% tsclean() %>% autoplot()
 ```
