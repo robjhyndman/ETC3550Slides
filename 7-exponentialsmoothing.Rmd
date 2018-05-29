@@ -848,11 +848,11 @@ $$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
 \begin{align*}
 y_{T+1} &= \ell_T + b_T  + \varepsilon_{T+1}\\
 \hat{y}_{T+1|T} & = \ell_{T}+b_{T}\\
-y_{T+2}         & = \ell_{T+1} + b_{T+1} + \varepsilon_{T+1}\\
+y_{T+2}         & = \ell_{T+1} + b_{T+1} + \varepsilon_{T+2}\\
                 & =
                       (\ell_T + b_T + \alpha\varepsilon_{T+1}) +
                       (b_T + \beta \varepsilon_{T+1}) +
-                      \varepsilon_{T+1} \\
+                      \varepsilon_{T+2} \\
 \hat{y}_{T+2|T} &= \ell_{T}+2b_{T}
 \end{align*}
 etc.
@@ -865,12 +865,12 @@ etc.
 \begin{align*}
 y_{T+1} &= (\ell_T + b_T )(1+ \varepsilon_{T+1})\\
 \hat{y}_{T+1|T} & = \ell_{T}+b_{T}.\\
-y_{T+2}         & = (\ell_{T+1} + b_{T+1})(1 + \varepsilon_{T+1})\\
+y_{T+2}         & = (\ell_{T+1} + b_{T+1})(1 + \varepsilon_{T+2})\\
                 & = \left\{
                     (\ell_T + b_T) (1+ \alpha\varepsilon_{T+1}) +
                     \left[b_T + \beta (\ell_T + b_T)\varepsilon_{T+1}\right]
                     \right\}
-                   (1 + \varepsilon_{T+1}) \\
+                   (1 + \varepsilon_{T+2}) \\
 \hat{y}_{T+2|T} &= \ell_{T}+2b_{T}
 \end{align*}
 etc.
