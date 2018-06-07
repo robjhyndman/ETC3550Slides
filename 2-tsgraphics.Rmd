@@ -76,8 +76,6 @@ Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1}
 ausgdp <- ts(x, frequency=4, start=c(1971,3))
 ```
 
-\vspace*{-0.4cm}
-
   * Class: "ts"
   * Print and plotting methods available.
 
