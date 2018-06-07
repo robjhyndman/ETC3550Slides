@@ -79,7 +79,6 @@ ausgdp <- ts(x, frequency=4, start=c(1971,3))
   * Class: "ts"
   * Print and plotting methods available.
 
-
 ```{r, echo=TRUE}
 ausgdp
 ```
@@ -92,14 +91,11 @@ autoplot(ausgdp)
 
 ## Residential electricity sales
 
-
 \fontsize{12}{14}\sf
 
 ```{r}
 elecsales
 ```
-
-
 
 ## Class package
 
@@ -116,7 +112,6 @@ This loads:
   * **ggplot2** package (for graphics functions)
   * **fma** package (for lots of time series data)
   * **expsmooth** package (for more time series data)
-
 
 # Time plots
 
@@ -136,7 +131,6 @@ autoplot(melsyd[,"Economy.Class"])
 autoplot(a10) + ylab("$ million") + xlab("Year") +
          ggtitle("Antidiabetic drug sales")
 ```
-
 
 ## Your turn
 
@@ -177,11 +171,9 @@ data.frame(
     ylab("") + scale_y_discrete(expand=c(0,0))
 ```
 
-
 ## Are time plots best?
 
 \fullheight{TemperatureBlanket}
-
 
 # Seasonal plots
 
@@ -264,22 +256,17 @@ Seasonal
 Cyclic
   : pattern exists when data exhibit rises and falls that are \emph{not of fixed period} (duration usually of at least 2 years).
 
-
 ## Time series components
 
 ### Differences between seasonal and cyclic patterns:
-
 
 * seasonal pattern constant length; cyclic pattern variable length
 * average length of cycle longer than length of seasonal pattern
 * magnitude of cycle more variable than magnitude of seasonal pattern
 
-
-
 ## Time series patterns
 
 \small
-
 
 ```{r}
 autoplot(window(elec, start=1980)) +
@@ -296,7 +283,6 @@ autoplot(bricksq) +
   ggtitle("Australian clay brick production") +
   xlab("Year") + ylab("million units")
 ```
-
 
 ## Time series patterns
 
@@ -368,15 +354,12 @@ with these scatterplots.
 
 **Autocovariance** and **autocorrelation**: measure linear relationship between **lagged values** of a time series $y$.\pause
 
-\begin{tabbing}
-We measure the relationship between:~~\=  $y_t$ and $y_{t-1}$\\
-\> $y_t$ and $y_{t-2}$\\
-\> $y_t$ and $y_{t-3}$\\
-\> etc.
-\end{tabbing}
+We measure the relationship between:
 
-
-
+  * $y_{t}$ and $y_{t-1}$
+  * $y_{t}$ and $y_{t-2}$
+  * $y_{t}$ and $y_{t-3}$
+  * etc.
 
 ## Autocorrelation
 
@@ -393,7 +376,6 @@ r_{k} &= c_k/c_0
   * $r_1$ indicates how successive values of  $y$  relate to each other
   * $r_2$ indicates how  $y$ values two periods apart relate to each other
   * $r_k$ is \textit{almost} the same as the sample correlation between $y_t$ and $y_{t-k}$.
-
 
 ## Autocorrelation
 
@@ -415,14 +397,12 @@ knitr::kable(beeracf, booktabs=TRUE,
 ggAcf(beer)
 ```
 
-
 ## Autocorrelation
 
   * $r_{4}$  higher than for the other lags. This is due to **the seasonal pattern in the data**: the peaks tend to be **4 quarters** apart and the troughs tend to be **2 quarters** apart.
   * $r_2$ is more negative than for the other lags because troughs tend to be 2 quarters behind peaks.
   * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
   * The plot is known as a **correlogram**
-
 
 ## ACF
 
@@ -470,7 +450,6 @@ autoplot(goog)
 ggAcf(goog, lag.max=100)
 ```
 
-
 ## Your turn
 
 We have introduced the following graphics functions:
@@ -485,7 +464,6 @@ Explore the following time series using these functions. Can you spot any season
   - `bricksq`
   - `sunspotarea`
   - `gasoline`
-
 
 ## Which is which?
 
@@ -505,7 +483,6 @@ acfc <- ggAcf(mink, ci=0) + xlab("") + ggtitle("C") + ylim(-0.4,1)
 gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
                         acfa,acfb,acfc,acfd,nrow=2)
 ```
-
 
 # White noise
 
@@ -555,8 +532,6 @@ endpdf()
 
 We expect each autocorrelation to be close to zero.
 
-
-
 ## \large Sampling distribution of autocorrelations
 
 Sampling distribution of $r_k$ for white noise data is asymptotically N(0,$1/T$).\pause
@@ -565,8 +540,6 @@ Sampling distribution of $r_k$ for white noise data is asymptotically N(0,$1/T$)
   * If this is not the case, the series is probably not WN.
   * Common to plot lines at $\pm 1.96/\sqrt{T}$ when plotting ACF.
 These are the \textcolor{orange}{\textbf{\emph{critical values}}}.
-
-
 
 ## Autocorrelation
 
@@ -582,9 +555,6 @@ All autocorrelation coefficients lie within these
 limits, confirming  that the data are white noise. (More precisely, the data cannot be \\
 distinguished \rlap{from white noise.)}
 \end{textblock}
-
-
-
 
 ## Example: Pigs slaughtered
 
@@ -608,7 +578,6 @@ ggAcf(pigs2)
 Monthly total number of pigs slaughtered
 in the state of Victoria, Australia, from January 1990 through August 1995.
 (Source: Australian Bureau of Statistics.)\pause
-
 
   * Difficult to detect pattern in time plot.
   * ACF shows some significant autocorrelation at lags 1, 2, and 3.
