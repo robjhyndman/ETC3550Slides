@@ -16,7 +16,14 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-library(fpp2)
+library(tidyverse)
+library(fable)
+ausbeer <- as_tsibble(fpp2::ausbeer) %>% 
+  rename(Time = index, Production = value)
+austa <- as_tsibble(fpp2::austa) %>% 
+  rename(Year = index, Visitors = value)
+melsyd <- as_tsibble(fpp2::melsyd) %>% 
+  rename(Time = index, Class = key, Passengers = value)
 ```
 
 # What can we forecast?
@@ -103,7 +110,7 @@ Something is easier to forecast if:
 
 
 ```{r, echo=FALSE, fig.height=2}
-ausbeer %>% autoplot
+ausbeer %>% autoplot(Production)
 ```
 
 \pause
@@ -113,14 +120,14 @@ ausbeer %>% autoplot
 ## Australian beer production
 
 ```{r, echo=FALSE}
-ausbeer %>% forecast %>% autoplot
+ausbeer %>% model(ETS(Production)) %>% forecast %>% autoplot(ausbeer)
 ```
 
 
 ## Australian beer production
 
 ```{r, echo=FALSE}
-ausbeer %>% forecast %>% autoplot(include=60)
+ausbeer %>% model(ETS(Production)) %>% forecast %>% autoplot(tail(ausbeer, 60))
 ```
 
 ## Assignment 1: forecast the following series
@@ -263,18 +270,29 @@ should this affect leasing and sales policies?
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE, fig.height=5}
-autoplot(melsyd[,"Economy.Class"],
-  main="Economy class passengers: Melbourne-Sydney",
-  xlab="Year",ylab="Thousands")
+melsyd %>% 
+  filter(Class == "Economy.Class") %>% 
+  autoplot(Passengers) + 
+  labs(
+    title = "Economy class passengers",
+    subtitle = "Melbourne-Sydney",
+    xlab="Year"
+  ) + 
+  ylab("Thousands")
 ```
 
 
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE, fig.height=5}
-autoplot(melsyd[,"Economy.Class"],
-  main="Economy class passengers: Melbourne-Sydney",
-  xlab="Year",ylab="Thousands")
+melsyd %>% 
+  filter(Class == "Economy.Class") %>% 
+  autoplot(Passengers) + 
+  labs(
+    title = "Economy class passengers",
+    subtitle = "Melbourne-Sydney"
+  ) + 
+  ylab("Thousands")
 ```
 
 \begin{textblock}{4.2}(7,6.3)
@@ -303,28 +321,27 @@ most of the computing.
 ## Sample futures
 
 ```{r austa1, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
-fit <- ets(austa)
-df <- cbind(austa, simulate(fit,10))
-for(i in seq(9))
-  df <- cbind(df, simulate(fit,10))
-colnames(df) <- c("Data", paste("Future",1:10))
-autoplot(df) +
-  ylim(min(austa),10) +
+fit <- austa %>% model(ETS())
+sim <- fit %>% simulate(h = 10, times = 10) %>% 
+  mutate(replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10)))
+ggplot(austa, aes(x = Year)) + 
+  geom_line(aes(y = Visitors, colour = "Data")) + 
+  geom_line(aes(y = .sim, colour = replicate), data = sim) + 
   ylab("Millions of visitors") + xlab("Year") +
   ggtitle("Total international visitors to Australia") +
- scale_colour_manual(values=c('#000000',rainbow(10)),
-                     breaks=c("Data",paste("Future",1:10)),
-                     name=" ") +
-  ylim(.85,10.0)
+  scale_colour_manual(values=c('#000000',rainbow(10)),
+                      breaks=c("Data",paste("Future",1:10)),
+                      name=" ")
 ```
 
 ## Forecast intervals
 
 ```{r austa2, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=8.6, fig.height=6}
-autoplot(forecast(fit)) +
+fit %>% 
+  forecast(h=10) %>% 
+  autoplot(austa) +
   ylab("Millions of visitors") + xlab("Year") +
-  ggtitle("Forecasts of total international visitors to Australia") +
-  ylim(0.85,10.0)
+  ggtitle("Forecasts of total international visitors to Australia")
 ```
 
 
