@@ -9,52 +9,65 @@ output:
     fig_height: 3.5
     highlight: tango
     theme: metropolis
+    keep_tex: true
     includes:
       in_header: header.tex
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-library(fpp2)
+library(tidyverse)
+library(fable)
+library(tsibble)
+library(feasts)
+library(lubridate)
 options(width=50)
+
+ausbeer <- as_tsibble(fpp2::ausbeer) %>% 
+  rename(Time = index, Production = value)
+
+ausgdp <- as_tsibble(expsmooth::ausgdp) %>% 
+  rename(Time = index, GDP = value)
+
+elecsales <- as_tsibble(fpp2::elecsales) %>% 
+  rename(Year = index, GWh = value)
+
+melsyd <- as_tsibble(fpp2::melsyd) %>% 
+  rename(Time = index, Class = key, Passengers = value)
+
+a10 <- as_tsibble(fpp2::a10) %>% 
+    rename(Time = index, Scripts = value)
+
+elecdaily <- as_tsibble(fpp2::elecdaily, gather = FALSE)
+
+goog <- tsibble(Time = seq(ymd("2013-02-25"), length.out = 1000, by = 1),
+                Price = fpp2::goog, index = Time)
 ```
 
 # Time series in R
 
-## `ts` objects and `ts` function
+## `tsibble` objects
 
 \fontsize{12}{13}\sf
 
-A time series is stored in a `ts` object in R:
+A `tsibble` allows storage and manipulation of time series in R.
 
- - a list of numbers
- - information about times those numbers were recorded.
+It contains:
+- Measured variable(s): numbers of interest
+- Key variable(s): unique identifiers for each series
+- An index: time information about the observation
+
+## `tsibble` objects
 
 ### Example
 
-```{r tstable, echo=FALSE, cache=TRUE}
-x <- c(123,39,78,52,110)
-yr <- 2012:2016
-knitr::kable(data.frame(Year=yr,Observation=x), booktabs=TRUE)
+```{r tstable, cache=TRUE}
+library(tsibble)
+y <- tsibble(year = 2012:2016, y = c(123,39,78,52,110), index = year)
+print(y)
 ```
 
-```r
-y <- ts(c(123,39,78,52,110), start=2012)
-```
-
-## `ts` objects and `ts` function
-
-For observations that are more frequent than once per year, add a `frequency` argument.
-
-E.g., monthly data stored as a numerical vector `z`:
-
-```r
-y <- ts(z, frequency=12, start=c(2003, 1))
-```
-
-## `ts` objects and `ts` function
-
-### `ts(data, frequency, start)`
+## Seasonal periods
 
 \begin{tabular}{lrl}
 \bf Type of data & \hspace*{1.95cm}\bf frequency                 & \bf start example\hspace*{0.25cm} \\
@@ -73,10 +86,10 @@ Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1}
 \fontsize{12}{14}\sf
 
 ```
-ausgdp <- ts(x, frequency=4, start=c(1971,3))
+ausgdp <- as_tsibble(x, index = Time)
 ```
 
-  * Class: "ts"
+  * Object: "tsibble"
   * Print and plotting methods available.
 
 ```{r, echo=TRUE}
@@ -86,7 +99,7 @@ ausgdp
 ## Australian GDP
 
 ```{r, echo=TRUE, fig.height=4}
-autoplot(ausgdp)
+ausgdp %>% autoplot(GDP)
 ```
 
 ## Residential electricity sales
@@ -97,21 +110,15 @@ autoplot(ausgdp)
 elecsales
 ```
 
-## Class package
+## Class packages
 
 ```
-> library(fpp2)
+library(tidyverse) # Data manipulation functions
+library(fable) # Forecasting functions
+library(feasts) # Time series graphics and statistics
+library(tsibbledata) # Tidy time series data
+library(fma) # Lots more time series data
 ```
-
-\pause
-
-This loads:
-
-  * some data for use in examples and exercises\pause
-  * **forecast** package (for forecasting functions)
-  * **ggplot2** package (for graphics functions)
-  * **fma** package (for lots of time series data)
-  * **expsmooth** package (for more time series data)
 
 # Time plots
 
@@ -120,7 +127,9 @@ This loads:
 \small
 
 ```{r, echo=TRUE, fig.height=4}
-autoplot(melsyd[,"Economy.Class"])
+melsyd %>% 
+  filter(Class == "Economy.Class") %>% 
+  autoplot(Passengers)
 ```
 
 ## Time plots
@@ -128,8 +137,8 @@ autoplot(melsyd[,"Economy.Class"])
 \small
 
 ```{r a10, echo=TRUE}
-autoplot(a10) + ylab("$ million") + xlab("Year") +
-         ggtitle("Antidiabetic drug sales")
+a10 %>% autoplot(Scripts) + ylab("$ million") + xlab("Year") +
+  ggtitle("Antidiabetic drug sales")
 ```
 
 ## Your turn
@@ -143,7 +152,8 @@ autoplot(a10) + ylab("$ million") + xlab("Year") +
 \fontsize{12}{14}\sf
 
 ```{r maxtemp}
-autoplot(elecdaily[,"Temperature"]) +
+elecdaily %>% 
+  autoplot(Temperature) +
   xlab("Week") + ylab("Max temperature")
 ```
 
@@ -152,23 +162,23 @@ autoplot(elecdaily[,"Temperature"]) +
 \fontsize{12}{14}\sf
 
 ```{r maxtemp2, warning=FALSE, message=FALSE}
-qplot(time(elecdaily), elecdaily[,"Temperature"]) +
+elecdaily %>% 
+  ggplot(aes(x = index, y = Temperature)) + 
+  geom_point() + 
   xlab("Week") + ylab("Max temperature")
 ```
 
 ## Are time plots best?
 
 ```{r maxtemp3, warning=FALSE, message=FALSE, echo=FALSE}
-data.frame(
-  Week = c(time(elecdaily)),
-  Maxtemp = c(elecdaily[,"Temperature"]) ) %>%
-  ggplot(aes(x=Week, y=1)) +
-    geom_tile(aes(fill=Maxtemp)) +
-    scale_fill_gradient2(
-      low = "navy",
-      mid = "yellow",
-     high = "red", midpoint=28) +
-    ylab("") + scale_y_discrete(expand=c(0,0))
+elecdaily %>% 
+  ggplot(aes(x = index, y = 1)) + 
+  geom_tile(aes(fill = Temperature)) + 
+  scale_fill_gradient2(
+    low = "navy",
+    mid = "yellow",
+   high = "red", midpoint=28) +
+  ylab("") + scale_y_discrete(expand=c(0,0))
 ```
 
 ## Are time plots best?
@@ -182,7 +192,7 @@ data.frame(
 \footnotesize
 
 ```{r, echo=TRUE}
-ggseasonplot(a10, year.labels=TRUE, year.labels.left=TRUE) +
+a10 %>% ggseasonplot(Scripts, year.labels=TRUE, year.labels.left=TRUE) +
   ylab("$ million") +
   ggtitle("Seasonal plot: antidiabetic drug sales")
 ```
@@ -199,7 +209,8 @@ ggseasonplot(a10, year.labels=TRUE, year.labels.left=TRUE) +
 \small
 
 ```{r, fig.height=6, out.width="7.5cm"}
-ggseasonplot(a10, polar=TRUE) + ylab("$ million")
+a10 %>% ggseasonplot() + coord_polar() + 
+  ylab("$ million")
 ```
 
 ## Seasonal subseries plots
@@ -207,7 +218,7 @@ ggseasonplot(a10, polar=TRUE) + ylab("$ million")
 \small
 
 ```{r, echo=TRUE}
-ggsubseriesplot(a10) + ylab("$ million") +
+a10 %>% ggsubseriesplot(Scripts) + ylab("$ million") +
   ggtitle("Subseries plot: antidiabetic drug sales")
 ```
 
@@ -220,25 +231,26 @@ ggsubseriesplot(a10) + ylab("$ million") +
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer <- window(ausbeer,start=1992)
-autoplot(beer)
+beer <- ausbeer %>% 
+  filter(year(Time) >= 1992)
+beer %>% autoplot(Production)
 ```
 
 ## Quarterly Australian Beer Production
 
 ```{r}
-ggseasonplot(beer,year.labels=TRUE)
+beer %>% ggseasonplot(Production, year.labels=TRUE)
 ```
 
 ## Quarterly Australian Beer Production
 
 ```{r}
-ggsubseriesplot(beer)
+beer %>% ggsubseriesplot(Production)
 ```
 
 ## Your turn
 
-The `arrivals` data set comprises quarterly international arrivals (in thousands) to Australia from Japan, New Zealand, UK and the US.
+The `arrivals.csv` data set comprises quarterly international arrivals (in thousands) to Australia from Japan, New Zealand, UK and the US.
 
   - Use `autoplot()` and `ggseasonplot()` to compare the differences between the arrivals from these four countries.
   - Can you identify any unusual observations?
@@ -269,7 +281,8 @@ Cyclic
 \small
 
 ```{r}
-autoplot(window(elec, start=1980)) +
+as_tsibble(fma::elec) %>% filter(index >= 1980) %>% 
+  autoplot(value) +
   ggtitle("Australian electricity production") +
   xlab("Year") + ylab("GWh")
 ```
@@ -279,7 +292,8 @@ autoplot(window(elec, start=1980)) +
 \small
 
 ```{r}
-autoplot(bricksq) +
+as_tsibble(fma::bricksq) %>%
+  autoplot(value) +
   ggtitle("Australian clay brick production") +
   xlab("Year") + ylab("million units")
 ```
@@ -289,7 +303,8 @@ autoplot(bricksq) +
 \small
 
 ```{r}
-autoplot(hsales) +
+as_tsibble(fma::hsales) %>% 
+  autoplot(value) +
   ggtitle("Sales of new one-family houses, USA") +
   xlab("Year") + ylab("Total sales")
 ```
@@ -297,7 +312,8 @@ autoplot(hsales) +
 ## Time series patterns
 
 ```{r}
-autoplot(ustreas) +
+as_tsibble(fma::ustreas) %>% 
+  autoplot(value) +
   ggtitle("US Treasury Bill Contracts") +
   xlab("Day") + ylab("price")
 ```
@@ -306,7 +322,8 @@ autoplot(ustreas) +
 \small
 
 ```{r}
-autoplot(lynx) +
+as_tsibble(lynx) %>% 
+  autoplot(value) +
   ggtitle("Annual Canadian Lynx Trappings") +
   xlab("Year") + ylab("Number trapped")
 ```
@@ -337,8 +354,8 @@ gglagplot(beer)
 ## Example: Beer production
 
 ```{r, echo=FALSE, fig.height=6, fig.width=6, out.width="8cm"}
-beer <- window(ausbeer, start=1992)
-gglagplot(beer)
+beer <- ausbeer %>% filter(year(Time) >= 1992)
+beer %>% gglagplot(Production, lags = 1:9)
 ```
 
 ## Lagged scatterplots
@@ -385,16 +402,11 @@ Results for first 9 lags for beer data:
 \footnotesize
 
 ```{r, echo=FALSE}
-beeracf <- matrix(acf(c(beer), lag.max=9,
-                      plot=FALSE)$acf[-1,,1], nrow=1)
-colnames(beeracf) <- paste("$r_",1:9,"$",sep="")
-knitr::kable(beeracf, booktabs=TRUE,
-             align="c", digits=3,
-             format.args=list(nsmall=3))
+beer %>% ACF(Production, lag.max = 4)
 ```
 
 ```{r beeracf, fig.height=2.5}
-ggAcf(beer)
+beer %>% ACF(Production) %>% autoplot
 ```
 
 ## Autocorrelation
@@ -407,7 +419,7 @@ ggAcf(beer)
 ## ACF
 
 ```{r, fig.height=4, echo=TRUE}
-ggAcf(beer)
+beer %>% ACF(Production) %>% autoplot
 ```
 
 ## Trend and seasonality in ACF plots
@@ -419,14 +431,14 @@ ggAcf(beer)
 ## Aus monthly electricity production
 
 ```{r}
-elec2 <- window(elec, start=1980)
-autoplot(elec2)
+elec2 <- as_tsibble(fma::elec) %>% filter(year(index) >= 1980) 
+elec2 %>% autoplot(value)
 ```
 
 ## Aus monthly electricity production
 
 ```{r}
-ggAcf(elec2, lag.max=48)
+elec2 %>% ACF(value, lag.max=48) %>% autoplot()
 ```
 
 ## Aus monthly electricity production
@@ -441,21 +453,21 @@ The same features are reflected in the ACF.
 ## Google stock price
 
 ```{r}
-autoplot(goog)
+goog %>% autoplot(Price)
 ```
 
 ## Google stock price
 
 ```{r}
-ggAcf(goog, lag.max=100)
+goog %>% ACF(Price, lag.max=100) %>% autoplot
 ```
 
 ## Your turn
 
-We have introduced the following graphics functions:
+We have introduced the following functions:
 
   - `gglagplot`
-  - `ggAcf`
+  - `ACF`
 
 Explore the following time series using these functions. Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
 
@@ -468,18 +480,22 @@ Explore the following time series using these functions. Can you spot any season
 ## Which is which?
 
 ```{r, fig.height=6, fig.width=12, echo=FALSE, warning=FALSE, out.width="11.5cm"}
-tp1 <- autoplot(cowtemp) + xlab("") + ylab("chirps per minute") +
+cowtemp <- as_tsibble(fma::cowtemp)
+USAccDeaths <- as_tsibble(USAccDeaths)
+AirPassengers <- as_tsibble(AirPassengers)
+mink <- as_tsibble(fma::mink)
+tp1 <- autoplot(cowtemp, value) + xlab("") + ylab("chirps per minute") +
   ggtitle("1. Daily temperature of cow")
-tp2 <- autoplot(USAccDeaths/1e3) + xlab("") + ylab("thousands") +
+tp2 <- autoplot(USAccDeaths, value) + xlab("") + ylab("thousands") +
   ggtitle("2. Monthly accidental deaths")
-tp3 <- autoplot(AirPassengers) + xlab("") + ylab("thousands") +
+tp3 <- autoplot(AirPassengers, value) + xlab("") + ylab("thousands") +
   ggtitle("3. Monthly air passengers")
-tp4 <- autoplot(mink/1e3) + xlab("") + ylab("thousands") +
+tp4 <- autoplot(mink, value) + xlab("") + ylab("thousands") +
   ggtitle("4. Annual mink trappings")
-acfb <- ggAcf(cowtemp, ci=0) + xlab("") + ggtitle("B") + ylim(-0.4,1)
-acfa <- ggAcf(USAccDeaths, ci=0) + xlab("") + ggtitle("A") + ylim(-0.4,1)
-acfd <- ggAcf(AirPassengers, ci=0) + xlab("") + ggtitle("D") + ylim(-0.4,1)
-acfc <- ggAcf(mink, ci=0) + xlab("") + ggtitle("C") + ylim(-0.4,1)
+acfb <- ACF(cowtemp, value) %>% autoplot() + xlab("") + ggtitle("B") + ylim(-0.4,1)
+acfa <- ACF(USAccDeaths, value) %>% autoplot() + xlab("") + ggtitle("A") + ylim(-0.4,1)
+acfd <- ACF(AirPassengers, value) %>% autoplot() + xlab("") + ggtitle("D") + ylim(-0.4,1)
+acfc <- ACF(mink, value) %>% autoplot() + xlab("") + ggtitle("C") + ylim(-0.4,1)
 gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
                         acfa,acfb,acfc,acfd,nrow=2)
 ```
@@ -489,24 +505,14 @@ gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
 ## Example: White noise
 
 ```{r}
-wn <- ts(rnorm(36))
-autoplot(wn)
+wn <- tsibble(t = seq_len(36), y = rnorm(36), index = t)
+wn %>% autoplot(y)
 ```
 
 ## Example: White noise
 
 ```{r, results='asis', echo=FALSE}
-wnacf <- matrix(acf(c(wn), lag.max=10,
-                      plot=FALSE)$acf[-1,,1], nrow=1)
-colnames(wnacf) <- paste("$r_{",1:10,"}$",sep="")
-print(xtable::xtable(t(wnacf)),
-    sanitize.rownames.function=identity,
-    booktabs=TRUE,
-    include.colnames = FALSE,
-    hline.after = FALSE,
-    size='small',
-    comment=FALSE,
-    floating=FALSE)
+wn %>% ACF(y, lag.max = 10)
 ```
 
 ```{r, echo=FALSE}
@@ -522,7 +528,7 @@ endpdf <- function()
   crop::dev.off.crop(fname)
 }
 savepdf("wnacf")
-ggAcf(wn)
+wn %>% ACF(y) %>% autoplot
 endpdf()
 ```
 
@@ -561,8 +567,8 @@ distinguished \rlap{from white noise.)}
 \small
 
 ```{r, fig.height=3}
-pigs2 <- window(pigs, start=1990)
-autoplot(pigs2) +
+pigs2 <- as_tsibble(fma::pigs) %>% filter(year(index) >= 1990)
+pigs2 %>% autoplot(value) +
   xlab("Year") + ylab("thousands") +
   ggtitle("Number of pigs slaughtered in Victoria")
 ```
@@ -570,7 +576,7 @@ autoplot(pigs2) +
 ## Example: Pigs slaughtered
 
 ```{r}
-ggAcf(pigs2)
+pigs2 %>% ACF(value) %>% autoplot()
 ```
 
 ## Example: Pigs slaughtered
@@ -592,8 +598,9 @@ These show the series is **not a white noise series**.
 
 You can compute the daily changes in the Google stock price using
 
-```r
-dgoog <- diff(goog)
+```{r, eval = FALSE}
+dgoog <- goog %>%
+  mutate(diff = Price - lag(Price))
 ```
 
 Does `dgoog` look like white noise?
