@@ -3,6 +3,7 @@ title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economi
 author: "Ch12. Some practical forecasting issues"
 date: "OTexts.org/fpp3/"
 toc: true
+colortheme: monashwhite
 output:
   binb::monash:
     fig_width: 7

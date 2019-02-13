@@ -3,6 +3,7 @@ title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economi
 author: "Ch6. Time series decomposition"
 date: "OTexts.org/fpp3/"
 toc: true
+colortheme: monashwhite
 output:
   binb::monash:
     fig_width: 7
