@@ -1,15 +1,12 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch2. Time series graphics"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
+  binb::monash:
     fig_width: 7
     fig_height: 3.5
-    highlight: tango
-    theme: metropolis
-    keep_tex: true
     includes:
       in_header: header.tex
 ---
@@ -23,19 +20,19 @@ library(feasts)
 library(lubridate)
 options(width=50)
 
-ausbeer <- as_tsibble(fpp2::ausbeer) %>% 
+ausbeer <- as_tsibble(fpp2::ausbeer) %>%
   rename(Time = index, Production = value)
 
-ausgdp <- as_tsibble(expsmooth::ausgdp) %>% 
+ausgdp <- as_tsibble(expsmooth::ausgdp) %>%
   rename(Time = index, GDP = value)
 
-elecsales <- as_tsibble(fpp2::elecsales) %>% 
+elecsales <- as_tsibble(fpp2::elecsales) %>%
   rename(Year = index, GWh = value)
 
-melsyd <- as_tsibble(fpp2::melsyd) %>% 
+melsyd <- as_tsibble(fpp2::melsyd) %>%
   rename(Time = index, Class = key, Passengers = value)
 
-a10 <- as_tsibble(fpp2::a10) %>% 
+a10 <- as_tsibble(fpp2::a10) %>%
     rename(Time = index, Scripts = value)
 
 elecdaily <- as_tsibble(fpp2::elecdaily, gather = FALSE)
@@ -53,6 +50,7 @@ goog <- tsibble(Time = seq(ymd("2013-02-25"), length.out = 1000, by = 1),
 A `tsibble` allows storage and manipulation of time series in R.
 
 It contains:
+
 - Measured variable(s): numbers of interest
 - Key variable(s): unique identifiers for each series
 - An index: time information about the observation
@@ -127,8 +125,8 @@ library(fma) # Lots more time series data
 \small
 
 ```{r, echo=TRUE, fig.height=4}
-melsyd %>% 
-  filter(Class == "Economy.Class") %>% 
+melsyd %>%
+  filter(Class == "Economy.Class") %>%
   autoplot(Passengers)
 ```
 
@@ -152,7 +150,7 @@ a10 %>% autoplot(Scripts) + ylab("$ million") + xlab("Year") +
 \fontsize{12}{14}\sf
 
 ```{r maxtemp}
-elecdaily %>% 
+elecdaily %>%
   autoplot(Temperature) +
   xlab("Week") + ylab("Max temperature")
 ```
@@ -162,18 +160,18 @@ elecdaily %>%
 \fontsize{12}{14}\sf
 
 ```{r maxtemp2, warning=FALSE, message=FALSE}
-elecdaily %>% 
-  ggplot(aes(x = index, y = Temperature)) + 
-  geom_point() + 
+elecdaily %>%
+  ggplot(aes(x = index, y = Temperature)) +
+  geom_point() +
   xlab("Week") + ylab("Max temperature")
 ```
 
 ## Are time plots best?
 
 ```{r maxtemp3, warning=FALSE, message=FALSE, echo=FALSE}
-elecdaily %>% 
-  ggplot(aes(x = index, y = 1)) + 
-  geom_tile(aes(fill = Temperature)) + 
+elecdaily %>%
+  ggplot(aes(x = index, y = 1)) +
+  geom_tile(aes(fill = Temperature)) +
   scale_fill_gradient2(
     low = "navy",
     mid = "yellow",
@@ -209,7 +207,7 @@ a10 %>% ggseasonplot(Scripts, year.labels=TRUE, year.labels.left=TRUE) +
 \small
 
 ```{r, fig.height=6, out.width="7.5cm"}
-a10 %>% ggseasonplot() + coord_polar() + 
+a10 %>% ggseasonplot() + coord_polar() +
   ylab("$ million")
 ```
 
@@ -231,7 +229,7 @@ a10 %>% ggsubseriesplot(Scripts) + ylab("$ million") +
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer <- ausbeer %>% 
+beer <- ausbeer %>%
   filter(year(Time) >= 1992)
 beer %>% autoplot(Production)
 ```
@@ -281,7 +279,7 @@ Cyclic
 \small
 
 ```{r}
-as_tsibble(fma::elec) %>% filter(index >= 1980) %>% 
+as_tsibble(fma::elec) %>% filter(index >= 1980) %>%
   autoplot(value) +
   ggtitle("Australian electricity production") +
   xlab("Year") + ylab("GWh")
@@ -303,7 +301,7 @@ as_tsibble(fma::bricksq) %>%
 \small
 
 ```{r}
-as_tsibble(fma::hsales) %>% 
+as_tsibble(fma::hsales) %>%
   autoplot(value) +
   ggtitle("Sales of new one-family houses, USA") +
   xlab("Year") + ylab("Total sales")
@@ -312,7 +310,7 @@ as_tsibble(fma::hsales) %>%
 ## Time series patterns
 
 ```{r}
-as_tsibble(fma::ustreas) %>% 
+as_tsibble(fma::ustreas) %>%
   autoplot(value) +
   ggtitle("US Treasury Bill Contracts") +
   xlab("Day") + ylab("price")
@@ -322,7 +320,7 @@ as_tsibble(fma::ustreas) %>%
 \small
 
 ```{r}
-as_tsibble(lynx) %>% 
+as_tsibble(lynx) %>%
   autoplot(value) +
   ggtitle("Annual Canadian Lynx Trappings") +
   xlab("Year") + ylab("Number trapped")
@@ -431,7 +429,7 @@ beer %>% ACF(Production) %>% autoplot
 ## Aus monthly electricity production
 
 ```{r}
-elec2 <- as_tsibble(fma::elec) %>% filter(year(index) >= 1980) 
+elec2 <- as_tsibble(fma::elec) %>% filter(year(index) >= 1980)
 elec2 %>% autoplot(value)
 ```
 

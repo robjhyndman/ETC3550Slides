@@ -1,17 +1,16 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch12. Some practical forecasting issues"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
+  binb::monash:
     fig_width: 7
     fig_height: 3.5
-    highlight: tango
-    theme: metropolis
     includes:
       in_header: header.tex
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE, warning=FALSE, message=FALSE)

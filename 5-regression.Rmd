@@ -1,17 +1,16 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch5. Regression models"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
-    theme: metropolis
-    fig_height: 4.5
+  binb::monash:
     fig_width: 7
-    highlight: tango
+    fig_height: 3.5
     includes:
       in_header: header.tex
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE,

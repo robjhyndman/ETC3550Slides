@@ -1,28 +1,25 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch1. Getting started"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
+  binb::monash:
     fig_width: 7
     fig_height: 3.5
-    highlight: tango
-    theme: metropolis
     includes:
       in_header: header.tex
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
 library(tidyverse)
 library(fable)
-ausbeer <- as_tsibble(fpp2::ausbeer) %>% 
+ausbeer <- as_tsibble(fpp2::ausbeer) %>%
   rename(Time = index, Production = value)
-austa <- as_tsibble(fpp2::austa) %>% 
+austa <- as_tsibble(fpp2::austa) %>%
   rename(Year = index, Visitors = value)
-melsyd <- as_tsibble(fpp2::melsyd) %>% 
+melsyd <- as_tsibble(fpp2::melsyd) %>%
   rename(Time = index, Class = key, Passengers = value)
 ```
 
@@ -270,14 +267,14 @@ should this affect leasing and sales policies?
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE, fig.height=5}
-melsyd %>% 
-  filter(Class == "Economy.Class") %>% 
-  autoplot(Passengers) + 
+melsyd %>%
+  filter(Class == "Economy.Class") %>%
+  autoplot(Passengers) +
   labs(
     title = "Economy class passengers",
     subtitle = "Melbourne-Sydney",
     xlab="Year"
-  ) + 
+  ) +
   ylab("Thousands")
 ```
 
@@ -285,13 +282,13 @@ melsyd %>%
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE, fig.height=5}
-melsyd %>% 
-  filter(Class == "Economy.Class") %>% 
-  autoplot(Passengers) + 
+melsyd %>%
+  filter(Class == "Economy.Class") %>%
+  autoplot(Passengers) +
   labs(
     title = "Economy class passengers",
     subtitle = "Melbourne-Sydney"
-  ) + 
+  ) +
   ylab("Thousands")
 ```
 
@@ -322,11 +319,15 @@ most of the computing.
 
 ```{r austa1, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
 fit <- austa %>% model(ETS())
-sim <- fit %>% simulate(h = 10, times = 10) %>% 
+```
+
+```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6, eval=FALSE}
+# simulate not working????
+sim <- fit %>% simulate(h = 10, times = 10) %>%
   mutate(replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10)))
-ggplot(austa, aes(x = Year)) + 
-  geom_line(aes(y = Visitors, colour = "Data")) + 
-  geom_line(aes(y = .sim, colour = replicate), data = sim) + 
+ggplot(austa, aes(x = Year)) +
+  geom_line(aes(y = Visitors, colour = "Data")) +
+  geom_line(aes(y = .sim, colour = replicate), data = sim) +
   ylab("Millions of visitors") + xlab("Year") +
   ggtitle("Total international visitors to Australia") +
   scale_colour_manual(values=c('#000000',rainbow(10)),
@@ -337,8 +338,8 @@ ggplot(austa, aes(x = Year)) +
 ## Forecast intervals
 
 ```{r austa2, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=8.6, fig.height=6}
-fit %>% 
-  forecast(h=10) %>% 
+fit %>%
+  forecast(h=10) %>%
   autoplot(austa) +
   ylab("Millions of visitors") + xlab("Year") +
   ggtitle("Forecasts of total international visitors to Australia")

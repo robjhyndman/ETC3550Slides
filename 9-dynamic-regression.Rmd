@@ -1,16 +1,15 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch9. Dynamic regression models"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
+  binb::monash:
     fig_width: 7
     fig_height: 3.5
-    highlight: tango
-    theme: metropolis
     includes:
       in_header: header.tex
+---
 ---
 
 ```{r setup, include=FALSE}
@@ -388,7 +387,7 @@ autoplot(forecast(fit2)) +
 
 ```{r echo=FALSE, fig.height=5.5, fig.width=8.5}
 fc1 <- forecast(fit1,
-  xreg = data.frame(trend = length(austa) + 1:10))
+  xreg = cbind(trend = length(austa) + 1:10))
 fc2 <- forecast(fit2, h=10)
 autoplot(austa) +
   autolayer(fc2, series="Stochastic trend") +

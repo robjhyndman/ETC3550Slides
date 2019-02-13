@@ -1,14 +1,12 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch8. ARIMA models"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
+  binb::monash:
     fig_width: 7
     fig_height: 3.5
-    highlight: tango
-    theme: metropolis
     includes:
       in_header: header.tex
 ---
@@ -506,10 +504,10 @@ MA:& $q =$  order of the moving average part.
 
 * ARMA model:\vspace*{-1cm}\newline
 \parbox{12cm}{\small\begin{align*}
-\hspace*{-1cm} 
+\hspace*{-1cm}
 y_{t}  &=  c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
            +  \varepsilon_{t}  +  \theta_{1}B\varepsilon_{t} + \cdots + \theta_qB^q\varepsilon_{t} \\
-\hspace*{-1cm} 
+\hspace*{-1cm}
 \text{or}\quad & (1-\phi_1B - \cdots - \phi_p B^p) y_t = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t
 \end{align*}}
 
@@ -538,9 +536,10 @@ $$y_t =   c + y_{t-1} + \phi_1 y_{t-1}- \phi_1 y_{t-2} + \theta_1\varepsilon_{t-
 \centerline{$(1-\phi_1B - \cdots - \phi_p B^p)(y_t' - \mu) = (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
 \end{block}
 
- * $y_t' = (1-B)^d y_t$ 
- * $\mu$ is the mean of $y_t'$. 
+ * $y_t' = (1-B)^d y_t$
+ * $\mu$ is the mean of $y_t'$.
  * $c = \mu(1-\phi_1 - \cdots - \phi_p )$.
+ * R uses mean form
 
 ## US personal consumption
 
@@ -567,9 +566,9 @@ coef <- coefficients(fit)
 intercept <- coef['intercept'] * (1-coef['ar1'] - coef['ar2'])
 ```
 
-```{r, include=FALSE}
+```{r}
 if(!identical(arimaorder(fit),c(p=2L,d=0L,q=2L)))
-  stop("Different model from expected")
+  warning("Needs fixing")
 ```
 
 ### ARIMA(2,0,2) model:
@@ -581,7 +580,7 @@ if(!identical(arimaorder(fit),c(p=2L,d=0L,q=2L)))
           + \varepsilon_{t},
 $}
 where $c= `r format(coef['intercept'], nsmall=3, digits=3)` \times (1 - `r format(coef['ar1'], nsmall=3, digits=3)` + `r format(-coef['ar2'], nsmall=3, digits=3)`) = `r format(intercept, nsmall=3, digits=3)`$
-and $\varepsilon_t$ is white noise with a standard deviation of $`r format(sqrt(fit$sigma2), nsmall=3, digits=3)` = \sqrt{`r format(fit$sigma2, nsmall=3, digits=3)`}$. 
+and $\varepsilon_t$ is white noise with a standard deviation of $`r format(sqrt(fit$sigma2), nsmall=3, digits=3)` = \sqrt{`r format(fit$sigma2, nsmall=3, digits=3)`}$.
 
 
 ## US personal consumption
@@ -1375,7 +1374,7 @@ auto.arima(euretail)
 \fontsize{12}{14}\sf
 
 ```{r euretailtryharder, echo=TRUE}
-auto.arima(euretail, 
+auto.arima(euretail,
   stepwise=FALSE, approximation=FALSE)
 ```
 

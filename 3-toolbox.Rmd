@@ -1,14 +1,12 @@
 ---
-title: "ETC3550: Applied forecasting for business and economics"
+title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "Ch3. The forecasters' toolbox"
-date: "OTexts.org/fpp2/"
-fontsize: 14pt
+date: "OTexts.org/fpp3/"
+toc: true
 output:
-  beamer_presentation:
+  binb::monash:
     fig_width: 7
     fig_height: 3.5
-    highlight: tango
-    theme: metropolis
     includes:
       in_header: header.tex
 ---
@@ -168,9 +166,7 @@ Logarithm & $w_t = \log(y_t)$  & strength
 \end{block}
 \pause
 
-Logarithms, in particular, are useful because they are more interpretable:
-changes in a log value are \textbf{relative (percent) changes on the original
-scale.}
+Logarithms, in particular, are useful because they are more interpretable: changes in a log value are **relative (percent) changes on the original scale**.
 
 ## Variance stabilization
 
