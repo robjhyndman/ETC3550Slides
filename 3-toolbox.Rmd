@@ -534,7 +534,7 @@ Box.test(residuals(fit)$.resid, lag=10, fitdf=0, type="Lj")
 
 ## `checkresiduals` function
 
-```{r dj10, echo=TRUE, fig.height=4}
+```{r dj10, echo=TRUE, fig.height=4, eval = FALSE}
 checkresiduals(naive(goog200))
 ```
 
@@ -591,7 +591,7 @@ where the training data is given by $\{y_1,\dots,y_T\}$
 
 ## Measures of forecast accuracy
 
-```{r beeraccuracy, echo=FALSE, fig.height=4}
+```{r beer-fc-1, echo=FALSE, fig.height=4}
 beer_fc_plot
 ```
 
@@ -651,14 +651,14 @@ works well. Then MASE is equivalent to MAE relative to a seasonal naïve method.
 
 ## Measures of forecast accuracy
 
-```{r beeraccuracyagain, echo=FALSE, fig.height=4}
+```{r beer-fc-2, echo=FALSE, fig.height=4}
 beer_fc_plot
 ```
 
 ## Measures of forecast accuracy
 \fontsize{11}{11}\sf
 
-```{r beeraccuracy, output = 'hide'}
+```{r beeraccuracy, results = 'hide'}
 beer2 <- ausbeer %>% filter(between(year(Time), 1992, 2007))
 beer3 <- ausbeer %>% filter(year(Time) > 2007)
 fc <- beer2 %>% 
@@ -676,7 +676,8 @@ accuracy(fc, beer3)
 ```{r beertable, echo=FALSE}
 accuracy(fc, beer3) %>% 
   select(.model, RMSE, MAE, MAPE) %>%
-  gt::gt(".model")
+  gt::gt(".model") %>% 
+  gt::as_latex()
 ```
 
 ## Poll: true or false?
@@ -757,7 +758,7 @@ text(28,.95,"time")
 
 \small
 
-```{r tscv, cache=TRUE}
+```{r tscv, cache=TRUE, eval = FALSE}
 e <- tsCV(goog200, rwf, drift=TRUE, h=1)
 sqrt(mean(e^2, na.rm=TRUE))
 sqrt(mean(residuals(rwf(goog200, drift=TRUE))^2,
@@ -812,12 +813,12 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 
 **Naive forecast with prediction interval:**
 
-```{r djpi, echo=TRUE, cache=TRUE}
+```{r djpi, echo=TRUE, cache=TRUE, eval = FALSE}
 res_sd <- sqrt(mean(res^2, na.rm=TRUE))
 c(tail(goog200,1)) + 1.96 * res_sd * c(-1,1)
 ```
 
-```{r djforecasts, echo=TRUE, cache=TRUE}
+```{r djforecasts, echo=TRUE, cache=TRUE, eval = FALSE}
 naive(goog200, level=95)
 ```
 
