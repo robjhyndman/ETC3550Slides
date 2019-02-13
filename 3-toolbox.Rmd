@@ -14,8 +14,20 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-library(fpp2)
+
+library(tidyverse)
+library(fable)
+library(tsibble)
+library(feasts)
+library(lubridate)
 source("nicefigs.R")
+
+ausbeer <- as_tsibble(fpp2::ausbeer) %>%
+  rename(Time = index, Production = value)
+
+goog200 <- tsibble(Time = ymd("2013-02-25") + days(1:200),
+                Price = fpp2::goog200, index = Time)
+
 options(width=45)
 ```
 
@@ -24,8 +36,8 @@ options(width=45)
 ## Some simple forecasting methods
 
 ```{r ausbeer, fig.height=4.6, echo=FALSE}
-beer2 <- window(ausbeer, start=1992)
-autoplot(beer2) +
+beer2 <- ausbeer %>% filter(year(Time) >= 1992)
+beer2 %>% autoplot(Production) +
   xlab("Year") + ylab("megalitres") +
     ggtitle("Australian quarterly beer production")
 ```
@@ -39,7 +51,8 @@ autoplot(beer2) +
 ## Some simple forecasting methods
 
 ```{r pigs, fig.height=4.6, echo=FALSE}
-autoplot(window(pigs/1e3, start=1990)) +
+as_tsibble(fma::pigs) %>% filter(year(index) >= 1990) %>% 
+  autoplot(value) +
   xlab("Year") + ylab("thousands") +
   ggtitle("Number of pigs slaughtered in Victoria")
 ```
@@ -53,8 +66,10 @@ autoplot(window(pigs/1e3, start=1990)) +
 ## Some simple forecasting methods
 
 ```{r dj, fig.height=4.6, echo=FALSE}
-autoplot(dj) + xlab("Day") +
-  ggtitle("Dow-Jones index") + ylab("")
+dj <- tsibble(day = seq_along(fma::dj), value = fma::dj, index = day)
+dj %>% 
+  autoplot(value) + ggtitle("Dow-Jones index") + 
+  xlab("Day") + ylab("")
 ```
 
 \begin{textblock}{7}(0.2,8.7)
@@ -104,27 +119,36 @@ autoplot(dj) + xlab("Day") +
 ## Some simple forecasting methods
 
 ```{r beerf, warning=FALSE, message=FALSE, echo=FALSE, fig.height=4.6}
-beer2 <- window(ausbeer,start=1992,end=c(2007,4))
+beer2 <- ausbeer %>% filter(between(year(Time), 1992, 2007))
 # Plot some forecasts
-autoplot(beer2) +
-  autolayer(meanf(beer2, h=11), PI=FALSE, series="Mean") +
-  autolayer(naive(beer2, h=11), PI=FALSE, series="Naïve") +
-  autolayer(snaive(beer2, h=11), PI=FALSE, series="Seasonal naïve") +
+beer_fc_plot <- beer2 %>% 
+  model(
+    Mean = MEAN(Production),
+    `Naïve` = NAIVE(Production), 
+    `Seasonal naïve` = SNAIVE(Production)
+  ) %>% 
+  forecast(h=11) %>% 
+  autoplot(beer2, level = NULL) +
   ggtitle("Forecasts for quarterly beer production") +
   xlab("Year") + ylab("Megalitres") +
   guides(colour=guide_legend(title="Forecast"))
+beer_fc_plot
 ```
 
 ## Some simple forecasting methods
 
 ```{r djf,  message=FALSE, warning=FALSE, echo=FALSE, fig.height=4.6}
 # Set training data to first 250 days
-dj2 <- window(dj,end=250)
+dj2 <- dj %>% filter(day <= 250)
 # Plot some forecasts
-autoplot(dj2) +
-  autolayer(meanf(dj2, h=42), PI=FALSE, series="Mean") +
-  autolayer(rwf(dj2, h=42), PI=FALSE, series="Naïve") +
-  autolayer(rwf(dj2, drift=TRUE, h=42), PI=FALSE, series="Drift") +
+dj2 %>% 
+  model(
+    Mean = MEAN(value),
+    `Naïve` = NAIVE(value), 
+    Drift = RW(value ~ drift())
+  ) %>% 
+  forecast(h=42) %>% 
+  autoplot(dj2, level = NULL) +
   ggtitle("Dow Jones Index (daily ending 15 Jul 94)") +
   xlab("Day") + ylab("") +
   guides(colour=guide_legend(title="Forecast"))
@@ -132,10 +156,10 @@ autoplot(dj2) +
 
 ## Some simple forecasting methods
 
-  * Mean: `meanf(y, h=20)`
-  * Naïve:  `naive(y, h=20)`
-  * Seasonal naïve: `snaive(y, h=20)`
-  * Drift: `rwf(y, drift=TRUE, h=20)`
+  * Mean: `MEAN(y)`
+  * Naïve:  `NAIVE(y)`
+  * Seasonal naïve: `SNAIVE(y)`
+  * Drift: `RW(y ~ drift())`
 
 \pause
 
@@ -172,7 +196,8 @@ Logarithms, in particular, are useful because they are more interpretable: chang
 ## Variance stabilization
 
 ```{r elec, echo=FALSE, fig.height=4.6}
-autoplot(elec) +
+elec <- as_tsibble(fma::elec)
+elec %>% autoplot(value) +
   xlab("Year") + ylab("") +
   ggtitle("Australian electricity production")
 ```
@@ -180,7 +205,7 @@ autoplot(elec) +
 ## Variance stabilization
 
 ```{r elec1, echo=FALSE, fig.height=4.6}
-autoplot(elec^0.5) +
+elec %>% autoplot(sqrt(value)) +
   xlab("Year") + ylab("") +
   ggtitle("Square root electricity production")
 ```
@@ -188,7 +213,7 @@ autoplot(elec^0.5) +
 ## Variance stabilization
 
 ```{r elec2, echo=FALSE, fig.height=4.6}
-autoplot(elec^0.33333) +
+elec %>% autoplot(value^(1/3))+
   xlab("Year") + ylab("") +
   ggtitle("Cube root electricity production")
 ```
@@ -196,7 +221,7 @@ autoplot(elec^0.33333) +
 ## Variance stabilization
 
 ```{r elec3, echo=FALSE, fig.height=4.6}
-autoplot(log(elec)) +
+elec %>% autoplot(log(value)) +
   xlab("Year") + ylab("") +
   ggtitle("Log electricity production")
 ```
@@ -204,7 +229,7 @@ autoplot(log(elec)) +
 ## Variance stabilization
 
 ```{r elec4, echo=FALSE, fig.height=4.6}
-autoplot(-1/elec) +
+elec %>% autoplot(-1/value) + 
   xlab("Year") + ylab("") +
   ggtitle("Inverse electricity production")
 ```
@@ -232,7 +257,7 @@ lambda <- seq(1, -1, by=-0.01)
 for(i in seq_along(lambda))
 {
   savepdf(paste("elecBC",i,sep=""))
-  print(autoplot(BoxCox(elec,lambda[i])) + xlab("Year") +
+  print(autoplot(elec, BoxCox(value,lambda[i])) + xlab("Year") +
     ylab("") +
     ggtitle(
       TeX(paste("Transformed Australian electricity demand:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
@@ -250,7 +275,7 @@ for(i in seq_along(lambda))
 ## Box-Cox transformations
 
 ```{r elec6,echo=TRUE,fig.height=4}
-autoplot(BoxCox(elec,lambda=1/3))
+elec %>% autoplot(BoxCox(value,lambda=1/3))
 ```
 
 ## Box-Cox transformations
@@ -267,7 +292,7 @@ autoplot(BoxCox(elec,lambda=1/3))
 ## Automated Box-Cox transformations
 
 ```{r elec7, echo=TRUE}
-(BoxCox.lambda(elec))
+forecast::BoxCox.lambda(elec$value)
 ```
 \pause
 
@@ -288,14 +313,16 @@ $$ y_t = \left\{\begin{array}{ll}
 ## Back-transformation
 
 ```{r elec8,echo=TRUE,fig.height=3.6}
-fit <- snaive(elec, lambda=1/3)
-autoplot(fit)
+fc <- elec %>% 
+  model(SNAIVE(BoxCox(value, lambda=1/3))) %>% 
+  forecast()
+fc %>% autoplot(elec)
 ```
 
 ## Back-transformation
 
 ```{r elec9,echo=TRUE,fig.height=4}
-autoplot(fit, include=120)
+fc %>% autoplot(filter(elec, year(index) > 1985))
 ```
 
 ## Your turn
@@ -353,12 +380,13 @@ f''(x) &= \begin{cases}
 \fontsize{10}{10}\sf
 
 ```{r biasadj, fig.height=3}
-fc <- rwf(eggs, drift=TRUE, lambda=0, h=50, level=80)
-fc2 <- rwf(eggs, drift=TRUE, lambda=0, h=50, level=80,
-  biasadj=TRUE)
-autoplot(eggs) +
-  autolayer(fc, series="Simple back transformation") +
-  autolayer(fc2, series="Bias adjusted", PI=FALSE) +
+eggs <- as_tsibble(fma::eggs)
+fit <- eggs %>% model(RW(log(value) ~ drift()))
+fc <- fit %>% forecast(h=50)
+fc_biased <- fit %>% forecast(h=50, bias_adjust = FALSE)
+eggs %>% autoplot(value) +
+  autolayer(fc_biased, series="Simple back transformation", level = 80) +
+  autolayer(fc, series="Bias adjusted", level = NULL) +
   guides(colour=guide_legend(title="Forecast"))
 ```
 
@@ -399,7 +427,7 @@ autoplot(eggs) +
 \fontsize{10}{10}\sf
 
 ```{r dj3, echo=TRUE}
-autoplot(goog200) +
+goog200 %>% autoplot(Price) +
   xlab("Day") + ylab("Closing Price (US$)") +
   ggtitle("Google Stock (daily ending 6 December 2013)")
 ```
@@ -419,9 +447,11 @@ Note: $e_t$ are one-step-forecast residuals
 \fontsize{10}{10}\sf
 
 ```{r dj4, echo=TRUE, warning=FALSE}
-fits <- fitted(naive(goog200))
-autoplot(goog200, series="Data") +
-  autolayer(fits, series="Fitted") +
+fit <- goog200 %>% model(NAIVE(Price))
+augment(fit) %>% 
+  ggplot(aes(x = Time)) + 
+  geom_line(aes(y = Price, colour = "Data")) + 
+  geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Day") + ylab("Closing Price (US$)") +
   ggtitle("Google Stock (daily ending 6 December 2013)")
 ```
@@ -430,8 +460,8 @@ autoplot(goog200, series="Data") +
 \fontsize{10}{10}\sf
 
 ```{r dj5, echo=TRUE}
-res <- residuals(naive(goog200))
-autoplot(res) + xlab("Day") + ylab("") +
+residuals(fit) %>% 
+  autoplot(.resid) + xlab("Day") + ylab("") +
   ggtitle("Residuals from naïve method")
 ```
 
@@ -439,7 +469,9 @@ autoplot(res) + xlab("Day") + ylab("") +
 \fontsize{11}{11}\sf
 
 ```{r dj6, warning=FALSE}
-gghistogram(res, add.normal=TRUE) +
+residuals(fit) %>% 
+  ggplot(aes(x = .resid)) + 
+  geom_histogram() + 
   ggtitle("Histogram of residuals")
 ```
 
@@ -447,7 +479,7 @@ gghistogram(res, add.normal=TRUE) +
 \fontsize{11}{11}\sf
 
 ```{r dj7}
-ggAcf(res) + ggtitle("ACF of residuals")
+residuals(fit) %>% ACF(.resid) %>% autoplot() + ggtitle("ACF of residuals")
 ```
 
 ## ACF of residuals
@@ -497,7 +529,7 @@ where $h$  is max lag being considered and $T$ is number of observations.
 
 ```{r dj9, echo=TRUE}
 # lag=h and fitdf=K
-Box.test(res, lag=10, fitdf=0, type="Lj")
+Box.test(residuals(fit)$.resid, lag=10, fitdf=0, type="Lj")
 ```
 
 ## `checkresiduals` function
@@ -506,35 +538,20 @@ Box.test(res, lag=10, fitdf=0, type="Lj")
 checkresiduals(naive(goog200))
 ```
 
-## `checkresiduals` function
-
-```{r dj11, echo=FALSE}
-object <- naive(goog200)
-main <- paste("Residuals from", object$method)
-res <- residuals(object)
-# Do Ljung-Box test
-      LBtest <- Box.test(zoo::na.approx(res), fitdf=0, lag=10, type="Ljung")
-      LBtest$method <- "Ljung-Box test"
-      LBtest$data.name <- main
-      names(LBtest$statistic) <- "Q*"
-      print(LBtest)
-      cat(paste("Model df: ",0,".   Total lags used: ",10,"\n\n",sep=""))
-```
-
 ## Your turn
 
 Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
 
 ```r
-beer <- window(ausbeer, start=1992)
-fc <- snaive(beer)
-autoplot(fc)
+beer <- ausbeer %>% filter(year(Time) >= 1992)
+fit <- beer %>% model(snaive(Production))
+fit %>% forecast() %>% autoplot(beer)
 ```
 
 Test if the residuals are white noise.
 
 ```r
-checkresiduals(fc)
+fit %>% residuals %>% checkresiduals(.resid)
 ```
 What do you conclude?
 
@@ -575,19 +592,7 @@ where the training data is given by $\{y_1,\dots,y_T\}$
 ## Measures of forecast accuracy
 
 ```{r beeraccuracy, echo=FALSE, fig.height=4}
-beer2 <- window(ausbeer,start=1992,end=c(2007,4))
-beerfit1 <- meanf(beer2,h=10)
-beerfit2 <- rwf(beer2,h=10)
-beerfit3 <- snaive(beer2,h=10)
-tmp <- cbind(Data=window(ausbeer, start=1992),
-             Mean=beerfit1[["mean"]],
-             Naive=beerfit2[["mean"]],
-             SeasonalNaive=beerfit3[["mean"]])
-autoplot(tmp) + xlab("Year") + ylab("Megalitres") +
-  ggtitle("Forecasts for quarterly beer production") +
-  scale_color_manual(values=c('#000000','#1b9e77','#d95f02','#7570b3'),
-                     breaks=c("Mean","Naive","SeasonalNaive"),
-                     name="Forecast Method")
+beer_fc_plot
 ```
 
 ## Measures of forecast accuracy
@@ -647,38 +652,31 @@ works well. Then MASE is equivalent to MAE relative to a seasonal naïve method.
 ## Measures of forecast accuracy
 
 ```{r beeraccuracyagain, echo=FALSE, fig.height=4}
-autoplot(tmp) + xlab("Year") + ylab("Megalitres") +
-  ggtitle("Forecasts for quarterly beer production") +
-  scale_color_manual(values=c('#000000','#1b9e77','#d95f02','#7570b3'),
-                     breaks=c("Mean","Naive","SeasonalNaive"),
-                     name="Forecast Method")
+beer_fc_plot
 ```
 
 ## Measures of forecast accuracy
 \fontsize{11}{11}\sf
 
-```r
-beer2 <- window(ausbeer, start=1992, end=c(2007,4))
-beer3 <- window(ausbeer, start=2008)
-beerfit1 <- meanf(beer2, h=10)
-beerfit2 <- rwf(beer2, h=10)
-beerfit3 <- snaive(beer2, h=10)
-accuracy(beerfit1, beer3)
-accuracy(beerfit2, beer3)
-accuracy(beerfit3, beer3)
+```{r beeraccuracy, output = 'hide'}
+beer2 <- ausbeer %>% filter(between(year(Time), 1992, 2007))
+beer3 <- ausbeer %>% filter(year(Time) > 2007)
+fc <- beer2 %>% 
+  model(
+    Mean = MEAN(Production),
+    `Naïve` = NAIVE(Production), 
+    `Seasonal naïve` = SNAIVE(Production)
+  ) %>% 
+  forecast(h = 10)
+accuracy(fc, beer3)
 ```
 
 \fontsize{13}{15}\sf
 
 ```{r beertable, echo=FALSE}
-beer3 <- window(ausbeer, start=2008)
-tab <- matrix(NA,ncol=4,nrow=3)
-tab[1,] <- accuracy(beerfit1, beer3)[2,c(2,3,5,6)]
-tab[2,] <- accuracy(beerfit2, beer3)[2,c(2,3,5,6)]
-tab[3,] <- accuracy(beerfit3, beer3)[2,c(2,3,5,6)]
-colnames(tab) <- c("RMSE","MAE","MAPE","MASE")
-rownames(tab) <- c("Mean method", "Naïve method", "Seasonal naïve method")
-knitr::kable(tab, digits=2)
+accuracy(fc, beer3) %>% 
+  select(.model, RMSE, MAE, MAPE) %>%
+  gt::gt(".model")
 ```
 
 ## Poll: true or false?
@@ -755,7 +753,7 @@ text(28,.95,"time")
 
  \vspace*{10cm}
 
-## tsCV function:
+## tsCV function
 
 \small
 
@@ -771,6 +769,8 @@ A good way to choose the best forecasting model is to find the model with the sm
 ## Pipe function
 
 \fontsize{12}{15}\sf
+
+%TODO: better example of pipe utility
 
 Ugly code:
 ```r
