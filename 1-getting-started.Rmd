@@ -3,6 +3,7 @@ title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economi
 author: "Ch1. Getting started"
 date: "OTexts.org/fpp3/"
 toc: true
+colortheme: monashwhite
 output:
   binb::monash:
     fig_width: 7
@@ -321,9 +322,8 @@ most of the computing.
 fit <- austa %>% model(ETS())
 ```
 
-```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6, eval=FALSE}
-# simulate not working????
-sim <- fit %>% simulate(h = 10, times = 10) %>%
+```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
+sim <- fit %>% imitate(h = 10, times = 10) %>%
   mutate(replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10)))
 ggplot(austa, aes(x = Year)) +
   geom_line(aes(y = Visitors, colour = "Data")) +
