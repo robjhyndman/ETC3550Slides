@@ -14,7 +14,15 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-library(fpp2)
+
+library(tidyverse)
+library(fable)
+library(tsibble)
+library(feasts)
+library(lubridate)
+
+elecequip <- as_tsibble(fpp2::elecequip)
+
 options(width=60)
 ```
 
@@ -68,14 +76,14 @@ $$
 \fontsize{11}{14}\sf
 
 ```{r elecequip-stl, fig.width=8, fig.height=4.3}
-fit <- stl(elecequip, s.window=7)
-autoplot(fit) + xlab("Year")
+dcmp <- elecequip %>% STL(value ~ season(window = 7))
+autoplot(dcmp) + xlab("Year")
 ```
 
 ## Euro electrical equipment
 
 ```{r elecequip3}
-ggsubseriesplot(seasonal(fit))
+dcmp %>% ggsubseriesplot(season_year)
 ```
 
 ## Euro electrical equipment
@@ -84,7 +92,7 @@ ggsubseriesplot(seasonal(fit))
 
 ```{r elecequip-trend}
 autoplot(elecequip, series="Data") +
-  autolayer(trendcycle(fit), series="Trend-cycle")
+  autolayer(dcmp, trend + remainder, series="Trend-cycle")
 ```
 
 ## Helper functions
@@ -99,7 +107,7 @@ Repeat the decomposition using
 
 ```r
 elecequip %>%
-  stl(s.window=7, t.window=11) %>%
+  STL(value ~ season(window=7) + trend(window=11)) %>%
   autoplot()
 ```
 
@@ -120,14 +128,14 @@ $$y_t / S_t = T_t \times R_t$$
 \fontsize{11}{15}\sf
 
 ```r
-fit <- stl(elecequip, s.window=7)
-autoplot(elecequip, series="Data") +
-  autolayer(seasadj(fit), series="Seasonally Adjusted")
+dcmp <- elecequip %>% STL(value ~ season(window=7))
+elecequip %>% autoplot(value, series="Data") +
+  autolayer(dcmp, trend + remainder, series="Seasonally Adjusted")
 ```
 
 ```{r elecequip-sa, echo=FALSE}
-autoplot(elecequip, series="Data") +
-  autolayer(seasadj(fit), series="Seasonally Adjusted") +
+elecequip %>% autoplot(value) +
+  autolayer(dcmp, trend + remainder, series="Seasonally Adjusted") +
   xlab("Year") + ylab("New orders index") +
   ggtitle("Electrical equipment manufacturing (Euro area)") +
   scale_colour_manual(values=c("gray","blue"),
@@ -157,7 +165,9 @@ autoplot(elecequip, series="Data") +
 \fontsize{11}{14}\sf
 
 ```{r abs, echo=FALSE, fig.width=6, fig.height=4}
-x <- ts(c(5985.7,6040.6,6054.2,6038.3,6031.3,6036.1,6005.4,6024.3,6045.9,6033.8,6125.4,5971.3,
+x <- tsibble(
+  Time = yearmonth("1978 Feb") + 0:439,
+  Employed = c(5985.7,6040.6,6054.2,6038.3,6031.3,6036.1,6005.4,6024.3,6045.9,6033.8,6125.4,5971.3,
   6050.7,6096.2,6087.7,6075.6,6095.7,6103.9,6078.5,6157.8,6164.0,6188.8,6257.2,6112.9,
   6207.2,6278.7,6224.9,6273.4,6269.9,6314.1,6281.4,6360.0,6320.2,6342.0,6426.6,6253.0,
   6356.5,6428.1,6426.3,6412.4,6413.9,6425.3,6393.7,6502.7,6445.3,6433.3,6506.9,6355.5,
@@ -194,9 +204,10 @@ x <- ts(c(5985.7,6040.6,6054.2,6038.3,6031.3,6036.1,6005.4,6024.3,6045.9,6033.8,
   11130.7,11321.2,11274.0,11240.6,11354.8,11159.0,11236.2,11332.4,11328.3,11389.0,11350.6,
   11363.7,11259.8,11452.6,11401.9,11375.0,11518.4,11304.0,11424.3,11436.3,11482.2,11495.6,
   11497.8,11486,11369,11547,11499,11472,11571,11354,11493,11562,11589,11595,11602,11590,
-  11622,11593), freq=12, start=c(1978,2))
+  11622,11593),
+  index = Time)
 
-autoplot(x) +
+x %>% autoplot(Employed) +
   ggtitle("Total employed") +
   ylab("Thousands") + xlab("Year")
 ```
@@ -204,7 +215,9 @@ autoplot(x) +
 ## The ABS stuff-up
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
-autoplot(window(x, start=c(2005,1))) +
+x %>% 
+  filter(year(Time) >= 2005) %>% 
+  autoplot(Employed) +
   ggtitle("Total employed") +
   ylab("Thousands") + xlab("Year")
 ```
@@ -214,17 +227,23 @@ autoplot(window(x, start=c(2005,1))) +
 \fontsize{10}{14}\sf
 
 ```{r}
-ggseasonplot(window(x,start=c(2005,1)), year.labels=TRUE) +
+x %>% 
+  filter(year(Time) >= 2005) %>% 
+  ggseasonplot(Employed, year.labels=TRUE) +
   ggtitle("Total employed") + ylab("Thousands")
 ```
 
 ## The ABS stuff-up
 
 ```{r, fig.height=2, echo=FALSE}
-aug <- x[seq(7,440,by=12)]
-sep <- x[seq(8,440,by=12)]
-ggplot(data.frame(diff=sep-aug, x=rep(1,length(aug)))) +
-  geom_boxplot(aes(y=diff,x=1)) + coord_flip() +
+x %>% 
+  mutate(Month = month(Time, label = TRUE), Year = year(Time)) %>% 
+  filter(Month %in% c("Aug", "Sep")) %>% 
+  update_tsibble(key = id(Month), index = Year) %>% 
+  select(-Time) %>% 
+  spread(Month, Employed) %>% 
+  ggplot() +
+  geom_boxplot(aes(y= Sep - Aug, x = 1)) + coord_flip() +
   ggtitle("Sep - Aug: total employed") + xlab("") + ylab("Thousands") +
   scale_x_continuous(breaks=NULL, labels=NULL)
 ```
@@ -234,16 +253,18 @@ ggplot(data.frame(diff=sep-aug, x=rep(1,length(aug)))) +
 \fontsize{11}{11}\sf
 
 ```{r, fig.height=3.5}
-x %>% window(start=2009) %>%
- stl(s.window=11, robust=TRUE) -> fit
-autoplot(fit)
+dcmp <- x %>% 
+  filter(year(Time) >= 2009) %>%
+  STL(Employed ~ season(window = 11), robust = TRUE)
+autoplot(dcmp)
 ```
 
 ## The ABS stuff-up
 
 ```{r, echo=FALSE}
-ggseasonplot(window(fit$time.series[,'seasonal'],start=2013,end=2013.999),
-             year.labels=FALSE) +
+dcmp %>% 
+  filter(year(Time) == 2013) %>% 
+  ggseasonplot(season_year) +
   ggtitle("Seasonal component") +
   guides(colour="none")
 ```
@@ -251,7 +272,8 @@ ggseasonplot(window(fit$time.series[,'seasonal'],start=2013,end=2013.999),
 ## The ABS stuff-up
 
 ```{r}
-autoplot(seasadj(fit))
+dcmp %>% 
+  autoplot(trend + remainder)
 ```
 
 ## The ABS stuff-up
@@ -293,7 +315,7 @@ fit <- seas(elecequip, x11="")
 autoplot(fit)
 ```
 
-```{r x11, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4}
+```{r x11, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4, eval = FALSE}
 library(seasonal)
 fit <- seas(elecequip, x11="")
 autoplot(fit) +
@@ -337,7 +359,7 @@ fit <- seas(elecequip)
 autoplot(fit)
 ```
 
-```{r seats, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4}
+```{r seats, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4, eval = FALSE}
 library(seasonal)
 fit <- seas(elecequip)
 autoplot(fit) +
@@ -346,7 +368,7 @@ autoplot(fit) +
 
 ## SEATS decomposition
 
-```{r seats-seasadj, echo=FALSE, warning=FALSE}
+```{r seats-seasadj, echo=FALSE, warning=FALSE, eval = FALSE}
 autoplot(elecequip, series="Data") +
   autolayer(trendcycle(fit), series="Trend") +
   autolayer(seasadj(fit), series="Seasonally Adjusted") +
@@ -360,7 +382,7 @@ autoplot(elecequip, series="Data") +
 
 \fontsize{11}{14}\sf
 
-```{r elecequip-seats, echo=TRUE}
+```{r elecequip-seats, echo=TRUE, eval = FALSE}
 ggsubseriesplot(seasonal(fit)) + ylab("Seasonal")
 ```
 
@@ -402,8 +424,9 @@ ggsubseriesplot(seasonal(fit)) + ylab("Seasonal")
 \fontsize{10}{14}\sf
 
 ```{r stlagain, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-fit <- stl(elecequip, s.window=5, robust=TRUE)
-autoplot(fit) +
+dcmp <- elecequip %>% 
+  STL(value ~ season(window = 5), robust = TRUE)
+autoplot(dcmp) +
   ggtitle("STL decomposition of electrical equipment index")
 ```
 
@@ -420,24 +443,24 @@ autoplot(fit) +
 ## STL decomposition
 
 ```r
-stl(elecequip,s.window=5)
+elecequip %>% STL(value ~ season(window = 5))
 
-stl(elecequip, t.window=15,
-  s.window="periodic", robust=TRUE)
+elecequip %>% STL(value ~ trend(window = 15) + season(window = "periodic"),
+                  robust = TRUE)
 ```
 
-  *  `t.window` controls wiggliness of trend component.
-  *  `s.window` controls variation on seasonal component.
+  *  `trend(window = ?)` controls wiggliness of trend component.
+  *  `season(window = ?)` controls variation on seasonal component.
 
 ## STL decomposition
 \fontsize{12}{14}\sf
 
 ```{r mstl, fig.width=8, fig.height=4}
-elecequip %>% mstl() %>% autoplot()
+elecequip %>% STL(value) %>% autoplot()
 ```
 
-* `mstl()` chooses `s.window=13`
-* Can include a `lambda` argument.
+* `STL()` chooses `s.window=13` by default
+* Can include transformations.
 
 # Forecasting and decomposition
 
@@ -453,9 +476,11 @@ elecequip %>% mstl() %>% autoplot()
 \fontsize{11}{14}\sf
 
 ```{r elecequip4, echo=TRUE}
-fit <- stl(elecequip, t.window=13, s.window="periodic")
-fit %>% seasadj() %>% naive() %>%
-  autoplot() + ylab("New orders index") +
+dcmp <- elecequip %>% STL(value ~ trend(window = 13) + season(window = "periodic"))
+dcmp %>% 
+  model(NAIVE(trend + remainder)) %>%
+  forecast() %>% 
+  autoplot(dcmp) + ylab("New orders index") +
   ggtitle("ETS forecasts of seasonally adjusted data")
 ```
 
@@ -464,17 +489,12 @@ fit %>% seasadj() %>% naive() %>%
 \fontsize{10}{14}\sf
 
 ```{r elecequip5, echo=TRUE}
-fit %>% forecast(method='naive') %>%
-  autoplot() + ylab("New orders index") + xlab("Year")
-```
-
-## Forecasting and decomposition
-
-\fontsize{11}{14}\sf
-
-```{r stlf}
-elecequip %>% stlf(method='naive') %>%
-  autoplot() + ylab("New orders index") + xlab("Year")
+dcmp_def <- dcmp_model(STL, value ~ trend(window = 13) + season(window = "periodic"),
+                       NAIVE(trend + remainder))
+elecequip %>%
+  model(STLM = dcmp_def) %>% 
+  forecast(method='naive') %>%
+  autoplot(elecequip) + ylab("New orders index") + xlab("Year")
 ```
 
 ## Decomposition and prediction intervals
