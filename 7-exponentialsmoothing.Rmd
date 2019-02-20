@@ -14,7 +14,30 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
-library(fpp2)
+
+
+library(tidyverse)
+library(fable)
+library(tsibble)
+library(feasts)
+library(lubridate)
+
+oil <- as_tsibble(fpp2::oil) %>% 
+  rename(Year = index, Production = value)
+
+ausair <- as_tsibble(fpp2::ausair) %>% 
+  rename(Year = index, Passengers = value)
+
+livestock <- as_tsibble(fpp2::livestock) %>% 
+  rename(Year = index, Sheep = value)
+
+austourists <- as_tsibble(fpp2::austourists) %>% 
+  rename(Time = index, Nights = value)
+
+h02 <- tsibbledata::PBS %>% 
+  filter(ATC2 == "H02") %>% 
+  summarise(Cost = sum(Cost))
+
 source("nicefigs.R")
 options(digits=4)
 ```
@@ -90,17 +113,11 @@ $$
 \fontsize{10}{11}\sf
 
 ```{r sesfit, echo=TRUE, cache=TRUE}
-oildata <- window(oil, start=1996)
+oildata <- oil %>% filter(Year >= 1996)
 # Estimate parameters
-fc <- ses(oildata, h=5)
-summary(fc[["model"]])
-```
-
-```{r sesparam, echo=FALSE, cache=TRUE}
-#tmp <- accuracy(fc)
-#print(round(c(tmp[,c("MAE","RMSE","MAPE")],SSE=sum(residuals(fc)^2)),1))
-alpha <- fc$model$par[1]
-l0 <- fc$model$par[2]
+fit <- oildata %>% 
+  model(SES = ETS(Production ~ error("A") + trend("N") + season("N")))
+tidy(fit)
 ```
 
 ## Example: Oil production
@@ -109,24 +126,23 @@ l0 <- fc$model$par[2]
 
 ```{r oilses, echo=FALSE, cache=TRUE}
 # Data set for table
-x <- oildata
-# Generate forecasts
-fc <- ses(x, h=3)
+fc <- forecast(fit, h=3)
+
 # Now set up the table
-n <- length(x)
-year0 <- min(time(x))-1
+n <- NROW(oildata)
+year0 <- min(oildata$Year)-1
 tab <- matrix(NA,nrow=n+6,ncol=5)
 colnames(tab) <- c("Year","Time","Observation","Level","Forecast")
 tab[2:(n+6),1] <- year0 + 0:(n+4)
 tab[2:(n+6),2] <- 0:(n+4)
 # Add data, level and fitted values
-tab[3:(n+2),3] <- x
-tab[2:(n+2),4] <- fc$model$state
-tab[3:(n+2),5] <- fitted(fc)
+tab[3:(n+2),3] <- oildata$Production
+tab[2:(n+2),4] <- components(fit)$level
+tab[3:(n+2),5] <- fitted(fit)$.fitted
 # Add forecasts
-tab[n+(4:6),1] <- max(time(x))+1:3
+tab[n+(4:6),1] <- max(oildata$Year)+1:3
 tab[n+(4:6),2] <- 1:3
-tab[n+(4:6),5] <- fc$mean
+tab[n+(4:6),5] <- fc$Production
 # Convert to characters
 tab <- as.data.frame(tab)
 class(tab$Year) <- class(tab$Time) <- "integer"
@@ -145,8 +161,8 @@ knitr::kable(tab, booktabs=TRUE)
 \fontsize{12}{12}\sf
 
 ```{r ses, echo=TRUE, cache=TRUE}
-autoplot(fc) +
-  autolayer(fitted(fc), series="Fitted") +
+fc %>% autoplot(oildata) +
+  autolayer(fitted(fit), series="Fitted") +
   ylab("Oil (millions of tonnes)") + xlab("Year")
 ```
 
@@ -172,9 +188,14 @@ autoplot(fc) +
 \fontsize{12}{15}\sf
 
 ```{r, fig.height=3.6, echo=TRUE}
-window(ausair, start=1990, end=2004) %>%
-  holt(h=5, PI=FALSE) %>%
-  autoplot()
+ausair_tr <- ausair %>% 
+  filter(between(Year, 1990, 2004)) 
+fit <- ausair_tr %>%
+  model(holt = ETS(Passengers ~ error("A") + trend("A") + season("N")))
+
+fit %>%
+  forecast(h = 5) %>% 
+  autoplot(ausair_tr, level = NULL)
 ```
 
 ## Damped trend method
@@ -196,73 +217,96 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
 \fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=3.6}
-window(ausair, start=1990, end=2004) %>%
-  holt(damped=TRUE, h=5, PI=FALSE) %>%
-  autoplot()
+ausair_tr %>%
+  model(holt = ETS(Passengers ~ error("A") + trend("Ad") + season("N"))) %>% 
+  forecast(h = 5) %>% 
+  autoplot(ausair_tr, level = NULL)
 ```
 
 ## Example: Sheep in Asia
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE}
-livestock2 <- window(livestock, start=1970,
-                     end=2000)
-fit1 <- ses(livestock2)
-fit2 <- holt(livestock2)
-fit3 <- holt(livestock2, damped = TRUE)
+livestock2 <- livestock %>% filter(between(Year, 1970, 2000))
+fit <- livestock2 %>% 
+  model(
+    ses = ETS(Sheep ~ error("A") + trend("N") + season("N")),
+    holt = ETS(Sheep ~ error("A") + trend("A") + season("N")),
+    damped = ETS(Sheep ~ error("A") + trend("Ad") + season("N"))
+  )
 ```
 
 ```r
-accuracy(fit1, livestock)
-accuracy(fit2, livestock)
-accuracy(fit3, livestock)
+accuracy(fit)
 ```
 
 ## Example: Sheep in Asia
 \fontsize{13}{15}\sf
 
 ```{r echo=FALSE}
-tab <- matrix(NA, ncol=3,nrow=10)
-colnames(tab) <- c("SES","Linear trend","Damped trend")
-rownames(tab) <- c("$\\alpha$","$\\beta^*$","$\\phi$","$\\ell_0$","$b_0$",
-                   "Training RMSE","Test RMSE","Test MAE","Test MAPE","Test MASE")
-# SSE
-tab[1,1] <- fit1$model$par["alpha"]
-tab[4,1] <- fit1$model$par["l"]
-tab[6,1] <- sqrt(fit1$model$mse)
-tab[c(7:10),1] <- accuracy(fit1,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# Holt
-tab[1,2] <- fit2$model$par["alpha"]
-tab[2,2] <- fit2$model$par["beta"]/fit1$model$par["alpha"]
-tab[4,2] <- fit2$model$par["l"]
-tab[5,2] <- fit2$model$par["b"]
-tab[6,2] <- sqrt(fit2$model$mse)
-tab[c(7:10),2] <- accuracy(fit2,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# Damped trend
-tab[1,3] <- fit3$model$par["alpha"]
-tab[2,3] <- fit3$model$par["beta"]/fit1$model$par["alpha"]
-tab[3,3] <- fit3$model$par["phi"]
-tab[4,3] <- fit3$model$par["l"]
-tab[5,3] <- fit3$model$par["b"]
-tab[6,3] <- sqrt(fit3$model$mse)
-tab[c(7:10),3] <- accuracy(fit3,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# Convert to characters
-tab <- as.data.frame(formatC(tab, format="f", digits=2))
-# Remove missing values
-tab <- apply(tab, 2, function(x){j <- grep("[ ]*NA",x); x[j] <- ""; return(x)})
-# Show table
-knitr::kable(tab, booktabs=TRUE)
+fit_terms <- tidy(fit) %>% 
+  spread(.model, estimate) %>% 
+  mutate(term = factor(term, levels = c("alpha", "beta", "phi", "l", "b"), labels = c("$\\alpha$", "$\\beta^*$", "$\\phi$", "$\\ell_0$", "$b_0$"))) %>% 
+  arrange(term)
+
+fit_accuracy <- accuracy(fit) %>% 
+  bind_rows(
+    forecast(fit, h = 7) %>% 
+      accuracy(livestock)
+  ) %>% 
+  gather(term, estimate, -.model, -.type) %>% 
+  spread(.model, estimate) %>% 
+  filter(term == "RMSE" | .type == "Test" & term %in% c("RMSE", "MAE", "MAPE", "MASE")) %>% 
+  arrange(desc(.type), desc(term)) %>% 
+  unite("term", .type, term, sep = " ")
+# 
+# bind_rows(fit_terms, fit_accuracy) %>% 
+#   rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) %>% 
+#   select(1, 4, 3, 2) %>% 
+#   mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) %>% 
+#   gt::gt(rowname_col = "term")
+# 
+# tab <- matrix(NA, ncol=3,nrow=10)
+# colnames(tab) <- c("SES","Linear trend","Damped trend")
+# rownames(tab) <- c("$\\alpha$","$\\beta^*$","$\\phi$","$\\ell_0$","$b_0$",
+#                    "Training RMSE","Test RMSE","Test MAE","Test MAPE","Test MASE")
+# # SSE
+# tab[1,1] <- fit1$model$par["alpha"]
+# tab[4,1] <- fit1$model$par["l"]
+# tab[6,1] <- sqrt(fit1$model$mse)
+# tab[c(7:10),1] <- accuracy(fit1,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
+# # Holt
+# tab[1,2] <- fit2$model$par["alpha"]
+# tab[2,2] <- fit2$model$par["beta"]/fit1$model$par["alpha"]
+# tab[4,2] <- fit2$model$par["l"]
+# tab[5,2] <- fit2$model$par["b"]
+# tab[6,2] <- sqrt(fit2$model$mse)
+# tab[c(7:10),2] <- accuracy(fit2,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
+# # Damped trend
+# tab[1,3] <- fit3$model$par["alpha"]
+# tab[2,3] <- fit3$model$par["beta"]/fit1$model$par["alpha"]
+# tab[3,3] <- fit3$model$par["phi"]
+# tab[4,3] <- fit3$model$par["l"]
+# tab[5,3] <- fit3$model$par["b"]
+# tab[6,3] <- sqrt(fit3$model$mse)
+# tab[c(7:10),3] <- accuracy(fit3,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
+# # Convert to characters
+# tab <- as.data.frame(formatC(tab, format="f", digits=2))
+# # Remove missing values
+# tab <- apply(tab, 2, function(x){j <- grep("[ ]*NA",x); x[j] <- ""; return(x)})
+# # Show table
+# knitr::kable(tab, booktabs=TRUE)
 
 ```
 
 ```{r fig-7-comp}
-tmp <- cbind(Data=window(livestock, start=1970),
-  SES=fit1$mean, "Holt's"=fit2$mean, "Damped trend"=fit3$mean)
-autoplot(tmp) + xlab("Year") +
-  ylab("Livestock, sheep in Asia (millions)") +
-  scale_color_manual(name="",
-    values=c("#dd0000","#000000","#00dd00","#0000dd"),
-    breaks=c("Data","SES","Holt's","Damped trend"))
+augment(fit) %>% 
+  select(-.resid) %>% 
+  spread(.model, .fitted) %>% 
+  gather("Type", "Value") %>% 
+  autoplot(Value) +
+  xlab("Year") +
+  ylab("Livestock, sheep in Asia (millions)")
 ```
 
 ## Your turn
@@ -323,35 +367,38 @@ For when seasonal variations are changing proportional to the level of the serie
 ## Example: Visitor Nights
 
 ```{r 7-HW, echo=TRUE}
-aust <- window(austourists,start=2005)
-fit1 <- hw(aust,seasonal="additive")
-fit2 <- hw(aust,seasonal="multiplicative")
+aust <- austourists %>% 
+  filter_index("2005" ~ .)
+fit <- aust %>% 
+  model(
+    additive = ETS(Nights ~ error("A") + trend("A") + season("A")),
+    multiplicative = ETS(Nights ~ error("M") + trend("A") + season("M"))
+  )
+fc <- fit %>% forecast()
 ```
 
 ```{r, fig.height=3.2}
-tmp <- cbind(Data=aust,
-  "HW additive forecasts" = fit1[["mean"]],
-  "HW multiplicative forecasts" = fit2[["mean"]])
-
-autoplot(tmp) + xlab("Year") +
-  ylab("International visitor night in Australia (millions)") +
-  scale_color_manual(name="",
-    values=c('#000000','#1b9e77','#d95f02'),
-    breaks=c("Data","HW additive forecasts","HW multiplicative forecasts"))
+fc %>% 
+  autoplot(aust, level = NULL) + xlab("Year") +
+  ylab("International visitor night in Australia (millions)") + 
+  scale_color_brewer(type = "qual", palette = "Dark2")
 ```
 
 ## Estimated components
 
 ```{r fig-7-LevelTrendSeas}
-addstates <- fit1$model$states[,1:3]
-multstates <- fit2$model$states[,1:3]
-colnames(addstates) <- colnames(multstates) <-
-  c("level","slope","season")
-p1 <- autoplot(addstates, facets=TRUE) + xlab("Year") +
-  ylab("") + ggtitle("Additive states")
-p2 <- autoplot(multstates, facets=TRUE) + xlab("Year") +
-  ylab("") + ggtitle("Multiplicative states")
-gridExtra::grid.arrange(p1,p2,ncol=2)
+components(fit) %>% 
+  gather("state", "value", -.model, -Time) %>% 
+  group_by(.model) %>% 
+  group_split() %>% 
+  map(
+    ~ ggplot(., aes(x = Time, y = value)) + 
+      geom_line() + 
+      facet_grid(state ~ ., scales = "free") + 
+      xlab("Year") + ylab(NULL) + 
+      ggtitle(str_to_title(unique(.$.model)) %>% paste("states"))
+  ) %>% 
+  invoke(gridExtra::grid.arrange, ., ncol = 2)
 ```
 
 ## Holt-Winters damped method
@@ -761,9 +808,8 @@ Method performed very well in M3 competition.
 \fontsize{7.8}{8.7}\sf
 
 ```{r, echo=TRUE}
-aust <- window(austourists, start=2005)
-fit <- ets(aust)
-summary(fit)
+fit <- aust %>% model(ets = ETS(Nights))
+tidy(fit)
 ```
 
 ## Example: International tourists
@@ -776,20 +822,28 @@ b_t &=b_{t-1} + \beta(\ell_{t-1} + b_{t_1})\varepsilon_t\\
 s_t &=  s_{t-m}(1+ \gamma \varepsilon_t).
 \end{align*}
 
-$\hat\alpha=`r format(fit$par[1],nsmall=4,digits=4)`$, $\hat\beta=`r format(fit$par[2],nsmall=3,digits=3, scientific=FALSE)`$, and $\hat\gamma=`r format(fit$par[3],digits=2,nsmall=2, scientific=FALSE)`$.
+$\hat\alpha=`r format(tidy(fit)$estimate[1],nsmall=4,digits=4)`$, $\hat\beta=`r format(tidy(fit)$estimate[2],nsmall=3,digits=3, scientific=FALSE)`$, and $\hat\gamma=`r format(tidy(fit)$estimate[3],digits=2,nsmall=2, scientific=FALSE)`$.
 
 ## Example: International tourists
 
 ```{r MAMstates, fig.height=3.5,fig.width=6, echo=TRUE}
-autoplot(fit)
+components(fit) %>%
+    gather("Term", "Value", -.model, -Time) %>% 
+    ggplot(aes(x = Time, y = Value)) + 
+    geom_line() + 
+    facet_grid(Term ~ ., scales = "free_y")
 ```
 
 ## Example: International tourists
 \fontsize{9.5}{12}\sf
 ```{r, echo=TRUE}
-cbind('Residuals' = residuals(fit),
-      'Forecast errors' = residuals(fit, type='response')) %>%
-  autoplot(facet=TRUE) + xlab("Year") + ylab("")
+residuals(fit) %>% 
+  mutate(Type = "Residuals") %>% 
+  bind_rows(residuals(fit, type = "response") %>% mutate(Type = "Forecast errors")) %>% 
+  ggplot(aes(x = Time, y = .resid)) + 
+  geom_line() + 
+  facet_grid(Type ~ ., scales = "free_y") + 
+  ylab(NULL)
 ```
 
 ## Residuals
@@ -881,63 +935,63 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-ets(h02)
+h02 %>% model(ETS(Cost))
 ```
 
 ## Example: drug sales
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-ets(h02, model="AAA", damped=FALSE)
+h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A")))
 ```
 
-## The `ets()` function
+## The `ETS()` function
 
 * Automatically chooses a model by default using the AIC, AICc or BIC.
 * Can handle any combination of trend, seasonality and damping
 * Ensures the parameters are admissible (equivalent to invertible)
-* Produces an object of class "ets".
 
-## `ets` objects
+## `ETS` models
 
-* **Methods:** `coef()`, `autoplot()`, `plot()`, `summary()`, `residuals()`, `fitted()`, `simulate()` and `forecast()`
+* **Methods:** `tidy()`, `glance()`, `augment()`, `components()`, `residuals()`, `fitted()`, `refit()`, `imitate()` and `forecast()`
 * `autoplot()` shows time plots of the original time series along with the extracted components (level, growth and seasonal).
 
 ## Example: drug sales
 ```{r, echo=TRUE, fig.height=4}
-h02 %>% ets() %>% autoplot()
+h02 %>% model(ETS(Cost)) %>% components()
 ```
 
 ## Example: drug sales
 
 ```{r, echo=TRUE, fig.height=4}
-h02 %>% ets() %>% forecast() %>% autoplot()
+h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
 ```
 
 ## Example: drug sales
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE}
-h02 %>% ets() %>% accuracy()
-
-h02 %>% ets(model="AAA", damped=FALSE) %>% accuracy()
+h02 %>% model(
+  auto = ETS(Cost),
+  AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% accuracy()
 ```
 
-## The `ets()` function
+## The `ETS()` function
 \fontsize{8}{10}\sf
 
-`ets()` function also allows refitting model to new data set.
+`ETS` models also allow refitting the model to new data set.
 
 ```{r, echo=TRUE}
-train <- window(h02, end=c(2004,12))
-test <- window(h02, start=2005)
-fit1 <- ets(train)
-fit2 <- ets(test, model = fit1)
+train <- h02 %>% filter_index(~ "2004 Dec")
+test <- h02 %>% filter_index("2005" ~ .)
+fit1 <- train %>% model(ETS(Cost))
+fit2 <- fit1 %>% refit(test)
 accuracy(fit2)
-accuracy(forecast(fit1,10), test)
+accuracy(fit1)
+accuracy(forecast(fit1, h = 10), test)
 ```
 
-## The `ets()` function in R
+## The `ETS()` function in R
 \fontsize{12}{13}\sf
 
 ```r
