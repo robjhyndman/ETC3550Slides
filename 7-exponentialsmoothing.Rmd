@@ -117,7 +117,7 @@ oildata <- oil %>% filter(Year >= 1996)
 # Estimate parameters
 fit <- oildata %>% 
   model(SES = ETS(Production ~ error("A") + trend("N") + season("N")))
-tidy(fit)
+report(fit)
 ```
 
 ## Example: Oil production
@@ -809,7 +809,7 @@ Method performed very well in M3 competition.
 
 ```{r, echo=TRUE}
 fit <- aust %>% model(ets = ETS(Nights))
-tidy(fit)
+report(fit)
 ```
 
 ## Example: International tourists
@@ -935,14 +935,14 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-h02 %>% model(ETS(Cost))
+h02 %>% model(ETS(Cost)) %>% report
 ```
 
 ## Example: drug sales
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A")))
+h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% report
 ```
 
 ## The `ETS()` function
