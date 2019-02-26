@@ -62,7 +62,8 @@ It contains:
 
 ```{r tstable, cache=TRUE}
 library(tsibble)
-y <- tsibble(year = 2012:2016, y = c(123,39,78,52,110), index = year)
+y <- tsibble(year = 2012:2016, 
+  y = c(123,39,78,52,110), index = year)
 print(y)
 ```
 
@@ -191,7 +192,7 @@ elecdaily %>%
 \footnotesize
 
 ```{r, echo=TRUE}
-a10 %>% ggseasonplot(Scripts, year.labels=TRUE, year.labels.left=TRUE) +
+a10 %>% ggseasonplot(Scripts, labels = "both") +
   ylab("$ million") +
   ggtitle("Seasonal plot: antidiabetic drug sales")
 ```
@@ -203,14 +204,14 @@ a10 %>% ggseasonplot(Scripts, year.labels=TRUE, year.labels.left=TRUE) +
   * Enables the underlying seasonal pattern to be seen more clearly, and also allows any substantial departures from the seasonal pattern to be easily identified.
   * In R: `ggseasonplot()`
 
-## Seasonal polar plots
+<!-- ## Seasonal polar plots -->
 
-\small
+<!-- \small -->
 
-```{r, fig.height=6, out.width="7.5cm"}
-a10 %>% ggseasonplot() + coord_polar() +
-  ylab("$ million")
-```
+<!-- ```{r, fig.height=6, out.width="7.5cm"} -->
+<!-- a10 %>% ggseasonplot(polar = TRUE) + -->
+<!--   ylab("$ million") -->
+<!-- ``` -->
 
 ## Seasonal subseries plots
 
@@ -238,7 +239,7 @@ beer %>% autoplot(Production)
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer %>% ggseasonplot(Production, year.labels=TRUE)
+beer %>% ggseasonplot(Production, labels="right")
 ```
 
 ## Quarterly Australian Beer Production
@@ -346,15 +347,15 @@ The timing of peaks and troughs is predictable with seasonal data, but unpredict
 ## Example: Beer production
 
 ```r
-beer <- window(ausbeer, start=1992)
-gglagplot(beer)
+beer <- ausbeer %>% filter(year(Time) >= 1992)
+beer %>% gglagplot(Production)
 ```
 
 ## Example: Beer production
 
 ```{r, echo=FALSE, fig.height=6, fig.width=6, out.width="8cm"}
 beer <- ausbeer %>% filter(year(Time) >= 1992)
-beer %>% gglagplot(Production, lags = 1:9)
+beer %>% gglagplot(Production)
 ```
 
 ## Lagged scatterplots
@@ -401,7 +402,7 @@ Results for first 9 lags for beer data:
 \footnotesize
 
 ```{r, echo=FALSE}
-beer %>% ACF(Production, lag.max = 4)
+beer %>% ACF(Production, lag_max = 4)
 ```
 
 ```{r beeracf, fig.height=2.5}
@@ -437,7 +438,7 @@ elec2 %>% autoplot(value)
 ## Aus monthly electricity production
 
 ```{r}
-elec2 %>% ACF(value, lag.max=48) %>% autoplot()
+elec2 %>% ACF(value, lag_max=48) %>% autoplot()
 ```
 
 ## Aus monthly electricity production
@@ -458,7 +459,7 @@ goog %>% autoplot(Price)
 ## Google stock price
 
 ```{r}
-goog %>% ACF(Price, lag.max=100) %>% autoplot
+goog %>% ACF(Price, lag_max=100) %>% autoplot
 ```
 
 ## Your turn
@@ -510,8 +511,8 @@ wn %>% autoplot(y)
 
 ## Example: White noise
 
-```{r, results='asis', echo=FALSE}
-wn %>% ACF(y, lag.max = 10)
+```{r, echo=FALSE}
+wn %>% ACF(y, lag_max = 10)
 ```
 
 ```{r, echo=FALSE}
@@ -599,7 +600,7 @@ You can compute the daily changes in the Google stock price using
 
 ```{r, eval = FALSE}
 dgoog <- goog %>%
-  mutate(diff = Price - lag(Price))
+  mutate(diff = difference(Price))
 ```
 
 Does `dgoog` look like white noise?
