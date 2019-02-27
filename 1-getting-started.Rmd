@@ -131,11 +131,11 @@ ausbeer %>% model(ETS(Production)) %>% forecast %>% autoplot(tail(ausbeer, 60))
 ## Assignment 1: forecast the following series
 \small
 
-  1. Google closing stock price on 12 March 2018.
-  2. Google closing stock price on 9 April 2018.
-  3. The difference in points (Collingwood-Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2018.
-  4. Maximum temperature at Melbourne airport on 7 May 2018.
-  5. The trend estimate of total employment for April 2018. ABS CAT 6202, to be released around mid May 2018.
+  1. Google closing stock price on 13 March 2019.
+  2. Google closing stock price on 10 April 2019.
+  3. The difference in points (Collingwood-Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2019.
+  4. Maximum temperature at Melbourne airport on 8 May 2019.
+  5. The trend estimate of total employment for April 2019. ABS CAT 6202, to be released around mid May 2019.
 
 \begin{block}{}
 For each of these, give a point forecast and an 80\% prediction interval.
