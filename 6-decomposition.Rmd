@@ -135,7 +135,7 @@ elecequip %>% autoplot(value, series="Data") +
 
 ```{r elecequip-sa, echo=FALSE}
 elecequip %>% autoplot(value) +
-  autolayer(dcmp, trend + remainder, series="Seasonally Adjusted") +
+  autolayer(dcmp, seas_adjust, series="Seasonally Adjusted") +
   xlab("Year") + ylab("New orders index") +
   ggtitle("Electrical equipment manufacturing (Euro area)") +
   scale_colour_manual(values=c("gray","blue"),
@@ -272,7 +272,7 @@ dcmp %>%
 ## The ABS stuff-up
 
 ```{r}
-dcmp %>% 
+dcmp %>% as_tsibble %>% 
   autoplot(trend + remainder)
 ```
 
@@ -478,7 +478,7 @@ elecequip %>% STL(value) %>% autoplot()
 ```{r elecequip4, echo=TRUE}
 dcmp <- elecequip %>% STL(value ~ trend(window = 13) + season(window = "periodic"))
 dcmp %>% 
-  model(NAIVE(trend + remainder)) %>%
+  model(NAIVE(seas_adjust)) %>%
   forecast() %>% 
   autoplot(dcmp) + ylab("New orders index") +
   ggtitle("ETS forecasts of seasonally adjusted data")
@@ -490,10 +490,10 @@ dcmp %>%
 
 ```{r elecequip5, echo=TRUE}
 dcmp_def <- dcmp_model(STL, value ~ trend(window = 13) + season(window = "periodic"),
-                       NAIVE(trend + remainder))
+                       NAIVE(seas_adjust))
 elecequip %>%
   model(STLM = dcmp_def) %>% 
-  forecast(method='naive') %>%
+  forecast() %>%
   autoplot(elecequip) + ylab("New orders index") + xlab("Year")
 ```
 
