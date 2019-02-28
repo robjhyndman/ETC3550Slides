@@ -2,7 +2,7 @@
 title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
 author: "&nbsp;"
 date: "&nbsp;"
-toc: true
+toc: false
 output:
   binb::monash:
     fig_width: 7
@@ -27,11 +27,11 @@ library(ggplot2)
   - Room E762, Menzies Building
   - Email: Rob.Hyndman@monash.edu
 
-### Tutor
+### Tutors
 
-**Puwasala Gamakumara**
-
-  - Email: Puwasala.Gamakumara@monash.edu
+ * Mitch O'Hara-Wild
+ * Puwasala Gamakumara
+ * Sayani Gupta
 
 ## Brief bio
 
@@ -68,37 +68,32 @@ Two 50 minute classes and a one 80 minute computer lab session each week for 12 
 
 \begin{block}{}\bf
 \hangafter=1\hangindent=.3cm
- {Hyndman, R.~J. \& Athanasopoulos, G. (2018) \emph{Forecasting: principles and practice}, 2nd edition}
+ {Hyndman, R.~J. \& Athanasopoulos, G. (2019) \emph{Forecasting: principles and practice}, 3rd edition}
 \end{block}\pause
 \begin{alertblock}{}\Large
-\centerline{\bf OTexts.org/fpp2/}
+\centerline{\bf OTexts.org/fpp3/}
 \end{alertblock}
 
 \pause
 
   * Free and online
-  * Data sets in associated R package `fpp2`
+  * Data sets in associated R packages
   * R code for examples
-
-### Install required packages
-```
-install.packages("fpp2", dependencies=TRUE)
-```
 
 ## Outline
 
 \hbox{\hspace*{-0.5cm}\begin{tabular}{rp{8cm}l}
 \toprule
-\textbf{Week} & \textbf{Topic} & \textbf{Chapter} \\
+\textbf{Week} & \textbf{Topic}                        & \textbf{Chapter} \\
 \midrule
-1      & Introduction to forecasting and R    & 1 \\
-2      & Introduction to forecasting and R    & 2\\
-3      & Time series graphics \& decomposition & 3,6\\
-4--5   & Exponential smoothing       & 7  \\
-6--8   & Forecasting with ARIMA models  & 8 \\
-9--10 & Multiple regression and forecasting & 5 \\
-11     & Dynamic regression & 9 \\
-12 & Advanced methods & 11\\
+1             & Introduction to forecasting and R     & 1 \\
+2             & Introduction to forecasting and R     & 2\\
+3             & Time series graphics \& decomposition & 3,6\\
+4--5          & Exponential smoothing                 & 7  \\
+6--8          & Forecasting with ARIMA models         & 8 \\
+9--10         & Multiple regression and forecasting   & 5 \\
+11            & Dynamic regression                    & 9 \\
+12            & Advanced methods                      & 11\\
 \bottomrule
 \end{tabular}}
 
@@ -110,19 +105,21 @@ install.packages("fpp2", dependencies=TRUE)
 
 \pause
 
+\begin{block}{}\small\centering
 \begin{tabular}{lll}
 	\toprule
 	  \textbf{Task}  & \textbf{Due Date}     & \textbf{Value} \\
   \midrule
     Assignments    & Mon 11:59pm each week & 2 or 4\% each\\
-	  Project        & Fri 25 May            & 20\%           \\
+	  Project        & Fri 31 May            & 20\%           \\
 	  Final exam     & Official exam period  & 60\%           \\
   \bottomrule
 \end{tabular}
+\end{block}
 
 \pause
 
-  - Need at least 45\% for exam, and 50\% for total.
+  - Need at least 50\% for exam, and 50\% for total.
 
 ## Moodle site
 
@@ -132,14 +129,26 @@ install.packages("fpp2", dependencies=TRUE)
 
 ## DataCamp
 
-\centerline{\includegraphics[width=12.8cm]{datacampR}}
+\centerline{\includegraphics[width=12.8cm]{DataCampIntroR}}
 
- * All students must complete this course by Monday 5 March.
+ * All students must complete this course by Monday 11 March.
 
 ## DataCamp
 
-\centerline{\includegraphics[width=13cm]{datacampforecasting}}
+\centerline{\includegraphics[width=13cm]{DataCampTidyverse}}
 
- * We will do one chapter at a time throughout the semester.
+ * All students must complete this course by Monday 18 March.
 
+## International Institute of Forecasters
+
+\placefig{1}{2}{width=4cm}{iifLOGO2}
+
+\begin{textblock}{8}(4,6)
+  \begin{block}{}
+  \begin{itemize}
+  \item The IIF provides a prize to the top student in this subject each year.
+  \item US\$100 plus one year membership.
+  \end{itemize}
+  \end{block}
+\end{textblock}
 
