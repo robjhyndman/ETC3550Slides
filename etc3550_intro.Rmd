@@ -29,7 +29,7 @@ library(ggplot2)
 
 ### Tutors
 
- * Mitch O'Hara-Wild
+ * Mitchell O'Hara-Wild
  * Puwasala Gamakumara
  * Sayani Gupta
 
