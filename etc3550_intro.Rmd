@@ -36,7 +36,8 @@ library(ggplot2)
 ## Brief bio
 
   - Professor of Statistics, Monash University
-  - Editor-in-Chief, *International Journal of Forecasting*
+  - Head, Department of Econometrics & Business Statistics
+  - Editor-in-Chief, *International Journal of Forecasting*, 2005--2018
 
 ### How my forecasting methodology is used:
    - Pharmaceutical Benefits Scheme
@@ -129,15 +130,9 @@ Two 50 minute classes and a one 80 minute computer lab session each week for 12 
 
 ## DataCamp
 
-\centerline{\includegraphics[width=12.8cm]{DataCampIntroR}}
-
- * All students must complete this course by Monday 11 March.
-
-## DataCamp
-
 \centerline{\includegraphics[width=13cm]{DataCampTidyverse}}
 
- * All students must complete this course by Monday 18 March.
+ * All students must complete this course by Monday 11 March.
 
 ## International Institute of Forecasters
 
