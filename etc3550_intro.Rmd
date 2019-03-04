@@ -3,6 +3,7 @@ title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economi
 author: "&nbsp;"
 date: "&nbsp;"
 toc: false
+colortheme: monashwhite
 output:
   binb::monash:
     fig_width: 7
@@ -14,8 +15,6 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
-library(fpp2)
-library(ggplot2)
 ```
 
 ## Contact details
@@ -60,10 +59,23 @@ Two 50 minute classes and a one 80 minute computer lab session each week for 12 
 
 ## R
 
-\placefig{.4}{1.2}{width=6cm}{Rlogo}
+![](figs/Rlogo.png){height=1.5cm}
 
-\placefig{7}{3.5}{width=5.5cm}{RStudio-Ball}
-\begin{textblock}{5.5}(7,3)\centerline{\structure{RStudio}}\end{textblock}
+Available for download from CRAN: 
+
+https://cran.csiro.au/
+
+\noindent\rule{\textwidth}{1pt}
+
+![](figs/RStudio-Logo-Flat.png){height=1.5cm}
+
+Available for download from RStudio: 
+
+https://www.rstudio.com/products/rstudio/download/
+
+<!-- \placefig{.4}{1.2}{width=6cm}{figs/Rlogo} -->
+
+<!-- \placefig{7}{3.5}{width=5.5cm}{figs/RStudio-Ball} -->
 
 ## Key reference
 
