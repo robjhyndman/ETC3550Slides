@@ -61,7 +61,7 @@ Two 50 minute classes and a one 80 minute computer lab session each week for 12 
 
 ![](figs/Rlogo.png){height=1.5cm}
 
-Available for download from CRAN: 
+Available for download from CRAN:
 
 https://cran.csiro.au/
 
@@ -69,7 +69,7 @@ https://cran.csiro.au/
 
 ![](figs/RStudio-Logo-Flat.png){height=1.5cm}
 
-Available for download from RStudio: 
+Available for download from RStudio:
 
 https://www.rstudio.com/products/rstudio/download/
 
@@ -112,7 +112,7 @@ https://www.rstudio.com/products/rstudio/download/
 
 ## Assessment
 
-  - Nine short weekly assignments, worth 2% or 4% each.
+  - Nine short assignments, worth 2% or 4% each.
   - One project due at the end of the semester, worth 20%.
   - Exam (2 hours): 60%.
 
@@ -144,7 +144,7 @@ https://www.rstudio.com/products/rstudio/download/
 
 \centerline{\includegraphics[width=13cm]{DataCampTidyverse}}
 
- * All students must complete this course by Monday 11 March.
+ * Assignment 2: all students must complete this course by Monday 11 March.
 
 ## International Institute of Forecasters
 
