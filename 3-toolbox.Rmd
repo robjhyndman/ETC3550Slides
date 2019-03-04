@@ -25,8 +25,8 @@ source("nicefigs.R")
 ausbeer <- as_tsibble(fpp2::ausbeer) %>%
   rename(Time = index, Production = value)
 
-goog200 <- tsibble(Time = ymd("2013-02-25") + days(1:200),
-                Price = fpp2::goog200, index = Time)
+google_2015 <- tsibbledata::gafa_stock %>% 
+  filter(Symbol == "GOOG", year(Date) == 2015)
 
 options(width=45)
 ```
@@ -427,7 +427,8 @@ eggs %>% autoplot(value) +
 \fontsize{10}{10}\sf
 
 ```{r dj3, echo=TRUE}
-goog200 %>% autoplot(Price) +
+google_2015 %>%
+  autoplot(Close) +
   xlab("Day") + ylab("Closing Price (US$)") +
   ggtitle("Google Stock (daily ending 6 December 2013)")
 ```
@@ -447,10 +448,10 @@ Note: $e_t$ are one-step-forecast residuals
 \fontsize{10}{10}\sf
 
 ```{r dj4, echo=TRUE, warning=FALSE}
-fit <- goog200 %>% model(NAIVE(Price))
+fit <- google_2015 %>% model(NAIVE(Close))
 augment(fit) %>% 
-  ggplot(aes(x = Time)) + 
-  geom_line(aes(y = Price, colour = "Data")) + 
+  ggplot(aes(x = Date)) + 
+  geom_line(aes(y = Close, colour = "Data")) + 
   geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Day") + ylab("Closing Price (US$)") +
   ggtitle("Google Stock (daily ending 6 December 2013)")
@@ -535,7 +536,7 @@ Box.test(residuals(fit)$.resid, lag=10, fitdf=0, type="Lj")
 ## `checkresiduals` function
 
 ```{r dj10, echo=TRUE, fig.height=4, eval = FALSE}
-checkresiduals(naive(goog200))
+checkresiduals(naive(google_2015))
 ```
 
 ## Your turn
@@ -759,9 +760,9 @@ text(28,.95,"time")
 \small
 
 ```{r tscv, cache=TRUE, eval = FALSE}
-e <- tsCV(goog200, rwf, drift=TRUE, h=1)
+e <- tsCV(google_2015, rwf, drift=TRUE, h=1)
 sqrt(mean(e^2, na.rm=TRUE))
-sqrt(mean(residuals(rwf(goog200, drift=TRUE))^2,
+sqrt(mean(residuals(rwf(google_2015, drift=TRUE))^2,
                                      na.rm=TRUE))
 ```
 
@@ -775,19 +776,19 @@ A good way to choose the best forecasting model is to find the model with the sm
 
 Ugly code:
 ```r
-e <- tsCV(goog200, rwf, drift=TRUE, h=1)
+e <- tsCV(google_2015, rwf, drift=TRUE, h=1)
 sqrt(mean(e^2, na.rm=TRUE))
-sqrt(mean(residuals(rwf(goog200, drift=TRUE))^2,
+sqrt(mean(residuals(rwf(google_2015, drift=TRUE))^2,
                                      na.rm=TRUE))
 ```
 
 Better with a pipe:
 
 ```r
-goog200 %>%
+google_2015 %>%
   tsCV(forecastfunction=rwf, drift=TRUE, h=1) -> e
 e^2 %>% mean(na.rm=TRUE) %>% sqrt
-goog200 %>% rwf(drift=TRUE) %>% residuals -> res
+google_2015 %>% rwf(drift=TRUE) %>% residuals -> res
 res^2 %>% mean(na.rm=TRUE) %>% sqrt
 ```
 
@@ -815,11 +816,11 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 
 ```{r djpi, echo=TRUE, cache=TRUE, eval = FALSE}
 res_sd <- sqrt(mean(res^2, na.rm=TRUE))
-c(tail(goog200,1)) + 1.96 * res_sd * c(-1,1)
+c(tail(google_2015,1)) + 1.96 * res_sd * c(-1,1)
 ```
 
 ```{r djforecasts, echo=TRUE, cache=TRUE, eval = FALSE}
-naive(goog200, level=95)
+naive(google_2015, level=95)
 ```
 
 ## Prediction intervals
