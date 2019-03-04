@@ -24,9 +24,6 @@ options(width=50)
 ausbeer <- as_tsibble(fpp2::ausbeer) %>%
   rename(Time = index, Production = value)
 
-ausgdp <- as_tsibble(expsmooth::ausgdp) %>%
-  rename(Time = index, GDP = value)
-
 elecsales <- as_tsibble(fpp2::elecsales) %>%
   rename(Year = index, GWh = value)
 
@@ -85,21 +82,21 @@ Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1}
 
 \fontsize{12}{14}\sf
 
-```
-ausgdp <- as_tsibble(x, index = Time)
+```{r, echo = TRUE}
+aus_economy <- global_economy %>% filter(Country == "Australia")
 ```
 
   * Object: "tsibble"
   * Print and plotting methods available.
 
 ```{r, echo=TRUE}
-ausgdp
+aus_economy
 ```
 
 ## Australian GDP
 
 ```{r, echo=TRUE, fig.height=4}
-ausgdp %>% autoplot(GDP)
+aus_economy %>% autoplot(GDP)
 ```
 
 ## Residential electricity sales
