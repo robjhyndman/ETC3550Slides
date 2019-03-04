@@ -30,8 +30,8 @@ ausbeer <- read_csv("data/ausbeer.csv") %>%
 usmelec <- as_tsibble(fpp2::usmelec) %>% 
   rename(Month = index, Generation = value)
 
-goog <- tsibble(Time = seq(ymd("2013-02-25"), length.out = 1000, by = 1),
-                Price = fpp2::goog, index = Time)
+google_2015 <- tsibbledata::gafa_stock %>% 
+  filter(Symbol == "GOOG", year(Date) == 2015)
 
 uschange <- read_csv("data/uschange.csv") %>% 
   mutate(Time = yearquarter(Time)) %>% 
@@ -258,14 +258,14 @@ But taking lag 3 differences for yearly data, for example, results in a model wh
 
 ```{r, echo=TRUE}
 library(urca)
-summary(ur.kpss(goog$Price))
+summary(ur.kpss(google_2015$Close))
 ```
 
 \pause
 
 
 ```{r, echo=TRUE, eval = FALSE}
-ndiffs(goog)
+ndiffs(google_2015$Close)
 ```
 
 

@@ -38,8 +38,8 @@ a10 <- as_tsibble(fpp2::a10) %>%
 
 elecdaily <- as_tsibble(fpp2::elecdaily, gather = FALSE)
 
-goog <- tsibble(Time = seq(ymd("2013-02-25"), length.out = 1000, by = 1),
-                Price = fpp2::goog, index = Time)
+google_2015 <- tsibbledata::gafa_stock %>% 
+  filter(Symbol == "GOOG", year(Date) == 2015)
 ```
 
 # Time series in R
@@ -453,13 +453,13 @@ The same features are reflected in the ACF.
 ## Google stock price
 
 ```{r}
-goog %>% autoplot(Price)
+google_2015 %>% autoplot(Price)
 ```
 
 ## Google stock price
 
 ```{r}
-goog %>% ACF(Price, lag_max=100) %>% autoplot
+google_2015 %>% ACF(Price, lag_max=100) %>% autoplot
 ```
 
 ## Your turn
@@ -599,8 +599,8 @@ These show the series is **not a white noise series**.
 You can compute the daily changes in the Google stock price using
 
 ```{r, eval = FALSE}
-dgoog <- goog %>%
-  mutate(diff = difference(Price))
+dgoog <- google_2015 %>%
+  mutate(diff = difference(Close))
 ```
 
 Does `dgoog` look like white noise?
