@@ -30,8 +30,8 @@ ausgdp <- as_tsibble(expsmooth::ausgdp) %>%
 elecsales <- as_tsibble(fpp2::elecsales) %>%
   rename(Year = index, GWh = value)
 
-melsyd <- as_tsibble(fpp2::melsyd) %>%
-  rename(Time = index, Class = key, Passengers = value)
+melsyd <- tsibbledata::ansett %>% 
+  filter(Airports == "MEL-SYD")
 
 a10 <- as_tsibble(fpp2::a10) %>%
     rename(Time = index, Scripts = value)
