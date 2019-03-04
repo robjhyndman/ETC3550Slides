@@ -1077,7 +1077,7 @@ ets(y, model = "ZZZ", damped = NULL,
 
 * Use `ets()` on some of these series:\vspace*{0.2cm}
 
-  > `bicoal`, `chicken`, `dole`, `usdeaths`, `bricksq`, `lynx`, `ibmclose`, `eggs`, `bricksq`, `ausbeer`
+  > `bicoal`, `chicken`, `dole`, `usdeaths`, `bricksq`, `pelt`, `ibmclose`, `eggs`, `bricksq`, `ausbeer`
 
 * Does it always give good forecasts?
 

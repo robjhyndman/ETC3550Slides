@@ -140,7 +140,7 @@ a10 %>% autoplot(Scripts) + ylab("$ million") + xlab("Year") +
 
 ## Your turn
 
-- Create plots of the following time series: `dole`, `bricksq`, `lynx`, `goog`
+- Create plots of the following time series: `dole`, `bricksq`, `pelt`, Google from `gafa_stock`
 - Use `help()` to find out about the data in each series.
 - For the last plot, modify the axis labels and title.
 
@@ -319,8 +319,8 @@ as_tsibble(fma::ustreas) %>%
 \small
 
 ```{r}
-as_tsibble(lynx) %>%
-  autoplot(value) +
+pelt %>%
+  autoplot(Lynx) +
   ggtitle("Annual Canadian Lynx Trappings") +
   xlab("Year") + ylab("Number trapped")
 ```

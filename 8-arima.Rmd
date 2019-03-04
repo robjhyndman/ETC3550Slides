@@ -100,7 +100,7 @@ as_tsibble(fma::pigs) %>% filter_index("1990" ~ .) %>%
 ## Stationary?
 
 ```{r}
-as_tsibble(lynx) %>% autoplot(value) + xlab("Year") + ylab("Number trapped") +
+as_tsibble(pelt) %>% autoplot(Lynx) + xlab("Year") + ylab("Number trapped") +
   ggtitle("Annual Canadian Lynx Trappings")
 ```
 
