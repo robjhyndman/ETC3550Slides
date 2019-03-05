@@ -53,19 +53,51 @@ y <- tsibble(year = 2012:2016,
 print(y)
 ```
 
-## Seasonal periods
+## The `tsibble` index
 
-\begin{tabular}{lrl}
-\bf Type of data & \hspace*{1.95cm}\bf frequency                 & \bf start example\hspace*{0.25cm} \\
-\midrule
-Annual           & \only<2->{1}                                  & \only<3->{1995}\\
-Quarterly        & \only<4->{4}                                  & \only<5->{c(1995,2)}\\
-Monthly          & \only<6->{12}                                 & \only<7->{c(1995,9)}\\
-Daily            & \only<8->{7 \emph{or} 365.25}                 & \only<9->{1 \emph{or} c(1995,234)} \\
-Weekly           & \only<10->{52.18}                             & \only<11->{c(1995,23)}\\
-Hourly           & \only<12->{24 \emph{or} 168 \emph{or} 8,766}  & \only<13->{1}\\
-Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1}
-\end{tabular}
+Common time index variables can be created with these functions:
+
+```{r tstable2, echo=FALSE}
+tribble(
+  ~ `Frequency`, ~ Function,
+  "Annual", "start:end",
+  "Quarterly", "yearquarter()",
+  "Monthly", "yearmonth()",
+  "Weekly", "yearweek()",
+  "Daily", "as_date(), ymd()",
+  "Sub-daily", "as_datetime()"
+) %>%
+  knitr::kable(booktabs=TRUE)
+```
+
+## The `key` to many time series
+
+```{r tstablekey, echo=FALSE}
+tsibbledata::olympic_running %>%
+  group_by_key() %>%
+  slice(1) %>%
+  head(6) %>%
+  knitr::kable(booktabs=TRUE)
+```
+
+```{r key-tsibble}
+olympic_running %>% as_tsibble(
+  key = id(Length, Sex), index = Year)
+```
+
+<!-- ## Seasonal periods -->
+
+<!-- \begin{tabular}{lrl} -->
+<!-- \bf Type of data & \hspace*{1.95cm}\bf frequency                 & \bf start example\hspace*{0.25cm} \\ -->
+<!-- \midrule -->
+<!-- Annual           & \only<2->{1}                                  & \only<3->{1995}\\ -->
+<!-- Quarterly        & \only<4->{4}                                  & \only<5->{c(1995,2)}\\ -->
+<!-- Monthly          & \only<6->{12}                                 & \only<7->{c(1995,9)}\\ -->
+<!-- Daily            & \only<8->{7 \emph{or} 365.25}                 & \only<9->{1 \emph{or} c(1995,234)} \\ -->
+<!-- Weekly           & \only<10->{52.18}                             & \only<11->{c(1995,23)}\\ -->
+<!-- Hourly           & \only<12->{24 \emph{or} 168 \emph{or} 8,766}  & \only<13->{1}\\ -->
+<!-- Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1} -->
+<!-- \end{tabular} -->
 
 ## Australian GDP
 
@@ -290,7 +322,7 @@ as_tsibble(fma::elec) %>% filter(index >= 1980) %>%
 
 \small
 
-```{r}
+```{r, warning=FALSE}
 aus_production %>% 
   autoplot(Bricks) +
   ggtitle("Australian clay brick production") +
