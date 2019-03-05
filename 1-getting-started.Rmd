@@ -20,9 +20,51 @@ ausbeer <- as_tsibble(fpp2::ausbeer) %>%
   rename(Time = index, Production = value)
 austa <- as_tsibble(fpp2::austa) %>%
   rename(Year = index, Visitors = value)
-melsyd <- as_tsibble(fpp2::melsyd) %>%
-  rename(Time = index, Class = key, Passengers = value)
+melsyd <- tsibbledata::ansett %>%
+  filter(Airports=="MEL-SYD")
 ```
+
+# Assignment 1
+
+## Assignment 1: forecast the following series
+\small
+
+  1. Google closing stock price on 13 March 2019.
+  2. Google closing stock price on 10 April 2019.
+  3. The difference in points (Collingwood-Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2019.
+  4. Maximum temperature at Melbourne airport on 8 May 2019.
+  5. The trend estimate of total employment for April 2019. ABS CAT 6202, to be released around mid May 2019.
+
+\begin{block}{}
+For each of these, give a point forecast and an 80\% prediction interval.
+\end{block}\pause
+\begin{alertblock}{}
+Prize: \$50 Amazon gift voucher
+\end{alertblock}
+
+## Assignment 1: scoring
+\small
+
+$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
+
+### Point forecasts:
+
+$$\text{Absolute Error} = |Y-F|
+$$
+
+ * Rank results for all students in class
+ * Add ranks across all five items
+
+### Prediction intervals:
+
+$$
+\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
+$$
+
+ * Rank results for all students
+ * Add ranks across all five items
+
+
 
 # What can we forecast?
 
@@ -94,6 +136,8 @@ Something is easier to forecast if:
 
 \fullheight{ncep-skill}
 
+
+
 # Time series data
 
 
@@ -118,55 +162,15 @@ ausbeer %>% autoplot(Production)
 ## Australian beer production
 
 ```{r, echo=FALSE}
-ausbeer %>% model(ETS(Production)) %>% forecast %>% autoplot(ausbeer)
+ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(ausbeer)
 ```
 
 
 ## Australian beer production
 
 ```{r, echo=FALSE}
-ausbeer %>% model(ETS(Production)) %>% forecast %>% autoplot(tail(ausbeer, 60))
+ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(tail(ausbeer, 60))
 ```
-
-## Assignment 1: forecast the following series
-\small
-
-  1. Google closing stock price on 13 March 2019.
-  2. Google closing stock price on 10 April 2019.
-  3. The difference in points (Collingwood-Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2019.
-  4. Maximum temperature at Melbourne airport on 8 May 2019.
-  5. The trend estimate of total employment for April 2019. ABS CAT 6202, to be released around mid May 2019.
-
-\begin{block}{}
-For each of these, give a point forecast and an 80\% prediction interval.
-\end{block}\pause
-\begin{alertblock}{}
-Prize: \$50 Amazon gift voucher
-\end{alertblock}
-
-## Assignment 1: scoring
-\small
-
-$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
-
-### Point forecasts:
-
-$$\text{Absolute Error} = |Y-F|
-$$
-
- * Rank results for all students in class
- * Add ranks across all five items
-
-### Prediction intervals:
-
-$$
-\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
-$$
-
- * Rank results for all students
- * Add ranks across all five items
-
-
 # Some case studies
 
 ## CASE STUDY 1: Paperware company
@@ -269,7 +273,7 @@ should this affect leasing and sales policies?
 
 ```{r, echo=FALSE, fig.height=5}
 melsyd %>%
-  filter(Class == "Economy.Class") %>%
+  filter(Class == "Economy") %>%
   autoplot(Passengers) +
   labs(
     title = "Economy class passengers",
@@ -284,7 +288,7 @@ melsyd %>%
 
 ```{r, echo=FALSE, fig.height=5}
 melsyd %>%
-  filter(Class == "Economy.Class") %>%
+  filter(Class == "Economy") %>%
   autoplot(Passengers) +
   labs(
     title = "Economy class passengers",
