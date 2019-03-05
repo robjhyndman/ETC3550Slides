@@ -19,24 +19,13 @@ library(fable)
 library(tsibble)
 library(feasts)
 library(lubridate)
+library(tsibbledata)
 options(width=50)
-
-ausbeer <- as_tsibble(fpp2::ausbeer) %>%
-  rename(Time = index, Production = value)
 
 elecsales <- as_tsibble(fpp2::elecsales) %>%
   rename(Year = index, GWh = value)
 
-melsyd <- tsibbledata::ansett %>% 
-  filter(Airports == "MEL-SYD")
-
-a10 <- as_tsibble(fpp2::a10) %>%
-    rename(Time = index, Scripts = value)
-
 elecdaily <- as_tsibble(fpp2::elecdaily, gather = FALSE)
-
-google_2015 <- tsibbledata::gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2015)
 ```
 
 # Time series in R
@@ -83,11 +72,11 @@ Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1}
 \fontsize{12}{14}\sf
 
 ```{r, echo = TRUE}
-aus_economy <- global_economy %>% filter(Country == "Australia")
+aus_economy <- global_economy %>% filter(Code == "AUS")
 ```
 
-  * Object: "tsibble"
-  * Print and plotting methods available.
+<!--   * Object: "tsibble" -->
+<!--   * Print and plotting methods available. -->
 
 ```{r, echo=TRUE}
 aus_economy
@@ -104,7 +93,7 @@ aus_economy %>% autoplot(GDP)
 \fontsize{12}{14}\sf
 
 ```{r}
-elecsales
+elecsales # not available in tsibbledata
 ```
 
 ## Class packages
@@ -124,23 +113,35 @@ library(fma) # Lots more time series data
 \small
 
 ```{r, echo=TRUE, fig.height=4}
-melsyd %>%
-  filter(Class == "Economy.Class") %>%
+ansett %>% 
+  filter(Airports == "MEL-SYD", Class == "Economy") %>%
   autoplot(Passengers)
 ```
 
 ## Time plots
 
+```{r a10, echo = TRUE}
+a10 <- PBS %>% 
+  filter(ATC2 == "A10") %>% 
+  summarise(Cost = sum(Cost))
+```
+```{r a10-print}
+a10
+```
+
+
+## Time plots
+
 \small
 
-```{r a10, echo=TRUE}
-a10 %>% autoplot(Scripts) + ylab("$ million") + xlab("Year") +
+```{r a10-plot, echo=TRUE}
+a10 %>% autoplot(Cost/1e6) + ylab("$ million") + xlab("Year") +
   ggtitle("Antidiabetic drug sales")
 ```
 
 ## Your turn
 
-- Create plots of the following time series: `dole`, `bricksq`, `pelt`, Google from `gafa_stock`
+- Create plots of the following time series: `fma::dole`, Bricks from `aus_production`, `pelt`, Google from `gafa_stock`
 - Use `help()` to find out about the data in each series.
 - For the last plot, modify the axis labels and title.
 
@@ -189,7 +190,7 @@ elecdaily %>%
 \footnotesize
 
 ```{r, echo=TRUE}
-a10 %>% ggseasonplot(Scripts, labels = "both") +
+a10 %>% ggseasonplot(Cost/1e6, labels = "both") +
   ylab("$ million") +
   ggtitle("Seasonal plot: antidiabetic drug sales")
 ```
@@ -215,7 +216,7 @@ a10 %>% ggseasonplot(Scripts, labels = "both") +
 \small
 
 ```{r, echo=TRUE}
-a10 %>% ggsubseriesplot(Scripts) + ylab("$ million") +
+a10 %>% ggsubseriesplot(Cost/1e6) + ylab("$ million") +
   ggtitle("Subseries plot: antidiabetic drug sales")
 ```
 
@@ -228,21 +229,22 @@ a10 %>% ggsubseriesplot(Scripts) + ylab("$ million") +
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer <- ausbeer %>%
-  filter(year(Time) >= 1992)
-beer %>% autoplot(Production)
+beer <- aus_production %>%
+  select(Quarter, Beer) %>% 
+  filter(year(Quarter) >= 1992)
+beer %>% autoplot(Beer)
 ```
 
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer %>% ggseasonplot(Production, labels="right")
+beer %>% ggseasonplot(Beer, labels="right")
 ```
 
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer %>% ggsubseriesplot(Production)
+beer %>% ggsubseriesplot(Beer)
 ```
 
 ## Your turn
@@ -289,8 +291,8 @@ as_tsibble(fma::elec) %>% filter(index >= 1980) %>%
 \small
 
 ```{r}
-as_tsibble(fma::bricksq) %>%
-  autoplot(value) +
+aus_production %>% 
+  autoplot(Bricks) +
   ggtitle("Australian clay brick production") +
   xlab("Year") + ylab("million units")
 ```
@@ -344,15 +346,16 @@ The timing of peaks and troughs is predictable with seasonal data, but unpredict
 ## Example: Beer production
 
 ```r
-beer <- ausbeer %>% filter(year(Time) >= 1992)
-beer %>% gglagplot(Production)
+new_production <- aus_production %>% 
+  filter(year(Quarter) >= 1992)
+new_production %>% gglagplot(Beer)
 ```
 
 ## Example: Beer production
 
 ```{r, echo=FALSE, fig.height=6, fig.width=6, out.width="8cm"}
-beer <- ausbeer %>% filter(year(Time) >= 1992)
-beer %>% gglagplot(Production)
+new_production <- aus_production %>% filter(year(Quarter) >= 1992)
+new_production %>% gglagplot(Beer)
 ```
 
 ## Lagged scatterplots
@@ -398,12 +401,19 @@ Results for first 9 lags for beer data:
 
 \footnotesize
 
-```{r, echo=FALSE}
-beer %>% ACF(Production, lag_max = 4)
+```{r, echo=TRUE}
+new_production %>% ACF(Beer, lag_max = 9)
 ```
 
+## Autocorrelation
+
+\small
+Results for first 9 lags for beer data:
+
+\footnotesize
+
 ```{r beeracf, fig.height=2.5}
-beer %>% ACF(Production) %>% autoplot
+new_production %>% ACF(Beer, lag_max = 9) %>% autoplot
 ```
 
 ## Autocorrelation
@@ -416,7 +426,7 @@ beer %>% ACF(Production) %>% autoplot
 ## ACF
 
 ```{r, fig.height=4, echo=TRUE}
-beer %>% ACF(Production) %>% autoplot
+new_production %>% ACF(Beer) %>% autoplot
 ```
 
 ## Trend and seasonality in ACF plots
@@ -428,14 +438,16 @@ beer %>% ACF(Production) %>% autoplot
 ## Aus monthly electricity production
 
 ```{r}
-elec2 <- as_tsibble(fma::elec) %>% filter(year(index) >= 1980)
+elec2 <- as_tsibble(fma::elec) %>% 
+  filter(year(index) >= 1980)
 elec2 %>% autoplot(value)
 ```
 
 ## Aus monthly electricity production
 
 ```{r}
-elec2 %>% ACF(value, lag_max=48) %>% autoplot()
+elec2 %>% ACF(value, lag_max=48) %>% 
+  autoplot()
 ```
 
 ## Aus monthly electricity production
@@ -449,14 +461,23 @@ The same features are reflected in the ACF.
 
 ## Google stock price
 
-```{r}
-google_2015 %>% autoplot(Price)
+```{r google-2015}
+google_2015 <- gafa_stock %>% 
+  filter(Symbol == "GOOG", year(Date) == 2015)
+google_2015
 ```
 
 ## Google stock price
 
 ```{r}
-google_2015 %>% ACF(Price, lag_max=100) %>% autoplot
+google_2015 %>% autoplot(Close)
+```
+
+## Google stock price
+
+```{r}
+google_2015 %>% ACF(Close, lag_max=100) %>%
+  autoplot
 ```
 
 ## Your turn
@@ -468,11 +489,11 @@ We have introduced the following functions:
 
 Explore the following time series using these functions. Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
 
-  - `hsales`
-  - `usdeaths`
-  - `bricksq`
-  - `sunspotarea`
-  - `gasoline`
+  - `fma::hsales`
+  - `fma::usdeaths`
+  - Bricks from `aus_production`
+  - `sunspotarea` (unavailable)
+  - `gasoline` (unavailable)
 
 ## Which is which?
 
@@ -502,14 +523,15 @@ gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
 ## Example: White noise
 
 ```{r}
-wn <- tsibble(t = seq_len(36), y = rnorm(36), index = t)
+wn <- tsibble(t = seq_len(36), y = rnorm(36),
+              index = t)
 wn %>% autoplot(y)
 ```
 
 ## Example: White noise
 
 ```{r, echo=FALSE}
-wn %>% ACF(y, lag_max = 10)
+wn %>% ACF(y, lag_max = 10) %>% knitr::kable(booktabs = TRUE)
 ```
 
 ```{r, echo=FALSE}
@@ -564,7 +586,8 @@ distinguished \rlap{from white noise.)}
 \small
 
 ```{r, fig.height=3}
-pigs2 <- as_tsibble(fma::pigs) %>% filter(year(index) >= 1990)
+pigs2 <- as_tsibble(fma::pigs) %>% 
+  filter(year(index) >= 1990)
 pigs2 %>% autoplot(value) +
   xlab("Year") + ylab("thousands") +
   ggtitle("Number of pigs slaughtered in Victoria")
