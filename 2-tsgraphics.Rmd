@@ -110,7 +110,7 @@ aus_economy <- global_economy %>% filter(Code == "AUS")
 <!--   * Object: "tsibble" -->
 <!--   * Print and plotting methods available. -->
 
-```{r, echo=TRUE}
+```{r, echo=FALSE}
 aus_economy
 ```
 
@@ -131,11 +131,16 @@ elecsales # not available in tsibbledata
 ## Class packages
 
 ```
-library(tidyverse) # Data manipulation functions
-library(fable) # Forecasting functions
-library(feasts) # Time series graphics and statistics
-library(tsibbledata) # Tidy time series data
-library(fma) # Lots more time series data
+# Data manipulation functions
+library(tidyverse)
+# Forecasting functions
+library(fable)
+# Time series graphics and statistics
+library(feasts)
+# Tidy time series data
+library(tsibbledata)
+# Lots more time series data
+library(fma)
 ```
 
 # Time plots
@@ -157,7 +162,7 @@ a10 <- PBS %>%
   filter(ATC2 == "A10") %>% 
   summarise(Cost = sum(Cost))
 ```
-```{r a10-print}
+```{r a10-print, echo = FALSE}
 a10
 ```
 
