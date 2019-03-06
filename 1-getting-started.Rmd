@@ -14,7 +14,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(fable)
 ausbeer <- as_tsibble(fpp2::ausbeer) %>%
   rename(Time = index, Production = value)
