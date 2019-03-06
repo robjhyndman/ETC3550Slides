@@ -623,28 +623,29 @@ distinguished \rlap{from white noise.)}
 \small
 
 ```{r, fig.height=3}
-pigs2 <- as_tsibble(fma::pigs) %>% 
-  filter(year(index) >= 1990)
-pigs2 %>% autoplot(value) +
-  xlab("Year") + ylab("thousands") +
+pigs <- aus_livestock %>% 
+  filter(State == "Victoria", Animal == "Pigs", 
+         between(year(Month), 1990, 1995))
+pigs %>% autoplot(Count/1e3) +
+  xlab("Year") + ylab("Thousands") +
   ggtitle("Number of pigs slaughtered in Victoria")
 ```
 
 ## Example: Pigs slaughtered
 
 ```{r}
-pigs2 %>% ACF(value) %>% autoplot()
+pigs %>% ACF(Count) %>% autoplot()
 ```
 
 ## Example: Pigs slaughtered
 
 Monthly total number of pigs slaughtered
-in the state of Victoria, Australia, from January 1990 through August 1995.
+in the state of Victoria, Australia, from January 1990 through December 1995.
 (Source: Australian Bureau of Statistics.)\pause
 
   * Difficult to detect pattern in time plot.
-  * ACF shows some significant autocorrelation at lags 1, 2, and 3.
-  * $r_{12}$ relatively large although not significant.  This may indicate
+  * ACF shows significant autocorrelation for the first 15 lags.
+  * $r_{12}$ is relatively large.  This may indicate
 some slight seasonality.
 
 \pause
