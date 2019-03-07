@@ -100,8 +100,8 @@ https://www.rstudio.com/products/rstudio/download/
 \textbf{Week} & \textbf{Topic}                        & \textbf{Chapter} \\
 \midrule
 1             & Introduction to forecasting and R     & 1 \\
-2             & Introduction to forecasting and R     & 2\\
-3             & Time series graphics \& decomposition & 3,6\\
+2             & Time series graphics \& Forecasting tools    & 2,3\\
+3             & Forecasting tools \& Decomposition & 3,6\\
 4--5          & Exponential smoothing                 & 7  \\
 6--8          & Forecasting with ARIMA models         & 8 \\
 9--10         & Multiple regression and forecasting   & 5 \\
