@@ -119,16 +119,25 @@ dj %>%
 ## Some simple forecasting methods
 
 ```{r beerf, warning=FALSE, message=FALSE, echo=FALSE, fig.height=4.6}
-beer2 <- ausbeer %>% filter(between(year(Time), 1992, 2007))
-# Plot some forecasts
-beer_fc_plot <- beer2 %>% 
+# Set training data from 1992 to 2007
+train <- aus_production %>%
+  filter(between(year(Quarter), 1992, 2007))
+
+# Fit the models
+beer_fit <- train %>% 
   model(
-    Mean = MEAN(Production),
-    `Naïve` = NAIVE(Production), 
-    `Seasonal naïve` = SNAIVE(Production)
-  ) %>% 
-  forecast(h=11) %>% 
-  autoplot(beer2, level = NULL) +
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer), 
+    `Seasonal naïve` = SNAIVE(Beer)
+  )
+
+# Produce forecasts
+beer_fc <- beer_fit %>% 
+  forecast(h=11)
+
+# Plot some forecasts
+beer_fc_plot <- beer_fc %>% 
+  autoplot(train, level = NULL) +
   ggtitle("Forecasts for quarterly beer production") +
   xlab("Year") + ylab("Megalitres") +
   guides(colour=guide_legend(title="Forecast"))
@@ -660,24 +669,25 @@ beer_fc_plot
 \fontsize{11}{11}\sf
 
 ```{r beeraccuracy, results = 'hide'}
-beer2 <- ausbeer %>% filter(between(year(Time), 1992, 2007))
-beer3 <- ausbeer %>% filter(year(Time) > 2007)
-fc <- beer2 %>% 
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
+beer_train <- recent_production %>% filter(year(Quarter) <= 2007)
+beer_fc <- train %>% 
   model(
-    Mean = MEAN(Production),
-    `Naïve` = NAIVE(Production), 
-    `Seasonal naïve` = SNAIVE(Production)
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer)
   ) %>% 
   forecast(h = 10)
-accuracy(fc, beer3)
+accuracy(beer_fc, recent_production)
 ```
 
 \fontsize{13}{15}\sf
 
 ```{r beertable, echo=FALSE}
-accuracy(fc, beer3) %>% 
-  select(.model, RMSE, MAE, MAPE) %>%
-  gt::gt(".model") %>% 
+accuracy(beer_fc, recent_production) %>% 
+  mutate(Method = paste(.model, "method")) %>% 
+  select(Method, RMSE, MAE, MAPE, MASE) %>% 
+  gt::gt("Method") %>% 
   gt::as_latex()
 ```
 
