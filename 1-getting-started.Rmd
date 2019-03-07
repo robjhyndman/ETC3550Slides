@@ -166,12 +166,12 @@ ausbeer %>% autoplot(Production)
 ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(ausbeer)
 ```
 
-
 ## Australian beer production
 
 ```{r, echo=FALSE}
 ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(tail(ausbeer, 60))
 ```
+
 # Some case studies
 
 ## CASE STUDY 1: Paperware company
