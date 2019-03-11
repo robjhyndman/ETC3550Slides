@@ -184,15 +184,12 @@ a10 %>% autoplot(Cost) +
 ```{r maxtemp, echo=FALSE}
 maxtemp <- aus_elec %>%
   filter(State=="Victoria") %>%
-  mutate(Day = lubridate::date(Time)) %>%
-  as_tibble() %>%
-  group_by(Day) %>%
+  index_by(Day = lubridate::date(Time)) %>%
   summarise(
     Temperature = max(Temperature),
     Demand = sum(Demand),
     Holiday = any(Holiday)
-  ) %>%
-  as_tsibble(index=Day)
+  )
 ```
 
 ```{r maxtemp1, warning=FALSE, message=FALSE, dependson="maxtemp"}
@@ -625,7 +622,7 @@ wn %>% ACF(y, lag_max = 10) %>%
   as_tibble() %>%
   spread(lag, acf) %>%
   rename_all(function(x){paste("$r_{",x,"}$",sep="")}) %>%
-  knitr::kable(booktabs=TRUE, 
+  knitr::kable(booktabs=TRUE,
                escape=FALSE, align="c", digits=3,
                format.args=list(nsmall=3))
 ```
