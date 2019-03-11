@@ -236,7 +236,7 @@ maxtemp %>%
 \footnotesize
 
 ```{r, echo=TRUE, dependson="a10"}
-a10 %>% ggseasonplot(Cost, labels = "both") +
+a10 %>% gg_season(Cost, labels = "both") +
   ylab("$ million") +
   ggtitle("Seasonal plot: antidiabetic drug sales")
 ```
@@ -246,14 +246,14 @@ a10 %>% ggseasonplot(Cost, labels = "both") +
   * Data plotted against the individual "seasons" in which the data were observed.  (In this case a "season" is a month.)
   * Something like a time plot except that the data from each season are overlapped.
   * Enables the underlying seasonal pattern to be seen more clearly, and also allows any substantial departures from the seasonal pattern to be easily identified.
-  * In R: `ggseasonplot()`
+  * In R: `gg_season()`
 
 <!-- ## Seasonal polar plots -->
 
 <!-- \small -->
 
 <!-- ```{r, fig.height=6, out.width="7.5cm"} -->
-<!-- a10 %>% ggseasonplot(polar = TRUE) + -->
+<!-- a10 %>% gg_season(polar = TRUE) + -->
 <!--   ylab("$ million") -->
 <!-- ``` -->
 
@@ -263,7 +263,7 @@ a10 %>% ggseasonplot(Cost, labels = "both") +
 
 ```{r, echo=TRUE, dependson="a10"}
 a10 %>%
-  ggsubseriesplot(Cost) + ylab("$ million") +
+  gg_subseries(Cost) + ylab("$ million") +
   ggtitle("Subseries plot: antidiabetic drug sales")
 ```
 
@@ -271,7 +271,7 @@ a10 %>%
 
   * Data for each season collected together in time plot as separate time series.
   * Enables the underlying seasonal pattern to be seen clearly, and changes in seasonality over time to be visualized.
-  * In R: `ggsubseriesplot()`
+  * In R: `gg_subseries()`
 
 ## Quarterly Australian Beer Production
 \fontsize{13}{15}\sf
@@ -286,13 +286,13 @@ beer %>% autoplot(Beer)
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer %>% ggseasonplot(Beer, labels="right")
+beer %>% gg_season(Beer, labels="right")
 ```
 
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer %>% ggsubseriesplot(Beer)
+beer %>% gg_subseries(Beer)
 ```
 
 ## Your turn
@@ -305,7 +305,7 @@ snowy <- filter(tourism,
   Purpose == "Holiday")
 ```
 
-  - Use `autoplot()`, `ggseasonplot()` and `ggsubseriesplot()` to explore the data.
+  - Use `autoplot()`, `gg_season()` and `gg_subseries()` to explore the data.
   - What do you learn?
 
 # Seasonal or cyclic?
@@ -408,14 +408,14 @@ new_production
 \fontsize{13}{15}\sf
 
 ```{r, fig.height=6.5, fig.width=6.5, out.width="8cm"}
-new_production %>% gglagplot(Beer)
+new_production %>% gg_lag(Beer)
 ```
 
 ## Example: Beer production
 \fontsize{13}{15}\sf
 
 ```{r, fig.height=6.5, fig.width=6.5, out.width="8cm"}
-new_production %>% gglagplot(Beer, type='point')
+new_production %>% gg_lag(Beer, type='point')
 ```
 
 
@@ -574,7 +574,7 @@ google_2015 %>%
 
 We have introduced the following functions:
 
-  - `gglagplot`
+  - `gg_lag`
   - `ACF`
 
 Explore the following time series using these functions. Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
