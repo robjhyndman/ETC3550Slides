@@ -22,12 +22,6 @@ library(feasts)
 library(lubridate)
 source("nicefigs.R")
 
-ausbeer <- as_tsibble(fpp2::ausbeer) %>%
-  rename(Time = index, Production = value)
-
-google_2015 <- tsibbledata::gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2015)
-
 options(width=45)
 ```
 
@@ -435,7 +429,20 @@ eggs %>% autoplot(value) +
 ## Example: Google stock price
 \fontsize{10}{10}\sf
 
-```{r dj3, echo=TRUE}
+```{r goog-create, echo=TRUE}
+google_2015 <- tsibbledata::gafa_stock %>% 
+  filter(Symbol == "GOOG", year(Date) == 2015) %>% 
+  mutate(trading_day = row_number()) %>% 
+  update_tsibble(index = trading_day, regular = TRUE)
+```
+```{r, echo = FALSE}
+google_2015
+```
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj3, echo = TRUE}
 google_2015 %>%
   autoplot(Close) +
   xlab("Day") + ylab("Closing Price (US$)") +
@@ -459,7 +466,7 @@ Note: $e_t$ are one-step-forecast residuals
 ```{r dj4, echo=TRUE, warning=FALSE}
 fit <- google_2015 %>% model(NAIVE(Close))
 augment(fit) %>% 
-  ggplot(aes(x = Date)) + 
+  ggplot(aes(x = trading_day)) + 
   geom_line(aes(y = Close, colour = "Data")) + 
   geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Day") + ylab("Closing Price (US$)") +
@@ -670,7 +677,7 @@ beer_fc_plot
 
 ```{r beeraccuracy, results = 'hide'}
 recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
-beer_train <- recent_production %>% filter(year(Quarter) <= 2007)
+train <- recent_production %>% filter(year(Quarter) <= 2007)
 beer_fc <- train %>% 
   model(
     Mean = MEAN(Beer),
