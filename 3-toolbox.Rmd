@@ -266,7 +266,7 @@ lambda <- seq(1, -1, by=-0.01)
 for(i in seq_along(lambda))
 {
   savepdf(paste("elecBC",i,sep=""))
-  print(autoplot(elec, BoxCox(value,lambda[i])) + xlab("Year") +
+  print(autoplot(elec, box_cox(value,lambda[i])) + xlab("Year") +
     ylab("") +
     ggtitle(
       TeX(paste("Transformed Australian electricity demand:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
@@ -284,7 +284,7 @@ for(i in seq_along(lambda))
 ## Box-Cox transformations
 
 ```{r elec6,echo=TRUE,fig.height=4}
-elec %>% autoplot(BoxCox(value,lambda=1/3))
+elec %>% autoplot(box_cox(value,lambda=1/3))
 ```
 
 ## Box-Cox transformations
@@ -323,7 +323,7 @@ $$ y_t = \left\{\begin{array}{ll}
 
 ```{r elec8,echo=TRUE,fig.height=3.6}
 fc <- elec %>% 
-  model(SNAIVE(BoxCox(value, lambda=1/3))) %>% 
+  model(SNAIVE(box_cox(value, lambda=1/3))) %>% 
   forecast()
 fc %>% autoplot(elec)
 ```
