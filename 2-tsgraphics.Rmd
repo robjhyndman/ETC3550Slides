@@ -412,7 +412,7 @@ new_production %>% gg_lag(Beer)
 \fontsize{13}{15}\sf
 
 ```{r, fig.height=6.5, fig.width=6.5, out.width="8cm"}
-new_production %>% gg_lag(Beer, type='point')
+new_production %>% gg_lag(Beer, geom='point')
 ```
 
 
