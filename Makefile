@@ -10,3 +10,6 @@ default: $(TARGETS)
 
 clean:
 	rm -rf $(TARGETS)
+	rm -rf *_cache
+	rm -rf *_files
+
