@@ -33,6 +33,21 @@ options(width=45)
 <!-- 3. The model definition: Transformations, adjustments and model specials -->
 <!-- 4. Distributional forecasts and the prediction intervals -->
 
+# A tidy forecasting workflow
+
+## A tidy forecasting workflow
+
+The process of producing forecasts can be split up into a few fundamental steps.
+
+1. Data preparation
+2. Visualise
+3. Specify a model
+4. Estimating the model
+5. Evaluate model
+6. Producing forecasts
+
+## A tidy forecasting workflow
+
 # Some simple forecasting methods
 
 ## Some simple forecasting methods
@@ -180,6 +195,12 @@ dj2 %>%
 
  * Use these four functions to produce forecasts for `goog` and `auscafe`.
  * Plot the results using `autoplot()`.
+
+# Specifying a model
+
+## Specifying a model
+
+model_fn(t(LHS) ~ specials, extras)
 
 # Transformations
 
@@ -403,7 +424,7 @@ eggs %>% autoplot(value) +
   guides(colour=guide_legend(title="Forecast"))
 ```
 
-# Prediction intervals
+# Distributional forecasts
 
 ## Prediction intervals
 
