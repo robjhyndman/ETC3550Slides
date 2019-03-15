@@ -26,6 +26,19 @@ source("nicefigs.R")
 options(width=45)
 ```
 
+<!-- TODO: Restructure -->
+<!-- 3a: toolbox -->
+<!-- 1. Tidy forecasting workflow (with progress update on stage in workflow) -->
+<!-- 2. Simple forecasting methods (using model() and forecast()) -->
+<!-- 3. The model definition: Transformations, adjustments and model specials -->
+<!-- 4. Distributional forecasts and the prediction intervals -->
+
+<!-- 3b: Evaluation -->
+<!-- 1. Diagnostic tools (plots, tests) -->
+<!-- 2. Accuracy measures -->
+<!-- 3. Out-of-sample accuracy -->
+<!-- 4. Cross-validation -->
+
 # Some simple forecasting methods
 
 ## Some simple forecasting methods
