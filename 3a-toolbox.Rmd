@@ -85,10 +85,11 @@ aus_livestock %>% filter(between(year(Month), 1990, 1995),
 ## Some simple forecasting methods
 
 ```{r dj, fig.height=4.6, echo=FALSE}
-dj <- tsibble(day = seq_along(fma::dj), value = fma::dj, index = day)
-dj %>% 
-  autoplot(value) + ggtitle("Dow-Jones index") + 
-  xlab("Day") + ylab("")
+gafa_stock %>% 
+  filter(Symbol == "FB", Date >= ymd("2018-01-01")) %>% 
+  autoplot(Close) +
+  labs(title = "Facebook closing stock price in 2018",
+       x = NULL, y = "Closing price ($USD)")
 ```
 
 \begin{textblock}{7}(0.2,8.7)
@@ -165,19 +166,24 @@ beer_fc_plot
 
 ## Some simple forecasting methods
 
-```{r djf,  message=FALSE, warning=FALSE, echo=FALSE, fig.height=4.6}
+```{r fbf,  message=FALSE, warning=FALSE, echo=FALSE, fig.height=4.6}
 # Set training data to first 250 days
-dj2 <- dj %>% filter(day <= 250)
+fb_stock <- gafa_stock %>% 
+  mutate(trading_day = row_number()) %>%
+  update_tsibble(index=trading_day, regular=TRUE) %>%
+  filter(Symbol == "FB",
+         between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
+
 # Plot some forecasts
-dj2 %>% 
+fb_stock %>% 
   model(
-    Mean = MEAN(value),
-    `Naïve` = NAIVE(value), 
-    Drift = RW(value ~ drift())
+    Mean = MEAN(Close),
+    `Naïve` = NAIVE(Close), 
+    Drift = RW(Close ~ drift())
   ) %>% 
   forecast(h=42) %>% 
-  autoplot(dj2, level = NULL) +
-  ggtitle("Dow Jones Index (daily ending 15 Jul 94)") +
+  autoplot(fb_stock, level = NULL) +
+  ggtitle("Facebook closing stock price (daily ending Sep 2018)") +
   xlab("Day") + ylab("") +
   guides(colour=guide_legend(title="Forecast"))
 ```
@@ -193,7 +199,7 @@ dj2 %>%
 
 ### Your turn
 
- * Use these four functions to produce forecasts for `goog` and `auscafe`.
+ * Use these four functions to produce forecasts for Facebook closing price (`gafa_stock`) and Australian takeaway food turnover (`aus_retail`).
  * Plot the results using `autoplot()`.
 
 # Specifying a model
@@ -229,49 +235,49 @@ Logarithms, in particular, are useful because they are more interpretable: chang
 
 ## Variance stabilization
 
-```{r elec, echo=FALSE, fig.height=4.6}
-elec <- as_tsibble(fma::elec)
-elec %>% autoplot(value) +
+```{r food, echo=FALSE, fig.height=4.6}
+food <- aus_retail %>% filter(Industry == "Food retailing") %>% summarise(Turnover = sum(Turnover))
+food %>% autoplot(Turnover) +
   xlab("Year") + ylab("") +
-  ggtitle("Australian electricity production")
+  ggtitle("Australian food retailing turnover")
 ```
 
 ## Variance stabilization
 
-```{r elec1, echo=FALSE, fig.height=4.6}
-elec %>% autoplot(sqrt(value)) +
+```{r food-sqrt1, echo=FALSE, fig.height=4.6}
+food %>% autoplot(sqrt(Turnover)) +
   xlab("Year") + ylab("") +
-  ggtitle("Square root electricity production")
+  ggtitle("Square root food retailing turnover")
 ```
 
 ## Variance stabilization
 
-```{r elec2, echo=FALSE, fig.height=4.6}
-elec %>% autoplot(value^(1/3))+
+```{r food-cbrt, echo=FALSE, fig.height=4.6}
+food %>% autoplot(Turnover^(1/3))+
   xlab("Year") + ylab("") +
-  ggtitle("Cube root electricity production")
+  ggtitle("Cube root food retailing turnover")
 ```
 
 ## Variance stabilization
 
-```{r elec3, echo=FALSE, fig.height=4.6}
-elec %>% autoplot(log(value)) +
+```{r food-log, echo=FALSE, fig.height=4.6}
+food %>% autoplot(log(Turnover)) +
   xlab("Year") + ylab("") +
-  ggtitle("Log electricity production")
+  ggtitle("Log food retailing turnover")
 ```
 
 ## Variance stabilization
 
-```{r elec4, echo=FALSE, fig.height=4.6}
-elec %>% autoplot(-1/value) + 
+```{r food-inverse, echo=FALSE, fig.height=4.6}
+food %>% autoplot(-1/Turnover) + 
   xlab("Year") + ylab("") +
-  ggtitle("Inverse electricity production")
+  ggtitle("Inverse food retailing turnover")
 ```
 
-## Transformations
+## Box-Cox transformations
 
 Each of these transformations is close to a member of the
-family of \textbf{Transformations}:
+family of \textbf{Box-Cox transformations}:
 $$w_t = \left\{\begin{array}{ll}
         \log(y_t),      & \quad \lambda = 0; \\
         (y_t^\lambda-1)/\lambda ,         & \quad \lambda \ne 0.
@@ -283,18 +289,18 @@ $$\pause
 * $\lambda=0$: (Natural logarithm)
 * $\lambda=-1$: (Inverse plus 1)
 
-## Transformations
+## Box-Cox transformations
 
-```{r elec5, cache=TRUE, echo=FALSE}
+```{r food-anim, cache=TRUE, echo=FALSE}
 library(latex2exp)
 lambda <- seq(1, -1, by=-0.01)
 for(i in seq_along(lambda))
 {
   savepdf(paste("elecBC",i,sep=""))
-  print(autoplot(elec, box_cox(value,lambda[i])) + xlab("Year") +
+  print(autoplot(food, box_cox(Turnover,lambda[i])) + xlab("Year") +
     ylab("") +
     ggtitle(
-      TeX(paste("Transformed Australian electricity demand:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
+      TeX(paste("Transformed Australian food retailing turnover:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
     ) +
     scale_y_continuous(breaks=NULL,minor_breaks=NULL) +
     theme(axis.title.y=element_blank(),
@@ -306,13 +312,13 @@ for(i in seq_along(lambda))
 
 \centerline{\animategraphics[controls,buttonsize=0.3cm,width=12.2cm]{4}{elecBC}{1}{201}}
 
-## Transformations
+## Box-Cox transformations
 
-```{r elec6,echo=TRUE,fig.height=4}
-elec %>% autoplot(box_cox(value,lambda=1/3))
+```{r food-bc, echo=TRUE,fig.height=4}
+food %>% autoplot(box_cox(Turnover,lambda=1/3))
 ```
 
-## Transformations
+## Box-Cox transformations
 
 * $y_t^\lambda$ for $\lambda$ close to zero behaves like logs.
 * If some $y_t=0$, then must have $\lambda>0$
@@ -323,10 +329,10 @@ elec %>% autoplot(box_cox(value,lambda=1/3))
 * Transformation can have very large effect on PI.
 * Choosing $\lambda=0$ is a simple way to force forecasts to be positive
 
-## Automated Transformations
+## Box-Cox transformations
 
-```{r elec7, echo=TRUE}
-elec %>% features(value, features = guerrero)
+```{r food-lambda, echo=TRUE}
+food %>% features(Turnover, features = guerrero)
 ```
 \pause
 
@@ -346,22 +352,22 @@ $$ y_t = \left\{\begin{array}{ll}
 
 ## Back-transformation
 
-```{r elec8,echo=TRUE,fig.height=3.6}
-fc <- elec %>% 
-  model(SNAIVE(box_cox(value, lambda=1/3))) %>% 
+```{r food-bt,echo=TRUE,fig.height=3.6}
+fc <- food %>% 
+  model(SNAIVE(box_cox(Turnover, lambda=1/3))) %>% 
   forecast()
-fc %>% autoplot(elec)
+fc %>% autoplot(food)
 ```
 
 ## Back-transformation
 
 ```{r elec9,echo=TRUE,fig.height=4}
-fc %>% autoplot(filter(elec, year(index) > 1985))
+fc %>% autoplot(filter(food, year(Month) > 2010))
 ```
 
 ## Your turn
 
-Find a Box-Cox transformation that works for the `gas` data.
+Find a Box-Cox transformation that works for the Australian gas production (`aus_production`).
 
 ## Bias adjustment
 
@@ -446,12 +452,12 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 
 **Naive forecast with prediction interval:**
 
-```{r djpi, echo=TRUE, cache=TRUE, eval = FALSE}
+```{r googpi, echo=TRUE, cache=TRUE, eval = FALSE}
 res_sd <- sqrt(mean(res^2, na.rm=TRUE))
 c(tail(google_2015,1)) + 1.96 * res_sd * c(-1,1)
 ```
 
-```{r djforecasts, echo=TRUE, cache=TRUE, eval = FALSE}
+```{r googforecasts, echo=TRUE, cache=TRUE, eval = FALSE}
 naive(google_2015, level=95)
 ```
 
@@ -482,7 +488,7 @@ Note that when $h=1$ and $T$ is large, these all give the same approximate value
 
 ## Prediction intervals
 
-  * Computed automatically using: `naive()`, `snaive()`, `rwf()`, `meanf()`, etc.
+  * Computed automatically from the forecast distribution.
   * Use `level` argument to control coverage.
   * Check residual assumptions before believing them.
   * Usually too narrow due to unaccounted uncertainty.
