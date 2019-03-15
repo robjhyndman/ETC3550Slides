@@ -2,3 +2,5 @@
 *_files
 [0-9]*.tex
 elecBC*.pdf
+.Rproj.user
+*.Rproj
