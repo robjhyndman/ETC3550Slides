@@ -20,6 +20,7 @@ library(fable)
 library(tsibble)
 library(feasts)
 library(lubridate)
+library(tsibbledata)
 source("nicefigs.R")
 
 options(width=45)
@@ -30,30 +31,32 @@ options(width=45)
 ## Some simple forecasting methods
 
 ```{r ausbeer, fig.height=4.6, echo=FALSE}
-beer2 <- ausbeer %>% filter(year(Time) >= 1992)
-beer2 %>% autoplot(Production) +
+new_production <- aus_production %>%
+  filter(year(Quarter) >= 1992)
+new_production %>% autoplot(Beer) +
   xlab("Year") + ylab("megalitres") +
     ggtitle("Australian quarterly beer production")
 ```
 
 \begin{textblock}{7}(0.2,8.7)
 \begin{alertblock}{}
-\small{How would you forecast these data?}
+\small{How would you forecast these time series?}
 \end{alertblock}
 \end{textblock}
 
 ## Some simple forecasting methods
 
 ```{r pigs, fig.height=4.6, echo=FALSE}
-as_tsibble(fma::pigs) %>% filter(year(index) >= 1990) %>% 
-  autoplot(value) +
+aus_livestock %>% filter(between(year(Month), 1990, 1995),
+  Animal == "Pigs", State == "Victoria") %>% 
+  autoplot(Count) +
   xlab("Year") + ylab("thousands") +
-  ggtitle("Number of pigs slaughtered in Victoria")
+  ggtitle("Number of pigs slaughtered in Victoria, 1990-1995")
 ```
 
 \begin{textblock}{7}(0.2,8.7)
 \begin{alertblock}{}
-\small{How would you forecast these data?}
+\small{How would you forecast these time series?}
 \end{alertblock}
 \end{textblock}
 
@@ -68,7 +71,7 @@ dj %>%
 
 \begin{textblock}{7}(0.2,8.7)
 \begin{alertblock}{}
-\small{How would you forecast these data?}
+\small{How would you forecast these time series?}
 \end{alertblock}
 \end{textblock}
 
@@ -171,7 +174,7 @@ dj2 %>%
  * Use these four functions to produce forecasts for `goog` and `auscafe`.
  * Plot the results using `autoplot()`.
 
-# Box-Cox transformations
+# Transformations
 
 ## Variance stabilization
 
@@ -237,10 +240,10 @@ elec %>% autoplot(-1/value) +
   ggtitle("Inverse electricity production")
 ```
 
-## Box-Cox transformations
+## Transformations
 
 Each of these transformations is close to a member of the
-family of \textbf{Box-Cox transformations}:
+family of \textbf{Transformations}:
 $$w_t = \left\{\begin{array}{ll}
         \log(y_t),      & \quad \lambda = 0; \\
         (y_t^\lambda-1)/\lambda ,         & \quad \lambda \ne 0.
@@ -252,7 +255,7 @@ $$\pause
 * $\lambda=0$: (Natural logarithm)
 * $\lambda=-1$: (Inverse plus 1)
 
-## Box-Cox transformations
+## Transformations
 
 ```{r elec5, cache=TRUE, echo=FALSE}
 library(latex2exp)
@@ -275,13 +278,13 @@ for(i in seq_along(lambda))
 
 \centerline{\animategraphics[controls,buttonsize=0.3cm,width=12.2cm]{4}{elecBC}{1}{201}}
 
-## Box-Cox transformations
+## Transformations
 
 ```{r elec6,echo=TRUE,fig.height=4}
 elec %>% autoplot(box_cox(value,lambda=1/3))
 ```
 
-## Box-Cox transformations
+## Transformations
 
 * $y_t^\lambda$ for $\lambda$ close to zero behaves like logs.
 * If some $y_t=0$, then must have $\lambda>0$
@@ -292,7 +295,7 @@ elec %>% autoplot(box_cox(value,lambda=1/3))
 * Transformation can have very large effect on PI.
 * Choosing $\lambda=0$ is a simple way to force forecasts to be positive
 
-## Automated Box-Cox transformations
+## Automated Transformations
 
 ```{r elec7, echo=TRUE}
 elec %>% features(value, features = guerrero)
@@ -306,7 +309,7 @@ elec %>% features(value, features = guerrero)
 ## Back-transformation
 
 We must reverse the transformation (or \textit{back-transform}) to obtain
-forecasts on the original scale.  The reverse Box-Cox transformations are given
+forecasts on the original scale.  The reverse Transformations are given
 by
 $$ y_t = \left\{\begin{array}{ll}
         \exp(w_t),      & \quad \lambda = 0; \\
