@@ -295,7 +295,7 @@ elec %>% autoplot(box_cox(value,lambda=1/3))
 ## Automated Box-Cox transformations
 
 ```{r elec7, echo=TRUE}
-forecast::BoxCox.lambda(elec$value)
+elec %>% features(value, features = guerrero)
 ```
 \pause
 
