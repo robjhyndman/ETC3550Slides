@@ -390,35 +390,35 @@ food <- aus_retail %>%
 
 ```{r food-plot, echo = FALSE, fig.height=3.4}
 food %>% autoplot(Turnover) +
-  labs(y = "Turnover ($AUD)", x = NULL)
+  labs(y = "Turnover ($AUD)")
 ```
 
 ## Variance stabilization
 
 ```{r food-sqrt1, echo=TRUE, fig.height=4}
 food %>% autoplot(sqrt(Turnover)) +
-  labs(y = "Square root turnover", x = NULL)
+  labs(y = "Square root turnover")
 ```
 
 ## Variance stabilization
 
 ```{r food-cbrt, echo=TRUE, fig.height=4}
 food %>% autoplot(Turnover^(1/3)) +
-  labs(y = "Cube root turnover", x = NULL)
+  labs(y = "Cube root turnover")
 ```
 
 ## Variance stabilization
 
 ```{r food-log, echo=TRUE, fig.height=4}
 food %>% autoplot(log(Turnover)) +
-  labs(y = "Log turnover", x = NULL)
+  labs(y = "Log turnover")
 ```
 
 ## Variance stabilization
 
 ```{r food-inverse, echo=TRUE, fig.height=4}
-food %>% autoplot(-1/Turnover) + 
-  labs(y = "Inverse turnover", x = NULL)
+food %>% autoplot(-1/Turnover) +
+  labs(y = "Inverse turnover")
 ```
 
 ## Box-Cox transformations
@@ -462,8 +462,8 @@ for(i in seq_along(lambda))
 ## Box-Cox transformations
 
 ```{r food-bc, echo=TRUE,fig.height=4}
-food %>% autoplot(box_cox(Turnover, 1/3)) + 
-  labs(y = "Box-Cox transformed turnover", x = NULL)
+food %>% autoplot(box_cox(Turnover, 1/3)) +
+  labs(y = "Box-Cox transformed turnover")
 ```
 
 ## Box-Cox transformations
