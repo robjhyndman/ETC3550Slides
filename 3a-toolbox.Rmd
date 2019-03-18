@@ -460,6 +460,7 @@ for(i in seq_along(lambda))
 \centerline{\animategraphics[controls,buttonsize=0.3cm,width=12.2cm]{4}{elecBC}{1}{201}}
 
 ## Box-Cox transformations
+\fontsize{13}{14}\sf
 
 ```{r food-bc, echo=TRUE,fig.height=4}
 food %>% autoplot(box_cox(Turnover, 1/3)) +
