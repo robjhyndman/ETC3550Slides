@@ -27,7 +27,7 @@ source("nicefigs.R")
 options(width=45)
 ```
 
-# Some simple forecasting methods
+# A tidy forecasting workflow
 
 <!-- TODO: Restructure -->
 <!-- 3a: toolbox -->
@@ -143,7 +143,7 @@ gafa_stock %>%
 
 \fontsize{13}{14}\sf
 
-### Average method
+### `MEAN(y)`: Average method
 
   * Forecast of all future values is equal to mean of historical data $\{y_1,\dots,y_T\}$.
   * Forecasts: $\hat{y}_{T+h|T} = \bar{y} = (y_1+\dots+y_T)/T$
@@ -167,7 +167,7 @@ bricks %>%
 
 ## Some simple forecasting methods
 
-### Naïve method
+### `NAIVE(y)`: Naïve method
 
   * Forecasts equal to last observed value.
   * Forecasts: $\hat{y}_{T+h|T} =y_T$.
@@ -185,7 +185,7 @@ bricks %>%
 
 ## Some simple forecasting methods
 
-### Seasonal naïve method
+### `SNAIVE(y ~ lag(m))`: Seasonal naïve method
 
   * Forecasts equal to last value from same season.
   * Forecasts: $\hat{y}_{T+h|T} =y_{T+h-m(k+1)}$, where $m=$ seasonal period and $k$ is the integer part of $(h-1)/m$.
@@ -195,13 +195,13 @@ bricks %>%
   model(SNAIVE(Bricks ~ lag("year"))) %>% 
   forecast(h = "5 years") %>% 
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) + 
-  geom_point(data = slice(bricks, (n()-4):n()), colour = "blue") + 
+  geom_point(data = slice(bricks, (n()-3):n()), colour = "blue") + 
   ggtitle("Clay brick production in Australia")
 ```
 
 ## Some simple forecasting methods
 
-### Drift method
+### `RW(y ~ drift())`: Drift method
 
  * Forecasts equal to last value plus average change.
  * Forecasts:\vspace*{-.7cm}
@@ -228,9 +228,13 @@ aus_production %>%
   ggtitle("Clay brick production in Australia")
 ```
 
-## Some simple forecasting methods
+## Model estimation
 
-```{r beerf, warning=FALSE, message=FALSE, echo=FALSE, fig.height=4.6}
+The `model()` function trains models to data.
+
+\small
+
+```{r beer-model}
 # Set training data from 1992 to 2007
 train <- aus_production %>%
   filter(between(year(Quarter), 1992, 2007))
@@ -240,20 +244,46 @@ beer_fit <- train %>%
   model(
     Mean = MEAN(Beer),
     `Naïve` = NAIVE(Beer),
-    `Seasonal naïve` = SNAIVE(Beer)
+    `Seasonal naïve` = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
   )
+```
 
-# Produce forecasts
-beer_fc <- beer_fit %>%
-  forecast(h=11)
+## Model estimation
 
-# Plot some forecasts
-beer_fc_plot <- beer_fc %>%
+\small
+
+```{r beer-mable, echo = TRUE, dependson='beer-model'}
+beer_fit
+```
+
+A `mable` is a model table, each cell corresponds to a fitted model.
+
+## Producing forecasts
+
+\small
+
+```{r beer-fc, echo = TRUE, dependson='beer-model'}
+beer_fc <- beer_fit %>% 
+  forecast(h = 11)
+```
+
+```{r beer-fbl, echo = FALSE, dependson='beer-fc'}
+print(beer_fc, n = 4)
+```
+
+A `fable` is a forecast table with point forecasts and distributions.
+
+## Visualising forecasts
+
+\footnotesize
+
+```{r beer-fc-plot, warning=FALSE, message=FALSE, fig.height=3}
+beer_fc %>%
   autoplot(train, level = NULL) +
   ggtitle("Forecasts for quarterly beer production") +
   xlab("Year") + ylab("Megalitres") +
   guides(colour=guide_legend(title="Forecast"))
-beer_fc_plot
 ```
 
 ## Some simple forecasting methods
