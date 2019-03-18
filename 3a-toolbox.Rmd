@@ -91,7 +91,9 @@ ggplot() +
   coord_equal(ratio = 1)
 ```
 
-## Specifying a model
+# Some simple forecasting methods
+
+## Some simple forecasting methods
 
 ```{r ausbeer, fig.height=4.6, echo=FALSE}
 new_production <- aus_production %>%
@@ -107,7 +109,7 @@ new_production %>% autoplot(Beer) +
 \end{alertblock}
 \end{textblock}
 
-## Specifying a model
+## Some simple forecasting methods
 
 ```{r pigs, fig.height=4.6, echo=FALSE}
 aus_livestock %>% filter(between(year(Month), 1990, 1995),
@@ -123,7 +125,7 @@ aus_livestock %>% filter(between(year(Month), 1990, 1995),
 \end{alertblock}
 \end{textblock}
 
-## Specifying a model
+## Some simple forecasting methods
 
 ```{r dj, fig.height=4.6, echo=FALSE}
 gafa_stock %>%
@@ -228,6 +230,16 @@ aus_production %>%
   ggtitle("Clay brick production in Australia")
 ```
 
+# The workflow in action
+
+## Data preparation and visualisation
+```{r beer-plot}
+# Set training data from 1992 to 2007
+train <- aus_production %>%
+  filter(between(year(Quarter), 1992, 2007))
+train %>% autoplot(Beer)
+```
+
 ## Model estimation
 
 The `model()` function trains models to data.
@@ -235,10 +247,6 @@ The `model()` function trains models to data.
 \small
 
 ```{r beer-model}
-# Set training data from 1992 to 2007
-train <- aus_production %>%
-  filter(between(year(Quarter), 1992, 2007))
-
 # Fit the models
 beer_fit <- train %>%
   model(
@@ -286,17 +294,19 @@ beer_fc %>%
   guides(colour=guide_legend(title="Forecast"))
 ```
 
-## Some simple forecasting methods
+## Facebook closing stock price
 
-```{r fbf,  message=FALSE, warning=FALSE, echo=FALSE, fig.height=4.6}
-# Set training data to first 250 days
+\fontsize{9}{10}\sf
+
+```{r fbf, eval=FALSE}
+# Extract training data
 fb_stock <- gafa_stock %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
   filter(Symbol == "FB",
          between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
 
-# Plot some forecasts
+# Specify, estimate and forecast
 fb_stock %>%
   model(
     Mean = MEAN(Close),
@@ -310,17 +320,17 @@ fb_stock %>%
   guides(colour=guide_legend(title="Forecast"))
 ```
 
-## Some simple forecasting methods
+## Facebook closing stock price
 
-\alert{Code for previous graph}\fontsize{9}{10}\sf
-
-```r
+```{r fb-fc-plot, echo=FALSE, fig.height=4.6}
+# Extract training data
 fb_stock <- gafa_stock %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
   filter(Symbol == "FB",
          between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
 
+# Specify, estimate and forecast
 fb_stock %>%
   model(
     Mean = MEAN(Close),
@@ -329,31 +339,15 @@ fb_stock %>%
   ) %>%
   forecast(h=42) %>%
   autoplot(fb_stock, level = NULL) +
-    ggtitle("Facebook closing stock price (daily ending Sep 2018)") +
-    xlab("Day") + ylab("") +
-    guides(colour=guide_legend(title="Forecast"))
+  ggtitle("Facebook closing stock price (daily ending Sep 2018)") +
+  xlab("Day") + ylab("") +
+  guides(colour=guide_legend(title="Forecast"))
 ```
 
+## Your turn
 
-## Some simple forecasting methods
-
-  * Mean: `MEAN(y)`
-  * Naïve:  `NAIVE(y)`
-  * Seasonal naïve: `SNAIVE(y)`
-  * Drift: `RW(y ~ drift())`
-
-\pause
-
-### Your turn
-
- * Use these four functions to produce forecasts for Facebook closing price (`gafa_stock`) and Australian takeaway food turnover (`aus_retail`).
+ * Produce forecasts from the appropriate method for Amazon closing price (`gafa_stock`) and Australian takeaway food turnover (`aus_retail`).
  * Plot the results using `autoplot()`.
-
-# Specifying a model
-
-## Specifying a model
-
-model_fn(t(LHS) ~ specials, extras)
 
 # Transformations
 
@@ -479,10 +473,13 @@ food %>% autoplot(box_cox(Turnover, 1/3)) +
 
 ## Box-Cox transformations
 
+\small
+
 ```{r food-lambda, echo=TRUE}
 food %>% 
   features(Turnover, features = guerrero)
 ```
+
 \pause
 
 * This attempts to balance the seasonal fluctuations and random variation across the series.
@@ -492,23 +489,37 @@ food %>%
 ## Back-transformation
 
 We must reverse the transformation (or \textit{back-transform}) to obtain
-forecasts on the original scale.  The reverse Transformations are given
+forecasts on the original scale. The reverse Box-Cox transformations are given
 by
 $$ y_t = \left\{\begin{array}{ll}
         \exp(w_t),      & \quad \lambda = 0; \\
         (\lambda W_t+1)^{1/\lambda} ,   & \quad \lambda \ne 0.
 \end{array}\right.$$
 
-## Back-transformation
+## Modelling with transformations
 
-```{r food-bt,echo=TRUE,fig.height=3.6}
-fc <- food %>%
-  model(SNAIVE(box_cox(Turnover, lambda=1/3))) %>%
-  forecast()
-fc %>% autoplot(food)
+Transformations used in the left of the formula will be automatically back-transformed. To model log-transformed food retailing turnover, you could use:
+
+```{r food-bt-fit}
+fit <- food %>%
+  model(SNAIVE(log(Turnover) ~ lag("year")))
+```
+```{r food-bt-mbl, echo = FALSE}
+fit
 ```
 
-## Back-transformation
+## Forecasting with transformations
+
+```{r food-bt-fc}
+fc <- fit %>%
+  forecast(h = "3 years")
+```
+\small
+```{r food-bt-fbl, echo = FALSE}
+print(fc, n = 6)
+```
+
+## Forecasting with transformations
 
 ```{r elec9,echo=TRUE,fig.height=4}
 fc %>% autoplot(filter(food,year(Month)>2010))
@@ -516,7 +527,7 @@ fc %>% autoplot(filter(food,year(Month)>2010))
 
 ## Your turn
 
-Find a Box-Cox transformation that works for the Australian gas production (`aus_production`).
+Find a transformation that works for the Australian gas production (`aus_production`).
 
 ## Bias adjustment
 
@@ -581,9 +592,35 @@ eggs %>% autoplot(value) +
 
 # Distributional forecasts
 
-## Prediction intervals
+## Forecast distributions
 
  * A forecast $\hat{y}_{T+h|T}$ is (usually) the mean of the conditional distribution $y_{T+h} \mid y_1, \dots, y_{T}$.
+ * Most time series models produce normally distributed forecasts.
+ * The forecast distribution describes the probability of observing any future value.
+ 
+## Forecast distributions
+
+\fontsize{14}{18}\sf
+
+Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
+
+\begin{block}{}
+\begin{tabular}{ll}
+\bf Mean: & $\hat{y}_{T+h} \sim N(\bar{y}, (1 + 1/T)\hat{\sigma}^2)$\\[0.2cm]
+\bf Naïve: & $\hat{y}_{T+h} \sim N(\bar{y}, h\hat{\sigma}^2)$\\[0.2cm]
+\bf Seasonal naïve: & $\hat{y}_{T+h} \sim N(y_{T+h-m(k+1)}, (k+1)\hat{\sigma}^2)$\\[0.2cm]
+\bf Drift: & $\hat{y}_{T+h} \sim N(y_T + \frac{h}{T-1}(y_T - y_1),h\frac{T+h}{T}\hat{\sigma}^2)$.
+\end{tabular}
+\end{block}
+
+\small
+
+where $k$ is the integer part of $(h-1)/m$.
+
+Note that when $h=1$ and $T$ is large, these all give the same approximate forecast variance: $\hat{\sigma}^2$.
+ 
+## Prediction intervals
+
  * A prediction interval gives a region within which we expect $y_{T+h}$ to lie with a specified probability.
  * Assuming forecast errors are normally distributed, then a 95% PI is
  \begin{alertblock}{}
@@ -597,50 +634,44 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 
 ## Prediction intervals
 
-\footnotesize
-```{r, echo = FALSE}
-options(width = 80)
+\small
+
+```{r, echo = FALSE, cache = FALSE}
+options(width = 50)
 ```
 
-```{r googpi, echo=TRUE}
+```{r fb-fc, echo=TRUE}
 fit <- fb_stock %>% model(NAIVE(Close))
-res_sd <- sqrt(mean(augment(fit)$.resid^2, na.rm = TRUE))
-last(fb_stock$Close) + 1.96 * res_sd * c(-1,1)
-```
-
-```{r googforecasts, echo=TRUE}
-forecast(fit, h = 1) %>% select(-.model, -Symbol) %>% 
-  mutate(interval = hilo(.distribution, 95))
+forecast(fit)
 ```
 
 ## Prediction intervals
 
- * Point forecasts are often useless without prediction intervals.
+\footnotesize
+
+```{r, echo = FALSE, cache = FALSE}
+options(width = 80)
+```
+
+```{r fb-pi-manual}
+res_sd <- sqrt(mean(augment(fit)$.resid^2, na.rm = TRUE))
+last(fb_stock$Close) + 1.96 * res_sd * c(-1,1)
+```
+
+```{r fb-pi-hilo, echo=TRUE}
+forecast(fit, h = 1) %>% 
+  transmute(interval = hilo(.distribution, level = 95))
+```
+
+## Prediction intervals
+
+ * Point forecasts are often useless without a measure of uncertainty (such as prediction intervals).
  * Prediction intervals require a stochastic model (with random errors, etc).
  * Multi-step forecasts for time series require a more sophisticated approach (with PI getting wider as the forecast horizon increases).
 
 ## Prediction intervals
 
-\fontsize{14}{18}\sf
-
-Assume residuals are normal, uncorrelated, sd = $\hat\sigma$:
-
-\begin{block}{}
-\begin{tabular}{ll}
-\bf Mean forecasts: & $\hat\sigma_h = \hat\sigma\sqrt{1 + 1/T}$\\[0.2cm]
-\bf Naïve forecasts: & $\hat\sigma_h = \hat\sigma\sqrt{h}$\\[0.2cm]
-\bf Seasonal naïve forecasts & $\hat\sigma_h = \hat\sigma\sqrt{k+1}$\\[0.2cm]
-\bf Drift forecasts: & $\hat\sigma_h = \hat\sigma\sqrt{h(1+h/T)}$.
-\end{tabular}
-\end{block}
-
-where $k$ is the integer part of $(h-1)/m$.
-
-Note that when $h=1$ and $T$ is large, these all give the same approximate value $\hat\sigma$.
-
-## Prediction intervals
-
   * Computed automatically from the forecast distribution.
   * Use `level` argument to control coverage.
-  * Check residual assumptions before believing them.
+  * Check residual assumptions before believing them (we will see this next class).
   * Usually too narrow due to unaccounted uncertainty.
