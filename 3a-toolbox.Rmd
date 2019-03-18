@@ -58,20 +58,20 @@ line_curve <- function(x, y, xend, yend, ...){
   )
 }
 
-ggplot() + 
+ggplot() +
   geom_text(
     aes(x = x, y = y, label = label),
     data = tribble(
       ~ x, ~ y, ~ label,
       1, 0, "Tidy",
-      7/3, 0, "Visualise", 
+      7/3, 0, "Visualise",
       3, 0.5, "Specify",
       11/3, 0, "Estimate",
       3, -0.5, "Evaluate",
       5, 0, "Forecast"
     ),
     size = 5
-  ) + 
+  ) +
   geom_segment(
     aes(x = x, y = y, xend = xend, yend = yend),
     data = tribble(
@@ -82,11 +82,11 @@ ggplot() +
     arrow = arrow(type = "closed", length = unit(0.03, "npc"))
   ) +
   line_curve(7/3, 0.1, 8/3, 0.5, angle = 250, curvature = -0.3) +
-  line_curve(10/3, 0.5, 11/3, 0.1, angle = 250, curvature = -0.3) + 
+  line_curve(10/3, 0.5, 11/3, 0.1, angle = 250, curvature = -0.3) +
   line_curve(8/3, -0.5, 7/3, -0.1, angle = 250, curvature = -0.3) +
-  line_curve(11/3, -0.1, 10/3, -0.5, angle = 250, curvature = -0.3) + 
+  line_curve(11/3, -0.1, 10/3, -0.5, angle = 250, curvature = -0.3) +
   theme_void() +
-  xlim(0.8, 5.2) + 
+  xlim(0.8, 5.2) +
   ylim(-0.6, 0.6) +
   coord_equal(ratio = 1)
 ```
@@ -150,12 +150,12 @@ gafa_stock %>%
   * Forecasts: $\hat{y}_{T+h|T} = \bar{y} = (y_1+\dots+y_T)/T$
 
 ```{r mean-method-explained, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.3}
-bricks <- aus_production %>% 
-  filter(!is.na(Bricks)) %>% 
+bricks <- aus_production %>%
+  filter(!is.na(Bricks)) %>%
   mutate(average = mean(Bricks))
 
 fc <- bricks %>%
-  filter(row_number() == n()) %>% 
+  filter(row_number() == n()) %>%
   unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12*5))))
 
 bricks %>%
@@ -174,14 +174,14 @@ bricks %>%
   * Forecasts equal to last observed value.
   * Forecasts: $\hat{y}_{T+h|T} =y_T$.
   * Consequence of efficient market hypothesis.
-  
+
 ```{r naive-method-explained, echo = FALSE, warning = FALSE, fig.height = 3.1}
-bricks %>% 
-  filter(!is.na(Bricks)) %>% 
-  model(NAIVE(Bricks)) %>% 
-  forecast(h = "5 years") %>% 
-  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) + 
-  geom_point(data = slice(bricks, n()), colour = "blue") + 
+bricks %>%
+  filter(!is.na(Bricks)) %>%
+  model(NAIVE(Bricks)) %>%
+  forecast(h = "5 years") %>%
+  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
+  geom_point(data = slice(bricks, n()), colour = "blue") +
   ggtitle("Clay brick production in Australia")
 ```
 
@@ -194,11 +194,11 @@ bricks %>%
   * Forecasts: $\hat{y}_{T+h|T} =y_{T+h-m(k+1)}$, where $m=$ seasonal period and $k$ is the integer part of $(h-1)/m$.
 
 ```{r snaive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.8}
-bricks %>% 
-  model(SNAIVE(Bricks ~ lag("year"))) %>% 
-  forecast(h = "5 years") %>% 
-  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) + 
-  geom_point(data = slice(bricks, (n()-3):n()), colour = "blue") + 
+bricks %>%
+  model(SNAIVE(Bricks ~ lag("year"))) %>%
+  forecast(h = "5 years") %>%
+  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
+  geom_point(data = slice(bricks, (n()-3):n()), colour = "blue") +
   ggtitle("Clay brick production in Australia")
 ```
 
@@ -278,7 +278,7 @@ A `mable` is a model table, each cell corresponds to a fitted model.
 \fontsize{10}{13}\sf
 
 ```{r beer-fc, echo = TRUE, dependson='beer-model'}
-beer_fc <- beer_fit %>% 
+beer_fc <- beer_fit %>%
   forecast(h = 11)
 ```
 
@@ -383,8 +383,8 @@ Logarithms, in particular, are useful because they are more interpretable: chang
 ## Variance stabilization
 
 ```{r food, echo=TRUE}
-food <- aus_retail %>% 
-  filter(Industry == "Food retailing") %>% 
+food <- aus_retail %>%
+  filter(Industry == "Food retailing") %>%
   summarise(Turnover = sum(Turnover))
 ```
 
@@ -483,7 +483,7 @@ food %>% autoplot(box_cox(Turnover, 1/3)) +
 
 
 ```{r food-lambda, echo=TRUE}
-food %>% 
+food %>%
   features(Turnover, features = guerrero)
 ```
 
@@ -598,8 +598,8 @@ fit <- eggs %>% model(RW(log(value) ~ drift()))
 fc <- fit %>% forecast(h=50)
 fc_biased <- fit %>% forecast(h=50, bias_adjust = FALSE)
 eggs %>% autoplot(value) +
-  autolayer(fc_biased, series="Simple back transformation", level = 80) +
-  autolayer(fc, series="Bias adjusted", level = NULL) +
+  autolayer(fc_biased, series="Simple back transformation", level=80) +
+  autolayer(fc, series="Bias adjusted", level=NULL) +
   guides(colour=guide_legend(title="Forecast"))
 ```
 
@@ -610,7 +610,7 @@ eggs %>% autoplot(value) +
  * A forecast $\hat{y}_{T+h|T}$ is (usually) the mean of the conditional distribution $y_{T+h} \mid y_1, \dots, y_{T}$.
  * Most time series models produce normally distributed forecasts.
  * The forecast distribution describes the probability of observing any future value.
- 
+
 ## Forecast distributions
 
 \fontsize{14}{18}\sf
@@ -619,17 +619,17 @@ Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
 
 \begin{block}{}
 \begin{tabular}{ll}
-\bf Mean: & $\hat{y}_{T+h} \sim N(\bar{y}, (1 + 1/T)\hat{\sigma}^2)$\\[0.2cm]
-\bf Naïve: & $\hat{y}_{T+h} \sim N(\bar{y}, h\hat{\sigma}^2)$\\[0.2cm]
-\bf Seasonal naïve: & $\hat{y}_{T+h} \sim N(y_{T+h-m(k+1)}, (k+1)\hat{\sigma}^2)$\\[0.2cm]
-\bf Drift: & $\hat{y}_{T+h} \sim N(y_T + \frac{h}{T-1}(y_T - y_1),h\frac{T+h}{T}\hat{\sigma}^2)$.
+\bf Mean: & $\hat{y}_{T+h|T} \sim N(\bar{y}, (1 + 1/T)\hat{\sigma}^2)$\\[0.2cm]
+\bf Naïve: & $\hat{y}_{T+h|T} \sim N(\bar{y}, h\hat{\sigma}^2)$\\[0.2cm]
+\bf Seasonal naïve: & $\hat{y}_{T+h|T} \sim N(y_{T+h-m(k+1)}, (k+1)\hat{\sigma}^2)$\\[0.2cm]
+\bf Drift: & $\hat{y}_{T+h|T} \sim N(y_T + \frac{h}{T-1}(y_T - y_1),h\frac{T+h}{T}\hat{\sigma}^2)$
 \end{tabular}
 \end{block}
 
 where $k$ is the integer part of $(h-1)/m$.
 
 Note that when $h=1$ and $T$ is large, these all give the same approximate forecast variance: $\hat{\sigma}^2$.
- 
+
 ## Prediction intervals
 
  * A prediction interval gives a region within which we expect $y_{T+h}$ to lie with a specified probability.
@@ -671,7 +671,7 @@ last(fb_stock$Close) + 1.96 * res_sd * c(-1,1)
 ```
 
 ```{r fb-pi-hilo, echo=TRUE}
-forecast(fit, h = 1) %>% 
+forecast(fit, h = 1) %>%
   transmute(interval = hilo(.distribution, level = 95))
 ```
 
