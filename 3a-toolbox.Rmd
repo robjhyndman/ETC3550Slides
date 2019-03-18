@@ -24,7 +24,7 @@ library(lubridate)
 library(tsibbledata)
 source("nicefigs.R")
 
-options(width=45)
+options(width=60)
 ```
 
 # A tidy forecasting workflow
@@ -142,7 +142,6 @@ gafa_stock %>%
 \end{textblock}
 
 ## Some simple forecasting methods
-
 \fontsize{13}{14}\sf
 
 ### `MEAN(y)`: Average method
@@ -168,6 +167,7 @@ bricks %>%
 ```
 
 ## Some simple forecasting methods
+\fontsize{13}{14}\sf
 
 ### `NAIVE(y)`: Naïve method
 
@@ -186,6 +186,7 @@ bricks %>%
 ```
 
 ## Some simple forecasting methods
+\fontsize{13}{14}\sf
 
 ### `SNAIVE(y ~ lag(m))`: Seasonal naïve method
 
@@ -202,6 +203,7 @@ bricks %>%
 ```
 
 ## Some simple forecasting methods
+\fontsize{13}{14}\sf
 
 ### `RW(y ~ drift())`: Drift method
 
@@ -233,8 +235,8 @@ aus_production %>%
 # The workflow in action
 
 ## Data preparation and visualisation
+\fontsize{10}{13}\sf
 
-\small
 
 ```{r beer-plot, fig.height = 3.2}
 # Set training data from 1992 to 2007
@@ -247,7 +249,8 @@ train %>% autoplot(Beer)
 
 The `model()` function trains models to data.
 
-\small
+\fontsize{10}{13}\sf
+
 
 ```{r beer-model}
 # Fit the models
@@ -262,7 +265,7 @@ beer_fit <- train %>%
 
 ## Model estimation
 
-\small
+\fontsize{10}{13}\sf
 
 ```{r beer-mable, echo = TRUE, dependson='beer-model'}
 beer_fit
@@ -272,7 +275,7 @@ A `mable` is a model table, each cell corresponds to a fitted model.
 
 ## Producing forecasts
 
-\small
+\fontsize{10}{13}\sf
 
 ```{r beer-fc, echo = TRUE, dependson='beer-model'}
 beer_fc <- beer_fit %>% 
@@ -476,7 +479,8 @@ food %>% autoplot(box_cox(Turnover, 1/3)) +
 
 ## Box-Cox transformations
 
-\small
+\fontsize{10}{13}\sf
+
 
 ```{r food-lambda, echo=TRUE}
 food %>% 
@@ -503,6 +507,8 @@ $$ y_t = \left\{\begin{array}{ll}
 
 Transformations used in the left of the formula will be automatically back-transformed. To model log-transformed food retailing turnover, you could use:
 
+\fontsize{13}{15}\sf
+
 ```{r food-bt-fit}
 fit <- food %>%
   model(SNAIVE(log(Turnover) ~ lag("year")))
@@ -517,12 +523,16 @@ fit
 fc <- fit %>%
   forecast(h = "3 years")
 ```
-\small
+
+\fontsize{10}{13}\sf
+
+
 ```{r food-bt-fbl, echo = FALSE}
 print(fc, n = 6)
 ```
 
 ## Forecasting with transformations
+\fontsize{12}{13}\sf
 
 ```{r elec9,echo=TRUE,fig.height=4}
 fc %>% autoplot(filter(food,year(Month)>2010))
@@ -580,7 +590,7 @@ f''(x) &= \begin{cases}
 
 ## Bias adjustment
 
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r biasadj, fig.height=3}
 eggs <- as_tsibble(fma::eggs)
@@ -616,8 +626,6 @@ Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
 \end{tabular}
 \end{block}
 
-\small
-
 where $k$ is the integer part of $(h-1)/m$.
 
 Note that when $h=1$ and $T$ is large, these all give the same approximate forecast variance: $\hat{\sigma}^2$.
@@ -637,7 +645,8 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 
 ## Prediction intervals
 
-\small
+\fontsize{10}{13}\sf
+
 
 ```{r, echo = FALSE, cache = FALSE}
 options(width = 50)
