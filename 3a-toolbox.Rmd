@@ -235,43 +235,43 @@ Logarithms, in particular, are useful because they are more interpretable: chang
 
 ## Variance stabilization
 
-```{r food, echo=FALSE, fig.height=4.6}
-food <- aus_retail %>% filter(Industry == "Food retailing") %>% summarise(Turnover = sum(Turnover))
+```{r food, echo=TRUE}
+food <- aus_retail %>% 
+  filter(Industry == "Food retailing") %>% 
+  summarise(Turnover = sum(Turnover))
+```
+
+```{r food-plot, echo = FALSE, fig.height=3.4}
 food %>% autoplot(Turnover) +
-  xlab("Year") + ylab("") +
-  ggtitle("Australian food retailing turnover")
+  labs(y = "Turnover ($AUD)", x = NULL)
 ```
 
 ## Variance stabilization
 
-```{r food-sqrt1, echo=FALSE, fig.height=4.6}
+```{r food-sqrt1, echo=TRUE, fig.height=4}
 food %>% autoplot(sqrt(Turnover)) +
-  xlab("Year") + ylab("") +
-  ggtitle("Square root food retailing turnover")
+  labs(y = "Square root turnover", x = NULL)
 ```
 
 ## Variance stabilization
 
-```{r food-cbrt, echo=FALSE, fig.height=4.6}
-food %>% autoplot(Turnover^(1/3))+
-  xlab("Year") + ylab("") +
-  ggtitle("Cube root food retailing turnover")
+```{r food-cbrt, echo=TRUE, fig.height=4}
+food %>% autoplot(Turnover^(1/3)) +
+  labs(y = "Cube root turnover", x = NULL)
 ```
 
 ## Variance stabilization
 
-```{r food-log, echo=FALSE, fig.height=4.6}
+```{r food-log, echo=TRUE, fig.height=4}
 food %>% autoplot(log(Turnover)) +
-  xlab("Year") + ylab("") +
-  ggtitle("Log food retailing turnover")
+  labs(y = "Log turnover", x = NULL)
 ```
 
 ## Variance stabilization
 
-```{r food-inverse, echo=FALSE, fig.height=4.6}
+```{r food-inverse, echo=TRUE, fig.height=4}
 food %>% autoplot(-1/Turnover) + 
-  xlab("Year") + ylab("") +
-  ggtitle("Inverse food retailing turnover")
+  labs(y = "Inverse turnover", x = NULL)
 ```
 
 ## Box-Cox transformations
@@ -315,7 +315,8 @@ for(i in seq_along(lambda))
 ## Box-Cox transformations
 
 ```{r food-bc, echo=TRUE,fig.height=4}
-food %>% autoplot(box_cox(Turnover,lambda=1/3))
+food %>% autoplot(box_cox(Turnover, 1/3)) + 
+  labs(y = "Box-Cox transformed turnover", x = NULL)
 ```
 
 ## Box-Cox transformations
@@ -332,7 +333,8 @@ food %>% autoplot(box_cox(Turnover,lambda=1/3))
 ## Box-Cox transformations
 
 ```{r food-lambda, echo=TRUE}
-food %>% features(Turnover, features = guerrero)
+food %>% 
+  features(Turnover, features = guerrero)
 ```
 \pause
 
@@ -362,7 +364,7 @@ fc %>% autoplot(food)
 ## Back-transformation
 
 ```{r elec9,echo=TRUE,fig.height=4}
-fc %>% autoplot(filter(food, year(Month) > 2010))
+fc %>% autoplot(filter(food,year(Month)>2010))
 ```
 
 ## Your turn
