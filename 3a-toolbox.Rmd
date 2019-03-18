@@ -448,18 +448,19 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 
 ## Prediction intervals
 
-\small
-
-**Naive forecast with prediction interval:**
+\footnotesize
+```{r, echo = FALSE}
+options(width = 80)
+```
 
 ```{r googpi, echo=TRUE}
 fit <- fb_stock %>% model(NAIVE(Close))
-res_sd <- sd(augment(fit)$.resid, na.rm = TRUE)
+res_sd <- sqrt(mean(augment(fit)$.resid^2, na.rm = TRUE))
 last(fb_stock$Close) + 1.96 * res_sd * c(-1,1)
 ```
 
 ```{r googforecasts, echo=TRUE}
-forecast(fit, h = 1) %>% 
+forecast(fit, h = 1) %>% select(-.model, -Symbol) %>% 
   mutate(interval = hilo(.distribution, 95))
 ```
 
