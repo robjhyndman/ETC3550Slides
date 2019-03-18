@@ -107,20 +107,56 @@ gafa_stock %>%
   * Forecast of all future values is equal to mean of historical data $\{y_1,\dots,y_T\}$.
   * Forecasts: $\hat{y}_{T+h|T} = \bar{y} = (y_1+\dots+y_T)/T$
 
-\pause
+```{r mean-method-explained, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.3}
+bricks <- aus_production %>% 
+  filter(!is.na(Bricks)) %>% 
+  mutate(average = mean(Bricks))
+
+fc <- bricks %>%
+  filter(row_number() == n()) %>% 
+  unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12*5))))
+
+bricks %>%
+  ggplot(aes(x = Quarter, y = Bricks)) +
+  geom_line() +
+  geom_line(aes(y = average), colour = "blue", linetype = "dashed") +
+  geom_line(aes(y = average), data = fc, colour = "blue") +
+  ggtitle("Clay brick production in Australia")
+```
+
+## Some simple forecasting methods
 
 ### Naïve method
 
   * Forecasts equal to last observed value.
   * Forecasts: $\hat{y}_{T+h|T} =y_T$.
   * Consequence of efficient market hypothesis.
+  
+```{r naive-method-explained, echo = FALSE, warning = FALSE, fig.height = 3.1}
+bricks %>% 
+  filter(!is.na(Bricks)) %>% 
+  model(NAIVE(Bricks)) %>% 
+  forecast(h = "5 years") %>% 
+  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) + 
+  geom_point(data = slice(bricks, n()), colour = "blue") + 
+  ggtitle("Clay brick production in Australia")
+```
 
-\pause
+## Some simple forecasting methods
 
 ### Seasonal naïve method
 
   * Forecasts equal to last value from same season.
   * Forecasts: $\hat{y}_{T+h|T} =y_{T+h-m(k+1)}$, where $m=$ seasonal period and $k$ is the integer part of $(h-1)/m$.
+
+```{r snaive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.8}
+bricks %>% 
+  model(SNAIVE(Bricks ~ lag("year"))) %>% 
+  forecast(h = "5 years") %>% 
+  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) + 
+  geom_point(data = slice(bricks, (n()-4):n()), colour = "blue") + 
+  ggtitle("Clay brick production in Australia")
+```
 
 ## Some simple forecasting methods
 
@@ -135,6 +171,21 @@ gafa_stock %>%
  \end{align*}\vspace*{-0.2cm}
 
    * Equivalent to extrapolating a line drawn between first and last observations.
+
+## Some simple forecasting methods
+
+### Drift method
+
+```{r drift-method-explained, echo = FALSE, warning = FALSE}
+aus_production %>%
+  filter(!is.na(Bricks)) %>%
+  model(RW(Bricks ~ drift())) %>%
+  forecast(h = "5 years") %>%
+  autoplot(aus_production, level = NULL) +
+  geom_line(data = slice(aus_production, range(cumsum(!is.na(Bricks)))),
+            linetype = "dashed", colour = "blue") +
+  ggtitle("Clay brick production in Australia")
+```
 
 ## Some simple forecasting methods
 
