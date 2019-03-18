@@ -233,7 +233,10 @@ aus_production %>%
 # The workflow in action
 
 ## Data preparation and visualisation
-```{r beer-plot}
+
+\small
+
+```{r beer-plot, fig.height = 3.2}
 # Set training data from 1992 to 2007
 train <- aus_production %>%
   filter(between(year(Quarter), 1992, 2007))
