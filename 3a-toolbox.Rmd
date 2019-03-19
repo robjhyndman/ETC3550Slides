@@ -8,7 +8,6 @@ output:
   binb::monash:
     fig_width: 7
     fig_height: 3.5
-    keep_tex: yes
     includes:
       in_header: header.tex
 ---
