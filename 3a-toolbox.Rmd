@@ -620,7 +620,7 @@ Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
 \begin{block}{}
 \begin{tabular}{ll}
 \bf Mean: & $\hat{y}_{T+h|T} \sim N(\bar{y}, (1 + 1/T)\hat{\sigma}^2)$\\[0.2cm]
-\bf Naïve: & $\hat{y}_{T+h|T} \sim N(\bar{y}, h\hat{\sigma}^2)$\\[0.2cm]
+\bf Naïve: & $\hat{y}_{T+h|T} \sim N(y_T, h\hat{\sigma}^2)$\\[0.2cm]
 \bf Seasonal naïve: & $\hat{y}_{T+h|T} \sim N(y_{T+h-m(k+1)}, (k+1)\hat{\sigma}^2)$\\[0.2cm]
 \bf Drift: & $\hat{y}_{T+h|T} \sim N(y_T + \frac{h}{T-1}(y_T - y_1),h\frac{T+h}{T}\hat{\sigma}^2)$
 \end{tabular}
