@@ -26,13 +26,6 @@ source("nicefigs.R")
 options(width=45)
 ```
 
-<!-- TODO: Restructure -->
-<!-- 3b: Evaluation -->
-<!-- 1. Diagnostic tools (plots, tests) -->
-<!-- 2. Accuracy measures -->
-<!-- 3. Out-of-sample accuracy -->
-<!-- 4. Cross-validation -->
-
 # Residual diagnostics
 
 ## Fitted values
