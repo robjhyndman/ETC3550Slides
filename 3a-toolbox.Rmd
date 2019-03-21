@@ -306,11 +306,11 @@ beer_fc %>%
 ```{r fbf, eval=FALSE}
 # Extract training data
 fb_stock <- gafa_stock %>%
+  group_by(Symbol) %>% 
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
   filter(Symbol == "FB",
          between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
-
 # Specify, estimate and forecast
 fb_stock %>%
   model(
