@@ -437,26 +437,20 @@ $$\pause
 
 ## Box-Cox transformations
 
-```{r food-anim, cache=TRUE, echo=FALSE}
+```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, out.width='11.5cm'}
+library(rlang)
+library(gganimate)
 library(latex2exp)
-lambda <- seq(1, -1, by=-0.01)
-for(i in seq_along(lambda))
-{
-  savepdf(paste("elecBC",i,sep=""))
-  print(autoplot(food, box_cox(Turnover,lambda[i])) + xlab("Year") +
-    ylab("") +
-    ggtitle(
-      TeX(paste("Transformed Australian food retailing turnover:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
-    ) +
-    scale_y_continuous(breaks=NULL,minor_breaks=NULL) +
-    theme(axis.title.y=element_blank(),
-          axis.text.y=element_blank(),
-          axis.ticks.y=element_blank()))
-  endpdf()
-}
+food %>% 
+  mutate(!!!set_names(map(seq(0,1,0.01), ~ expr(fablelite::box_cox(Turnover, !!.x))), seq(0,1,0.01))) %>% 
+  gather(lambda, Turnover) %>% 
+  mutate(lambda = as.numeric(lambda)) %>% 
+  ggplot(aes(x = Month, y = Turnover)) + 
+  geom_line() + 
+  transition_states(1 - lambda, state_length = 0) + 
+  view_follow() + 
+  ggtitle("Box-Cox transformed food retailing turnover (lambda = {format(1 - as.numeric(closest_state), digits = 2)})")
 ```
-
-\centerline{\animategraphics[controls,buttonsize=0.3cm,width=12.2cm]{4}{elecBC}{1}{201}}
 
 ## Box-Cox transformations
 \fontsize{13}{14}\sf
