@@ -306,7 +306,7 @@ beer_fc %>%
 ```{r fbf, eval=FALSE}
 # Extract training data
 fb_stock <- gafa_stock %>%
-  group_by(Symbol) %>% 
+  group_by(Symbol) %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
   filter(Symbol == "FB",
@@ -437,18 +437,18 @@ $$\pause
 
 ## Box-Cox transformations
 
-```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, out.width='11.5cm'}
+```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
 library(rlang)
 library(gganimate)
 library(latex2exp)
-food %>% 
-  mutate(!!!set_names(map(seq(0,1,0.01), ~ expr(fablelite::box_cox(Turnover, !!.x))), seq(0,1,0.01))) %>% 
-  gather(lambda, Turnover) %>% 
-  mutate(lambda = as.numeric(lambda)) %>% 
-  ggplot(aes(x = Month, y = Turnover)) + 
-  geom_line() + 
-  transition_states(1 - lambda, state_length = 0) + 
-  view_follow() + 
+food %>%
+  mutate(!!!set_names(map(seq(0,1,0.01), ~ expr(fablelite::box_cox(Turnover, !!.x))), seq(0,1,0.01))) %>%
+  gather(lambda, Turnover) %>%
+  mutate(lambda = as.numeric(lambda)) %>%
+  ggplot(aes(x = Month, y = Turnover)) +
+  geom_line() +
+  transition_states(1 - lambda, state_length = 0) +
+  view_follow() +
   ggtitle("Box-Cox transformed food retailing turnover (lambda = {format(1 - as.numeric(closest_state), digits = 2)})")
 ```
 
