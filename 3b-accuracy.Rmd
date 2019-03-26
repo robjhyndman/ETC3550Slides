@@ -200,14 +200,14 @@ augment(fit) %>%
 
 ## Your turn
 
-Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
 
+Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
 
 \fontsize{10}{12}\sf
 
-```r
-recent <- aus_production %>% filter(year(Time) >= 1992)
-fit <- recent %>% model(snaive(Beer))
+```{r, results = 'hide', fig.show='hide'}
+recent <- aus_production %>% filter(year(Quarter) >= 1992)
+fit <- recent %>% model(SNAIVE(Beer))
 fit %>% forecast() %>% autoplot(recent)
 ```
 
@@ -215,10 +215,9 @@ fit %>% forecast() %>% autoplot(recent)
 
 Test if the residuals are white noise.
 
-
 \fontsize{10}{12}\sf
 
-```r
+```{r, results = 'hide', fig.show='hide', warning = FALSE}
 Box.test(augment(fit)$.resid, lag=10, fitdf=0, type="Lj")
 augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
 ```
