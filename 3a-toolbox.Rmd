@@ -306,11 +306,11 @@ beer_fc %>%
 ```{r fbf, eval=FALSE}
 # Extract training data
 fb_stock <- gafa_stock %>%
+  group_by(Symbol) %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
   filter(Symbol == "FB",
          between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
-
 # Specify, estimate and forecast
 fb_stock %>%
   model(
@@ -437,26 +437,20 @@ $$\pause
 
 ## Box-Cox transformations
 
-```{r food-anim, cache=TRUE, echo=FALSE}
+```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+library(rlang)
+library(gganimate)
 library(latex2exp)
-lambda <- seq(1, -1, by=-0.01)
-for(i in seq_along(lambda))
-{
-  savepdf(paste("elecBC",i,sep=""))
-  print(autoplot(food, box_cox(Turnover,lambda[i])) + xlab("Year") +
-    ylab("") +
-    ggtitle(
-      TeX(paste("Transformed Australian food retailing turnover:  $\\lambda =",format(lambda[i],digits=2,nsmall=2),"$"))
-    ) +
-    scale_y_continuous(breaks=NULL,minor_breaks=NULL) +
-    theme(axis.title.y=element_blank(),
-          axis.text.y=element_blank(),
-          axis.ticks.y=element_blank()))
-  endpdf()
-}
+food %>%
+  mutate(!!!set_names(map(seq(0,1,0.01), ~ expr(fablelite::box_cox(Turnover, !!.x))), seq(0,1,0.01))) %>%
+  gather(lambda, Turnover) %>%
+  mutate(lambda = as.numeric(lambda)) %>%
+  ggplot(aes(x = Month, y = Turnover)) +
+  geom_line() +
+  transition_states(1 - lambda, state_length = 0) +
+  view_follow() +
+  ggtitle("Box-Cox transformed food retailing turnover (lambda = {format(1 - as.numeric(closest_state), digits = 2)})")
 ```
-
-\centerline{\animategraphics[controls,buttonsize=0.3cm,width=12.2cm]{4}{elecBC}{1}{201}}
 
 ## Box-Cox transformations
 \fontsize{13}{14}\sf
@@ -620,7 +614,7 @@ Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
 \begin{block}{}
 \begin{tabular}{ll}
 \bf Mean: & $\hat{y}_{T+h|T} \sim N(\bar{y}, (1 + 1/T)\hat{\sigma}^2)$\\[0.2cm]
-\bf Naïve: & $\hat{y}_{T+h|T} \sim N(\bar{y}, h\hat{\sigma}^2)$\\[0.2cm]
+\bf Naïve: & $\hat{y}_{T+h|T} \sim N(y_T, h\hat{\sigma}^2)$\\[0.2cm]
 \bf Seasonal naïve: & $\hat{y}_{T+h|T} \sim N(y_{T+h-m(k+1)}, (k+1)\hat{\sigma}^2)$\\[0.2cm]
 \bf Drift: & $\hat{y}_{T+h|T} \sim N(y_T + \frac{h}{T-1}(y_T - y_1),h\frac{T+h}{T}\hat{\sigma}^2)$
 \end{tabular}
