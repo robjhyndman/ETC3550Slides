@@ -13,7 +13,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 library(dplyr)
 library(ggplot2)
 library(fable)
@@ -22,7 +22,7 @@ ausbeer <- as_tsibble(fpp2::ausbeer) %>%
 austa <- as_tsibble(fpp2::austa) %>%
   rename(Year = index, Visitors = value)
 melsyd <- tsibbledata::ansett %>%
-  filter(Airports=="MEL-SYD")
+  filter(Airports == "MEL-SYD")
 ```
 
 # Assignment 1
@@ -169,7 +169,10 @@ ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(ausbeer)
 ## Australian beer production
 
 ```{r, echo=FALSE}
-ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(tail(ausbeer, 60))
+ausbeer %>%
+  model(ETS(Production)) %>%
+  forecast() %>%
+  autoplot(tail(ausbeer, 60))
 ```
 
 # Some case studies
@@ -279,7 +282,7 @@ melsyd %>%
   labs(
     title = "Economy class passengers",
     subtitle = "Melbourne-Sydney",
-    xlab="Year"
+    xlab = "Year"
   ) +
   ylab("Thousands")
 ```
@@ -329,22 +332,24 @@ fit <- austa %>% model(ETS())
 
 ```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
 sim <- fit %>% imitate(h = 10, times = 10) %>%
-  mutate(replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10)))
+  mutate(
+    replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10))
+  )
 ggplot(austa, aes(x = Year)) +
   geom_line(aes(y = Visitors, colour = "Data")) +
   geom_line(aes(y = .sim, colour = replicate), data = sim) +
   ylab("Millions of visitors") + xlab("Year") +
   ggtitle("Total international visitors to Australia") +
-  scale_colour_manual(values=c('#000000',rainbow(10)),
-                      breaks=c("Data",paste("Future",1:10)),
-                      name=" ")
+  scale_colour_manual(values = c("#000000", rainbow(10)),
+                      breaks = c("Data", paste("Future", 1:10)),
+                      name = " ")
 ```
 
 ## Forecast intervals
 
 ```{r austa2, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=8.6, fig.height=6}
 fit %>%
-  forecast(h=10) %>%
+  forecast(h = 10) %>%
   autoplot(austa) +
   ylab("Millions of visitors") + xlab("Year") +
   ggtitle("Forecasts of total international visitors to Australia")
