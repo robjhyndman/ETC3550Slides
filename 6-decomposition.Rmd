@@ -1,6 +1,6 @@
 ---
 title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
-author: "Ch6. Time series decomposition"
+author: "Ch7. Time series decomposition"
 date: "OTexts.org/fpp3/"
 toc: true
 colortheme: monashwhite
@@ -23,7 +23,7 @@ library(lubridate)
 
 elecequip <- as_tsibble(fpp2::elecequip)
 
-options(width=60)
+options(width=65)
 ```
 
 # Time series components
@@ -71,45 +71,52 @@ $$y_t = S_t \times T_t \times E_t \quad\Rightarrow\quad
 \log y_t = \log S_t + \log T_t + \log R_t.
 $$
 
+## Decomposition dable
+
+\fontsize{10}{11}\sf
+
+```{r dable}
+dcmp <- elecequip %>% STL(value ~ season(window = 7))
+dcmp
+```
+
 ## Euro electrical equipment
 
 \fontsize{11}{14}\sf
 
-```{r elecequip-stl, fig.width=8, fig.height=4.3}
-dcmp <- elecequip %>% STL(value ~ season(window = 7))
+```{r elecequip-stl, fig.width=8, fig.height=5}
 autoplot(dcmp) + xlab("Year")
 ```
 
 ## Euro electrical equipment
 
 ```{r elecequip3}
-dcmp %>% ggsubseriesplot(season_year)
+dcmp %>% gg_subseries(season_year)
 ```
 
 ## Euro electrical equipment
 
-\fontsize{11}{13}\sf
+\fontsize{10}{13}\sf
 
-```{r elecequip-trend}
+```{r elecequip-trend, message=FALSE, warning=FALSE}
 autoplot(elecequip, series="Data") +
-  autolayer(dcmp, trend + remainder, series="Trend-cycle")
+  autolayer(dcmp, trend, series="Trend-cycle")
 ```
 
-## Helper functions
-  * `seasonal()` extracts the seasonal component
-  * `trendcycle()` extracts the trend-cycle component
-  * `remainder()` extracts the remainder component.
-  * `seasadj()` returns the seasonally adjusted series.
 
 ## Your turn
 
 Repeat the decomposition using
+
+\fontsize{11}{14}\sf
 
 ```r
 elecequip %>%
   STL(value ~ season(window=7) + trend(window=11)) %>%
   autoplot()
 ```
+
+\fontsize{14}{15}\sf
 
 What happens as you change `s.window` and `t.window`?
 
@@ -125,21 +132,22 @@ $$y_t / S_t = T_t \times R_t$$
 
 ## Euro electrical equipment
 
-\fontsize{11}{15}\sf
+\fontsize{11}{12}\sf
 
 ```r
 dcmp <- elecequip %>% STL(value ~ season(window=7))
-elecequip %>% autoplot(value, series="Data") +
-  autolayer(dcmp, trend + remainder, series="Seasonally Adjusted")
+elecequip %>% 
+  autoplot(value, series="Data") +
+    autolayer(dcmp, trend + remainder, 
+      series="Seasonally Adjusted")
 ```
 
 ```{r elecequip-sa, echo=FALSE}
-elecequip %>% autoplot(value) +
+elecequip %>% autoplot(value, series="Data") +
   autolayer(dcmp, seas_adjust, series="Seasonally Adjusted") +
   xlab("Year") + ylab("New orders index") +
   ggtitle("Electrical equipment manufacturing (Euro area)") +
-  scale_colour_manual(values=c("gray","blue"),
-                     breaks=c("Data","Seasonally Adjusted"))
+  scale_colour_manual(breaks = c("Seasonally adjusted", "Data"), values=c("blue","grey"))
 ```
 
 ## Seasonal adjustment
@@ -229,7 +237,7 @@ x %>%
 ```{r}
 x %>% 
   filter(year(Time) >= 2005) %>% 
-  ggseasonplot(Employed, year.labels=TRUE) +
+  gg_season(Employed, label='right') +
   ggtitle("Total employed") + ylab("Thousands")
 ```
 
@@ -264,7 +272,7 @@ autoplot(dcmp)
 ```{r, echo=FALSE}
 dcmp %>% 
   filter(year(Time) == 2013) %>% 
-  ggseasonplot(season_year) +
+  gg_season(season_year) +
   ggtitle("Seasonal component") +
   guides(colour="none")
 ```
@@ -307,18 +315,11 @@ dcmp %>% as_tsibble %>%
 
 ## X-11 decomposition
 
-\fontsize{11}{14}\sf
+\fontsize{10}{12}\sf
 
-```r
-library(seasonal)
-fit <- seas(elecequip, x11="")
-autoplot(fit)
-```
-
-```{r x11, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4, eval = FALSE}
-library(seasonal)
-fit <- seas(elecequip, x11="")
-autoplot(fit) +
+```{r x11, warning=FALSE, fig.width=8, fig.height=4.5}
+elecequip %>% X11(value, type="multiplicative") %>%
+  autoplot() +
   ggtitle("X11 decomposition of electrical equipment index")
 ```
 
@@ -351,27 +352,21 @@ autoplot(fit) +
 
 ## SEATS decomposition
 
-\fontsize{11}{14}\sf
+\fontsize{10}{12}\sf
 
-```r
-library(seasonal)
-fit <- seas(elecequip)
-autoplot(fit)
-```
-
-```{r seats, echo=FALSE, warning=FALSE, fig.width=8, fig.height=4, eval = FALSE}
-library(seasonal)
-fit <- seas(elecequip)
-autoplot(fit) +
+```{r seats, warning=FALSE, fig.width=8, fig.height=4.5}
+elecequip %>% SEATS(value) %>%
+  autoplot() +
   ggtitle("SEATS decomposition of electrical equipment index")
 ```
 
 ## SEATS decomposition
 
-```{r seats-seasadj, echo=FALSE, warning=FALSE, eval = FALSE}
-autoplot(elecequip, series="Data") +
-  autolayer(trendcycle(fit), series="Trend") +
-  autolayer(seasadj(fit), series="Seasonally Adjusted") +
+```{r seats-seasadj, echo=FALSE, warning=FALSE, fig.width=9, fig.height=5.5}
+fit <- elecequip %>% SEATS(value)
+autoplot(elecequip, value, series="Data") +
+  autolayer(fit, trend, series="Trend") +
+  autolayer(fit, seas_adjust, series="Seasonally Adjusted") +
   xlab("Year") + ylab("New orders index") +
   ggtitle("Electrical equipment manufacturing (Euro area)") +
   scale_colour_manual(values=c("gray","blue","red"),
@@ -382,8 +377,9 @@ autoplot(elecequip, series="Data") +
 
 \fontsize{11}{14}\sf
 
-```{r elecequip-seats, echo=TRUE, eval = FALSE}
-ggsubseriesplot(seasonal(fit)) + ylab("Seasonal")
+```{r elecequip-seats, echo=TRUE}
+fit %>% 
+  gg_subseries(seasonal) + ylab("Seasonal")
 ```
 
 ## (Dis)advantages of SEATS
@@ -442,12 +438,18 @@ autoplot(fit) +
 
 ## STL decomposition
 
-```r
-elecequip %>% STL(value ~ season(window = 5))
+\fontsize{10}{14}\sf
 
-elecequip %>% STL(value ~ trend(window = 15) + season(window = "periodic"),
-                  robust = TRUE)
+```r
+elecequip %>% 
+  STL(value ~ season(window = 5))
+
+elecequip %>% 
+  STL(value ~ trend(window=15) + season(window="periodic"),
+      robust = TRUE)
 ```
+
+\fontsize{14}{16}\sf
 
   *  `trend(window = ?)` controls wiggliness of trend component.
   *  `season(window = ?)` controls variation on seasonal component.
@@ -473,29 +475,33 @@ elecequip %>% STL(value) %>% autoplot()
 
 ## Electrical equipment
 
-\fontsize{11}{14}\sf
+\fontsize{10}{11}\sf
 
-```{r elecequip4, echo=TRUE}
-dcmp <- elecequip %>% STL(value ~ trend(window = 13) + season(window = "periodic"))
+```{r elecequip4, echo=TRUE, fig.height=3.2}
+dcmp <- elecequip %>% 
+  STL(value ~ trend(window=13) + season(window="periodic"))
 dcmp %>% 
-  model(NAIVE(seas_adjust)) %>%
-  forecast() %>% 
+  model(NAIVE(seas_adjust)) %>% forecast() %>% 
   autoplot(dcmp) + ylab("New orders index") +
   ggtitle("ETS forecasts of seasonally adjusted data")
 ```
 
+\vspace*{10cm}
+
 ## Electrical equipment
 
-\fontsize{10}{14}\sf
+\fontsize{10}{11}\sf
 
-```{r elecequip5, echo=TRUE}
-dcmp_def <- dcmp_model(STL, value ~ trend(window = 13) + season(window = "periodic"),
-                       NAIVE(seas_adjust))
+```{r elecequip5, echo=TRUE, fig.height=3.2}
+dcmp_def <- dcmp_model(STL, 
+  value ~ trend(window = 13) + season(window = "periodic"),
+  NAIVE(seas_adjust))
 elecequip %>%
-  model(STLM = dcmp_def) %>% 
-  forecast() %>%
+  model(STLM = dcmp_def) %>% forecast() %>%
   autoplot(elecequip) + ylab("New orders index") + xlab("Year")
 ```
+
+\vspace*{10cm}
 
 ## Decomposition and prediction intervals
 
