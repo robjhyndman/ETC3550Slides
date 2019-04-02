@@ -117,8 +117,8 @@ elecequip %>%
 ```
 
 \fontsize{14}{15}\sf
+What happens as you change `season(window = ???)` and `trend(window = ???)`?
 
-What happens as you change `s.window` and `t.window`?
 
 # Seasonal adjustment
 
