@@ -431,7 +431,8 @@ autoplot(dcmp) +
 \fontsize{10}{14}\sf
 
 ```{r stlagain2, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-fit <- stl(elecequip, s.window="periodic", robust=TRUE)
+fit <- elecequip %>% 
+  STL(value ~ season(window="periodic"), robust=TRUE)
 autoplot(fit) +
   ggtitle("STL decomposition of electrical equipment index")
 ```
@@ -440,7 +441,7 @@ autoplot(fit) +
 
 \fontsize{10}{14}\sf
 
-```r
+```{r echo = TRUE, results = 'hide'}
 elecequip %>% 
   STL(value ~ season(window = 5))
 
@@ -461,7 +462,7 @@ elecequip %>%
 elecequip %>% STL(value) %>% autoplot()
 ```
 
-* `STL()` chooses `s.window=13` by default
+* `STL()` chooses `season(window=13)` by default
 * Can include transformations.
 
 # Forecasting and decomposition
