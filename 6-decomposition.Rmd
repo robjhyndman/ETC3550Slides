@@ -247,7 +247,7 @@ x %>%
 x %>% 
   mutate(Month = month(Time, label = TRUE), Year = year(Time)) %>% 
   filter(Month %in% c("Aug", "Sep")) %>% 
-  update_tsibble(key = id(Month), index = Year) %>% 
+  update_tsibble(key = Month, index = Year) %>% 
   select(-Time) %>% 
   spread(Month, Employed) %>% 
   ggplot() +
