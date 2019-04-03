@@ -306,10 +306,10 @@ dcmp %>% as_tsibble %>%
 
 ### National Statistics Offices
  * ABS uses X-12-ARIMA
- * US Census Bureau uses X-13-ARIMA-SEATS
+ * US Census Bureau uses X-13ARIMA-SEATS
  * Statistics Canada uses X-12-ARIMA
  * ONS (UK) uses X-12-ARIMA
- * EuroStat use X-13-ARIMA-SEATS
+ * EuroStat use X-13ARIMA-SEATS
 
 # X-11 decomposition
 
@@ -348,19 +348,19 @@ elecequip %>% X11(value, type="multiplicative") %>%
   *  Missing values estimated and replaced.
   *  Holiday factors (e.g., Easter, Labour Day) can be estimated.
 
-# SEATS decomposition
+# X-13ARIMA-SEATS decomposition
 
-## SEATS decomposition
+## X-13ARIMA-SEATS decomposition
 
 \fontsize{10}{12}\sf
 
 ```{r seats, warning=FALSE, fig.width=8, fig.height=4.5}
 elecequip %>% SEATS(value) %>%
   autoplot() +
-  ggtitle("SEATS decomposition of electrical equipment index")
+  ggtitle("X-13ARIMA-SEATS decomposition of electrical equipment index")
 ```
 
-## SEATS decomposition
+## X-13ARIMA-SEATS decomposition
 
 ```{r seats-seasadj, echo=FALSE, warning=FALSE, fig.width=9, fig.height=5.5}
 fit <- elecequip %>% SEATS(value)
@@ -373,7 +373,7 @@ autoplot(elecequip, value, series="Data") +
                      breaks=c("Data","Seasonally Adjusted","Trend"))
 ```
 
-## SEATS decomposition
+## X-13ARIMA-SEATS decomposition
 
 \fontsize{11}{14}\sf
 
@@ -382,7 +382,7 @@ fit %>%
   gg_subseries(seasonal) + ylab("Seasonal")
 ```
 
-## (Dis)advantages of SEATS
+## (Dis)advantages of X-13ARIMA-SEATS
 
 **Advantages**
 
