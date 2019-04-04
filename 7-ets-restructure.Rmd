@@ -20,6 +20,7 @@ library(fable)
 library(tsibble)
 library(feasts)
 library(lubridate)
+library(tsibbledata)
 
 oil <- as_tsibble(fpp2::oil) %>% 
   rename(Year = index, Production = value)
@@ -199,6 +200,73 @@ j07 %>%
   ylab("Cost of scripts ($AUD)") +
   ggtitle("Medicare Australia cost of vaccine scripts: seasonality")
 ```
+
+## Big idea: control the rate of change (smoothing)
+
+$\alpha$ controls the flexibility of the **level** 
+
+* If $\alpha = 0$, the level never updates (mean)
+* If $\alpha = 1$, the level updates completely (naive)
+
+$\beta$ controls the flexibility of the **trend**
+
+* If $\beta = 0$, the trend is linear (regression trend)
+* If $\beta = 1$, the trend updates every observation
+
+$\gamma$ controls the flexibility of the **seasonality**
+
+* If $\gamma = 0$, the seasonality is fixed (seasonal means)
+* If $\gamma = 1$, the seasonality updates completely (seasonal naive)
+
+## Optimising smoothing parameters
+
+  * Need to choose best values for the smoothing parameters (and initial states).
+  * Similarly to regression, choose optimal parameters by minimising SSE:
+$$
+  \text{SSE}=\sum_{t=1}^T(y_t - \pred{y}{t}{t-1})^2.
+$$
+  * Unlike regression there is no closed form solution --- use numerical optimization.
+
+## A model for levels, trends, and seasonalities
+
+We want a model that captures the level ($\ell_t$), trend ($b_t$) and seasonality ($s_t$).
+
+How do we combine these elements?
+
+\pause
+
+### Additively?
+
+$y_t = \ell_{t-1} + b_{t-1} + s_{t-m} + \varepsilon_t$
+
+\pause
+
+### Multiplicatively?
+
+$y_t = \ell_{t-1}b_{t-1}s_{t-m}(1 + \varepsilon_t)$
+
+\pause
+
+### Perhaps a mix of both?
+
+$y_t = (\ell_{t-1} + b_{t-1}) s_{t-m} + \varepsilon_t$
+
+## Exponential smoothing
+
+\begin{tabular}{l@{}p{2.3cm}@{}c@{}l}
+\structure{General n\rlap{otation}}
+    &       & ~E T S~  & ~:\hspace*{0.3cm}\textbf{E}xponen\textbf{T}ial \textbf{S}moothing               \\ [-0.2cm]
+    & \hfill{$\nearrow$\hspace*{-0.1cm}}        & {$\uparrow$} & {\hspace*{-0.2cm}$\nwarrow$} \\
+    & \hfill{\textbf{E}rror\hspace*{0.2cm}} & {\textbf{T}rend}      & {\hspace*{0.2cm}\textbf{S}eason}
+\end{tabular}
+
+**E**rror: Additive (`"A"`) or multiplicative (`"M"`)
+\pause
+
+**T**rend: None (`"N"`), additive (`"A"`), multiplicative (`"M"`), or damped (`"Ad"` or `"Md"`).
+\pause
+
+**S**easonality: None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
 
 ## Simple Exponential Smoothing
 
