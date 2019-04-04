@@ -136,9 +136,9 @@ $$y_t / S_t = T_t \times R_t$$
 
 ```r
 dcmp <- elecequip %>% STL(value ~ season(window=7))
-elecequip %>% 
+elecequip %>%
   autoplot(value, series="Data") +
-    autolayer(dcmp, trend + remainder, 
+    autolayer(dcmp, trend + remainder,
       series="Seasonally Adjusted")
 ```
 
@@ -223,8 +223,8 @@ x %>% autoplot(Employed) +
 ## The ABS stuff-up
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
-x %>% 
-  filter(year(Time) >= 2005) %>% 
+x %>%
+  filter(year(Time) >= 2005) %>%
   autoplot(Employed) +
   ggtitle("Total employed") +
   ylab("Thousands") + xlab("Year")
@@ -235,8 +235,8 @@ x %>%
 \fontsize{10}{14}\sf
 
 ```{r}
-x %>% 
-  filter(year(Time) >= 2005) %>% 
+x %>%
+  filter(year(Time) >= 2005) %>%
   gg_season(Employed, label='right') +
   ggtitle("Total employed") + ylab("Thousands")
 ```
@@ -244,12 +244,12 @@ x %>%
 ## The ABS stuff-up
 
 ```{r, fig.height=2, echo=FALSE}
-x %>% 
-  mutate(Month = month(Time, label = TRUE), Year = year(Time)) %>% 
-  filter(Month %in% c("Aug", "Sep")) %>% 
-  update_tsibble(key = Month, index = Year) %>% 
-  select(-Time) %>% 
-  spread(Month, Employed) %>% 
+x %>%
+  mutate(Month = month(Time, label = TRUE), Year = year(Time)) %>%
+  filter(Month %in% c("Aug", "Sep")) %>%
+  update_tsibble(key = Month, index = Year) %>%
+  select(-Time) %>%
+  spread(Month, Employed) %>%
   ggplot() +
   geom_boxplot(aes(y= Sep - Aug, x = 1)) + coord_flip() +
   ggtitle("Sep - Aug: total employed") + xlab("") + ylab("Thousands") +
@@ -261,7 +261,7 @@ x %>%
 \fontsize{11}{11}\sf
 
 ```{r, fig.height=3.5}
-dcmp <- x %>% 
+dcmp <- x %>%
   filter(year(Time) >= 2009) %>%
   STL(Employed ~ season(window = 11), robust = TRUE)
 autoplot(dcmp)
@@ -270,8 +270,8 @@ autoplot(dcmp)
 ## The ABS stuff-up
 
 ```{r, echo=FALSE}
-dcmp %>% 
-  filter(year(Time) == 2013) %>% 
+dcmp %>%
+  filter(year(Time) == 2013) %>%
   gg_season(season_year) +
   ggtitle("Seasonal component") +
   guides(colour="none")
@@ -280,7 +280,7 @@ dcmp %>%
 ## The ABS stuff-up
 
 ```{r}
-dcmp %>% as_tsibble %>% 
+dcmp %>% as_tsibble %>%
   autoplot(trend + remainder)
 ```
 
@@ -378,7 +378,7 @@ autoplot(elecequip, value, series="Data") +
 \fontsize{11}{14}\sf
 
 ```{r elecequip-seats, echo=TRUE}
-fit %>% 
+fit %>%
   gg_subseries(seasonal) + ylab("Seasonal")
 ```
 
@@ -420,7 +420,7 @@ fit %>%
 \fontsize{10}{14}\sf
 
 ```{r stlagain, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- elecequip %>% 
+dcmp <- elecequip %>%
   STL(value ~ season(window = 5), robust = TRUE)
 autoplot(dcmp) +
   ggtitle("STL decomposition of electrical equipment index")
@@ -431,7 +431,7 @@ autoplot(dcmp) +
 \fontsize{10}{14}\sf
 
 ```{r stlagain2, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-fit <- elecequip %>% 
+fit <- elecequip %>%
   STL(value ~ season(window="periodic"), robust=TRUE)
 autoplot(fit) +
   ggtitle("STL decomposition of electrical equipment index")
@@ -442,10 +442,10 @@ autoplot(fit) +
 \fontsize{10}{14}\sf
 
 ```{r echo = TRUE, results = 'hide'}
-elecequip %>% 
+elecequip %>%
   STL(value ~ season(window = 5))
 
-elecequip %>% 
+elecequip %>%
   STL(value ~ trend(window=15) + season(window="periodic"),
       robust = TRUE)
 ```
@@ -479,10 +479,10 @@ elecequip %>% STL(value) %>% autoplot()
 \fontsize{10}{11}\sf
 
 ```{r elecequip4, echo=TRUE, fig.height=3.2}
-dcmp <- elecequip %>% 
+dcmp <- elecequip %>%
   STL(value ~ trend(window=13) + season(window="periodic"))
-dcmp %>% 
-  model(NAIVE(seas_adjust)) %>% forecast() %>% 
+dcmp %>%
+  model(NAIVE(seas_adjust)) %>% forecast() %>%
   autoplot(dcmp) + ylab("New orders index") +
   ggtitle("ETS forecasts of seasonally adjusted data")
 ```
@@ -494,7 +494,7 @@ dcmp %>%
 \fontsize{10}{11}\sf
 
 ```{r elecequip5, echo=TRUE, fig.height=3.2}
-dcmp_def <- dcmp_model(STL, 
+dcmp_def <- dcmp_model(STL,
   value ~ trend(window = 13) + season(window = "periodic"),
   NAIVE(seas_adjust))
 elecequip %>%
@@ -504,8 +504,17 @@ elecequip %>%
 
 \vspace*{10cm}
 
+## Decomposition models
+
+`dcmp_model()` creates a decomposition model
+
+ * You must provide a method for forecasting the `seas_adjust` series.
+ * A seasonal naive method is used by default for the `seasonal` components.
+
+
 ## Decomposition and prediction intervals
 
   *  It is common to take the prediction intervals from the seasonally adjusted forecasts and modify them with the seasonal component.
   *  This ignores the uncertainty in the seasonal component estimate.
   *  It also ignores the uncertainty in the future seasonal pattern.
+
