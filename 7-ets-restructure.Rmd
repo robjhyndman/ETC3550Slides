@@ -70,8 +70,8 @@ algeria_economy <- tsibbledata::global_economy %>%
   filter(Country == "Algeria")
 alpha_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(alpha){
   algeria_economy %>% 
-  model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpharange = c(-1,1),
-        betarange = c(-1,1)) + season("N", gammarange = c(-1,1)), bounds = "admissible")) %>% 
+  model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-1,1),
+        beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>% 
   augment() %>% 
   as_tibble()
 }, .id = "alpha") %>% 
@@ -90,8 +90,8 @@ alpha_anim %>%
 ```{r alpha-static}
 alpha_static <- map_dfr(list(0, NULL, 1), function(alpha){
   fit <- algeria_economy %>% 
-    model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpharange = c(-0.01,1),
-          betarange = c(-1,1)) + season("N", gammarange = c(-1,1)), bounds = "admissible"))
+    model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-0.01,1),
+          beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
   fit %>% 
     augment() %>% 
     mutate(alpha = tidy(fit)$estimate[tidy(fit)$term == "alpha"]) %>% 
@@ -117,8 +117,8 @@ apple_stock <- gafa_stock %>%
 beta_anim <- map_dfr(set_names(seq(0, 0.005, length.out = 100),seq(0, 0.005, length.out = 100)),
                      function(beta){
     apple_stock %>% 
-      model(ETS(Close ~ error("A") + trend("A", alpha = 0.001, alpharange = c(-1,1),
-            beta = beta, betarange = c(-1,1)) + season("N", gammarange = c(-1,1)), bounds = "admissible")) %>% 
+      model(ETS(Close ~ error("A") + trend("A", alpha = 0.001, alpha_range = c(-1,1),
+            beta = beta, beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>% 
       augment() %>% 
       as_tibble()
   }, .id = "beta") %>% 
@@ -139,8 +139,8 @@ beta_anim %>%
 beta_static <- map_dfr(list(0, 0.001),
                      function(beta){
     fit <- apple_stock %>% 
-      model(ETS(Close ~ error("A") + trend("A", alpha = 0.00001, alpharange = c(-.1,1),
-            beta = beta, betarange = c(-0.1,0.005)) + season("N", gammarange = c(-1,1)), bounds = "admissible"))
+      model(ETS(Close ~ error("A") + trend("A", alpha = 0.00001, alpha_range = c(-.1,1),
+            beta = beta, beta_range = c(-0.1,0.005)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
     fit %>% 
       augment() %>% 
       mutate(beta = tidy(fit)$estimate[tidy(fit)$term == "beta"]) %>% 
@@ -165,8 +165,8 @@ j07 <- PBS %>%
   summarise(Cost = sum(Cost))
 gamma_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(gamma){
   j07 %>% 
-    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpharange = c(-1,1),
-              betarange = c(-1,1)) + season("A", gamma = gamma, gammarange = c(-1,1)), bounds = "admissible")) %>% 
+    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
+              beta_range = c(-1,1)) + season("A", gamma = gamma, gamma_range = c(-1,1)), bounds = "admissible")) %>% 
     augment() %>% 
     as_tibble()
 }, .id = "gamma") %>% 
@@ -185,8 +185,8 @@ gamma_anim %>%
 ```{r gamma-static}
 gamma_static <- map_dfr(list(0, NULL, 1), function(gamma){
   fit <- j07 %>% 
-    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpharange = c(-1,1),
-              betarange = c(-1,1)) + season("A", gamma = gamma, gammarange = c(-1,1)), bounds = "admissible"))
+    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
+              beta_range = c(-1,1)) + season("A", gamma = gamma, gamma_range = c(-1,1)), bounds = "admissible"))
   fit %>% 
     augment() %>% 
     mutate(gamma = tidy(fit)$estimate[tidy(fit)$term == "gamma"]) %>% 
@@ -268,6 +268,40 @@ $y_t = (\ell_{t-1} + b_{t-1}) s_{t-m} + \varepsilon_t$
 
 **S**easonality: None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
 
+# The level
+
+## Starting simple
+
+Suppose our model contains no trend or seasonality.
+
+This is compactly represented by ETS(A,N,N).
+
+$$y_t = \ell_{t-1} + \varepsilon_t$$
+
+We design $\ell_t$ to weight recent observations more.
+
+$$\ell_t = \alpha y_t + (1-\alpha) \ell_{t-1}$$
+
+Need to choose $\alpha$ and $\ell_0$.
+
+## Simple Exponential Smoothing
+\fontsize{14}{16}\sf
+
+\begin{block}{Component form}\vspace*{-0.4cm}
+\begin{align*}
+\text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
+\text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
+\end{align*}
+\end{block}\vspace*{-0.2cm}
+
+* $\ell_t$ is the level (or the smoothed value) of the series at time t.
+* $\pred{y}{t+1}{t} = \alpha y_t + (1-\alpha) \pred{y}{t}{t-1}$\newline
+  Iterate to get exponentially weighted moving average form.
+
+\begin{block}{Weighted average form}
+$\displaystyle\pred{y}{T+1}{T}=\sum_{j=0}^{T-1} \alpha(1-\alpha)^j y_{T-j}+(1-\alpha)^T \ell_{0}$
+\end{block}
+
 ## Simple Exponential Smoothing
 
 \begin{block}{Forecast equation}
@@ -289,50 +323,101 @@ $y_{T-5}$    & $(0.2)(0.8)^5$  & $(0.4)(0.6)^5$   & $(0.6)(0.4)^5$  & $(0.8)(0.2
 \bottomrule
 \end{tabular}
 
-## Simple Exponential Smoothing
-\fontsize{14}{16}\sf
+<!-- ## Optimisation -->
+
+<!--   * Need to choose value for $\alpha$ and $\ell_0$ -->
+<!--   * Similarly to regression --- we choose $\alpha$ and $\ell_0$ by minimising SSE: -->
+<!-- $$ -->
+<!--   \text{SSE}=\sum_{t=1}^T(y_t - \pred{y}{t}{t-1})^2. -->
+<!-- $$ -->
+<!--   * Unlike regression there is no closed form solution --- use numerical optimization. -->
+
+## Methods v Models
+
+### Methods
+
+  * Algorithms that return point forecasts.
+
+\pause
+
+### Models
+
+  * Generate same point forecasts but can also generate forecast distributions.
+  * A stochastic (or random) data generating process that can generate an entire forecast distribution.
+  * Allow for "proper" model selection.
+
+## ETS(A,N,N): A model for SES
 
 \begin{block}{Component form}\vspace*{-0.4cm}
 \begin{align*}
 \text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
 \text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
 \end{align*}
-\end{block}\vspace*{-0.2cm}
+\end{block}\pause
+Forecast error: $e_t = y_t - \pred{y}{t}{t-1} = y_t - \ell_{t-1}$.\pause
+\begin{block}{Error correction form}\vspace*{-0.4cm}
+\begin{align*}
+y_t &= \ell_{t-1} + e_t\\
+\ell_{t}
+         &= \ell_{t-1}+\alpha( y_{t}-\ell_{t-1})\\
+         &= \ell_{t-1}+\alpha e_{t}
+\end{align*}
+\end{block}\pause\vspace*{-0.2cm}
 
-* $\ell_t$ is the level (or the smoothed value) of the series at time t.
-* $\pred{y}{t+1}{t} = \alpha y_t + (1-\alpha) \pred{y}{t}{t-1}$\newline
-  Iterate to get exponentially weighted moving average form.
+Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 
-\begin{block}{Weighted average form}
-$\displaystyle\pred{y}{T+1}{T}=\sum_{j=0}^{T-1} \alpha(1-\alpha)^j y_{T-j}+(1-\alpha)^T \ell_{0}$
+## ETS(A,N,N)
+
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\text{Measurement equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
+\text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
+\end{align*}
 \end{block}
+where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 
-## Optimisation
+  * "innovations" or "single source of error" because equations have the same error process, $\varepsilon_t$.
+  * Measurement equation: relationship between observations and states.
+  * Transition/state equation(s): evolution of the state(s) through time.
 
-  * Need to choose value for $\alpha$ and $\ell_0$
-  * Similarly to regression --- we choose $\alpha$ and $\ell_0$ by minimising SSE:
-$$
-  \text{SSE}=\sum_{t=1}^T(y_t - \pred{y}{t}{t-1})^2.
-$$
-  * Unlike regression there is no closed form solution --- use numerical optimization.
+## ETS(A,N,N): Specifying the model
 
-## Example: Oil production
+```{r ann-spec, echo = TRUE, results = "hide"}
+ETS(y ~ error("A") + trend("N") + season("N"))
+```
+
+By default, an optimal value for $\alpha$ and $\ell_0$ is used.
+
+$\alpha$ can be chosen manually in `trend()`.
+
+```{r alpha-spec, echo = TRUE, eval = FALSE}
+trend("N", alpha = 0.5)
+trend("N", alpha_range = c(0.2, 0.8))
+```
+
+## Example: Algerian Exports
 
 \fontsize{10}{11}\sf
 
-```{r sesfit, echo=TRUE, cache=TRUE}
-oildata <- oil %>% filter(Year >= 1996)
-# Estimate parameters
-fit <- oildata %>% 
-  model(SES = ETS(Production ~ error("A") + trend("N") + season("N")))
+```{r ses-fit, echo=TRUE, cache=TRUE}
+algeria_economy <- tsibbledata::global_economy %>% 
+  filter(Country == "Algeria")
+fit <- algeria_economy %>% 
+  model(ANN = ETS(Exports ~ error("A") + trend("N") + season("N")))
 report(fit)
 ```
 
-## Example: Oil production
+## Example: Algerian Exports
 
 \fontsize{8}{8}\sf\vspace*{-0.2cm}
 
-```{r oilses, echo=FALSE, cache=TRUE}
+```{r ses-cmp, echo = TRUE}
+components(fit) %>% 
+  left_join(fitted(fit), by = c("Country", ".model", "Year"))
+```
+
+
+```{r oilses, echo=FALSE, cache=TRUE, eval = FALSE}
 # Data set for table
 fc <- forecast(fit, h=3)
 
@@ -364,17 +449,32 @@ tab[n+3,] <- c("","$h$","","","$\\hat{y}_{T+h|T}$")
 knitr::kable(tab, booktabs=TRUE)
 ```
 
-## Example: Oil production
+## Example: Algerian Exports
 
 \fontsize{12}{12}\sf
 
-```{r ses, echo=TRUE, cache=TRUE}
-fc %>% autoplot(oildata) +
-  autolayer(fitted(fit), series="Fitted") +
-  ylab("Oil (millions of tonnes)") + xlab("Year")
+```{r ses-fc, echo=TRUE, cache=TRUE}
+fit %>% 
+  forecast(h = 5) %>%
+  autoplot(algeria_economy) +
+  ylab("Exports (% of GDP)") + xlab("Year")
 ```
 
-# Trend methods
+# The trend
+
+## Adding a trend
+
+What if our data is trended? Add $b_t$ to the model.
+
+This is compactly represented by ETS(A,A,N).
+
+$$y_t = \ell_{t-1} + b_{t-1} + \varepsilon_t$$
+
+We design $\beta^*$ to weight slopes more.
+
+$$\beta^*_t = \beta^*(\ell_t - \ell_{t-1}) + (1-\beta^*) b_{t-1}$$
+
+Need to choose $\alpha$, $\beta^*$, $\ell_0$ and $b_0$.
 
 ## Holt's linear trend
 
@@ -392,18 +492,61 @@ fc %>% autoplot(oildata) +
   * $b_t$ slope: weighted average of $(\ell_{t} - \ell_{t-1})$ and $b_{t-1}$, current and previous estimate of slope.
   * Choose $\alpha, \beta^*, \ell_0, b_0$ to minimise SSE.
 
-## Holt's method in R
-\fontsize{12}{15}\sf
+## ETS(A,A,N)
 
-```{r, fig.height=3.6, echo=TRUE}
-ausair_tr <- ausair %>% 
-  filter(between(Year, 1990, 2004)) 
-fit <- ausair_tr %>%
-  model(holt = ETS(Passengers ~ error("A") + trend("A") + season("N")))
+Holt's linear method with additive errors.
 
-fit %>%
-  forecast(h = 5) %>% 
-  autoplot(ausair_tr, level = NULL)
+  * Assume $\varepsilon_t=y_t-\ell_{t-1}-b_{t-1} \sim \text{NID}(0,\sigma^2)$.
+  * Substituting into the error correction equations for Holt's linear method\vspace*{-0.2cm}
+  \begin{align*}
+      y_t&=\ell_{t-1}+b_{t-1}+\varepsilon_t\\
+      \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
+      b_t&=b_{t-1}+\alpha\beta^* \varepsilon_t
+  \end{align*}
+  * For simplicity, set $\beta=\alpha \beta^*$.
+
+
+## ETS(A,A,N): Specifying the model
+
+```{r aan-spec, echo = TRUE, results = "hide"}
+ETS(y ~ error("A") + trend("A") + season("N"))
+```
+
+By default, an optimal value for $\beta$ and $b_0$ is used.
+
+$\beta$ can be chosen manually in `trend()`.
+
+```{r beta-spec, echo = TRUE, eval = FALSE}
+trend("N", beta = 0.004)
+trend("N", beta_range = c(0, 0.1))
+```
+
+## Example: Australian population
+
+```{r holt-fit}
+aus_economy <- global_economy %>% 
+  filter(Code == "AUS")
+fit <- aus_economy %>% 
+  model(AAN = ETS(Population ~ error("A") + trend("A") + season("N")))
+report(fit)
+```
+
+## Example: Australian population
+
+```{r holt-cmp}
+components(fit) %>% 
+  left_join(fitted(fit), by = c("Country", ".model", "Year"))
+```
+
+## Example: Australian population
+
+\fontsize{12}{12}\sf
+
+```{r holt-fc, echo=TRUE, cache=TRUE}
+fit %>% 
+  forecast(h = 10) %>%
+  autoplot(aus_economy) +
+  ylab("Population") + xlab("Year")
 ```
 
 ## Damped trend method
@@ -421,30 +564,35 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
   * As $h\rightarrow\infty$, $\pred{y}{T+h}{T}\rightarrow \ell_T+\phi b_T/(1-\phi)$.
   * Short-run forecasts trended, long-run forecasts constant.
 
-## Example: Air passengers
+## Your turn
+\large
+
+ * Write down the model for ETS(A,Ad,N)
+
+## Example: Australian Population
 \fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=3.6}
-ausair_tr %>%
-  model(holt = ETS(Passengers ~ error("A") + trend("Ad") + season("N"))) %>% 
-  forecast(h = 5) %>% 
-  autoplot(ausair_tr, level = NULL)
+aus_economy %>%
+  model(holt = ETS(Population ~ error("A") + trend("Ad") + season("N"))) %>% 
+  forecast(h = 10) %>% 
+  autoplot(aus_economy)
 ```
 
-## Example: Sheep in Asia
+## Example: Australian Population
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE}
-livestock2 <- livestock %>% filter(between(Year, 1970, 2000))
-fit <- livestock2 %>% 
+fit <- aus_economy %>% 
+  filter(Year <= 2010) %>% 
   model(
-    ses = ETS(Sheep ~ error("A") + trend("N") + season("N")),
-    holt = ETS(Sheep ~ error("A") + trend("A") + season("N")),
-    damped = ETS(Sheep ~ error("A") + trend("Ad") + season("N"))
+    ses = ETS(Population ~ error("A") + trend("N") + season("N")),
+    holt = ETS(Population ~ error("A") + trend("A") + season("N")),
+    damped = ETS(Population ~ error("A") + trend("Ad") + season("N"))
   )
 ```
 
-```r
+```{r, results = 'hide'}
 accuracy(fit)
 ```
 
@@ -459,20 +607,20 @@ fit_terms <- tidy(fit) %>%
 
 fit_accuracy <- accuracy(fit) %>% 
   bind_rows(
-    forecast(fit, h = 7) %>% 
-      accuracy(livestock)
+    forecast(fit, h = 9) %>% 
+      accuracy(aus_economy)
   ) %>% 
-  gather(term, estimate, -.model, -.type) %>% 
+  gather(term, estimate, -Country, -.model, -.type) %>% 
   spread(.model, estimate) %>% 
   filter(term == "RMSE" | .type == "Test" & term %in% c("RMSE", "MAE", "MAPE", "MASE")) %>% 
   arrange(desc(.type), desc(term)) %>% 
   unite("term", .type, term, sep = " ")
-# 
-# bind_rows(fit_terms, fit_accuracy) %>% 
-#   rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) %>% 
-#   select(1, 4, 3, 2) %>% 
-#   mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) %>% 
-#   gt::gt(rowname_col = "term")
+
+bind_rows(fit_terms, fit_accuracy) %>%
+  select(term, ses, holt, damped) %>%
+  rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) %>%
+  mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) %>%
+  knitr::kable(booktabs = TRUE)
 # 
 # tab <- matrix(NA, ncol=3,nrow=10)
 # colnames(tab) <- c("SES","Linear trend","Damped trend")
@@ -519,7 +667,7 @@ augment(fit) %>%
 
 ## Your turn
 
-`eggs` contains the price of a dozen eggs in the United States from 1900–1993
+`fma::eggs` contains the price of a dozen eggs in the United States from 1900–1993
 
  1. Use SES and Holt’s method (with and without damping) to forecast “future” data.
 
@@ -683,20 +831,6 @@ There are also multiplicative trend methods (not recommended).
 
 # Innovations state space models
 
-## Methods v Models
-
-### Exponential smoothing methods
-
-  * Algorithms that return point forecasts.
-
-\pause
-
-### Innovations state space models
-
-  * Generate same point forecasts but can also generate forecast intervals.
-  * A stochastic (or random) data generating process that can generate an entire forecast distribution.
-  * Allow for "proper" model selection.
-
 ## ETS models
 
    * Each model has an \textit{observation} equation and \textit{transition} equations, one for each state (level, trend, seasonal), i.e., state space models.
@@ -761,58 +895,6 @@ M,A,M: &Multiplicative Holt-Winters' method with multiplicative errors
 
 \pause
 \color{orange}{\bf There are 18 separate models in the ETS framework}
-
-## A model for SES
-
-\begin{block}{Component form}\vspace*{-0.4cm}
-\begin{align*}
-\text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
-\text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
-\end{align*}
-\end{block}\pause
-Forecast error: $e_t = y_t - \pred{y}{t}{t-1} = y_t - \ell_{t-1}$.\pause
-\begin{block}{Error correction form}\vspace*{-0.4cm}
-\begin{align*}
-y_t &= \ell_{t-1} + e_t\\
-\ell_{t}
-         &= \ell_{t-1}+\alpha( y_{t}-\ell_{t-1})\\
-         &= \ell_{t-1}+\alpha e_{t}
-\end{align*}
-\end{block}\pause\vspace*{-0.2cm}
-
-Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\text{NID}(0,\sigma^2)$.
-
-## ETS(A,N,N)
-
-\begin{block}{}\vspace*{-0.4cm}
-\begin{align*}
-\text{Measurement equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
-\text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
-\end{align*}
-\end{block}
-where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
-
-  * "innovations" or "single source of error" because same error process, $\varepsilon_t$.
-  * Measurement equation: relationship between observations and states.
-  * Transition equation(s): evolution of the state(s) through time.
-
-## ETS(A,A,N)
-
-Holt's linear method with additive errors.
-
-  * Assume $\varepsilon_t=y_t-\ell_{t-1}-b_{t-1} \sim \text{NID}(0,\sigma^2)$.
-  * Substituting into the error correction equations for Holt's linear method\vspace*{-0.2cm}
-  \begin{align*}
-      y_t&=\ell_{t-1}+b_{t-1}+\varepsilon_t\\
-      \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
-      b_t&=b_{t-1}+\alpha\beta^* \varepsilon_t
-  \end{align*}
-  * For simplicity, set $\beta=\alpha \beta^*$.
-
-## Your turn
-\large
-
- * Write down the model for ETS(A,Ad,N)
 
 ## ETS(A,A,A)
 
