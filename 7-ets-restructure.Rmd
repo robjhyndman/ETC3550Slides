@@ -380,6 +380,26 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
   * Measurement equation: relationship between observations and states.
   * Transition/state equation(s): evolution of the state(s) through time.
 
+## ETS(M,N,N)
+
+SES with multiplicative errors.
+
+  * Specify relative errors  $\varepsilon_t=\frac{y_t-\pred{y}{t}{t-1}}{\pred{y}{t}{t-1}}\sim \text{NID}(0,\sigma^2)$
+  * Substituting $\pred{y}{t}{t-1}=\ell_{t-1}$ gives:
+    * $y_t = \ell_{t-1}+\ell_{t-1}\varepsilon_t$
+    * $e_t = y_t - \pred{y}{t}{t-1} = \ell_{t-1}\varepsilon_t$
+
+ \pause
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\text{Measurement equation}&& y_t &= \ell_{t-1}(1 + \varepsilon_t)\\
+\text{State equation}&& \ell_t&=\ell_{t-1}(1+\alpha \varepsilon_t)
+\end{align*}
+\end{block}
+\pause
+
+  * Models with additive and multiplicative errors with the same parameters generate the same point forecasts but different prediction intervals.
+
 ## ETS(A,N,N): Specifying the model
 
 ```{r ann-spec, echo = TRUE, results = "hide"}
@@ -470,9 +490,9 @@ This is compactly represented by ETS(A,A,N).
 
 $$y_t = \ell_{t-1} + b_{t-1} + \varepsilon_t$$
 
-We design $\beta^*$ to weight slopes more.
+We design $b_t$ to weight recent slopes more.
 
-$$\beta^*_t = \beta^*(\ell_t - \ell_{t-1}) + (1-\beta^*) b_{t-1}$$
+$$b_t = \beta^*(\ell_t - \ell_{t-1}) + (1-\beta^*) b_{t-1}$$
 
 Need to choose $\alpha$, $\beta^*$, $\ell_0$ and $b_0$.
 
@@ -505,6 +525,18 @@ Holt's linear method with additive errors.
   \end{align*}
   * For simplicity, set $\beta=\alpha \beta^*$.
 
+## ETS(M,A,N)
+
+Holt's linear method with multiplicative errors.
+
+  * Assume $\varepsilon_t=\frac{y_t-(\ell_{t-1}+b_{t-1})}{(\ell_{t-1}+b_{t-1})}$
+  * Following a similar approach as above, the innovations state space model underlying Holt's linear method with multiplicative errors is specified as\vspace*{-0.4cm}
+  \begin{align*}
+      y_t&=(\ell_{t-1}+b_{t-1})(1+\varepsilon_t)\\
+      \ell_t&=(\ell_{t-1}+b_{t-1})(1+\alpha \varepsilon_t)\\
+      b_t&=b_{t-1}+\beta(\ell_{t-1}+b_{t-1}) \varepsilon_t
+  \end{align*}
+  where again  $\beta=\alpha \beta^*$ and $\varepsilon_t \sim \text{NID}(0,\sigma^2)$.
 
 ## ETS(A,A,N): Specifying the model
 
@@ -592,7 +624,8 @@ fit <- aus_economy %>%
   )
 ```
 
-```{r, results = 'hide'}
+```{r, echo = TRUE, results = 'hide'}
+tidy(fit)
 accuracy(fit)
 ```
 
@@ -653,16 +686,6 @@ bind_rows(fit_terms, fit_accuracy) %>%
 # # Show table
 # knitr::kable(tab, booktabs=TRUE)
 
-```
-
-```{r fig-7-comp}
-augment(fit) %>% 
-  select(-.resid) %>% 
-  spread(.model, .fitted) %>% 
-  gather("Type", "Value") %>% 
-  autoplot(Value) +
-  xlab("Year") +
-  ylab("Livestock, sheep in Asia (millions)")
 ```
 
 ## Your turn
