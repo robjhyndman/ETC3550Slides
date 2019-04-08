@@ -95,7 +95,6 @@ $y_t = (\ell_{t-1} + b_{t-1}) s_{t-m} + \varepsilon_t$
 
 \alert{\textbf{S}easonality:} None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
 
-
 # Simple exponential smoothing
 
 ## Simple methods
@@ -233,8 +232,6 @@ algeria_economy %>%
   * A stochastic (or random) data generating process that can generate an entire forecast distribution.
   * Allow for "proper" model selection.
 
-
-
 ## ETS(A,N,N): A model for SES
 
 \begin{block}{Component form}\vspace*{-0.4cm}
@@ -357,7 +354,6 @@ fit %>%
   * $\ell_t$ level: weighted average between $y_t$ and one-step ahead forecast for time $t$, $(\ell_{t-1} + b_{t-1}=\pred{y}{t}{t-1})$
   * $b_t$ slope: weighted average of $(\ell_{t} - \ell_{t-1})$ and $b_{t-1}$, current and previous estimate of slope.
   * Choose $\alpha, \beta^*, \ell_0, b_0$ to minimise SSE.
-
 
 ## ETS(A,A,N)
 
@@ -572,7 +568,6 @@ bind_rows(fit_terms, fit_accuracy) %>%
  1. Are these RMSE values comparable?
  1. Do the residuals from the best fitting method look like white noise?
 
-
 # Models with seasonality
 
 ## Holt-Winters additive method
@@ -599,7 +594,6 @@ s_{t} &= \gamma (y_{t}-\ell_{t-1}-b_{t-1}) + (1-\gamma)s_{t-m}
         $s_{t} = \gamma^*(1-\alpha) (y_{t}-\ell_{t-1}-b_{t-1})+ [1-\gamma^*(1-\alpha)]s_{t-m}$
   * We set $\gamma=\gamma^*(1-\alpha)$.
   * The usual parameter restriction is $0\le\gamma^*\le1$, which translates to $0\le\gamma\le(1-\alpha)$.
-
 
 ## Exponential smoothing: seasonality
 
@@ -686,7 +680,6 @@ For when seasonal variations are changing proportional to the level of the serie
   * With additive method $s_t$ is in absolute terms:\newline within each year $\sum_i s_i \approx 0$.
   * With multiplicative method $s_t$ is in relative terms:\newline within each year $\sum_i s_i \approx m$.
 
-
 ## ETS(M,A,M)
 
 Holt-Winters multiplicative method with multiplicative errors.
@@ -703,7 +696,6 @@ Holt-Winters multiplicative method with multiplicative errors.
 
 * Forecast errors: $\varepsilon_{t} = (y_t - \hat{y}_{t|t-1})/\hat{y}_{t|t-1}$
 * $k$ is integer part of $(h-1)/m$.
-
 
 ## Example: Australian holiday tourism
 
@@ -768,9 +760,7 @@ Apply Holt-Winters’ multiplicative method to the Gas data from `aus_production
  1. Experiment with making the trend damped.
  1. Check that the residuals from the best method look like white noise.
 
-
 # Innovations state space models
-
 
 ## Exponential smoothing methods
 \fontsize{12}{14}\sf
@@ -840,8 +830,6 @@ There are also multiplicative trend methods (not recommended).
 ## Multiplicative error models
 
 \placefig{0}{1.5}{width=12.8cm,trim=0 120 0 0,clip=true}{fig_7_ets_multi.pdf}
-
-
 
 ## Estimating ETS models
 
@@ -929,7 +917,6 @@ which is the AIC corrected (for small sample bias).
 \]
 \end{block}
 
-
 ## AIC and cross-validation
 
 \Large
@@ -937,7 +924,6 @@ which is the AIC corrected (for small sample bias).
 \begin{alertblock}{}
 Minimizing the AIC assuming Gaussian residuals is asymptotically equivalent to minimizing one-step time series cross validation MSE.
 \end{alertblock}
-
 
 ## Automatic forecasting
 
@@ -951,7 +937,6 @@ criterion).
 * Obtain forecast intervals using underlying state space model.
 
 Method performed very well in M3 competition.
-
 
 ## Some unstable models
 
@@ -1017,11 +1002,10 @@ components(fit)
 ```
 
 ```{r r MAMstates, fig.height=3.5,fig.width=6}
-components(fit) %>% 
-  autoplot() + 
+components(fit) %>%
+  autoplot() +
   ggtitle("ETS(M,N,M) components")
 ```
-
 
 ## Residuals
 \fontsize{16}{18}\sf
@@ -1045,12 +1029,12 @@ residuals(fit, type = "response")
 ```
 
 ```{r, echo=FALSE}
-residuals(fit) %>% 
-  mutate(Type = "Innovation residuals") %>% 
-  bind_rows(residuals(fit, type = "response") %>% mutate(Type = "Response residuals")) %>% 
-  ggplot(aes(x = Quarter, y = .resid)) + 
-  geom_line() + 
-  facet_grid(Type ~ ., scales = "free_y") + 
+residuals(fit) %>%
+  mutate(Type = "Innovation residuals") %>%
+  bind_rows(residuals(fit, type = "response") %>% mutate(Type = "Response residuals")) %>%
+  ggplot(aes(x = Quarter, y = .resid)) +
+  geom_line() +
+  facet_grid(Type ~ ., scales = "free_y") +
   ylab(NULL)
 ```
 
@@ -1133,7 +1117,7 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
 h02 <- tsibbledata::PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost))
-h02 %>% 
+h02 %>%
   autoplot(Cost)
 ```
 
@@ -1162,22 +1146,22 @@ h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, results = "hide"}
-h02 %>% 
+h02 %>%
   model(
     auto = ETS(Cost),
     AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
-  ) %>% 
+  ) %>%
   accuracy()
 ```
 
 ```{r}
-h02 %>% 
+h02 %>%
   model(
     auto = ETS(Cost),
     AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
-  ) %>% 
-  accuracy() %>% 
-  transmute(Model = .model, ME, MAE, RMSE, MAPE, MASE) %>% 
+  ) %>%
+  accuracy() %>%
+  transmute(Model = .model, ME, MAE, RMSE, MAPE, MASE) %>%
   knitr::kable(booktabs = TRUE)
 ```
 
