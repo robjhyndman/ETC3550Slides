@@ -518,3 +518,4 @@ elecequip %>%
   *  This ignores the uncertainty in the seasonal component estimate.
   *  It also ignores the uncertainty in the future seasonal pattern.
 
+The fable package combines the uncertainty from both the seasonally adjusted and seasonal forecasts. When using `dcmp_model()` to produce forecasts, the seasonal uncertainty is not ignored!
