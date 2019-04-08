@@ -22,184 +22,18 @@ library(feasts)
 library(lubridate)
 library(tsibbledata)
 
-oil <- as_tsibble(fpp2::oil) %>%
-  rename(Year = index, Production = value)
-
-ausair <- as_tsibble(fpp2::ausair) %>%
-  rename(Year = index, Passengers = value)
-
-livestock <- as_tsibble(fpp2::livestock) %>%
-  rename(Year = index, Sheep = value)
-
-austourists <- as_tsibble(fpp2::austourists) %>%
-  rename(Time = index, Nights = value)
-
-h02 <- tsibbledata::PBS %>%
-  filter(ATC2 == "H02") %>%
-  summarise(Cost = sum(Cost))
-
-source("nicefigs.R")
 options(digits=4, width=55)
 ```
 
 # Exponential smoothing
 
-## Simple methods
-\fontsize{14}{16}\sf
+## Historical perspective
 
-Time series $y_1,y_2,\dots,y_T$.
-
-\begin{block}{Random walk forecasts}
-  \centerline{$\pred{y}{T+h}{T} = y_T$}
-\end{block}\pause
-
-\begin{block}{Average forecasts}
-  \centerline{$\displaystyle\pred{y}{T+h}{T} = \frac1T\sum_{t=1}^T y_t$}
-\end{block}\pause\vspace*{-0.2cm}
-
-* Want something in between these methods.
-* Most recent data should have more weight.
-
-<!-- * Simple exponential smoothing uses a weighted moving average with weights that decrease exponentially. -->
-
-## Exponential smoothing: level/intercept
-
-```{r alpha-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(gganimate)
-algeria_economy <- tsibbledata::global_economy %>%
-  filter(Country == "Algeria")
-alpha_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(alpha){
-  algeria_economy %>%
-  model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-1,1),
-        beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>%
-  augment() %>%
-  as_tibble()
-}, .id = "alpha") %>%
-  mutate(alpha = 1-as.numeric(alpha))
-alpha_anim %>%
-  ggplot(aes(x = Year, y = Exports)) +
-  geom_line() +
-  geom_line(aes(y = .fitted), colour = "blue") +
-  transition_manual(alpha) +
-  ylab("Exports (% of GDP)") +
-  ggtitle("Algerian exports of goods and services: level (alpha = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
-```
-
-## Exponential smoothing: level/intercept
-
-```{r alpha-static}
-alpha_static <- map_dfr(list(0, NULL, 1), function(alpha){
-  fit <- algeria_economy %>%
-    model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-0.01,1),
-          beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
-  fit %>%
-    augment() %>%
-    mutate(alpha = tidy(fit)$estimate[tidy(fit)$term == "alpha"]) %>%
-    as_tibble()
-}) %>%
-  mutate(alpha = factor(format(alpha)))
-algeria_economy %>%
-  ggplot(aes(x = Year, y = Exports)) +
-  geom_line() +
-  geom_line(aes(y = .fitted, colour = alpha), data = alpha_static) +
-  ylab("Exports (% of GDP)") +
-  ggtitle("Algerian exports of goods and services: level")
-```
-
-## Exponential smoothing: trend/slope
-
-```{r beta-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(gganimate)
-apple_stock <- gafa_stock %>%
-  filter(Symbol == "AAPL") %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
-beta_anim <- map_dfr(set_names(seq(0, 0.005, length.out = 100),seq(0, 0.005, length.out = 100)),
-                     function(beta){
-    apple_stock %>%
-      model(ETS(Close ~ error("A") + trend("A", alpha = 0.001, alpha_range = c(-1,1),
-            beta = beta, beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>%
-      augment() %>%
-      as_tibble()
-  }, .id = "beta") %>%
-  mutate(beta = 0.005-as.numeric(beta))
-beta_anim %>%
-  left_join(select(apple_stock, trading_day, Date), by = "trading_day") %>%
-  ggplot(aes(x = Date, y = Close)) +
-  geom_line() +
-  geom_line(aes(y = .fitted), colour = "blue") +
-  transition_manual(beta) +
-  ylab("Closing price ($USD)") +
-  ggtitle("Apple closing stock price: trend (beta = {format(0.005-as.numeric(as.character(current_frame)), nsmall=2)})")
-```
-
-## Exponential smoothing: trend/slope
-
-```{r beta-static}
-beta_static <- map_dfr(list(0, 0.001),
-                     function(beta){
-    fit <- apple_stock %>%
-      model(ETS(Close ~ error("A") + trend("A", alpha = 0.00001, alpha_range = c(-.1,1),
-            beta = beta, beta_range = c(-0.1,0.005)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
-    fit %>%
-      augment() %>%
-      mutate(beta = tidy(fit)$estimate[tidy(fit)$term == "beta"]) %>%
-      as_tibble()
-  }) %>%
-  mutate(beta = factor(format(beta))) %>%
-  left_join(select(apple_stock, trading_day, Date), by = "trading_day")
-apple_stock %>%
-  ggplot(aes(x = Date, y = Close)) +
-  geom_line() +
-  geom_line(aes(y = .fitted, colour = beta), data = beta_static) +
-  ylab("Closing price ($USD)") +
-  ggtitle("Apple closing stock price: trend")
-```
-
-## Exponential smoothing: seasonality
-
-```{r gamma-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(gganimate)
-j07 <- PBS %>%
-  filter(ATC2 == "J07") %>%
-  summarise(Cost = sum(Cost))
-gamma_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(gamma){
-  j07 %>%
-    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
-              beta_range = c(-1,1)) + season("A", gamma = gamma, gamma_range = c(-1,1)), bounds = "admissible")) %>%
-    augment() %>%
-    as_tibble()
-}, .id = "gamma") %>%
-  mutate(gamma = 1-as.numeric(gamma))
-gamma_anim %>%
-  ggplot(aes(x = Month, y = Cost)) +
-  geom_line() +
-  geom_line(aes(y = .fitted), colour = "blue") +
-  transition_manual(gamma) +
-  ylab("Cost of scripts ($AUD)") +
-  ggtitle("Medicare Australia cost of vaccine scripts: seasonality (gamma = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
-```
-
-## Exponential smoothing: seasonality
-
-```{r gamma-static}
-gamma_static <- map_dfr(list(0, NULL, 1), function(gamma){
-  fit <- j07 %>%
-    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
-              beta_range = c(-1,1)) + season("A", gamma = gamma, gamma_range = c(-1,1)), bounds = "admissible"))
-  fit %>%
-    augment() %>%
-    mutate(gamma = tidy(fit)$estimate[tidy(fit)$term == "gamma"]) %>%
-    as_tibble()
-}) %>%
-  mutate(gamma = factor(format(gamma)))
-j07 %>%
-  ggplot(aes(x = Month, y = Cost)) +
-  geom_line() +
-  geom_line(aes(y = .fitted, colour = gamma), data = gamma_static) +
-  ylab("Cost of scripts ($AUD)") +
-  ggtitle("Medicare Australia cost of vaccine scripts: seasonality")
-```
+ * Developed in the 1950s and 1960s as methods (algorithms) to produce point forecasts.
+ * Combine a "level", "trend" (slope) and "seasonal" component to describe a time series.
+ * The rate of change of the components are controlled by "smoothing parameters":\newline $\alpha$, $\beta$ and $\gamma$ respectively.
+  * Need to choose best values for the smoothing parameters (and initial states).
+  * Equivalent ETS state space models developed in the 1990s and 2000s.
 
 ## Big idea: control the rate of change (smoothing)
 
@@ -217,15 +51,6 @@ $\gamma$ controls the flexibility of the **seasonality**
 
 * If $\gamma = 0$, the seasonality is fixed (seasonal means)
 * If $\gamma = 1$, the seasonality updates completely (seasonal naive)
-
-## Optimising smoothing parameters
-
-  * Need to choose best values for the smoothing parameters (and initial states).
-  * Similarly to regression, choose optimal parameters by minimising SSE:
-$$
-  \text{SSE}=\sum_{t=1}^T(y_t - \pred{y}{t}{t-1})^2.
-$$
-  * Unlike regression there is no closed form solution --- use numerical optimization.
 
 ## A model for levels, trends, and seasonalities
 
@@ -251,7 +76,7 @@ $y_t = \ell_{t-1}b_{t-1}s_{t-m}(1 + \varepsilon_t)$
 
 $y_t = (\ell_{t-1} + b_{t-1}) s_{t-m} + \varepsilon_t$
 
-## Exponential smoothing
+## ETS models
 
 \begin{block}{}
 \hspace*{-0.25cm}\begin{tabular}{l@{}p{2.3cm}@{}c@{}l}
@@ -262,51 +87,34 @@ $y_t = (\ell_{t-1} + b_{t-1}) s_{t-m} + \varepsilon_t$
 \end{tabular}
 \end{block}
 
-**E**rror: Additive (`"A"`) or multiplicative (`"M"`)
+\alert{\textbf{E}rror:} Additive (`"A"`) or multiplicative (`"M"`)
 \pause
 
-**T**rend: None (`"N"`), additive (`"A"`), multiplicative (`"M"`), or damped (`"Ad"` or `"Md"`).
+\alert{\textbf{T}rend:} None (`"N"`), additive (`"A"`), multiplicative (`"M"`), or damped (`"Ad"` or `"Md"`).
 \pause
 
-**S**easonality: None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
+\alert{\textbf{S}easonality:} None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
 
-# The level
 
-## Starting simple
+# Simple exponential smoothing
 
-Suppose our model contains no trend or seasonality.
-
-This is compactly represented by ETS(A,N,N).
-
-\begin{block}{}
-\centerline{$y_t = \ell_{t-1} + \varepsilon_t$}
-\end{block}
-
-We design $\ell_t$ to weight recent observations more.
-
-\begin{block}{}
-\centerline{$\ell_t = \alpha y_t + (1-\alpha) \ell_{t-1}$}
-\end{block}
-
-Need to choose $\alpha$ and $\ell_0$.
-
-## Simple Exponential Smoothing
+## Simple methods
 \fontsize{14}{16}\sf
 
-\begin{block}{Component form}\vspace*{-0.4cm}
-\begin{align*}
-\text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
-\text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
-\end{align*}
-\end{block}\vspace*{-0.2cm}
+Time series $y_1,y_2,\dots,y_T$.
 
-* $\ell_t$ is the level (or the smoothed value) of the series at time t.
-* $\pred{y}{t+1}{t} = \alpha y_t + (1-\alpha) \pred{y}{t}{t-1}$\newline
-  Iterate to get exponentially weighted moving average form.
+\begin{block}{Random walk forecasts}
+  \centerline{$\pred{y}{T+h}{T} = y_T$}
+\end{block}\pause
 
-\begin{block}{Weighted average form}
-$\displaystyle\pred{y}{T+1}{T}=\sum_{j=0}^{T-1} \alpha(1-\alpha)^j y_{T-j}+(1-\alpha)^T \ell_{0}$
-\end{block}
+\begin{block}{Average forecasts}
+  \centerline{$\displaystyle\pred{y}{T+h}{T} = \frac1T\sum_{t=1}^T y_t$}
+\end{block}\pause\vspace*{-0.2cm}
+
+* Want something in between these methods.
+* Most recent data should have more weight.
+
+<!-- * Simple exponential smoothing uses a weighted moving average with weights that decrease exponentially. -->
 
 ## Simple Exponential Smoothing
 
@@ -329,28 +137,103 @@ $y_{T-5}$    & $(0.2)(0.8)^5$  & $(0.4)(0.6)^5$   & $(0.6)(0.4)^5$  & $(0.8)(0.2
 \bottomrule
 \end{tabular}
 
-<!-- ## Optimisation -->
+## Simple Exponential Smoothing
 
-<!--   * Need to choose value for $\alpha$ and $\ell_0$ -->
-<!--   * Similarly to regression --- we choose $\alpha$ and $\ell_0$ by minimising SSE: -->
-<!-- $$ -->
-<!--   \text{SSE}=\sum_{t=1}^T(y_t - \pred{y}{t}{t-1})^2. -->
-<!-- $$ -->
-<!--   * Unlike regression there is no closed form solution --- use numerical optimization. -->
+```{r alpha-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+library(gganimate)
+algeria_economy <- tsibbledata::global_economy %>%
+  filter(Country == "Algeria")
+alpha_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(alpha){
+  algeria_economy %>%
+  model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-1,1),
+        beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>%
+  augment() %>%
+  as_tibble()
+}, .id = "alpha") %>%
+  mutate(alpha = 1-as.numeric(alpha))
+alpha_anim %>%
+  ggplot(aes(x = Year, y = Exports)) +
+  geom_line() +
+  geom_line(aes(y = .fitted), colour = "blue") +
+  transition_manual(alpha) +
+  ylab("Exports (% of GDP)") +
+  ggtitle("Algerian exports of goods and services: level (alpha = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
+```
 
-## Methods v Models
+## Simple Exponential Smoothing
+\fontsize{14}{16}\sf
+
+\begin{block}{Component form}\vspace*{-0.4cm}
+\begin{align*}
+\text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
+\text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
+\end{align*}
+\end{block}\vspace*{-0.2cm}
+
+* $\ell_t$ is the level (or the smoothed value) of the series at time t.
+* $\pred{y}{t+1}{t} = \alpha y_t + (1-\alpha) \pred{y}{t}{t-1}$\newline
+  Iterate to get exponentially weighted moving average form.
+
+\begin{block}{Weighted average form}
+$\displaystyle\pred{y}{T+1}{T}=\sum_{j=0}^{T-1} \alpha(1-\alpha)^j y_{T-j}+(1-\alpha)^T \ell_{0}$
+\end{block}
+
+## Optimising smoothing parameters
+
+  * Need to choose best values for $\alpha$ and $\ell_0$.
+  * Similarly to regression, choose optimal parameters by minimising SSE:
+$$
+  \text{SSE}=\sum_{t=1}^T(y_t - \pred{y}{t}{t-1})^2.
+$$
+  * Unlike regression there is no closed form solution --- use numerical optimization.
+
+\pause
+
+```{r ses, echo=FALSE}
+fit <- algeria_economy %>%
+  model(
+    ETS(Exports ~ error("A") + trend("N") + season("N"))
+  )
+```
+
+  * For Algerian Exports example:
+    - $\hat\alpha = `r sprintf("%4.4f",tidy(fit)[1,4])`$
+    - $\hat\ell_0 = `r sprintf("%4.2f",tidy(fit)[2,4])`$
+
+## Simple Exponential Smoothing
+
+```{r alpha-static, fig.height=5, fig.width=8}
+alpha_static <- map_dfr(list(0, as.numeric(tidy(fit)[1,4]), 1), function(alpha){
+  fit <- algeria_economy %>%
+    model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-0.01,1),
+          beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
+  fit %>%
+    augment() %>%
+    mutate(alpha = tidy(fit)$estimate[tidy(fit)$term == "alpha"]) %>%
+    as_tibble()
+}) %>%
+  mutate(alpha = factor(format(alpha)))
+algeria_economy %>%
+  ggplot(aes(x = Year, y = Exports)) +
+  geom_line() +
+  geom_line(aes(y = .fitted, colour = alpha), data = alpha_static) +
+  ylab("Exports (% of GDP)") +
+  ggtitle("Algerian exports of goods and services: level")
+```
+
+## Models and methods
 
 ### Methods
 
   * Algorithms that return point forecasts.
-
-\pause
 
 ### Models
 
   * Generate same point forecasts but can also generate forecast distributions.
   * A stochastic (or random) data generating process that can generate an entire forecast distribution.
   * Allow for "proper" model selection.
+
+
 
 ## ETS(A,N,N): A model for SES
 
@@ -446,39 +329,6 @@ components(fit) %>%
   left_join(fitted(fit), by = c("Country", ".model", "Year"))
 ```
 
-
-```{r oilses, echo=FALSE, cache=TRUE, eval = FALSE}
-# Data set for table
-fc <- forecast(fit, h=3)
-
-# Now set up the table
-n <- NROW(oildata)
-year0 <- min(oildata$Year)-1
-tab <- matrix(NA,nrow=n+6,ncol=5)
-colnames(tab) <- c("Year","Time","Observation","Level","Forecast")
-tab[2:(n+6),1] <- year0 + 0:(n+4)
-tab[2:(n+6),2] <- 0:(n+4)
-# Add data, level and fitted values
-tab[3:(n+2),3] <- oildata$Production
-tab[2:(n+2),4] <- components(fit)$level
-tab[3:(n+2),5] <- fitted(fit)$.fitted
-# Add forecasts
-tab[n+(4:6),1] <- max(oildata$Year)+1:3
-tab[n+(4:6),2] <- 1:3
-tab[n+(4:6),5] <- fc$Production
-# Convert to characters
-tab <- as.data.frame(tab)
-class(tab$Year) <- class(tab$Time) <- "integer"
-tab <- format(tab, digits=5)
-# Remove missing values
-tab <- apply(tab, 2, function(x){j <- grep("[ ]*NA",x); x[j] <- ""; return(x)})
-# Add math notation rows
-tab[1,] <- c("","$t$","$y_t$","$\\ell_t$","$\\hat{y}_{t+1|t}$")
-tab[n+3,] <- c("","$h$","","","$\\hat{y}_{T+h|T}$")
-# Show table
-knitr::kable(tab, booktabs=TRUE)
-```
-
 ## Example: Algerian Exports
 
 \fontsize{12}{12}\sf
@@ -490,25 +340,7 @@ fit %>%
   ylab("Exports (% of GDP)") + xlab("Year")
 ```
 
-# The trend
-
-## Adding a trend
-
-What if our data is trended? Add $b_t$ to the model.
-
-This is compactly represented by ETS(A,A,N).
-
-\begin{block}{}
-\centerline{$y_t = \ell_{t-1} + b_{t-1} + \varepsilon_t$}
-\end{block}
-
-We design $b_t$ to weight recent slopes more.
-
-\begin{block}{}
-\centerline{$b_t = \beta^*(\ell_t - \ell_{t-1}) + (1-\beta^*) b_{t-1}$}
-\end{block}
-
-Need to choose $\alpha$, $\beta^*$, $\ell_0$ and $b_0$.
+# Models with trend
 
 ## Holt's linear trend
 
@@ -526,6 +358,7 @@ Need to choose $\alpha$, $\beta^*$, $\ell_0$ and $b_0$.
   * $b_t$ slope: weighted average of $(\ell_{t} - \ell_{t-1})$ and $b_{t-1}$, current and previous estimate of slope.
   * Choose $\alpha, \beta^*, \ell_0, b_0$ to minimise SSE.
 
+
 ## ETS(A,A,N)
 
 Holt's linear method with additive errors.
@@ -538,6 +371,56 @@ Holt's linear method with additive errors.
       b_t&=b_{t-1}+\alpha\beta^* \varepsilon_t
   \end{align*}
   * For simplicity, set $\beta=\alpha \beta^*$.
+
+## Exponential smoothing: trend/slope
+
+```{r beta-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+library(gganimate)
+apple_stock <- gafa_stock %>%
+  filter(Symbol == "AAPL") %>%
+  mutate(trading_day = row_number()) %>%
+  update_tsibble(index = trading_day, regular = TRUE)
+beta_anim <- map_dfr(set_names(seq(0, 0.005, length.out = 100),seq(0, 0.005, length.out = 100)),
+                     function(beta){
+    apple_stock %>%
+      model(ETS(Close ~ error("A") + trend("A", alpha = 0.001, alpha_range = c(-1,1),
+            beta = beta, beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>%
+      augment() %>%
+      as_tibble()
+  }, .id = "beta") %>%
+  mutate(beta = 0.005-as.numeric(beta))
+beta_anim %>%
+  left_join(select(apple_stock, trading_day, Date), by = "trading_day") %>%
+  ggplot(aes(x = Date, y = Close)) +
+  geom_line() +
+  geom_line(aes(y = .fitted), colour = "blue") +
+  transition_manual(beta) +
+  ylab("Closing price ($USD)") +
+  ggtitle("Apple closing stock price: trend (beta = {format(0.005-as.numeric(as.character(current_frame)), nsmall=2)})")
+```
+
+## Exponential smoothing: trend/slope
+
+```{r beta-static, fig.height=5, fig.width=8}
+beta_static <- map_dfr(list(0, 0.001),
+                     function(beta){
+    fit <- apple_stock %>%
+      model(ETS(Close ~ error("A") + trend("A", alpha = 0.00001, alpha_range = c(-.1,1),
+            beta = beta, beta_range = c(-0.1,0.005)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
+    fit %>%
+      augment() %>%
+      mutate(beta = tidy(fit)$estimate[tidy(fit)$term == "beta"]) %>%
+      as_tibble()
+  }) %>%
+  mutate(beta = factor(format(beta))) %>%
+  left_join(select(apple_stock, trading_day, Date), by = "trading_day")
+apple_stock %>%
+  ggplot(aes(x = Date, y = Close)) +
+  geom_line() +
+  geom_line(aes(y = .fitted, colour = beta), data = beta_static) +
+  ylab("Closing price ($USD)") +
+  ggtitle("Apple closing stock price: trend")
+```
 
 ## ETS(M,A,N)
 
@@ -562,7 +445,7 @@ ETS(y ~ error("A") + trend("A") + season("N"))
 
 \fontsize{14}{16}\sf
 
-By default, an optimal value for $\beta$ and $b_0$ is used.
+By default, optimal values for $\beta$ and $b_0$ are used.
 
 $\beta$ can be chosen manually in `trend()`.
 
@@ -576,10 +459,10 @@ trend("N", beta_range = c(0, 0.1))
 \fontsize{10}{11}\sf
 
 ```{r holt-fit, echo=TRUE}
-aus_economy <- global_economy %>% filter(Code == "AUS")
+aus_economy <- global_economy %>% filter(Code == "AUS") %>%
+  mutate(Pop = Population/1e6)
 fit <- aus_economy %>%
-  model(AAN = ETS(Population ~
-                    error("A") + trend("A") + season("N")))
+  model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
 report(fit)
 ```
 
@@ -587,7 +470,7 @@ report(fit)
 
 \fontsize{10}{11}\sf
 
-```{r holt-cmp, echo=TRUE}
+```{r holt-cmp, echo=TRUE, dependson='holt-fit'}
 components(fit) %>%
   left_join(fitted(fit), by = c("Country", ".model", "Year"))
 ```
@@ -596,7 +479,7 @@ components(fit) %>%
 
 \fontsize{12}{12}\sf
 
-```{r holt-fc, echo=TRUE, cache=TRUE}
+```{r holt-fc, echo=TRUE, cache=TRUE, dependson='holt-fit'}
 fit %>%
   forecast(h = 10) %>%
   autoplot(aus_economy) +
@@ -628,8 +511,7 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
 
 ```{r, echo=TRUE, fig.height=3.6}
 aus_economy %>%
-  model(holt = ETS(Population ~
-                  error("A") + trend("Ad") + season("N"))) %>%
+  model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
   forecast(h = 10) %>%
   autoplot(aus_economy)
 ```
@@ -641,9 +523,9 @@ aus_economy %>%
 fit <- aus_economy %>%
   filter(Year <= 2010) %>%
   model(
-    ses = ETS(Population ~ error("A") + trend("N") + season("N")),
-    holt = ETS(Population ~ error("A") + trend("A") + season("N")),
-    damped = ETS(Population ~ error("A") + trend("Ad") + season("N"))
+    ses = ETS(Pop ~ error("A") + trend("N") + season("N")),
+    holt = ETS(Pop ~ error("A") + trend("A") + season("N")),
+    damped = ETS(Pop ~ error("A") + trend("Ad") + season("N"))
   )
 ```
 
@@ -652,7 +534,7 @@ tidy(fit)
 accuracy(fit)
 ```
 
-## Example: Sheep in Asia
+## Example: Australian Population
 \fontsize{13}{15}\sf
 
 ```{r echo=FALSE}
@@ -722,25 +604,8 @@ bind_rows(fit_terms, fit_accuracy) %>%
  1. Are these RMSE values comparable?
  1. Do the residuals from the best fitting method look like white noise?
 
-# Seasonal methods
 
-## Adding seasonality
-
-What if our data is seasonal? Add $s_t$ to the model.
-
-This is compactly represented by ETS(A,A,A).
-
-\begin{block}{}
-\centerline{$y_t = \ell_{t-1} + b_{t-1} + s_{t-m} + \varepsilon_t$}
-\end{block}
-
-We design $s_{t}$ to weight slopes more.
-
-\begin{block}{}
-\centerline{$s_t = \gamma(y_t - \ell_{t-1} - b_{t-1}) + (1-\gamma) s_{t-m}$}
-\end{block}
-
-Need to choose $\alpha$, $\beta^*$, $\gamma$, $\ell_0$, $b_0$, $s_0$, $s_{-1}$, \ldots, $s_{-m + 1}$.
+# Models with seasonality
 
 ## Holt-Winters additive method
 \fontsize{13}{15}\sf
@@ -766,6 +631,52 @@ s_{t} &= \gamma (y_{t}-\ell_{t-1}-b_{t-1}) + (1-\gamma)s_{t-m}
         $s_{t} = \gamma^*(1-\alpha) (y_{t}-\ell_{t-1}-b_{t-1})+ [1-\gamma^*(1-\alpha)]s_{t-m}$
   * We set $\gamma=\gamma^*(1-\alpha)$.
   * The usual parameter restriction is $0\le\gamma^*\le1$, which translates to $0\le\gamma\le(1-\alpha)$.
+
+
+## Exponential smoothing: seasonality
+
+```{r gamma-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+library(gganimate)
+j07 <- PBS %>%
+  filter(ATC2 == "J07") %>%
+  summarise(Cost = sum(Cost))
+gamma_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(gamma){
+  j07 %>%
+    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
+              beta_range = c(-1,1)) + season("A", gamma = gamma, gamma_range = c(-1,1)), bounds = "admissible")) %>%
+    augment() %>%
+    as_tibble()
+}, .id = "gamma") %>%
+  mutate(gamma = 1-as.numeric(gamma))
+gamma_anim %>%
+  ggplot(aes(x = Month, y = Cost)) +
+  geom_line() +
+  geom_line(aes(y = .fitted), colour = "blue") +
+  transition_manual(gamma) +
+  ylab("Cost of scripts ($AUD)") +
+  ggtitle("Medicare Australia cost of vaccine scripts: seasonality (gamma = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
+```
+
+## Exponential smoothing: seasonality
+
+```{r gamma-static, fig.height=5, fig.width=8}
+gamma_static <- map_dfr(list(0, NULL, 1), function(gamma){
+  fit <- j07 %>%
+    model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
+              beta_range = c(-1,1)) + season("A", gamma = gamma, gamma_range = c(-1,1)), bounds = "admissible"))
+  fit %>%
+    augment() %>%
+    mutate(gamma = tidy(fit)$estimate[tidy(fit)$term == "gamma"]) %>%
+    as_tibble()
+}) %>%
+  mutate(gamma = factor(format(gamma)))
+j07 %>%
+  ggplot(aes(x = Month, y = Cost)) +
+  geom_line() +
+  geom_line(aes(y = .fitted, colour = gamma), data = gamma_static) +
+  ylab("Cost of scripts ($AUD)") +
+  ggtitle("Medicare Australia cost of vaccine scripts: seasonality")
+```
 
 ## ETS(A,A,A)
 
@@ -806,6 +717,25 @@ For when seasonal variations are changing proportional to the level of the serie
   * $k$ is integer part of $(h-1)/m$.
   * With additive method $s_t$ is in absolute terms:\newline within each year $\sum_i s_i \approx 0$.
   * With multiplicative method $s_t$ is in relative terms:\newline within each year $\sum_i s_i \approx m$.
+
+
+## ETS(M,A,M)
+
+Holt-Winters multiplicative method with multiplicative errors.
+
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\text{Forecast equation} && \hat{y}_{t+h|t} &= (\ell_{t} + hb_{t}) s_{t+h-m(k+1)}\\
+\text{Observation equation}&& y_t&= (\ell_{t-1}+b_{t-1})s_{t-m}(1 + \varepsilon_t)\\
+\text{State equations}&& \ell_t&=(\ell_{t-1}+b_{t-1})(1+\alpha \varepsilon_t)\\
+&&        b_t&=b_{t-1}(1+\beta \varepsilon_t) \\
+&&s_t &= s_{t-m}(1 + \gamma\varepsilon_t)
+\end{align*}
+\end{block}
+
+* Forecast errors: $\varepsilon_{t} = (y_t - \hat{y}_{t|t-1})/\hat{y}_{t|t-1}$
+* $k$ is integer part of $(h-1)/m$.
+
 
 ## Example: Australian holiday tourism
 
@@ -872,6 +802,7 @@ Apply Holt-Winters’ multiplicative method to the Gas data from `aus_production
 
 
 # Innovations state space models
+
 
 ## Exponential smoothing methods
 \fontsize{12}{14}\sf
@@ -1067,13 +998,6 @@ Method performed very well in M3 competition.
 \end{tabular}
 \end{block}
 
-## The `ETS()` function
-
-* Automatically chooses a model by default using the AIC, AICc or BIC.
-* Can handle any combination of trend, seasonality and damping
-* Ensures the parameters are admissible (equivalent to invertible)
-
-
 ## Example: Australian holiday tourism
 \fontsize{10}{10}\sf
 
@@ -1132,14 +1056,16 @@ Multiplicative error model:
 $$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
 
 ## Example: drug sales
-\fontsize{9}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
+h02 <- tsibbledata::PBS %>% filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost))
 h02 %>% model(ETS(Cost)) %>% report
 ```
 
 ## Example: drug sales
-\fontsize{9}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
 h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
