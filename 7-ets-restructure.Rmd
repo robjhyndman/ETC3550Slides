@@ -1168,7 +1168,6 @@ etc.
   * The prediction intervals will differ between models with additive and multiplicative errors.
   * Exact formulae for some models.
   * More general to simulate future sample paths, conditional on the last estimate of the states, and to obtain prediction intervals from the percentiles of these simulated future paths.
-  * Options are available in R using the `forecast` function in the forecast package.
 
 ## Prediction intervals
 \fontsize{12}{13}\sf\vspace*{-0.2cm}
@@ -1212,11 +1211,6 @@ h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% report
 * Can handle any combination of trend, seasonality and damping
 * Ensures the parameters are admissible (equivalent to invertible)
 
-## `ETS` models
-
-* **Methods:** `tidy()`, `glance()`, `augment()`, `components()`, `residuals()`, `fitted()`, `refit()`, `imitate()` and `forecast()`
-* `autoplot()` shows time plots of the original time series along with the extracted components (level, growth and seasonal).
-
 ## Example: drug sales
 ```{r, echo=TRUE, fig.height=4}
 h02 %>% model(ETS(Cost)) %>% components()
@@ -1237,106 +1231,9 @@ h02 %>% model(
   AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% accuracy()
 ```
 
-## The `ETS()` function
-\fontsize{8}{10}\sf
-
-`ETS` models also allow refitting the model to new data set.
-
-```{r, echo=TRUE}
-train <- h02 %>% filter_index(~ "2004 Dec")
-test <- h02 %>% filter_index("2005" ~ .)
-fit1 <- train %>% model(ETS(Cost))
-fit2 <- fit1 %>% refit(test)
-accuracy(fit2)
-accuracy(fit1)
-accuracy(forecast(fit1, h = 10), test)
-```
-
-## The `ETS()` function in R
-\fontsize{12}{13}\sf
-
-```r
-ets(y, model = "ZZZ", damped = NULL,
-  additive.only = FALSE,
-  lambda = NULL, biasadj = FALSE,
-  lower = c(rep(1e-04, 3), 0.8),
-  upper = c(rep(0.9999, 3), 0.98),
-  opt.crit = c("lik","amse","mse","sigma","mae"),
-  nmse = 3,
-  bounds = c("both", "usual", "admissible"),
-  ic = c("aicc", "aic", "bic"),
-  restrict = TRUE,
-  allow.multiplicative.trend = FALSE, ...)
-```
-
-## The `ets()` function in R
-\fontsize{13}{14}\sf
-
-* `y` \newline The time series to be forecast.
-* `model` \newline use the ETS classification and notation: "N" for none, "A" for additive, "M" for multiplicative, or "Z" for automatic selection. Default `ZZZ` all components are selected using the information criterion.
-* `damped`
-  * If `damped=TRUE`, then a damped trend will be used (either A\damped\ or M\damped).
-  * `damped=FALSE`, then a non-damped trend will used.
-  * If `damped=NULL` (default), then either a damped or a non-damped trend will be selected according to the information criterion chosen.
-
-## The `ets()` function in R
-\fontsize{13}{14.5}\sf\vspace*{-0.2cm}
-
-  * `additive.only`\newline
-      Only models with additive components will be considered if \Verb"additive.only=TRUE". Otherwise all models will be considered.
-  * `lambda`\newline
-      Box-Cox transformation parameter. It will be ignored if `lambda=NULL` (default). Otherwise, the time series will be transformed before the model is estimated. When `lambda` is not `NULL`, `additive.only` is set to `TRUE`.
-  * `biadadj`\newline
-      Uses bias-adjustment when undoing Box-Cox transformation for fitted values.
-
-## The `ets()` function in R
-\fontsize{12}{13}\sf\vspace*{-0.2cm}
-
-* `lower,upper` bounds for the parameter estimates of $\alpha$, $\beta^*$, $\gamma^*$ and $\phi$.
-* `opt.crit=lik` (default) optimisation criterion used for estimation.
-* `bounds` Constraints on the parameters.
-
-    * \textit{usual} region -- `"bounds=usual"`;
-    * \textit{admissible} region -- `"bounds=admissible"`;
-    * `"bounds=both"` (default) requires the parameters to satisfy both sets of constraints.
-
-* `ic=aicc` (default) information criterion to be used in selecting models.
-* `restrict=TRUE` (default) models that cause numerical problems not considered in model selection.
-* `allow.multiplicative.trend` allows models with a multiplicative trend.
-
-## The `forecast()` function in R
-\fontsize{13}{15}\sf\vspace*{-0.2cm}
-
-```r
-  forecast(object,
-    h=ifelse(object$m>1, 2*object$m, 10),
-    level=c(80,95), fan=FALSE,
-    simulate=FALSE, bootstrap=FALSE,
-    npaths=5000, PI=TRUE,
-    lambda=object$lambda, biasadj=FALSE,...)
-```
-
-* `object`: the object returned by the \Verb|ets()| function.
-* `h`: the number of periods to be forecast.
-* `level`: the confidence level for the prediction intervals.
-* `fan`: if `fan=TRUE`, suitable for fan plots.
-
-## The `forecast()` function in R
-\fontsize{13}{14}\sf\vspace*{-0.2cm}
-
-* `simulate`: If `TRUE`, prediction intervals generated via simulation rather than analytic formulae. Even if `FALSE` simulation will be used if no algebraic formulae exist.
-* `bootstrap`: If `bootstrap=TRUE` and \Verb"simulate=TRUE", then simulated prediction intervals use re-sampled errors rather than normally distributed errors.
-* `npaths`: The number of sample paths used in computing simulated prediction intervals.
-* `PI`: If `PI=TRUE`, then prediction intervals are produced; otherwise only point forecasts are calculated. If `PI=FALSE`, then `level`, `fan`, `simulate`, `bootstrap` and `npaths` are all ignored.
-
-## The `forecast()` function in R
-
-* `lambda`: The Box-Cox transformation parameter. Ignored if `lambda=NULL`. Otherwise, forecasts are back-transformed via inverse Box-Cox transformation.
-* `biasadj`: Apply bias adjustment after Box-Cox?
-
 ## Your turn
 
-* Use `ets()` on some of these series:\vspace*{0.2cm}
+* Use `ETS()` on some of these series:\vspace*{0.2cm}
 
   > `bicoal`, `chicken`, `dole`, `usdeaths`, `bricksq`, `pelt`, `ibmclose`, `eggs`, `bricksq`, `ausbeer`
 
