@@ -446,8 +446,8 @@ By default, optimal values for $\beta$ and $b_0$ are used.
 $\beta$ can be chosen manually in `trend()`.
 
 ```{r beta-spec, echo = TRUE, eval = FALSE}
-trend("N", beta = 0.004)
-trend("N", beta_range = c(0, 0.1))
+trend("A", beta = 0.004)
+trend("A", beta_range = c(0, 0.1))
 ```
 
 ## Example: Australian population
