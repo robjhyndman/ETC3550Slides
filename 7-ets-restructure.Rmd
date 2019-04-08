@@ -22,22 +22,6 @@ library(feasts)
 library(lubridate)
 library(tsibbledata)
 
-oil <- as_tsibble(fpp2::oil) %>%
-  rename(Year = index, Production = value)
-
-ausair <- as_tsibble(fpp2::ausair) %>%
-  rename(Year = index, Passengers = value)
-
-livestock <- as_tsibble(fpp2::livestock) %>%
-  rename(Year = index, Sheep = value)
-
-austourists <- as_tsibble(fpp2::austourists) %>%
-  rename(Time = index, Nights = value)
-
-h02 <- tsibbledata::PBS %>%
-  filter(ATC2 == "H02") %>%
-  summarise(Cost = sum(Cost))
-
 source("nicefigs.R")
 options(digits=4, width=55)
 ```
@@ -352,14 +336,14 @@ $y_{T-5}$    & $(0.2)(0.8)^5$  & $(0.4)(0.6)^5$   & $(0.6)(0.4)^5$  & $(0.8)(0.2
   * A stochastic (or random) data generating process that can generate an entire forecast distribution.
   * Allow for "proper" model selection.
 
-## ETS models
+<!-- ## ETS models -->
 
-   * Each model has an \textit{observation} equation and \textit{transition} equations, one for each state (level, trend, seasonal), i.e., state space models.
-   * Two models for each method: one with additive and one with multiplicative errors, i.e., in total \color{orange}{18 models}.
-   * ETS(Error,Trend,Seasonal):
-      * Error $=\{$A,M$\}$
-      * Trend $=\{$N,A,A\damped$\}$
-      * Seasonal $=\{$N,A,M$\}$.
+<!--    * Each model has an \textit{observation} equation and \textit{transition} equations, one for each state (level, trend, seasonal), i.e., state space models. -->
+<!--    * Two models for each method: one with additive and one with multiplicative errors, i.e., in total \color{orange}{18 models}. -->
+<!--    * ETS(Error,Trend,Seasonal): -->
+<!--       * Error $=\{$A,M$\}$ -->
+<!--       * Trend $=\{$N,A,A\damped$\}$ -->
+<!--       * Seasonal $=\{$N,A,M$\}$. -->
 
 ## ETS(A,N,N): A model for SES
 
@@ -453,39 +437,6 @@ report(fit)
 ```{r ses-cmp, echo = TRUE}
 components(fit) %>%
   left_join(fitted(fit), by = c("Country", ".model", "Year"))
-```
-
-
-```{r oilses, echo=FALSE, cache=TRUE, eval = FALSE}
-# Data set for table
-fc <- forecast(fit, h=3)
-
-# Now set up the table
-n <- NROW(oildata)
-year0 <- min(oildata$Year)-1
-tab <- matrix(NA,nrow=n+6,ncol=5)
-colnames(tab) <- c("Year","Time","Observation","Level","Forecast")
-tab[2:(n+6),1] <- year0 + 0:(n+4)
-tab[2:(n+6),2] <- 0:(n+4)
-# Add data, level and fitted values
-tab[3:(n+2),3] <- oildata$Production
-tab[2:(n+2),4] <- components(fit)$level
-tab[3:(n+2),5] <- fitted(fit)$.fitted
-# Add forecasts
-tab[n+(4:6),1] <- max(oildata$Year)+1:3
-tab[n+(4:6),2] <- 1:3
-tab[n+(4:6),5] <- fc$Production
-# Convert to characters
-tab <- as.data.frame(tab)
-class(tab$Year) <- class(tab$Time) <- "integer"
-tab <- format(tab, digits=5)
-# Remove missing values
-tab <- apply(tab, 2, function(x){j <- grep("[ ]*NA",x); x[j] <- ""; return(x)})
-# Add math notation rows
-tab[1,] <- c("","$t$","$y_t$","$\\ell_t$","$\\hat{y}_{t+1|t}$")
-tab[n+3,] <- c("","$h$","","","$\\hat{y}_{T+h|T}$")
-# Show table
-knitr::kable(tab, booktabs=TRUE)
 ```
 
 ## Example: Algerian Exports
@@ -661,7 +612,7 @@ tidy(fit)
 accuracy(fit)
 ```
 
-## Example: Sheep in Asia
+## Example: Australian Population
 \fontsize{13}{15}\sf
 
 ```{r echo=FALSE}
@@ -686,38 +637,6 @@ bind_rows(fit_terms, fit_accuracy) %>%
   rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) %>%
   mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) %>%
   knitr::kable(booktabs = TRUE, align='r')
-#
-# tab <- matrix(NA, ncol=3,nrow=10)
-# colnames(tab) <- c("SES","Linear trend","Damped trend")
-# rownames(tab) <- c("$\\alpha$","$\\beta^*$","$\\phi$","$\\ell_0$","$b_0$",
-#                    "Training RMSE","Test RMSE","Test MAE","Test MAPE","Test MASE")
-# # SSE
-# tab[1,1] <- fit1$model$par["alpha"]
-# tab[4,1] <- fit1$model$par["l"]
-# tab[6,1] <- sqrt(fit1$model$mse)
-# tab[c(7:10),1] <- accuracy(fit1,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# # Holt
-# tab[1,2] <- fit2$model$par["alpha"]
-# tab[2,2] <- fit2$model$par["beta"]/fit1$model$par["alpha"]
-# tab[4,2] <- fit2$model$par["l"]
-# tab[5,2] <- fit2$model$par["b"]
-# tab[6,2] <- sqrt(fit2$model$mse)
-# tab[c(7:10),2] <- accuracy(fit2,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# # Damped trend
-# tab[1,3] <- fit3$model$par["alpha"]
-# tab[2,3] <- fit3$model$par["beta"]/fit1$model$par["alpha"]
-# tab[3,3] <- fit3$model$par["phi"]
-# tab[4,3] <- fit3$model$par["l"]
-# tab[5,3] <- fit3$model$par["b"]
-# tab[6,3] <- sqrt(fit3$model$mse)
-# tab[c(7:10),3] <- accuracy(fit3,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# # Convert to characters
-# tab <- as.data.frame(formatC(tab, format="f", digits=2))
-# # Remove missing values
-# tab <- apply(tab, 2, function(x){j <- grep("[ ]*NA",x); x[j] <- ""; return(x)})
-# # Show table
-# knitr::kable(tab, booktabs=TRUE)
-
 ```
 
 ## Your turn
@@ -911,11 +830,6 @@ A\damped & (Additive damped) & (A\damped,N) & (A\damped,A) & (A\damped,M)
 \begin{block}{}\fontsize{12}{14}\sf
 There are also multiplicative trend methods (not recommended).
 \end{block}
-
-## Recursive formulae
-
-\placefig{0}{1.4}{width=12.8cm}{pegelstable.pdf}
-
 
 ## Exponential smoothing models
 \fontsize{11}{12}\sf
@@ -1111,13 +1025,6 @@ Method performed very well in M3 competition.
 \end{tabular}
 \end{block}
 
-## The `ETS()` function
-
-* Automatically chooses a model by default using the AIC, AICc or BIC.
-* Can handle any combination of trend, seasonality and damping
-* Ensures the parameters are admissible (equivalent to invertible)
-
-
 ## Example: Australian holiday tourism
 \fontsize{10}{10}\sf
 
@@ -1189,7 +1096,7 @@ residuals(fit) %>%
 \structure{Point forecasts:} iterate the equations for $t=T+1,T+2,\dots,T+h$ and set all $\varepsilon_t=0$ for $t>T$.\pause
 
 * Not the same as $\text{E}(y_{t+h} | \bm{x}_t)$ unless trend and seasonality are both additive.
-* Point forecasts for ETS(A,x,y) are identical to ETS(M,x,y) if the parameters are the same.
+* Point forecasts for ETS(A,\*,\*) are identical to ETS(M,\*,\*) if the parameters are the same.
 
 ## Example: ETS(A,A,N)
 
@@ -1252,6 +1159,18 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
   & \hspace*{1.5cm}$\mbox{} - \frac{\beta\phi(1-\phi^h)}{(1-\phi)^2(1-\phi^2)} \left\{ 2\alpha(1-\phi^2)+ \beta\phi(1+2\phi-\phi^h)\right\}$ \\
   & \hspace*{1.5cm}$\mbox{} + \gamma k(2\alpha+\gamma)  + \frac{2\beta\gamma\phi}{(1-\phi)(1-\phi^m)}\left\{k(1-\phi^m) - \phi^m(1-\phi^{mk})\right\}\biggr]$
 \end{tabular}
+
+## Example: Corticosteroid drug sales
+
+\fontsize{10}{10}\sf
+
+```{r h02-plot, echo = TRUE}
+h02 <- tsibbledata::PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost))
+h02 %>% 
+  autoplot(Cost)
+```
 
 ## Example: Corticosteroid drug sales
 \fontsize{8}{8}\sf
