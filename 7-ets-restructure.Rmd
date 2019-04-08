@@ -506,7 +506,7 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
 
  * Write down the model for ETS(A,Ad,N)
 
-## Example: Australian Population
+## Example: Australian population
 \fontsize{10}{11}\sf
 
 ```{r, echo=TRUE, fig.height=3.6}
@@ -516,7 +516,7 @@ aus_economy %>%
   autoplot(aus_economy)
 ```
 
-## Example: Australian Population
+## Example: Australian population
 \fontsize{9}{12}\sf
 
 ```{r, echo=TRUE}
@@ -534,7 +534,7 @@ tidy(fit)
 accuracy(fit)
 ```
 
-## Example: Australian Population
+## Example: Australian population
 \fontsize{13}{15}\sf
 
 ```{r echo=FALSE}
@@ -559,38 +559,6 @@ bind_rows(fit_terms, fit_accuracy) %>%
   rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) %>%
   mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) %>%
   knitr::kable(booktabs = TRUE, align='r')
-#
-# tab <- matrix(NA, ncol=3,nrow=10)
-# colnames(tab) <- c("SES","Linear trend","Damped trend")
-# rownames(tab) <- c("$\\alpha$","$\\beta^*$","$\\phi$","$\\ell_0$","$b_0$",
-#                    "Training RMSE","Test RMSE","Test MAE","Test MAPE","Test MASE")
-# # SSE
-# tab[1,1] <- fit1$model$par["alpha"]
-# tab[4,1] <- fit1$model$par["l"]
-# tab[6,1] <- sqrt(fit1$model$mse)
-# tab[c(7:10),1] <- accuracy(fit1,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# # Holt
-# tab[1,2] <- fit2$model$par["alpha"]
-# tab[2,2] <- fit2$model$par["beta"]/fit1$model$par["alpha"]
-# tab[4,2] <- fit2$model$par["l"]
-# tab[5,2] <- fit2$model$par["b"]
-# tab[6,2] <- sqrt(fit2$model$mse)
-# tab[c(7:10),2] <- accuracy(fit2,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# # Damped trend
-# tab[1,3] <- fit3$model$par["alpha"]
-# tab[2,3] <- fit3$model$par["beta"]/fit1$model$par["alpha"]
-# tab[3,3] <- fit3$model$par["phi"]
-# tab[4,3] <- fit3$model$par["l"]
-# tab[5,3] <- fit3$model$par["b"]
-# tab[6,3] <- sqrt(fit3$model$mse)
-# tab[c(7:10),3] <- accuracy(fit3,livestock)["Test set",c("RMSE","MAE","MAPE","MASE")]
-# # Convert to characters
-# tab <- as.data.frame(formatC(tab, format="f", digits=2))
-# # Remove missing values
-# tab <- apply(tab, 2, function(x){j <- grep("[ ]*NA",x); x[j] <- ""; return(x)})
-# # Show table
-# knitr::kable(tab, booktabs=TRUE)
-
 ```
 
 ## Your turn
@@ -835,14 +803,35 @@ There are also multiplicative trend methods (not recommended).
 \end{block}
 
 ## ETS models
+\fontsize{11}{12}\sf
 
-   * Each model has an \textit{observation} equation and \textit{transition} equations, one for each state (level, trend, seasonal), i.e., state space models.
-   * Two models for each method: one with additive and one with multiplicative errors, i.e., in total \color{orange}{18 models}.
-   * ETS(Error,Trend,Seasonal):
-      * Error $=\{$A,M$\}$
-      * Trend $=\{$N,A,A\damped$\}$
-      * Seasonal $=\{$N,A,M$\}$.
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+  \multicolumn{2}{l}{\alert{\bf Additive Error}} &        \multicolumn{3}{c}{\bf Seasonal Component}         \\
+          \multicolumn{2}{c|}{\bf Trend}         &         N         &         A         &         M         \\
+        \multicolumn{2}{c|}{\bf Component}       &     ~(None)~      &    (Additive)     & (Multiplicative)  \\ \cline{3-5}
+           &                                     &                   &                   &  \\[-0.3cm]
+  N        & (None)                              &       A,N,N       &       A,N,A       &    A,N,M     \\
+           &                                     &                   &                   &  \\[-0.3cm]
+  A        & (Additive)                          &       A,A,N       &       A,A,A       &    A,A,M     \\
+           &                                     &                   &                   &  \\[-0.3cm]
+  A\damped & (Additive damped)                   &   A,A\damped,N    &   A,A\damped,A    & A,A\damped,M
+\end{tabular}
+\end{block}
 
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+  \multicolumn{2}{l}{\alert{\bf Multiplicative Error}} &     \multicolumn{3}{c}{\bf Seasonal Component}      \\
+             \multicolumn{2}{c|}{\bf Trend}            &      N       &         A         &        M         \\
+           \multicolumn{2}{c|}{\bf Component}          &   ~(None)~   &    (Additive)     & (Multiplicative) \\ \cline{3-5}
+           &                                           &              &                   &  \\[-0.3cm]
+  N        & (None)                                    &    M,N,N     &       M,N,A       &      M,N,M       \\
+           &                                           &              &                   &  \\[-0.3cm]
+  A        & (Additive)                                &    M,A,N     &       M,A,A       &      M,A,M       \\
+           &                                           &              &                   &  \\[-0.3cm]
+  A\damped & (Additive damped)                         & M,A\damped,N &   M,A\damped,A    &   M,A\damped,M
+\end{tabular}
+\end{block}
 
 ## Additive error models
 
@@ -851,6 +840,8 @@ There are also multiplicative trend methods (not recommended).
 ## Multiplicative error models
 
 \placefig{0}{1.5}{width=12.8cm,trim=0 120 0 0,clip=true}{fig_7_ets_multi.pdf}
+
+
 
 ## Estimating ETS models
 
@@ -961,6 +952,7 @@ criterion).
 
 Method performed very well in M3 competition.
 
+
 ## Some unstable models
 
 * Some of the combinations of (Error, Trend, Seasonal) can lead to numerical difficulties; see equations with division by a state.
@@ -1006,7 +998,7 @@ fit <- aus_holidays %>% model(ETS(Trips))
 report(fit)
 ```
 
-## Example: International tourists
+## Example: Australian holiday tourism
 
 Model selected: ETS(M,N,M)
 \begin{align*}
@@ -1018,29 +1010,18 @@ s_t &=  s_{t-m}(1+ \gamma \varepsilon_t).
 $\hat\alpha=`r format(tidy(fit)$estimate[1],nsmall=4,digits=4)`$,
 and $\hat\gamma=`r format(tidy(fit)$estimate[2],nsmall=3,digits=3, scientific=FALSE)`$.
 
-## Example: International tourists
+## Example: Australian holiday tourism
 
-\fontsize{11}{11}\sf
-
-```{r MAMstates, fig.height=3.1,fig.width=6, echo=TRUE}
-components(fit) %>%
-    gather("Term", "Value", -.model, -Quarter) %>%
-    ggplot(aes(x = Quarter, y = Value)) +
-    geom_line() +
-    facet_grid(Term ~ ., scales = "free_y")
+```{r MAMstates, fig.height=3.5,fig.width=6, echo=TRUE, results = "hide"}
+components(fit)
 ```
 
-## Example: International tourists
-\fontsize{10}{10}\sf
-```{r, echo=TRUE, fig.height=3.2}
-residuals(fit) %>%
-  mutate(Type = "Residuals") %>%
-  bind_rows(residuals(fit, type = "response") %>%
-  mutate(Type = "Forecast errors")) %>%
-  ggplot(aes(x = Quarter, y = .resid)) +
-    geom_line() + ylab(NULL) +
-    facet_grid(Type ~ ., scales = "free_y")
+```{r r MAMstates, fig.height=3.5,fig.width=6}
+components(fit) %>% 
+  autoplot() + 
+  ggtitle("ETS(M,N,M) components")
 ```
+
 
 ## Residuals
 \fontsize{16}{18}\sf
@@ -1055,56 +1036,32 @@ $$\hat\varepsilon_t = y_t - \hat{y}_{t|t-1}$$
 Multiplicative error model:
 $$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
 
-## Example: drug sales
-\fontsize{9}{9}\sf
+## Example: Australian holiday tourism
+\fontsize{9.5}{12}\sf
 
-```{r, echo=TRUE}
-h02 <- tsibbledata::PBS %>% filter(ATC2 == "H02") %>%
-  summarise(Cost = sum(Cost))
-h02 %>% model(ETS(Cost)) %>% report
+```{r, echo = TRUE, results = "hide"}
+residuals(fit)
+residuals(fit, type = "response")
 ```
 
-## Example: drug sales
-\fontsize{9}{9}\sf
-
-```{r, echo=TRUE}
-h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
-  report
+```{r, echo=FALSE}
+residuals(fit) %>% 
+  mutate(Type = "Innovation residuals") %>% 
+  bind_rows(residuals(fit, type = "response") %>% mutate(Type = "Response residuals")) %>% 
+  ggplot(aes(x = Quarter, y = .resid)) + 
+  geom_line() + 
+  facet_grid(Type ~ ., scales = "free_y") + 
+  ylab(NULL)
 ```
 
-## Example: drug sales
-\fontsize{10}{10}\sf
-
-```{r, echo=TRUE, fig.height=4}
-h02 %>% model(ETS(Cost)) %>% components()
-```
-
-## Example: drug sales
-
-```{r, echo=TRUE, fig.height=3.8}
-h02 %>% model(ETS(Cost)) %>% forecast() %>%
-autoplot(h02)
-```
-
-## Example: drug sales
-\fontsize{10}{13}\sf
-
-```{r, echo=TRUE}
-h02 %>%
-  model(
-    auto = ETS(Cost),
-    AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
-  accuracy()
-```
-
-# Forecasting with ETS models
+# Forecasting with exponential smoothing
 
 ## Forecasting with ETS models
 
 \structure{Point forecasts:} iterate the equations for $t=T+1,T+2,\dots,T+h$ and set all $\varepsilon_t=0$ for $t>T$.\pause
 
 * Not the same as $\text{E}(y_{t+h} | \bm{x}_t)$ unless trend and seasonality are both additive.
-* Point forecasts for ETS(A,x,y) are identical to ETS(M,x,y) if the parameters are the same.
+* Point forecasts for ETS(A,\*,\*) are identical to ETS(M,\*,\*) if the parameters are the same.
 
 ## Example: ETS(A,A,N)
 
@@ -1142,7 +1099,7 @@ etc.
 
 ## Forecasting with ETS models
 
-\structure{Prediction intervals:} cannot be generated using the methods, only the models.
+\structure{Prediction intervals:} can only generated using the models.
 
   * The prediction intervals will differ between models with additive and multiplicative errors.
   * Exact formulae for some models.
@@ -1167,6 +1124,62 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
   & \hspace*{1.5cm}$\mbox{} - \frac{\beta\phi(1-\phi^h)}{(1-\phi)^2(1-\phi^2)} \left\{ 2\alpha(1-\phi^2)+ \beta\phi(1+2\phi-\phi^h)\right\}$ \\
   & \hspace*{1.5cm}$\mbox{} + \gamma k(2\alpha+\gamma)  + \frac{2\beta\gamma\phi}{(1-\phi)(1-\phi^m)}\left\{k(1-\phi^m) - \phi^m(1-\phi^{mk})\right\}\biggr]$
 \end{tabular}
+
+## Example: Corticosteroid drug sales
+
+\fontsize{10}{10}\sf
+
+```{r h02-plot, echo = TRUE}
+h02 <- tsibbledata::PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost))
+h02 %>% 
+  autoplot(Cost)
+```
+
+## Example: Corticosteroid drug sales
+\fontsize{8}{8}\sf
+
+```{r, echo=TRUE}
+h02 %>% model(ETS(Cost)) %>% report
+```
+
+## Example: Corticosteroid drug sales
+\fontsize{8}{8}\sf
+
+```{r, echo=TRUE}
+h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% report
+```
+
+## Example: Corticosteroid drug sales
+
+\fontsize{10}{10}\sf
+```{r, echo=TRUE, fig.height=4}
+h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
+```
+
+## Example: Corticosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, results = "hide"}
+h02 %>% 
+  model(
+    auto = ETS(Cost),
+    AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
+  ) %>% 
+  accuracy()
+```
+
+```{r}
+h02 %>% 
+  model(
+    auto = ETS(Cost),
+    AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
+  ) %>% 
+  accuracy() %>% 
+  transmute(Model = .model, ME, MAE, RMSE, MAPE, MASE) %>% 
+  knitr::kable(booktabs = TRUE)
+```
 
 ## Your turn
 
