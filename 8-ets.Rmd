@@ -716,7 +716,7 @@ fc <- fit %>% forecast()
 ```{r, fig.height=2.6}
 fc %>%
   autoplot(aus_holidays, level = NULL) + xlab("Year") +
-  ylab("Overnight trips (millions)") +
+  ylab("Overnight trips (thousands)") +
   scale_color_brewer(type = "qual", palette = "Dark2")
 ```
 
