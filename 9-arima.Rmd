@@ -156,7 +156,7 @@ google_2018 %>%
 gafa_stock %>% 
   filter(Symbol == "GOOG", year(Date) == 2018) %>% 
   autoplot(difference(Close)) +
-  ylab("Change in Google closing stock price") + xlab("Day")
+  ylab("Change in Google closing stock price ($USD)") + xlab("Day")
 ```
 
 ## Example: Google stock price
@@ -306,9 +306,9 @@ usmelec %>% mutate(log_gen = log(Generation)) %>%
 
 ```{r, echo=TRUE}
 usmelec %>% mutate(log_gen = log(Generation)) %>% 
-  features(log_gen, list(unitroot_nsdiffs, stl_features))
+  features(log_gen, unitroot_nsdiffs)
 usmelec %>% mutate(d_log_gen = difference(log(Generation), 12)) %>% 
-  features(d_log_gen, list(unitroot_ndiffs, unitroot_kpss))
+  features(d_log_gen, unitroot_ndiffs)
 ```
 
 ## Your turn
@@ -391,7 +391,7 @@ gridExtra::grid.arrange(p1,p2,nrow=1)
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-```{r, echo=FALSE, out.width="50%", fig.height=2.2, fig.width=2.2}
+```{r, echo=FALSE}
 p1
 ```
 
@@ -413,7 +413,7 @@ p1
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$, \qquad $T=100$.}
 
-```{r, fig.height=2.2, fig.width=2.2, out.width="50%"}
+```{r}
 p2
 ```
 
@@ -457,7 +457,7 @@ gridExtra::grid.arrange(p1,p2,nrow=1)
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-```{r, fig.height=2.2, fig.width=2.2, out.width="50%"}
+```{r}
 p1
 ```
 
@@ -468,7 +468,7 @@ p1
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-```{r, fig.height=2.2, fig.width=2.2, out.width="50%"}
+```{r}
 p2
 ```
 
@@ -587,8 +587,11 @@ $$
 
 ## Australian household expenditure
 
+\fontsize{10}{10}\sf
+
 ```{r, eval = FALSE, echo = TRUE}
-us_change <- read_csv("https://otexts.com/fpp3/extrafiles/us_change.csv") %>%
+us_change <- read_csv(
+  "https://otexts.com/fpp3/extrafiles/us_change.csv") %>%
   mutate(Time = yearquarter(Time)) %>%
   as_tsibble(index = Time)
 ```
@@ -601,7 +604,7 @@ us_change %>% autoplot(Consumption) +
 ```
 
 ## US personal consumption
-\fontsize{10}{11}\sf
+\fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
 fit <- us_change %>% model(arima = ARIMA(Consumption ~ PDQ(0,0,0)))
@@ -616,26 +619,26 @@ intercept <- coef['intercept'] * (1-coef['ar1'] - coef['ar2'])
 ```
 
 ```{r}
-# if(!identical(arimaorder(fit),c(p=2L,d=0L,q=2L)))
+if(!grepl("ARIMA\\(1,0,3\\)", format(fit$arima)))
   warning("Needs fixing")
 ```
 
-### ARIMA(2,0,2) model:
+### ARIMA(1,0,3) model:
 \centerline{$
-  y_t = c + `r format(NA, nsmall=3, digits=3)`y_{t-1}
-          `r format(NA, nsmall=3, digits=3)` y_{t-2}
-          `r format(NA, nsmall=3, digits=3)` \varepsilon_{t-1}
-          + `r format(NA, nsmall=3, digits=3)` \varepsilon_{t-2}
+  y_t = c + `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`y_{t-1}
+          + `r format(tidy(fit)$estimate[2], nsmall=3, digits=3)` \varepsilon_{t-1}
+          + `r format(tidy(fit)$estimate[3], nsmall=3, digits=3)` \varepsilon_{t-2}
+          + `r format(tidy(fit)$estimate[4], nsmall=3, digits=3)` \varepsilon_{t-2}
           + \varepsilon_{t},
 $}
-where $c= `r format(NA, nsmall=3, digits=3)` \times (1 - `r format(NA, nsmall=3, digits=3)` + `r format(NA, nsmall=3, digits=3)`) = `r format(NA, nsmall=3, digits=3)`$
-and $\varepsilon_t$ is white noise with a standard deviation of $`r format(NA, nsmall=3, digits=3)` = \sqrt{`r format(NA, nsmall=3, digits=3)`}$.
+where $c= `r format(tidy(fit)$estimate[5], nsmall=3, digits=3)` \times (1 - `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`) = `r format(tidy(fit)$estimate[5] * (1-tidy(fit)$estimate[1]), nsmall=3, digits=3)`$
+and $\varepsilon_t$ is white noise with a standard deviation of $`r format(glance(fit)$sigma, nsmall=3, digits=3)` = \sqrt{`r format(glance(fit)$sigma^2, nsmall=3, digits=3)`}$.
 
 ## US personal consumption
 \fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-fit %>% forecast(h=10) %>% autoplot(tail(us_change,80))
+fit %>% forecast(h=10) %>% autoplot(slice(us_change, (n()-80):n()))
 ```
 
 ## Understanding ARIMA models
@@ -673,11 +676,13 @@ Having identified the model order, we need to estimate the parameters $c$, $\phi
 $$
   \sum_{t-1}^T e_t^2
 $$
-* The `Arima()` command allows CLS or MLE estimation.
+* The `ARIMA()` model allows CLS or MLE estimation.
 * Non-linear optimization must be used in either case.
 * Different software will give different estimates.
 
 ## Partial autocorrelations
+
+\fontsize{13}{14}\sf
 
 \alert{Partial autocorrelations} measure relationship\newline between $y_{t}$ and $y_{t - k}$, when the effects of other time lags --- $1, 2, 3, \dots, k - 1$ --- are removed.\pause
 \begin{block}{}
@@ -695,15 +700,19 @@ $$
 
 ## Example: US consumption
 
-```{r}
-us_change %>%
-  autoplot(difference(Consumption)) +
-    xlab("Year") +
-    ylab("Quarterly percentage change") +
-    ggtitle("US consumption")
+```{r, echo = TRUE}
+us_change %>% autoplot(difference(Consumption)) +
+  labs(x = "Year", y = "US consumption", 
+       title = "Quarterly percentage change")
 ```
 
 ## Example: US consumption
+
+```{r, eval = FALSE, echo = TRUE}
+us_change %>% ACF(Consumption) %>% autoplot()
+us_change %>% PACF(Consumption) %>% autoplot()
+```
+
 
 ```{r usconsumptionacf}
 p1 <- us_change %>% ACF(Consumption) %>% autoplot()
@@ -812,8 +821,8 @@ Need to select appropriate orders: \alert{$p,q, d$}
   * Select \alert{$p,q$} by minimising AICc.
   * Use stepwise search to traverse model space.
 
-## How does auto.arima() work?
-\fontsize{12}{13}\sf
+## How does ARIMA() work?
+\fontsize{12}{12}\sf
 
 \begin{block}{}
 \centerline{$\text{AICc} = -2 \log(L) + 2(p+q+k+1)\left[1 +
@@ -855,10 +864,11 @@ web_usage %>% gg_tsdisplay(difference(value))
 ```
 
 ## Choosing your own model
-\fontsize{13}{14}\sf
+\fontsize{12}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-fit <- web_usage %>% model(arima = ARIMA(value ~ pdq(3, 1, 0)))
+fit <- web_usage %>% model(
+  arima = ARIMA(value ~ pdq(3, 1, 0)))
 report(fit)
 ```
 
@@ -870,28 +880,36 @@ web_usage %>% model(ARIMA(value)) %>% report()
 ```
 
 ## Choosing your own model
-\fontsize{13}{14}\sf
+\fontsize{12}{13}\sf
 
 ```{r internettryharder, echo=TRUE, fig.height=4}
-web_usage %>% model(ARIMA(value, stepwise = FALSE, approximation = FALSE)) %>% report()
+web_usage %>% model(ARIMA(value, stepwise = FALSE,
+  approximation = FALSE)) %>% report()
 ```
 
 ## Choosing your own model
 
+\fontsize{11}{12}\sf
 ```{r, echo=TRUE, fig.height=4}
-augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
+augment(fit) %>%
+  gg_tsdisplay(.resid, plot_type = "hist")
 ```
 
 ## Choosing your own model
+
+\fontsize{12}{12}
 
 ```{r, echo = TRUE}
-augment(fit) %>% features(.resid, ljung_box, lag = 10, dof = 3)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 10, dof = 3)
 ```
 
 ## Choosing your own model
 
+\fontsize{12}{13}\sf
 ```{r, echo=TRUE, fig.height=4}
-fit %>% forecast(h = 10) %>% autoplot(web_usage)
+fit %>% forecast(h = 10) %>% 
+  autoplot(web_usage)
 ```
 
 ## Modelling procedure with `ARIMA`
@@ -913,7 +931,7 @@ fit %>% forecast(h = 10) %>% autoplot(web_usage)
 
 \vspace*{1.15cm}
 
-3. Use `ARIMA` to select a model.
+3. Use `ARIMA` to automatically select a model.
 
 \vspace*{1.15cm}
 
@@ -957,7 +975,10 @@ dcmp %>% gg_tsdisplay(difference(seas_adjust))
 \fontsize{10}{10}\sf
 
 ```{r, echo=TRUE}
-fit <- dcmp %>% model(arima = ARIMA(seas_adjust ~ pdq(3,1,1) + PDQ(0,0,0)))
+fit <- dcmp %>% 
+  model(
+    arima = ARIMA(seas_adjust ~ pdq(3,1,1) + PDQ(0,0,0))
+  )
 report(fit)
 ```
 
@@ -974,7 +995,8 @@ augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
 ## \large Seasonally adjusted electrical equipment
 
 ```{r}
-augment(fit) %>% features(.resid, ljung_box, lag = 24, dof = 4)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 24, dof = 4)
 ```
 
 ## \large Seasonally adjusted electrical equipment
@@ -1271,13 +1293,15 @@ euretail %>% autoplot(value) +
 ## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=4}
-euretail %>% gg_tsdisplay(difference(value, 4))
+euretail %>% gg_tsdisplay(
+  value %>% difference(4))
 ```
 
 ## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=3.8}
-euretail %>% gg_tsdisplay(value %>% difference(4) %>% difference(1))
+euretail %>% gg_tsdisplay(
+  value %>% difference(4) %>% difference(1))
 ```
 
 ## European quarterly retail trade
@@ -1290,8 +1314,10 @@ euretail %>% gg_tsdisplay(value %>% difference(4) %>% difference(1))
 
 ## European quarterly retail trade
 
+\fontsize{11}{12}
 ```{r, echo=TRUE, fig.height=3.5}
-fit <- euretail %>% model(arima = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)))
+fit <- euretail %>% 
+  model(arima = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)))
 augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
 ```
 
@@ -1300,7 +1326,8 @@ augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
 \fontsize{13}{14}\sf
 
 ```{r, echo = TRUE}
-augment(fit) %>% features(.resid, ljung_box, lag = 8, dof = 2)
+augment(fit) %>% 
+  features(.resid, ljung_box, lag = 8, dof = 2)
 ```
 
 ## European quarterly retail trade
@@ -1321,7 +1348,8 @@ aicc <- euretail %>%
 \pause\vfill
 
 ```{r}
-fit <- euretail %>% model(ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1)))
+fit <- euretail %>% 
+  model(ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1)))
 ```
 
 ## European quarterly retail trade
@@ -1336,14 +1364,16 @@ report(fit)
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-fit %>% residuals %>% gg_tsdisplay(.resid, plot_type = "hist")
+augment(fit) %>%
+  gg_tsdisplay(.resid, plot_type = "hist")
 ```
 
 ## European quarterly retail trade
 \fontsize{13}{15}\sf
 
 ```{r, echo=TRUE}
-augment(fit) %>% features(.resid, ljung_box, lag = 8, dof = 4)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 8, dof = 4)
 ```
 
 ## European quarterly retail trade
@@ -1356,14 +1386,15 @@ fit %>% forecast(h = "3 years") %>% autoplot(euretail)
 \fontsize{12}{14}\sf
 
 ```{r, echo=TRUE}
-euretail %>% model(ARIMA(value)) %>% report
+euretail %>% model(ARIMA(value)) %>% report()
 ```
 
 ## European quarterly retail trade
 \fontsize{12}{14}\sf
 
 ```{r euretailtryharder, echo=TRUE}
-euretail %>% model(ARIMA(value, stepwise = FALSE, approximation = FALSE)) %>% report
+euretail %>% model(ARIMA(value, stepwise = FALSE,
+  approximation = FALSE)) %>% report()
 ```
 
 ## Cortecosteroid drug sales
@@ -1376,7 +1407,7 @@ h02 %>%
   geom_line() +
   facet_grid(key ~ ., scales = "free_y") +
   xlab("Year") + ylab("") +
-  ggtitle("Corticosteroid drug scripts (H02)")
+  ggtitle("Cortecosteroid drug scripts (H02)")
 ```
 
 ## Cortecosteroid drug sales
@@ -1421,21 +1452,24 @@ fit %>%
 \fontsize{11}{12}\sf
 
 ```{r arimah02, echo=TRUE}
-fit <- h02 %>% model(best = ARIMA(log(Cost) ~ pdq(3,0,1) + PDQ(0,1,2)))
+fit <- h02 %>% 
+  model(best = ARIMA(log(Cost) ~ pdq(3,0,1) + PDQ(0,1,2)))
 report(fit)
 ```
 
 ## Cortecosteroid drug sales
 
 ```{r h02res, echo=TRUE, fig.height=4, dependson='arimah02'}
-fit %>% residuals %>% gg_tsdisplay(.resid, lag_max=36, plot_type = "hist")
+augment(fit) %>%
+  gg_tsdisplay(.resid, lag_max=36, plot_type = "hist")
 ```
 
 ## Cortecosteroid drug sales
 \fontsize{11}{15}\sf
 
 ```{r h02resb, echo = TRUE, fig.height=4, dependson='arimah02'}
-augment(fit) %>% features(.resid, ljung_box, lag = 36, dof = 6)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 36, dof = 6)
 ```
 
 ## Cortecosteroid drug sales
@@ -1450,22 +1484,24 @@ report(fit)
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02auto'}
-residuals(fit) %>% gg_tsdisplay(.resid, lag_max = 36, plot_type = "hist")
+augment(fit) %>% 
+  gg_tsdisplay(.resid, lag_max = 36, plot_type = "hist")
 ```
 
 ## Cortecosteroid drug sales
 \fontsize{11}{15}\sf
 
 ```{r, echo = TRUE, dependson='h02auto'}
-augment(fit) %>% features(.resid, ljung_box, lag = 36, dof = 5)
+augment(fit) %>% 
+  features(.resid, ljung_box, lag = 36, dof = 5)
 ```
 
 ## Cortecosteroid drug sales
 \fontsize{8}{10}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
-fit <- h02 %>% model(best = ARIMA(log(Cost), stepwise = FALSE, approximation = FALSE,
-                           order_constraint = p + q + P + Q <= 9))
+fit <- h02 %>% model(best = ARIMA(log(Cost), stepwise = FALSE,
+  approximation = FALSE, order_constraint = p + q + P + Q <= 9))
 report(fit)
 ```
 
@@ -1473,14 +1509,16 @@ report(fit)
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02tryharder'}
-fit %>% residuals %>% gg_tsdisplay(.resid, lag_max = 36, plot_type = "hist")
+augment(fit) %>% 
+  gg_tsdisplay(.resid, lag_max = 36, plot_type = "hist")
 ```
 
 ## Cortecosteroid drug sales
 \fontsize{11}{15}\sf
 
 ```{r, echo = TRUE, dependson='h02tryharder'}
-augment(fit) %>% features(.resid, ljung_box, lag = 36, dof = 9)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 36, dof = 9)
 ```
 
 ## Cortecosteroid drug sales
