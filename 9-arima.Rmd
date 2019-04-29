@@ -53,16 +53,16 @@ A **stationary series** is:
 ## Stationary?
 
 ```{r}
-gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2018) %>% 
+gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) == 2018) %>%
   autoplot(Close) + ylab("Google closing stock price") + xlab("Day")
 ```
 
 ## Stationary?
 
 ```{r}
-gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2018) %>% 
+gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) == 2018) %>%
   autoplot(difference(Close)) + ylab("Google closing stock price") + xlab("Day")
 ```
 
@@ -88,7 +88,7 @@ as_tsibble(fma::eggs) %>% autoplot(value) + xlab("Year") + ylab("$") +
 
 ## Stationary?
 ```{r}
-aus_livestock %>% 
+aus_livestock %>%
   filter(
     Animal == "Pigs",
     State == "Victoria",
@@ -134,27 +134,27 @@ For ARIMA modelling, we also need to **stabilize the mean**.
 ## Example: Google stock price
 
 ```{r}
-gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2018) %>% 
+gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) == 2018) %>%
   autoplot(Close) + ylab("Closing stock price ($USD)") + xlab("Day")
 ```
 
 ## Example: Google stock price
 
 ```{r}
-google_2018 <- gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2018) %>% 
-  mutate(trading_day = row_number()) %>% 
-  update_tsibble(index = trading_day, regular = TRUE) 
-google_2018 %>% 
+google_2018 <- gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) == 2018) %>%
+  mutate(trading_day = row_number()) %>%
+  update_tsibble(index = trading_day, regular = TRUE)
+google_2018 %>%
   ACF(Close) %>% autoplot()
 ```
 
 ## Example: Google stock price
 
 ```{r}
-gafa_stock %>% 
-  filter(Symbol == "GOOG", year(Date) == 2018) %>% 
+gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) == 2018) %>%
   autoplot(difference(Close)) +
   ylab("Change in Google closing stock price ($USD)") + xlab("Day")
 ```
@@ -274,14 +274,14 @@ But taking lag 3 differences for yearly data, for example, results in a model wh
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-google_2018 %>% 
+google_2018 %>%
   features(Close, unitroot_kpss)
 ```
 
 \pause
 
 ```{r, echo=TRUE}
-google_2018 %>% 
+google_2018 %>%
   features(Close, unitroot_ndiffs)
 ```
 
@@ -296,7 +296,7 @@ If $F_s > 0.64$, do one seasonal difference.
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-usmelec %>% mutate(log_gen = log(Generation)) %>% 
+usmelec %>% mutate(log_gen = log(Generation)) %>%
   features(log_gen, list(unitroot_nsdiffs, stl_features))
 ```
 
@@ -305,9 +305,9 @@ usmelec %>% mutate(log_gen = log(Generation)) %>%
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-usmelec %>% mutate(log_gen = log(Generation)) %>% 
+usmelec %>% mutate(log_gen = log(Generation)) %>%
   features(log_gen, unitroot_nsdiffs)
-usmelec %>% mutate(d_log_gen = difference(log(Generation), 12)) %>% 
+usmelec %>% mutate(d_log_gen = difference(log(Generation), 12)) %>%
   features(d_log_gen, unitroot_ndiffs)
 ```
 
@@ -637,8 +637,9 @@ and $\varepsilon_t$ is white noise with a standard deviation of $`r format(glanc
 ## US personal consumption
 \fontsize{12}{15}\sf
 
-```{r, echo=TRUE, fig.height=4}
-fit %>% forecast(h=10) %>% autoplot(slice(us_change, (n()-80):n()))
+```{r, echo=TRUE, fig.height=3.8}
+fit %>% forecast(h=10) %>%
+  autoplot(slice(us_change, (n()-80):n()))
 ```
 
 ## Understanding ARIMA models
@@ -699,20 +700,21 @@ $$
 * same critical values of $\pm 1.96/\sqrt{T}$ as for ACF.
 
 ## Example: US consumption
+\fontsize{12}{15}\sf
 
 ```{r, echo = TRUE}
-us_change %>% autoplot(difference(Consumption)) +
-  labs(x = "Year", y = "US consumption", 
+us_change %>% autoplot(Consumption) +
+  labs(x = "Year", y = "US consumption",
        title = "Quarterly percentage change")
 ```
 
 ## Example: US consumption
+\fontsize{12}{15}\sf
 
 ```{r, eval = FALSE, echo = TRUE}
 us_change %>% ACF(Consumption) %>% autoplot()
 us_change %>% PACF(Consumption) %>% autoplot()
 ```
-
 
 ```{r usconsumptionacf}
 p1 <- us_change %>% ACF(Consumption) %>% autoplot()
@@ -851,6 +853,7 @@ Step 2:
 \alert{Repeat Step 2 until no lower AICc can be found.}
 
 ## Choosing your own model
+\fontsize{12}{15}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 web_usage <- as_tsibble(WWWusage)
@@ -858,13 +861,14 @@ web_usage %>% gg_tsdisplay(value)
 ```
 
 ## Choosing your own model
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 web_usage %>% gg_tsdisplay(difference(value))
 ```
 
 ## Choosing your own model
-\fontsize{12}{12}\sf
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 fit <- web_usage %>% model(
@@ -873,14 +877,14 @@ report(fit)
 ```
 
 ## Choosing your own model
-\fontsize{13}{14}\sf
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 web_usage %>% model(ARIMA(value)) %>% report()
 ```
 
 ## Choosing your own model
-\fontsize{12}{13}\sf
+\fontsize{11}{12}\sf
 
 ```{r internettryharder, echo=TRUE, fig.height=4}
 web_usage %>% model(ARIMA(value, stepwise = FALSE,
@@ -888,16 +892,15 @@ web_usage %>% model(ARIMA(value, stepwise = FALSE,
 ```
 
 ## Choosing your own model
-
 \fontsize{11}{12}\sf
+
 ```{r, echo=TRUE, fig.height=4}
 augment(fit) %>%
   gg_tsdisplay(.resid, plot_type = "hist")
 ```
 
 ## Choosing your own model
-
-\fontsize{12}{12}
+\fontsize{11}{12}\sf
 
 ```{r, echo = TRUE}
 augment(fit) %>%
@@ -905,10 +908,10 @@ augment(fit) %>%
 ```
 
 ## Choosing your own model
+\fontsize{11}{12}\sf
 
-\fontsize{12}{13}\sf
 ```{r, echo=TRUE, fig.height=4}
-fit %>% forecast(h = 10) %>% 
+fit %>% forecast(h = 10) %>%
   autoplot(web_usage)
 ```
 
@@ -943,7 +946,7 @@ fit %>% forecast(h = 10) %>%
 \centerline{\includegraphics[height=8.cm]{Figure-8-10}}
 
 ## \large Seasonally adjusted electrical equipment
-\fontsize{11.5}{15}\sf
+\fontsize{11}{12}\sf
 
 ```{r ee1, fig.height=3.3, echo=TRUE}
 elecequip <- as_tsibble(fpp2::elecequip)
@@ -961,6 +964,7 @@ dcmp %>% as_tsibble %>%
 3. Data are clearly non-stationary, so we take first differences.
 
 ## \large Seasonally adjusted electrical equipment
+\fontsize{11}{12}\sf
 
 ```{r ee2, echo=TRUE, fig.height=4}
 dcmp %>% gg_tsdisplay(difference(seas_adjust))
@@ -972,10 +976,10 @@ dcmp %>% gg_tsdisplay(difference(seas_adjust))
 5. Fit ARIMA(3,1,0) model along with variations: ARIMA(4,1,0), ARIMA(2,1,0), ARIMA(3,1,1), etc. ARIMA(3,1,1) has smallest \text{AICc} value.
 
 ## \large Seasonally adjusted electrical equipment
-\fontsize{10}{10}\sf
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE}
-fit <- dcmp %>% 
+fit <- dcmp %>%
   model(
     arima = ARIMA(seas_adjust ~ pdq(3,1,1) + PDQ(0,0,0))
   )
@@ -993,6 +997,7 @@ augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
 ```
 
 ## \large Seasonally adjusted electrical equipment
+\fontsize{11}{12}\sf
 
 ```{r}
 augment(fit) %>%
@@ -1000,6 +1005,7 @@ augment(fit) %>%
 ```
 
 ## \large Seasonally adjusted electrical equipment
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE}
 fit %>% forecast %>% autoplot(dcmp)
@@ -1291,6 +1297,7 @@ eu_retail %>% autoplot(value) +
 ```
 
 ## European quarterly retail trade
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
 eu_retail %>% gg_tsdisplay(
@@ -1298,6 +1305,7 @@ eu_retail %>% gg_tsdisplay(
 ```
 
 ## European quarterly retail trade
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=3.8}
 eu_retail %>% gg_tsdisplay(
@@ -1313,20 +1321,19 @@ eu_retail %>% gg_tsdisplay(
   * We could also have started with ARIMA(1,1,0)(1,1,0)$_4$.
 
 ## European quarterly retail trade
-
 \fontsize{11}{12}
+
 ```{r, echo=TRUE, fig.height=3.5}
-fit <- eu_retail %>% 
+fit <- eu_retail %>%
   model(arima = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)))
 augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
 ```
 
 ## European quarterly retail trade
-
-\fontsize{13}{14}\sf
+\fontsize{11}{12}\sf
 
 ```{r, echo = TRUE}
-augment(fit) %>% 
+augment(fit) %>%
   features(.resid, ljung_box, lag = 8, dof = 2)
 ```
 
@@ -1335,28 +1342,30 @@ augment(fit) %>%
 ```{r, echo=FALSE}
 aicc <- eu_retail %>%
   model(
-    mdl_1 = ARIMA(value ~ pdq(0,1,2) + PDQ(0,1,1)),
-    mdl_2 = ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1))
+    mdl_1 = ARIMA(value ~ pdq(0,1,1) + PDQ(0,1,1)),
+    mdl_2 = ARIMA(value ~ pdq(0,1,2) + PDQ(0,1,1)),
+    mdl_3 = ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1)),
+    mdl_4 = ARIMA(value ~ pdq(0,1,4) + PDQ(0,1,1))
   ) %>%
   glance %>%
   pull(AICc)
 ```
 
   * ACF and PACF of residuals show significant spikes at lag 2, and maybe lag 3.
-  * AICc of ARIMA(0,1,2)(0,1,1)$_4$ model is `r round(aicc[1],2)`.
-  * AICc of ARIMA(0,1,3)(0,1,1)$_4$ model is `r round(aicc[2],2)`.
-\pause\vfill
-
-```{r}
-fit <- eu_retail %>% 
-  model(ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1)))
-```
+  * AICc of ARIMA(0,1,1)(0,1,1)$_4$ model is `r round(aicc[1],2)`
+  * AICc of ARIMA(0,1,2)(0,1,1)$_4$ model is `r round(aicc[2],2)`.
+  * AICc of ARIMA(0,1,3)(0,1,1)$_4$ model is `r round(aicc[3],2)`.
+  * AICc of ARIMA(0,1,4)(0,1,1)$_4$ model is `r round(aicc[4],2)`.
 
 ## European quarterly retail trade
 
-\fontsize{12}{15}\sf
+\fontsize{11}{12}\sf
 
-```{r}
+```{r, echo=TRUE}
+fit <- eu_retail %>%
+  model(
+    arima013011 = ARIMA(value ~ pdq(0,1,3) + PDQ(0,1,1))
+  )
 report(fit)
 ```
 
@@ -1378,19 +1387,20 @@ augment(fit) %>%
 
 ## European quarterly retail trade
 
-```{r, echo=TRUE, fig.height=4}
-fit %>% forecast(h = "3 years") %>% autoplot(eu_retail)
+```{r, echo=TRUE, fig.height=3.8}
+fit %>% forecast(h = "3 years") %>% 
+  autoplot(eu_retail)
 ```
 
 ## European quarterly retail trade
-\fontsize{12}{14}\sf
+\fontsize{11}{14}\sf
 
 ```{r, echo=TRUE}
 eu_retail %>% model(ARIMA(value)) %>% report()
 ```
 
 ## European quarterly retail trade
-\fontsize{12}{14}\sf
+\fontsize{11}{14}\sf
 
 ```{r eu_retailtryharder, echo=TRUE}
 eu_retail %>% model(ARIMA(value, stepwise = FALSE,
@@ -1449,15 +1459,16 @@ fit %>%
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{12}\sf
+\fontsize{10}{12}\sf
 
 ```{r arimah02, echo=TRUE}
-fit <- h02 %>% 
+fit <- h02 %>%
   model(best = ARIMA(log(Cost) ~ pdq(3,0,1) + PDQ(0,1,2)))
 report(fit)
 ```
 
 ## Cortecosteroid drug sales
+\fontsize{10}{12}\sf
 
 ```{r h02res, echo=TRUE, fig.height=4, dependson='arimah02'}
 augment(fit) %>%
@@ -1473,7 +1484,7 @@ augment(fit) %>%
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{8}{10}\sf
+\fontsize{11}{13}\sf
 
 ```{r h02auto, echo=TRUE, fig.height=3.6}
 fit <- h02 %>% model(auto = ARIMA(log(Cost)))
@@ -1484,7 +1495,7 @@ report(fit)
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02auto'}
-augment(fit) %>% 
+augment(fit) %>%
   gg_tsdisplay(.resid, lag_max = 36, plot_type = "hist")
 ```
 
@@ -1492,16 +1503,20 @@ augment(fit) %>%
 \fontsize{11}{15}\sf
 
 ```{r, echo = TRUE, dependson='h02auto'}
-augment(fit) %>% 
+augment(fit) %>%
   features(.resid, ljung_box, lag = 36, dof = 5)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{8}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
-fit <- h02 %>% model(best = ARIMA(log(Cost), stepwise = FALSE,
-  approximation = FALSE, order_constraint = p + q + P + Q <= 9))
+fit <- h02 %>% 
+  model(
+    best = ARIMA(log(Cost), stepwise = FALSE,
+                 approximation = FALSE, 
+                 order_constraint = p + q + P + Q <= 9)
+  )
 report(fit)
 ```
 
@@ -1509,7 +1524,7 @@ report(fit)
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02tryharder'}
-augment(fit) %>% 
+augment(fit) %>%
   gg_tsdisplay(.resid, lag_max = 36, plot_type = "hist")
 ```
 
