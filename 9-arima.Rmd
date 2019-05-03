@@ -418,6 +418,7 @@ p2
 ```
 
 ## Stationarity conditions
+\fontsize{14}{15}\sf
 
 We normally restrict autoregressive models to stationary data, and then some constraints on the values of the parameters are required.
 
@@ -553,7 +554,7 @@ y_{t} &= c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
       & (1-\phi_1B - \cdots - \phi_p B^p) y_t = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t
 \end{align*}}
 
-* ARIMA(1,1,1) model:
+* ARIMA(1,1,1) model:\vspace*{-0.5cm}
 
 \[
 \begin{array}{c c c c}
@@ -584,6 +585,7 @@ $$
  * $\mu$ is the mean of $y_t'$.
  * $c = \mu(1-\phi_1 - \cdots - \phi_p )$.
  * R uses mean form
+ * fable uses intercept form
 
 ## Australian household expenditure
 
@@ -1444,7 +1446,7 @@ models <- list(
   c(3,0,1,0,1,2),
   c(3,0,1,1,1,1)
 )
-model_defs <- map(models, ~ ARIMA(log(Cost) ~ pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
+model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
 model_defs <- set_names(model_defs, map_chr(models,
   ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])))
 
@@ -1463,7 +1465,7 @@ fit %>%
 
 ```{r arimah02, echo=TRUE}
 fit <- h02 %>%
-  model(best = ARIMA(log(Cost) ~ pdq(3,0,1) + PDQ(0,1,2)))
+  model(best = ARIMA(log(Cost) ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
 report(fit)
 ```
 
@@ -1562,7 +1564,7 @@ fit %>%
 ## Cortecosteroid drug sales
 \fontsize{12}{14}\sf
 
-```{r, cache=TRUE}
+```{r h02-rmse, cache=TRUE}
 models <- list(
   c(3,0,0,2,1,0),
   c(3,0,1,2,1,0),
@@ -1578,7 +1580,7 @@ models <- list(
   c(2,1,5,0,1,1),
   c(4,1,1,2,1,2))
 
-model_defs <- map(models, ~ ARIMA(log(Cost) ~ pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
+model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
 model_defs <- set_names(model_defs, map_chr(models,
   ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])))
 
@@ -1604,7 +1606,7 @@ fit %>%
 \fontsize{11}{14}\sf
 
 ```{r h02f, echo=TRUE, fig.height=3}
-fit <- h02 %>% model(ARIMA(Cost ~ pdq(3,0,1) + PDQ(0,1,2)))
+fit <- h02 %>% model(ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
 fit %>% forecast %>% autoplot(h02) +
   ylab("H02 Expenditure ($AUD)") + xlab("Year")
 ```
