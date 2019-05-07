@@ -701,28 +701,31 @@ $$
 * $\alpha_1=\rho_1$
 * same critical values of $\pm 1.96/\sqrt{T}$ as for ACF.
 
-## Example: US consumption
-\fontsize{12}{15}\sf
+## Example: Mink trapping
 
-```{r, echo = TRUE}
-us_change %>% autoplot(Consumption) +
-  labs(x = "Year", y = "US consumption",
-       title = "Quarterly percentage change")
+```{r}
+mink <- as_tsibble(fma::mink)
+mink %>% autoplot(value) +
+  xlab("Year") +
+  ylab("Minks trapped (thousands)") +
+  ggtitle("Annual number of minks trapped")
 ```
 
-## Example: US consumption
-\fontsize{12}{15}\sf
+## Example: Mink trapping
 
-```{r, eval = FALSE, echo = TRUE}
-us_change %>% ACF(Consumption) %>% autoplot()
-us_change %>% PACF(Consumption) %>% autoplot()
-```
-
-```{r usconsumptionacf}
-p1 <- us_change %>% ACF(Consumption) %>% autoplot()
-p2 <- us_change %>% PACF(Consumption) %>% autoplot()
+```{r}
+p1 <- mink %>% ACF(value) %>% autoplot()
+p2 <- mink %>% PACF(value) %>% autoplot()
 gridExtra::grid.arrange(p1,p2,nrow=1)
 ```
+
+
+## Example: Mink trapping
+
+```{r, echo=TRUE}
+mink %>% gg_tsdisplay(value)
+```
+
 
 ## ACF and PACF interpretation
 
@@ -775,23 +778,6 @@ So we have an MA($q$) model when
   * the PACF is exponentially decaying or sinusoidal
   * there is a significant spike at lag $q$ in ACF, but none beyond $q$
 
-## Example: Mink trapping
-
-```{r}
-mink <- as_tsibble(fma::mink)
-mink %>% autoplot(value) +
-  xlab("Year") +
-  ylab("Minks trapped (thousands)") +
-  ggtitle("Annual number of minks trapped")
-```
-
-## Example: Mink trapping
-
-```{r}
-p1 <- mink %>% ACF(value) %>% autoplot()
-p2 <- mink %>% PACF(value) %>% autoplot()
-gridExtra::grid.arrange(p1,p2,nrow=1)
-```
 
 ## Information criteria
 
@@ -882,14 +868,14 @@ report(fit)
 \fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-web_usage %>% model(ARIMA(value)) %>% report()
+web_usage %>% model(ARIMA(value ~ pdq(d=1))) %>% report()
 ```
 
 ## Choosing your own model
 \fontsize{11}{12}\sf
 
 ```{r internettryharder, echo=TRUE, fig.height=4}
-web_usage %>% model(ARIMA(value, stepwise = FALSE,
+web_usage %>% model(ARIMA(value ~ pdq(d=1), stepwise = FALSE,
   approximation = FALSE)) %>% report()
 ```
 
@@ -1390,7 +1376,7 @@ augment(fit) %>%
 ## European quarterly retail trade
 
 ```{r, echo=TRUE, fig.height=3.8}
-fit %>% forecast(h = "3 years") %>% 
+fit %>% forecast(h = "3 years") %>%
   autoplot(eu_retail)
 ```
 
@@ -1513,10 +1499,10 @@ augment(fit) %>%
 \fontsize{9}{9}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
-fit <- h02 %>% 
+fit <- h02 %>%
   model(
     best = ARIMA(log(Cost), stepwise = FALSE,
-                 approximation = FALSE, 
+                 approximation = FALSE,
                  order_constraint = p + q + P + Q <= 9)
   )
 report(fit)
@@ -1580,7 +1566,7 @@ models <- list(
   c(2,1,5,0,1,1),
   c(4,1,1,2,1,2))
 
-model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
+model_defs <- map(models, ~ ARIMA(log(Cost) ~ pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
 model_defs <- set_names(model_defs, map_chr(models,
   ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])))
 
