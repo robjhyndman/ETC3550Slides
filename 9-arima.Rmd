@@ -1090,7 +1090,7 @@ v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad
 
 ## Prediction intervals
 
-\begin{block}{95\% Prediction interval}
+\begin{block}{95\% prediction interval}
 $$\hat{y}_{T+h|T} \pm 1.96\sqrt{v_{T+h|T}}$$
 where $v_{T+h|T}$ is estimated forecast variance.
 \end{block}
