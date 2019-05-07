@@ -14,7 +14,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
-
+options(digits=4, width=60)
 library(tidyverse)
 library(fable)
 library(tsibble)
@@ -875,8 +875,9 @@ web_usage %>% model(ARIMA(value ~ pdq(d=1))) %>% report()
 \fontsize{11}{12}\sf
 
 ```{r internettryharder, echo=TRUE, fig.height=4}
-web_usage %>% model(ARIMA(value ~ pdq(d=1), stepwise = FALSE,
-  approximation = FALSE)) %>% report()
+web_usage %>%
+  model(ARIMA(value ~ pdq(d=1), stepwise = FALSE,
+    approximation = FALSE)) %>% report()
 ```
 
 ## Choosing your own model
@@ -1500,11 +1501,9 @@ augment(fit) %>%
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
 fit <- h02 %>%
-  model(
-    best = ARIMA(log(Cost), stepwise = FALSE,
+  model(best = ARIMA(log(Cost), stepwise = FALSE,
                  approximation = FALSE,
-                 order_constraint = p + q + P + Q <= 9)
-  )
+                 order_constraint = p + q + P + Q <= 9))
 report(fit)
 ```
 
@@ -1592,7 +1591,8 @@ fit %>%
 \fontsize{11}{14}\sf
 
 ```{r h02f, echo=TRUE, fig.height=3}
-fit <- h02 %>% model(ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
+fit <- h02 %>%
+  model(ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
 fit %>% forecast %>% autoplot(h02) +
   ylab("H02 Expenditure ($AUD)") + xlab("Year")
 ```
