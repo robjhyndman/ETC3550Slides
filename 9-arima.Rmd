@@ -810,7 +810,7 @@ $k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause\vspace*{0.2cm}
 
 # ARIMA modelling in R
 
-## How does auto.arima() work?
+## How does ARIMA() work?
 
 \begin{block}{A non-seasonal ARIMA process}
 \[
