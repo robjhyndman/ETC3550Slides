@@ -1566,7 +1566,7 @@ models <- list(
   c(2,1,5,0,1,1),
   c(4,1,1,2,1,2))
 
-model_defs <- map(models, ~ ARIMA(log(Cost) ~ pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
+model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
 model_defs <- set_names(model_defs, map_chr(models,
   ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])))
 
