@@ -1411,7 +1411,7 @@ h02 %>%
 
 ## Cortecosteroid drug sales
 ```{r h02b}
-h02 %>% gg_tsdisplay(difference(log(Cost),12))
+h02 %>% gg_tsdisplay(difference(log(Cost),12), lag_max = 36)
 ```
 
 ## Cortecosteroid drug sales
