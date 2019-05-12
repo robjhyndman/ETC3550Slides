@@ -188,8 +188,8 @@ Write down the equations for the fitted model.
 
 **Regression errors**
 
-```{r , echo=TRUE, fig.height=3.7}
-augment(fit, type='regression') %>% 
+```{r , echo=TRUE, fig.height=3.7, eval=FALSE}
+augment(fit, type='regression') %>%
   gg_tsdisplay(.resid)
 ```
 
@@ -206,14 +206,7 @@ augment(fit, type='response') %>%
 ## US personal consumption and income
 
 ```{r , echo=TRUE, fig.height=3.7}
-checkresiduals(fit, test=FALSE)
-```
-
-## US personal consumption and income
-\fontsize{10}{13}\sf
-
-```{r , echo=TRUE, fig.height=3.7}
-checkresiduals(fit, plot=FALSE)
+Box.test(augment(fit)$.resid, fitdf=5, lag=12)
 ```
 
 ## US personal consumption and income
