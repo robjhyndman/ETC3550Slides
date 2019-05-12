@@ -26,6 +26,15 @@ us_change <- read_csv("data/uschange.csv") %>%
   mutate(Time = yearquarter(Time)) %>%
   as_tsibble(index = Time) %>%
   select(Income, Consumption)
+elec_daily <- tsibbledata::aus_elec %>%
+  filter(State=="Victoria") %>%
+  mutate(Day = date(Time)) %>%
+  index_by(Day) %>%
+  summarise(
+    Demand = sum(Demand),
+    MaxTemp = max(Temperature),
+    Holiday = any(Holiday)
+  )
 ```
 
 # Regression with ARIMA errors
@@ -212,7 +221,7 @@ Box.test(augment(fit)$.resid, fitdf=5, lag=12)
 ## US personal consumption and income
 \fontsize{9}{12}\sf
 
-```{r usconsump3, echo=TRUE, fig.height=3.}
+```{r usconsump3, echo=TRUE, fig.height=3., eval=FALSE}
 fcast <- forecast(fit,
   xreg=rep(mean(uschange[,2]),8), h=8)
 autoplot(fcast) + xlab("Year") +
