@@ -14,17 +14,21 @@ output:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE,
-  dev.args=list(bg=grey(0.9), pointsize=11))
-
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
+options(digits=4, width=60)
 library(tidyverse)
 library(fable)
 library(tsibble)
+library(tsibbledata)
 library(feasts)
 library(lubridate)
 
-ausbeer <- read_csv("data/ausbeer.csv") %>% 
-  mutate(Time = yearquarter(Time)) %>% 
+us_change <- read_csv("data/uschange.csv") %>%
+  mutate(Time = yearquarter(Time)) %>%
+  as_tsibble(index = Time)
+
+ausbeer <- read_csv("data/ausbeer.csv") %>%
+  mutate(Time = yearquarter(Time)) %>%
   as_tsibble(index = Time)
 ```
 
@@ -58,25 +62,17 @@ That is, the coefficients measure the **marginal effects**.
 
 \fontsize{11}{13}\sf
 
-```{r uschangedata, echo=FALSE}
-uschange <- read_csv("data/uschange.csv") %>% 
-  mutate(Time = yearquarter(Time)) %>% 
-  as_tsibble(index = Time)
-```
-
-```{r ConsInc, echo=TRUE, cache=TRUE, fig.height=3.5}
-uschange %>% 
-  gather("Measure", "Change", Consumption, Income) %>% 
+```{r ConsInc, echo=TRUE, fig.height=3.5}
+us_change %>%
+  gather("Measure", "Change", Consumption, Income) %>%
   autoplot(Change) +
   ylab("% change") + xlab("Year")
 ```
 
 ## Example: US consumption expenditure
 
-```{r ConsInc2, echo=FALSE, cache=TRUE}
-fit_cons <- uschange %>% 
-  model(lm = TSLM(Consumption ~ Income))
-uschange %>%
+```{r ConsInc2, echo=FALSE}
+us_change %>%
   ggplot(aes(x=Income, y=Consumption)) +
     ylab("Consumption (quarterly % change)") +
     xlab("Income (quarterly % change)") +
@@ -88,17 +84,19 @@ uschange %>%
 
 \fontsize{9}{9}\sf
 
-```{r, echo=TRUE, cache=TRUE}
+```{r, echo=TRUE}
+fit_cons <- us_change %>%
+  model(lm = TSLM(Consumption ~ Income))
 fit_cons %>% tidy
 ```
 
 ## Example: US consumption expenditure
 
-```{r MultiPredictors, echo=FALSE, cache=TRUE}
-uschange %>% 
-  gather("Measure", "Change", Production, Savings, Unemployment) %>% 
-  ggplot(aes(x = Time, y = Change, colour = Measure)) + 
-  geom_line() + 
+```{r MultiPredictors, echo=FALSE}
+us_change %>%
+  gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) %>%
+  ggplot(aes(x = Time, y = Change, colour = Measure)) +
+  geom_line() +
   facet_grid(vars(Measure), scales = "free_y") +
   ylab("") + xlab("Year") +
   guides(colour="none")
@@ -106,10 +104,10 @@ uschange %>%
 
 ## Example: US consumption expenditure
 
-```{r ScatterMatrix, echo=FALSE, cache=TRUE}
-uschange %>%
-  as_tibble() %>% 
-  select(-Time) %>% 
+```{r ScatterMatrix, echo=FALSE}
+us_change %>%
+  as_tibble() %>%
+  select(-Time) %>%
   GGally::ggpairs()
 ```
 
@@ -118,18 +116,18 @@ uschange %>%
 \fontsize{7.4}{7.4}\sf
 
 ```{r usestim, echo=TRUE}
-fit_consMR <- uschange %>% 
+fit_consMR <- us_change %>%
   model(lm = TSLM(Consumption ~ Income + Production + Unemployment + Savings))
 tidy(fit_consMR)
 ```
 
 ## Example: US consumption expenditure
 
-```{r usfitted1, echo=FALSE, cache=TRUE}
-augment(fit_consMR) %>% 
-  ggplot(aes(x = Time)) + 
-  geom_line(aes(y = Consumption, colour = "Data")) + 
-  geom_line(aes(y = .fitted, colour = "Fitted")) + 
+```{r usfitted1, echo=FALSE}
+augment(fit_consMR) %>%
+  ggplot(aes(x = Time)) +
+  geom_line(aes(y = Consumption, colour = "Data")) +
+  geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Year") + ylab("") +
   ggtitle("Percentage change in US consumption expenditure") +
   guides(colour=guide_legend(title=""))
@@ -137,8 +135,8 @@ augment(fit_consMR) %>%
 
 ## Example: US consumption expenditure
 
-```{r usfitted2, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
-augment(fit_consMR) %>% 
+```{r usfitted2, echo=FALSE, message=FALSE, warning=FALSE}
+augment(fit_consMR) %>%
   ggplot(aes(x=.fitted, y=Consumption)) +
     geom_point() +
     xlab("Fitted (predicted values)") +
@@ -149,10 +147,11 @@ augment(fit_consMR) %>%
 
 ## Example: US consumption expenditure
 
-```{r, eval = FALSE}
-checkresiduals(fit.consMR, test=FALSE)
+```{r, echo=TRUE}
+augment(fit_consMR) %>%
+  gg_tsdisplay(.resid, plot_type="hist")
 ```
-
+<!--
 # Residual diagnostics
 
 ##  Multiple regression and forecasting
@@ -223,6 +222,7 @@ warning("This is not easy with fable.")
 * There is information in the residuals that we should exploit.
 * This is done with a regression model with ARMA errors.
 
+ -->
 
 # Some useful predictors for linear models
 
@@ -281,7 +281,7 @@ number of categories).
 
 **Outliers**
 
-* If there is an outlier, you can use a dummy variable (taking value 1 for that observation and 0 elsewhere) to remove its effect.
+* If there is an outlier, you can use a dummy variable to remove its effect.
 
 \pause
 
@@ -299,7 +299,7 @@ beer %>% autoplot(Production) +
   ggtitle("Australian quarterly beer production")
 ```
 
-## Beer production revisited
+\pause
 
 \begin{block}{Regression model}
 \centering
@@ -312,15 +312,15 @@ $y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} 
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-fit_beer <- beer %>% 
-  model(TSLM(Production ~ trend() + season()))
-#summary(fit.beer)
+fit_beer <- beer %>% model(TSLM(Production ~ trend() + season()))
+report(fit_beer)
 ```
+
 ## Beer production revisited
 
 ```{r}
-augment(fit_beer) %>% 
-  ggplot(aes(x = Time)) + 
+augment(fit_beer) %>%
+  ggplot(aes(x = Time)) +
   geom_line(aes(y = Production, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Year") + ylab("Megalitres") +
@@ -330,7 +330,7 @@ augment(fit_beer) %>%
 ## Beer production revisited
 
 ```{r, echo=FALSE}
-augment(fit_beer) %>% 
+augment(fit_beer) %>%
   ggplot(aes(x=Production, y=.fitted, colour=factor(quarter(Time)))) +
     geom_point() +
     ylab("Fitted") + xlab("Actual values") +
@@ -340,14 +340,16 @@ augment(fit_beer) %>%
 ```
 
 ## Beer production revisited
+\fontsize{9}{9}\sf
 
-```{r}
-# checkresiduals(fit.beer, test=FALSE)
+```{r, echo=TRUE}
+augment(fit_beer) %>% gg_tsdisplay(.resid, plot_type="hist")
 ```
 
 ## Beer production revisited
+\fontsize{9}{9}\sf
 
-```{r}
+```{r, echo=TRUE}
 fit_beer %>% forecast %>% autoplot(beer)
 ```
 
@@ -372,10 +374,9 @@ TSLM(y ~ trend() + fourier(K))
 
 \fontsize{8}{8}\sf
 
-```{r fourierbeer, echo=TRUE, cache=TRUE}
-fourier_beer <- beer %>% 
-  model(TSLM(Production ~ trend() + fourier(K=2)))
-# summary(fourier.beer)
+```{r fourierbeer, echo=TRUE}
+fourier_beer <- beer %>% model(TSLM(Production ~ trend() + fourier(K=2)))
+report(fourier_beer)
 ```
 
 ## Intervention variables
@@ -454,38 +455,18 @@ x_{2,t} &= \left\{ \begin{array}{ll}
 \fontsize{11}{11}\sf
 
 ```{r, fig.height=3.5, echo=TRUE}
-marathon <- read_csv("data/marathon.csv") %>% 
+marathon <- read_csv("data/marathon.csv") %>%
   as_tsibble(index = Year)
 marathon %>% autoplot(Minutes) +
   xlab("Year") +  ylab("Winning times in minutes")
-fit_lin <- marathon %>% model(TSLM(Minutes ~ trend()))
-```
-
-## Example: Boston marathon winning times
-
-```{r marathonLinear, echo=FALSE, message=TRUE, warning=FALSE, cache=TRUE}
-augment(fit_lin) %>%
-  autoplot(Minutes) +
-  geom_line(aes(y = .fitted, colour = "Linear trend")) +
-  xlab("Year") +  ylab("Winning times in minutes") +
-  guides(colour=guide_legend(title=" ")) +
-  theme(legend.position = "none")
-```
-
-## Example: Boston marathon winning times
-\fontsize{11}{11}\sf
-
-```{r, echo=TRUE, fig.height=3.5}
-residuals(fit_lin) %>% autoplot(.resid) +
-    xlab("Year") + ylab("Residuals from a linear trend")
 ```
 
 ## Example: Boston marathon winning times
 
 \fontsize{8}{8}\sf
 
-```{r, echo=TRUE, message=TRUE, warning=FALSE, cache=TRUE}
-fit_trends <- marathon %>% 
+```{r, echo=TRUE}
+fit_trends <- marathon %>%
   model(
     # Linear trend
     linear = TSLM(Minutes ~ trend()),
@@ -494,18 +475,19 @@ fit_trends <- marathon %>%
     # Piecewise linear trend
     piecewise = TSLM(Minutes ~ trend(knots = c(1940, 1980)))
   )
+```
 
-fc_trends <- fit_trends %>%
-  forecast(h=10)
+```{r, echo=TRUE, eval=FALSE}
+fc_trends <- fit_trends %>% forecast(h=10)
 ```
 
 
 ## Example: Boston marathon winning times
 
-```{r, echo=FALSE, message=TRUE, warning=FALSE, cache=TRUE}
-marathon %>% 
+```{r, echo=FALSE, message=TRUE, warning=FALSE, eval=FALSE}
+marathon %>%
   autoplot(Minutes) +
-  geom_line(aes(y = .fitted, colour = .model), data = fitted(fit_trends)) + 
+  geom_line(aes(y = .fitted, colour = .model), data = fitted(fit_trends)) +
   autolayer(fc_trends, alpha = 0.3) +
   xlab("Year") +  ylab("Winning times in minutes") +
   ggtitle("Boston Marathon") +
@@ -514,121 +496,12 @@ marathon %>%
 
 ## Example: Boston marathon winning times
 
-```{r residPiecewise, message=FALSE, warning=FALSE, cache=TRUE, eval = FALSE}
+```{r residPiecewise, message=FALSE, warning=FALSE, eval = FALSE}
 checkresiduals(fit.pw, test=FALSE)
 ```
 
-## Interpolating splines
-
-\fullwidth{draftspline}
-
-## Interpolating splines
-
-\fullwidth{spline}
-
-## Interpolating splines
-
-\fullwidth{spline2}
-
-## Interpolating splines
-
-\begin{block}{}
-A spline is a continuous function $f(x)$ interpolating all
-points ($\kappa_j,y_j$) for $j=1,\dots,K$ and consisting of polynomials between each consecutive pair of `knots' $\kappa_j$ and $\kappa_{j+1}$.
-\end{block}
-
-\pause
-
-* Parameters constrained so that $f(x)$ is continuous.
-* Further constraints imposed to give continuous derivatives.
-
-##  General linear regression splines
-
-* Let $\kappa_1<\kappa_2<\cdots<\kappa_K$ be ``knots'' in interval $(a,b)$.
-* Let $x_1=x$, $x_j = (x-\kappa_{j-1})_+$ for $j=2,\dots,K+1$.
-* Then the regression is piecewise linear with bends at the knots.
-
-## General cubic splines
-
-* Let $x_1=x$, $x_2 = x^2$, $x_3=x^3$, $x_j =
-(x-\kappa_{j-3})_+^3$ for $j=4,\dots,K+3$.
-
-* Then the regression is piecewise cubic, but smooth at the knots.
-
-* Choice of knots can be difficult and arbitrary.
-
-* Automatic knot selection algorithms very slow.
-
-
-## Example: Boston marathon winning times
-
-\fontsize{7}{7}\sf
-
-```{r, echo=TRUE, message=TRUE, warning=FALSE, cache=TRUE}
-# Spline trend
-library(splines)
-fit_splines <- marathon %>% 
-  model(splines = TSLM(Minutes ~ ns(Year, df=6)))
-fitted(fit_splines)
-```
-
-## Example: Boston marathon winning times
-
-\fontsize{8}{8}\sf
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
-library(splines)
-fc_splines <- fit_splines %>% forecast(h=10)
-fit_piecewise <- fit_trends %>% select(piecewise)
-fc_piecewise <- fc_trends %>% filter(.model == "piecewise")
-
-marathon %>% 
-  autoplot(Minutes) +
-  geom_line(aes(y = .fitted, colour = .model), 
-            data = bind_rows(fitted(fit_piecewise), fitted(fit_splines))) + 
-  autolayer(fc_piecewise, alpha = 0.3) +
-  autolayer(fc_splines, alpha = 0.3) +
-  xlab("Year") +  ylab("Winning times in minutes") +
-  ggtitle("Boston Marathon") +
-  guides(colour=guide_legend(title=" "))
-```
-
-## splinef
-
-\fontsize{11}{13}\sf
-
-A slightly different type of spline is provided by `splinef`
-
-```{r, echo=TRUE, fig.height=3.3, eval = FALSE}
-fc <- splinef(marathon)
-autoplot(fc)
-```
-
-## splinef
-
- * Cubic **smoothing** splines (rather than cubic regression splines).
- * Still piecewise cubic, but with many more knots (one at each observation).
- * Coefficients constrained to prevent the curve becoming too "wiggly".
- * Degrees of freedom selected automatically.
- * Equivalent to ARIMA(0,2,2) and Holt's method.
-
-
 # Selecting predictors and forecast evaluation
 
-## Selecting predictors
-
-* When there are many predictors, how should we choose which ones to use?
-
-* We need a way of comparing two competing models.
-\pause
-
-**What not to do!**
-
-* Plot $y$ against a particular predictor ($x_j$) and if it shows no noticeable relationship, drop it.
-
-* Do a multiple linear regression on all the predictors and disregard all variables whose  $p$ values are greater than 0.05.
-
-* Maximize $R^2$ or minimize MSE
 
 ## Comparing regression models
 
@@ -643,6 +516,7 @@ $$
 * It is the proportion of variance accounted for (explained) by the predictors.
 
 ## Comparing regression models
+\fontsize{13}{15}\sf
 
 However \dots
 
@@ -651,7 +525,7 @@ However \dots
 * Adding *any* variable tends to increase the value of $R^2$, even if that variable is irrelevant.
 \pause
 
-To overcome   this problem, we can use \emph{adjusted $R^2$}:
+To overcome this problem, we can use *adjusted $R^2$*:
 
 \begin{block}{}
 \[
@@ -667,102 +541,6 @@ where $k=$ no.\ predictors and $T=$ no.\ observations.
 \hat{\sigma}^2 = \frac{1}{T-k-1}\sum_{t=1}^T \varepsilon_t^2$
 }
 \end{alertblock}
-
-## Cross-validation
-
-**Cross-validation for regression**
-
-(Assuming future predictors are known)
-
-* Select one observation for test set, and use \emph{remaining} observations in training set. Compute error on test observation.
-* Repeat using each possible observation as the test set.
-* Compute accuracy measure over all errors.
-
-## Cross-validation
-
-**Traditional evaluation**
-
-```{r traintest0, fig.height=.6, echo=FALSE, cache=TRUE}
-train = 1:16
-test = 17:20
-par(mar=c(0,0,0,0))
-plot(0,0,xlim=c(0,22),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
-arrows(0,0.5,21,0.5,0.05)
-points(train, train*0+0.5, pch=19, col="blue")
-points(test,  test*0+0.5,  pch=19, col="red")
-text(22,0.5,"time")
-text(10,1,"Training data",col="blue")
-text(21,1,"Test data",col="red")
-```
-
-\pause
-
-**Leave-one-out cross-validation**
-
-```{r, fig.height=3.6}
-kcvplot <- function(k,n)
-{
-  par(mar=c(0,0,0,0))
-  each <- round(n/k)
-  ord <- sample(1:n,n)
-  plot(0,0, xlim=c(0,n+2), ylim=c(1-k/n,1-1/n),
-    xaxt="n", yaxt="n", bty="n", xlab="", ylab="", type="n")
-  for(j in 1:k)
-  {
-    test <- (1:n)[ord[(j-1)*each + (1:each)]]
-    train <- (1:n)[-test]
-    arrows(0, 1-j/n, n+1, 1-j/n, 0.05)
-    points(train,rep(1-j/n,length(train)),pch=19,col="blue")
-    points(test, rep(1-j/n,length(test)), pch=19, col="red")
-    #text(28,1-j/11,"time")
-  }
-}
-kcvplot(20,20)
-```
-
-
-## Cross-validation
-
-Leave-one-out cross-validation for regression can be carried out using the following steps.
-
-* Remove observation $t$ from the data set, and fit the model using the remaining data. Then compute the error ($e_t^*=y_t-\hat{y}_t$) for the omitted observation.
-* Repeat step 1 for $t=1,\dots,T$.
-* Compute the MSE from $\{e_1^*,\dots,e_T^*\}$. We shall call this the CV.
-
-###
-The best model is the one with minimum CV.
-
-
-
-## Cross-validation
-
-**Five-fold cross-validation**
-
- * 20 observations. 4 test observations per fold
-
-```{r, fig.height=1.}
-kcvplot(5,20)
-```
-
-\pause
-
-**Ten-fold cross-validation**
-
- * 20 observations. 2 test observations per fold
-
-```{r, fig.height=2.}
-kcvplot(10,20)
-```
-
-
-## Cross-validation
-
-\structure{Ten-fold cross-validation}
-
-* Randomly split data into 10 parts.
-* Select one part for test set, and use remaining parts as training set. Compute accuracy measures on test observations.
-* Repeat for each of 10 parts
-* Average over all measures.
 
 ## Akaike's Information Criterion
 
@@ -790,6 +568,7 @@ For small values of $T$, the AIC tends to select too many predictors, and so a b
 
 As with the AIC, the AIC$_{\text{C}}$ should be minimized.
 
+<!--
 ## Bayesian Information Criterion
 
 \begin{block}{}
@@ -804,6 +583,17 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
 * Also called SBIC and SC.
 
 * Minimizing BIC is asymptotically equivalent to leave-$v$-out cross-validation when $v = T[1-1/(log(T)-1)]$.
+ -->
+
+## Comparing regression models
+\fontsize{9}{9}\sf
+
+```{r, echo=TRUE}
+glance(fit_trends) %>%
+  select(r.squared, adj.r.squared, AIC, AICc)
+```
+
+ * Be careful making comparisons when transformations are used.
 
 ## Choosing regression variables
 
@@ -834,26 +624,8 @@ has lower CV or AICc.
 
 * Stepwise regression is not guaranteed to lead to the best possible
 model.
-* Inference on coefficients of  final model will be wrong.
+* Inference on coefficients of final model will be wrong.
 
-
-## Cross-validation
-
-\fontsize{8}{8}\sf
-
-
-```{r, echo=TRUE, eval = FALSE}
-tslm(Consumption ~ Income + Production + Unemployment + Savings,
-  data=uschange) %>% CV()
-tslm(Consumption ~ Income + Production + Unemployment,
-  data=uschange) %>% CV()
-tslm(Consumption ~ Income + Production + Savings,
-  data=uschange) %>% CV()
-tslm(Consumption ~ Income + Unemployment + Savings,
-  data=uschange) %>% CV()
-tslm(Consumption ~ Production + Unemployment + Savings,
-  data=uschange) %>% CV()
-```
 
 # Forecasting with regression
 
@@ -880,26 +652,26 @@ $$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
 
 
 ## Beer production
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r beeryetagain, echo=TRUE, fig.height=3.5}
 beer2 <- ausbeer %>% filter(year(Time) >= 1992)
-fit.beer <- beer2 %>% model(TSLM(Production ~ trend() + season()))
-fcast <- forecast(fit.beer)
-fcast %>% autoplot(beer2) +
+fit_beer <- beer2 %>% model(TSLM(Production ~ trend() + season()))
+fc_beer <- forecast(fit_beer)
+fc_beer %>% autoplot(beer2) +
   ggtitle("Forecasts of beer production using regression") +
   xlab("Year") + ylab("megalitres")
 ```
 
 ## US Consumption
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r usconsumptionf, echo=TRUE}
-fit_consBest <- uschange %>% 
+fit_consBest <- us_change %>%
   model(lm = TSLM(Consumption ~ Income + Savings + Unemployment))
-up_future <- new_data(uschange, 4) %>% 
+up_future <- new_data(us_change, 4) %>%
   mutate(Income = 1, Savings = 0.5, Unemployment = 0)
-down_future <- new_data(uschange, 4) %>% 
+down_future <- new_data(us_change, 4) %>%
   mutate(Income = -1, Savings = -0.5, Unemployment = 0)
 fc_up <- forecast(fit_consBest, new_data = up_future)
 fc_down <- forecast(fit_consBest, new_data = down_future)
@@ -909,7 +681,7 @@ fc_down <- forecast(fit_consBest, new_data = down_future)
 \fontsize{10}{10}\sf
 
 ```{r usconsumptionf2, echo=TRUE, fig.height=3.5}
-uschange %>% autoplot(Consumption) +
+us_change %>% autoplot(Consumption) +
   ylab("% change in US consumption") +
   autolayer(fc_up, series = "increase") +
   autolayer(fc_down, series = "decrease") +
@@ -921,7 +693,7 @@ uschange %>% autoplot(Consumption) +
 ## Matrix formulation
 
 \begin{block}{}
-$$y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.$$
+\centerline{$y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.$}
 \end{block}
 \pause
 
@@ -934,11 +706,10 @@ Let $\bm{y} = (y_1,\dots,y_T)'$, $\bm{\varepsilon} = (\varepsilon_1,\dots,\varep
 1      & x_{1,T} & x_{2,T} & \dots & x_{k,T}
   \end{bmatrix}.
 \]\pause
-
 Then
 
 ###
-$$\bm{y} = \bm{X}\bm{\beta} + \bm{\varepsilon}.$$
+\centerline{$\bm{y} = \bm{X}\bm{\beta} + \bm{\varepsilon}.$}
 
 ## Matrix formulation
 
@@ -949,9 +720,7 @@ Minimize: $(\bm{y} - \bm{X}\bm{\beta})'(\bm{y} - \bm{X}\bm{\beta})$\pause
 Differentiate wrt $\bm{\beta}$ gives
 
 \begin{block}{}
-\[
-\hat{\bm{\beta}} = (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}
-\]
+\centerline{$\hat{\bm{\beta}} = (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}$}
 \end{block}
 
 \pause
@@ -1001,7 +770,7 @@ where $\bm{x}^*$ is a row vector containing the values of the predictors for the
 * 95% prediction intervals assuming normal errors:
 $$\hat{y}^* \pm 1.96 \sqrt{\text{Var}(y^*| \bm{X},\bm{x}^*)}.$$
 
-## Multiple regression forecasts
+<!-- ## Multiple regression forecasts
 
 \begin{block}{Fitted values}
 $$
@@ -1020,7 +789,7 @@ $$
 $$
 \end{block}
 
-where $e_t$ is the residual obtained from fitting the model to all $T$ observations.
+where $e_t$ is the residual obtained from fitting the model to all $T$ observations. -->
 
 # Correlation, causation and forecasting
 
