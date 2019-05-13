@@ -11,7 +11,6 @@ output:
     includes:
       in_header: header.tex
 ---
----
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
@@ -576,7 +575,7 @@ forecast(fit, h = "3 years") %>%
 (calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") %>% 
   gather("date", "volume", -X1) %>% transmute(
     time = X1, date = as.Date(date, format = "%d/%m/%Y"),
-    datetime = as.POSIXct(date) + time, volume) %>% 
+    datetime = as_datetime(date) + time, volume) %>% 
   as_tsibble(index = datetime))
 ```
 
@@ -735,8 +734,8 @@ phi1 <- coef['ar1']
 phi2 <- coef['ar2']
 phi3 <- coef['ar3']
 intercept <- coef['intercept']
-gamma0 <- coef['xreg.TV.advert']
-gamma1 <- coef['xreg.lag(TV.advert)']
+gamma0 <- coef['TV.advert']
+gamma1 <- coef['lag(TV.advert)']
 ```
 
 ###
