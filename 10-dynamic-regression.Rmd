@@ -26,9 +26,9 @@ us_change <- read_csv("data/uschange.csv") %>%
   as_tsibble(index = Time) %>%
   select(Income, Consumption)
 
-vic_elec_daily <- aus_elec %>% 
-  filter(State == "Victoria", year(Time) == 2014) %>% 
-  index_by(Date = date(Time)) %>% 
+vic_elec_daily <- aus_elec %>%
+  filter(State == "Victoria", year(Time) == 2014) %>%
+  index_by(Date = date(Time)) %>%
   summarise(
     Demand = sum(Demand)/1e3,
     Temperature = max(Temperature),
@@ -80,6 +80,7 @@ $x_{1,t},\dots,x_{k,t}$.
   * In ordinary regression, $\eta_t$ is assumed to be white noise and so $\eta_t = \varepsilon_t$.
 
 ## Estimation
+\fontsize{14}{14}\sf
 
 If we minimize $\sum \eta_t^2$ (by using ordinary regression):
 
@@ -91,7 +92,7 @@ If we minimize $\sum \eta_t^2$ (by using ordinary regression):
 \pause
 
  * Minimizing $\sum \varepsilon_t^2$ avoids these problems.
- * Maximizing likelihood is similar to minimizing $\sum \varepsilon_t^2$.
+ * Maximizing likelihood similar to minimizing $\sum \varepsilon_t^2$.
 
 ## Stationarity
 
@@ -166,7 +167,7 @@ us_change %>%
   gather(key='variable', value='value') %>%
   ggplot(aes(y=value, x=Time, group=variable)) +
   geom_line() + facet_grid(variable ~ ., scales='free_y') +
-  xlab("Year") + ylab("") + 
+  xlab("Year") + ylab("") +
   ggtitle("Quarterly changes in US consumption and personal income")
 ```
 
@@ -208,7 +209,7 @@ residuals(fit, type='regression') %>%
 \fontsize{12}{14}\sf
 
 ```{r , echo=TRUE, fig.height=3.7}
-residuals(fit, type='response') %>% 
+residuals(fit, type='response') %>%
   gg_tsdisplay(.resid) + ggtitle("ARIMA errors")
 ```
 
@@ -217,7 +218,7 @@ residuals(fit, type='response') %>%
 \fontsize{9}{12}\sf
 
 ```{r , echo=TRUE, fig.height=3.7}
-augment(fit) %>% 
+augment(fit) %>%
   features(.resid, ljung_box, dof = 5, lag = 12)
 ```
 
@@ -225,10 +226,10 @@ augment(fit) %>%
 \fontsize{9}{12}\sf
 
 ```{r usconsump3, echo=TRUE, fig.height=3}
-us_change_future <- new_data(us_change, 8) %>% 
+us_change_future <- new_data(us_change, 8) %>%
   mutate(Income = mean(us_change$Income))
-forecast(fit, new_data = us_change_future) %>% 
-  autoplot(us_change) + 
+forecast(fit, new_data = us_change_future) %>%
+  autoplot(us_change) +
   labs(x = "Year", y = "Percentage change",
        title = "Forecasts from regression with ARIMA(1,0,2) errors")
 ```
@@ -250,7 +251,7 @@ Model daily electricity demand as a function of temperature using quadratic regr
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE, fig.height=3}
-vic_elec_daily %>% 
+vic_elec_daily %>%
   ggplot(aes(x=Temperature, y=Demand, colour=Day_Type)) +
   geom_point() +
   labs(x = "Maximum temperature", y = "Electricity demand (GW)")
@@ -260,9 +261,9 @@ vic_elec_daily %>%
 \fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=3.6}
-vic_elec_daily %>% 
-  gather("var", "value", Demand, Temperature) %>% 
-  ggplot(aes(x = Date, y = value)) + geom_line() + 
+vic_elec_daily %>%
+  gather("var", "value", Demand, Temperature) %>%
+  ggplot(aes(x = Date, y = value)) + geom_line() +
   facet_grid(vars(var), scales = "free_y")
 ```
 
@@ -270,8 +271,8 @@ vic_elec_daily %>%
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-fit <- vic_elec_daily %>% 
-  model(ARIMA(Demand ~ Temperature + Temperature^2 + 
+fit <- vic_elec_daily %>%
+  model(ARIMA(Demand ~ Temperature + Temperature^2 +
                 (Day_Type=="Weekday")))
 report(fit)
 ```
@@ -280,7 +281,7 @@ report(fit)
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-augment(fit) %>% 
+augment(fit) %>%
   gg_tsdisplay(.resid, plot_type = "histogram")
 ```
 
@@ -288,7 +289,7 @@ augment(fit) %>%
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-augment(fit) %>% 
+augment(fit) %>%
   features(.resid, ljung_box, dof = 8, lag = 14)
 ```
 
@@ -305,7 +306,7 @@ forecast(fit, vic_next_day)
 ## Daily electricity demand
 \fontsize{10}{13}\sf
 ```{r, echo=TRUE}
-vic_elec_future <- new_data(vic_elec_daily, 14) %>% 
+vic_elec_future <- new_data(vic_elec_daily, 14) %>%
   mutate(
     Temperature = 26,
     Holiday = c(TRUE, rep(FALSE, 13)),
@@ -320,7 +321,7 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
 ## Daily electricity demand
 \fontsize{10}{13}\sf
 ```{r, echo = TRUE}
-forecast(fit, vic_elec_future) %>% 
+forecast(fit, vic_elec_future) %>%
   autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
 ```
 
@@ -348,8 +349,8 @@ where $\eta'_t$ is ARMA process.
 
 ```{r}
 aus_visitors <- as_tsibble(fpp2::austa)
-aus_visitors %>% 
-  autoplot(value) + 
+aus_visitors %>%
+  autoplot(value) +
   labs(x = "Year", y = "millions of people",
        title = "Total annual international visitors to Australia")
 ```
@@ -360,7 +361,7 @@ aus_visitors %>%
 **Deterministic trend**
 
 ```{r, echo=TRUE}
-fit_deterministic <- aus_visitors %>% 
+fit_deterministic <- aus_visitors %>%
   model(Deterministic = ARIMA(value ~ trend() + pdq(d = 0)))
 report(fit_deterministic)
 ```
@@ -389,7 +390,7 @@ sigma2 <- glance(fit_deterministic)$sigma^2
 **Stochastic trend**
 
 ```{r, echo=TRUE}
-fit_stochastic <- aus_visitors %>% 
+fit_stochastic <- aus_visitors %>%
   model(Stochastic = ARIMA(value ~ pdq(d=1)))
 report(fit_stochastic)
 ```
@@ -420,20 +421,20 @@ y_t-y_{t-1} &= `r format(drift, digits=2)` + \varepsilon_t \\
 ```{r}
 fc_deterministic <- forecast(fit_deterministic, h = 10)
 fc_stochastic <- forecast(fit_stochastic, h = 10)
-rbind(fc_deterministic, fc_stochastic) %>% 
-  autoplot(aus_visitors) + 
+rbind(fc_deterministic, fc_stochastic) %>%
+  autoplot(aus_visitors) +
   facet_grid(vars(.model)) +
   labs(x = "Year", y = "Visitors to Australia (millions)",
-       title = "Forecasts from trend models") + 
+       title = "Forecasts from trend models") +
   guides(colour = FALSE)
 ```
 
 ## International visitors
 
 ```{r echo=FALSE, fig.height=5.5, fig.width=8.5}
-rbind(fc_deterministic, fc_stochastic) %>% 
-  autoplot(aus_visitors, alpha = 0.5) + 
-  guides(colour=guide_legend(title="Forecast")) + 
+rbind(fc_deterministic, fc_stochastic) %>%
+  autoplot(aus_visitors, alpha = 0.5) +
+  guides(colour=guide_legend(title="Forecast")) +
   labs(x = "Year", y = "Visitors to Australia (millions)",
        title = "Forecasts from trend models")
 ```
@@ -489,8 +490,8 @@ fit <- aus_cafe %>% model(
 glance(fit)
 ```
 ```{r, echo = FALSE}
-glance(fit) %>% 
-  select(.model, sigma, logLik, AIC, AICc, BIC) %>% 
+glance(fit) %>%
+  select(.model, sigma, logLik, AIC, AICc, BIC) %>%
   knitr::kable()
 ```
 
@@ -499,15 +500,15 @@ glance(fit) %>%
 
 ```{r}
 cafe_plot <- function(...){
-  fit %>% 
+  fit %>%
     select(...) %>%
-    forecast() %>% autoplot(aus_cafe) + 
-    ggtitle(sprintf("Log transformed %s, fourier(K = %s)", model_sum(select(fit,...)[[1]][[1]]), deparse(..1))) + 
+    forecast() %>% autoplot(aus_cafe) +
+    ggtitle(sprintf("Log transformed %s, fourier(K = %s)", model_sum(select(fit,...)[[1]][[1]]), deparse(..1))) +
     geom_label(
       aes(x = yearmonth("2007 Jan"), y = 4250, label = paste0("AICc = ", format(AICc))),
       data = glance(select(fit,...))
-    ) + 
-    geom_line(aes(y = .fitted), colour = "red", augment(select(fit, ...))) + 
+    ) +
+    geom_line(aes(y = .fitted), colour = "red", augment(select(fit, ...))) +
     ylim(c(1500, 5100))
 }
 ```
@@ -563,7 +564,7 @@ report(fit)
 \fontsize{11}{12}\sf
 
 ```{r gasf, echo=TRUE, fig.height=3.5}
-forecast(fit, h = "3 years") %>% 
+forecast(fit, h = "3 years") %>%
   autoplot(gasoline)
 ```
 
@@ -572,10 +573,10 @@ forecast(fit, h = "3 years") %>%
 \fontsize{9}{10}\sf
 
 ```{r calls, echo=TRUE, fig.height=4}
-(calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") %>% 
+(calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
   gather("date", "volume", -X1) %>% transmute(
     time = X1, date = as.Date(date, format = "%d/%m/%Y"),
-    datetime = as_datetime(date) + time, volume) %>% 
+    datetime = as_datetime(date) + time, volume) %>%
   as_tsibble(index = datetime))
 ```
 
@@ -591,7 +592,7 @@ calls %>% fill_gaps() %>% autoplot(volume)
 
 ```{r calls-season, echo=TRUE, fig.height=4}
 calls %>% fill_gaps() %>%
-  gg_season(volume, period = "day", alpha = 0.1) + 
+  gg_season(volume, period = "day", alpha = 0.1) +
   guides(colour = FALSE)
 ```
 
@@ -601,7 +602,7 @@ calls %>% fill_gaps() %>%
 ```{r calls-cal, echo=TRUE, fig.height=4}
 library(sugrrants)
 calls %>% filter(month(date, label = TRUE) == "Apr") %>%
-  ggplot(aes(x = time, y = volume)) + 
+  ggplot(aes(x = time, y = volume)) +
   geom_line() + facet_calendar(date)
 ```
 
@@ -610,7 +611,7 @@ calls %>% filter(month(date, label = TRUE) == "Apr") %>%
 
 ```{r callsmodel, echo=TRUE}
 calls_mdl <- calls %>% mutate(idx = row_number()) %>% update_tsibble(index = idx)
-fit <- calls_mdl %>% 
+fit <- calls_mdl %>%
   model(ARIMA(volume ~ fourier(169, K = 10) + pdq(d=0) + PDQ(0,0,0)))
 report(fit)
 ```
@@ -619,7 +620,7 @@ report(fit)
 
 \fontsize{12}{13}\sf
 ```{r callsres, echo=TRUE}
-augment(fit) %>% 
+augment(fit) %>%
   gg_tsdisplay(.resid, plot_type = "histogram", lag_max = 338)
 ```
 
@@ -627,7 +628,7 @@ augment(fit) %>%
 \fontsize{11}{12}\sf
 
 ```{r callsf, echo=TRUE, fig.height=4}
-fit %>% forecast(h = 1690) %>% 
+fit %>% forecast(h = 1690) %>%
   autoplot(calls_mdl)
 ```
 
@@ -678,9 +679,9 @@ change in $x_t$ is transferred to $y_t$.
 ```{r tvadvert}
 insurance <- as_tsibble(fpp2::insurance, pivot_longer = FALSE)
 
-insurance %>% gather("key", "value", Quotes, TV.advert) %>% 
-  ggplot(aes(x = index, y = value)) + geom_line() + 
-  facet_grid(vars(key), scales = "free_y") + 
+insurance %>% gather("key", "value", Quotes, TV.advert) %>%
+  ggplot(aes(x = index, y = value)) + geom_line() +
+  facet_grid(vars(key), scales = "free_y") +
   labs(x = "Year", y = NULL, title = "Insurance advertising and quotations")
 ```
 
@@ -688,16 +689,16 @@ insurance %>% gather("key", "value", Quotes, TV.advert) %>%
 \fontsize{10}{10}\sf
 
 ```{r, echo=TRUE}
-fit <- insurance %>% 
+fit <- insurance %>%
   # Restrict data so models use same fitting period
-  mutate(Quotes = c(NA,NA,NA,Quotes[4:40])) %>% 
+  mutate(Quotes = c(NA,NA,NA,Quotes[4:40])) %>%
   # Estimate models
   model(
     ARIMA(Quotes ~ pdq(d = 0) + TV.advert),
     ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert)),
     ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) +
             lag(TV.advert, 2)),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) + 
+    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) +
             lag(TV.advert, 2) + lag(TV.advert, 3))
   )
 ```
@@ -709,8 +710,8 @@ fit <- insurance %>%
 glance(fit)
 ```
 ```{r, echo = FALSE}
-glance(fit) %>% 
-  transmute(`Lag order` = 0:3, sigma, logLik, AIC, AICc, BIC) %>% 
+glance(fit) %>%
+  transmute(`Lag order` = 0:3, sigma, logLik, AIC, AICc, BIC) %>%
   knitr::kable()
 ```
 
@@ -719,7 +720,7 @@ glance(fit) %>%
 \fontsize{8}{9}\sf
 
 ```{r tvadvertagain, echo=TRUE}
-fit <- insurance %>% 
+fit <- insurance %>%
   model(ARIMA(Quotes ~ pdq(3, 0, 0) + TV.advert + lag(TV.advert)))
 report(fit)
 ```
@@ -752,7 +753,7 @@ gamma1 <- coef['lag(TV.advert)']
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.3}
-advert_a <- new_data(insurance, 20) %>% 
+advert_a <- new_data(insurance, 20) %>%
   mutate(TV.advert = 10)
 forecast(fit, advert_a) %>% autoplot(insurance)
 ```
@@ -762,7 +763,7 @@ forecast(fit, advert_a) %>% autoplot(insurance)
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.3}
-advert_b <- new_data(insurance, 20) %>% 
+advert_b <- new_data(insurance, 20) %>%
   mutate(TV.advert = 8)
 forecast(fit, advert_b) %>% autoplot(insurance)
 ```
@@ -771,7 +772,7 @@ forecast(fit, advert_b) %>% autoplot(insurance)
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.3}
-advert_c <- new_data(insurance, 20) %>% 
+advert_c <- new_data(insurance, 20) %>%
   mutate(TV.advert = 6)
 forecast(fit, advert_c) %>% autoplot(insurance)
 ```
