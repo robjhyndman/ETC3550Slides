@@ -477,14 +477,14 @@ fit_trends <- marathon %>%
   )
 ```
 
-```{r, echo=TRUE, eval=FALSE}
+```{r, echo=TRUE, eval=TRUE}
 fc_trends <- fit_trends %>% forecast(h=10)
 ```
 
 
 ## Example: Boston marathon winning times
 
-```{r, echo=FALSE, message=TRUE, warning=FALSE, eval=FALSE}
+```{r, echo=FALSE, message=TRUE, warning=FALSE, eval=TRUE}
 marathon %>%
   autoplot(Minutes) +
   geom_line(aes(y = .fitted, colour = .model), data = fitted(fit_trends)) +
@@ -496,8 +496,9 @@ marathon %>%
 
 ## Example: Boston marathon winning times
 
-```{r residPiecewise, message=FALSE, warning=FALSE, eval = FALSE}
-checkresiduals(fit.pw, test=FALSE)
+```{r residPiecewise, message=FALSE, warning=FALSE, eval = TRUE}
+fit_trends %>% select(piecewise) %>%
+  augment() %>% gg_tsdisplay(.resid, plot_type = "histogram")
 ```
 
 # Selecting predictors and forecast evaluation
