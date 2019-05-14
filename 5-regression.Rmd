@@ -1,6 +1,6 @@
 ---
 title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
-author: "Ch5. Regression models"
+author: "Ch6. Regression models"
 date: "OTexts.org/fpp3/"
 toc: true
 colortheme: monashwhite
@@ -151,79 +151,6 @@ augment(fit_consMR) %>%
 augment(fit_consMR) %>%
   gg_tsdisplay(.resid, plot_type="hist")
 ```
-<!--
-# Residual diagnostics
-
-##  Multiple regression and forecasting
-For forecasting purposes, we require the following assumptions:
-
-* $\varepsilon_t$ are uncorrelated and zero mean
-
-* $\varepsilon_t$ are uncorrelated with each $x_{j,t}$.
-\pause
-
-It is **useful** to also have $\varepsilon_t \sim \text{N}(0,\sigma^2)$ when producing prediction intervals or doing statistical tests.
-
-## Residual plots
-
-Useful for spotting outliers and whether the linear model was
-appropriate.
-
-* Scatterplot of residuals $\varepsilon_t$ against each predictor $x_{j,t}$.
-
-* Scatterplot residuals against the fitted values $\hat y_t$
-
-* Expect to see scatterplots resembling a horizontal band with
-no values too far from the band and no patterns such as curvature or
-increasing spread.
-
-## Residual patterns
-
-* If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
-
-* If a plot of the residuals vs any predictor **not** in the model shows a pattern, then the predictor should be added to the model.
-
-* If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
-
-
-## Breusch-Godfrey test
-
-**OLS regression:**
-$$
-y_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+u_{t}
-$$
-**Auxiliary regression:**
-$$
-{\hat {u}}_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+\rho_{1}{\hat {u}}_{t-1}+\dots +\rho_{p}{\hat {u}}_{t-p}+\varepsilon_{t}
-$$
-
-###
-If $R^{2}$ statistic is calculated for this model, then
-$$
-  (T-p)R^{2}\,\sim \,\chi_{p}^{2},
-$$
-when there is no serial correlation up to lag $p$, and $T=$ length of series.
-
-
-* Breusch-Godfrey test better than Ljung-Box for regression models.
-
-## US consumption again
-
-\fontsize{9}{13}\sf
-
-```{r}
-warning("This is not easy with fable.")
-# lmtest::bgtest(residuals(fit_consMR)$.resid, order = 8)
-```
-
-### If the model fails the Breusch-Godfrey test \dots
-
-* The forecasts are not wrong, but have higher variance than they need to.
-* There is information in the residuals that we should exploit.
-* This is done with a regression model with ARMA errors.
-
- -->
-
 # Some useful predictors for linear models
 
 ## Trend
@@ -770,27 +697,6 @@ where $\bm{x}^*$ is a row vector containing the values of the predictors for the
 * This ignores any errors in $\bm{x}^*$.
 * 95% prediction intervals assuming normal errors:
 $$\hat{y}^* \pm 1.96 \sqrt{\text{Var}(y^*| \bm{X},\bm{x}^*)}.$$
-
-<!-- ## Multiple regression forecasts
-
-\begin{block}{Fitted values}
-$$
-  \hat{\bm{y}} = \bm{X}\hat{\bm{\beta}} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y} = \bm{H}\bm{y}
-$$
-\end{block}
-where $\bm{H} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is the ``hat matrix''.\pause
-
-**Leave-one-out residuals**
-
-Let $h_1,\dots,h_T$ be the diagonal values of $\bm{H}$, then the cross-validation statistic is
-
-\begin{block}{}
-$$
-\text{CV} = \frac1T\sum_{t=1}^T[e_t/(1-h_t)]^2,
-$$
-\end{block}
-
-where $e_t$ is the residual obtained from fitting the model to all $T$ observations. -->
 
 # Correlation, causation and forecasting
 
