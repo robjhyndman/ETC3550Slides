@@ -26,10 +26,6 @@ library(lubridate)
 us_change <- read_csv("data/uschange.csv") %>%
   mutate(Time = yearquarter(Time)) %>%
   as_tsibble(index = Time)
-
-ausbeer <- read_csv("data/ausbeer.csv") %>%
-  mutate(Time = yearquarter(Time)) %>%
-  as_tsibble(index = Time)
 ```
 
 # The linear model with time series
@@ -87,7 +83,7 @@ us_change %>%
 ```{r, echo=TRUE}
 fit_cons <- us_change %>%
   model(lm = TSLM(Consumption ~ Income))
-fit_cons %>% tidy
+report(fit_cons)
 ```
 
 ## Example: US consumption expenditure
@@ -118,7 +114,7 @@ us_change %>%
 ```{r usestim, echo=TRUE}
 fit_consMR <- us_change %>%
   model(lm = TSLM(Consumption ~ Income + Production + Unemployment + Savings))
-tidy(fit_consMR)
+report(fit_consMR)
 ```
 
 ## Example: US consumption expenditure
@@ -220,9 +216,9 @@ number of categories).
 ## Beer production revisited
 
 ```{r, echo=FALSE}
-beer <- ausbeer %>% filter(year(Time) >= 1992)
-beer %>% autoplot(Production) +
-  xlab("Year") + ylab("megalitres") +
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
+recent_production %>% autoplot(Beer) +
+  xlab("Year") + ylab("Megalitres") +
   ggtitle("Australian quarterly beer production")
 ```
 
@@ -239,7 +235,7 @@ $y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} 
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-fit_beer <- beer %>% model(TSLM(Production ~ trend() + season()))
+fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
 report(fit_beer)
 ```
 
@@ -247,8 +243,8 @@ report(fit_beer)
 
 ```{r}
 augment(fit_beer) %>%
-  ggplot(aes(x = Time)) +
-  geom_line(aes(y = Production, colour = "Data")) +
+  ggplot(aes(x = Quarter)) +
+  geom_line(aes(y = Beer, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Year") + ylab("Megalitres") +
   ggtitle("Quarterly Beer Production")
@@ -258,7 +254,7 @@ augment(fit_beer) %>%
 
 ```{r, echo=FALSE}
 augment(fit_beer) %>%
-  ggplot(aes(x=Production, y=.fitted, colour=factor(quarter(Time)))) +
+  ggplot(aes(x=Beer, y=.fitted, colour=factor(quarter(Quarter)))) +
     geom_point() +
     ylab("Fitted") + xlab("Actual values") +
     ggtitle("Quarterly beer production") +
@@ -277,7 +273,7 @@ augment(fit_beer) %>% gg_tsdisplay(.resid, plot_type="hist")
 \fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
-fit_beer %>% forecast %>% autoplot(beer)
+fit_beer %>% forecast %>% autoplot(recent_production)
 ```
 
 ## Fourier series
@@ -302,7 +298,7 @@ TSLM(y ~ trend() + fourier(K))
 \fontsize{8}{8}\sf
 
 ```{r fourierbeer, echo=TRUE}
-fourier_beer <- beer %>% model(TSLM(Production ~ trend() + fourier(K=2)))
+fourier_beer <- recent_production %>% model(TSLM(Beer ~ trend() + fourier(K=2)))
 report(fourier_beer)
 ```
 
@@ -583,10 +579,10 @@ $$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
 \fontsize{9}{9}\sf
 
 ```{r beeryetagain, echo=TRUE, fig.height=3.5}
-beer2 <- ausbeer %>% filter(year(Time) >= 1992)
-fit_beer <- beer2 %>% model(TSLM(Production ~ trend() + season()))
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
+fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
 fc_beer <- forecast(fit_beer)
-fc_beer %>% autoplot(beer2) +
+fc_beer %>% autoplot(recent_production) +
   ggtitle("Forecasts of beer production using regression") +
   xlab("Year") + ylab("megalitres")
 ```
