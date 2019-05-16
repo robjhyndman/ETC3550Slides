@@ -459,7 +459,7 @@ marathon %>% autoplot(Minutes) +
 
 ## Example: Boston marathon winning times
 
-\fontsize{8}{8}\sf
+\fontsize{10}{10}\sf
 
 ```{r, echo=TRUE}
 fit_trends <- marathon %>%
@@ -473,21 +473,25 @@ fit_trends <- marathon %>%
   )
 ```
 
-```{r, echo=TRUE, eval=TRUE}
-fc_trends <- fit_trends %>% forecast(h=10)
+```{r}
+fit_trends
 ```
-
 
 ## Example: Boston marathon winning times
 
+\fontsize{10}{10}\sf
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hide'}
+fit_trends %>% forecast(h=10) %>% autoplot(marathon)
+```
+
 ```{r, echo=FALSE, message=TRUE, warning=FALSE, eval=TRUE}
-marathon %>%
-  autoplot(Minutes) +
+fit_trends %>% 
+  forecast(h=10) %>% 
+  autoplot(marathon, alpha = 0.3) +
   geom_line(aes(y = .fitted, colour = .model), data = fitted(fit_trends)) +
-  autolayer(fc_trends, alpha = 0.3) +
-  xlab("Year") +  ylab("Winning times in minutes") +
-  ggtitle("Boston Marathon") +
-  guides(colour=guide_legend(title=" "))
+  labs(x = "Year", y = "Winning times in minutes", title = "Boston Marathon") +
+  guides(colour=guide_legend(title=NULL))
 ```
 
 ## Example: Boston marathon winning times
@@ -583,7 +587,7 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
  -->
 
 ## Comparing regression models
-\fontsize{9}{9}\sf
+\fontsize{12}{14}\sf
 
 ```{r, echo=TRUE}
 glance(fit_trends) %>%
@@ -661,17 +665,21 @@ fc_beer %>% autoplot(recent_production) +
 ```
 
 ## US Consumption
-\fontsize{9}{9}\sf
+\fontsize{10}{11}\sf
 
 ```{r usconsumptionf, echo=TRUE}
 fit_consBest <- us_change %>%
-  model(lm = TSLM(Consumption ~ Income + Savings + Unemployment))
-up_future <- new_data(us_change, 4) %>%
-  mutate(Income = 1, Savings = 0.5, Unemployment = 0)
+  model(
+    TSLM(Consumption ~ Income + Savings + Unemployment)
+  )
+
 down_future <- new_data(us_change, 4) %>%
   mutate(Income = -1, Savings = -0.5, Unemployment = 0)
-fc_up <- forecast(fit_consBest, new_data = up_future)
 fc_down <- forecast(fit_consBest, new_data = down_future)
+
+up_future <- new_data(us_change, 4) %>%
+  mutate(Income = 1, Savings = 0.5, Unemployment = 0)
+fc_up <- forecast(fit_consBest, new_data = up_future)
 ```
 
 ## US Consumption
