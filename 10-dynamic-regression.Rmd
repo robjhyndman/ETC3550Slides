@@ -66,7 +66,6 @@ $x_{1,t},\dots,x_{k,t}$.
 \end{alertblock}
 \rightline{where $\varepsilon_t$ is white noise.}
 
-
 ## Residuals and errors
 
 \begin{alertblock}{Example: $\eta_t$ = ARIMA(1,1,1)}\vspace*{-0.2cm}
@@ -151,14 +150,15 @@ variables with the same differencing operator as in the ARIMA model.\pause
 ## Model selection
 \fontsize{13}{15}\sf
 
-  * Check that all variables are stationary. If not, apply differencing. Where appropriate, use the same differencing for all variables to preserve interpretability.
-  * Fit regression model with automatically selected ARIMA errors.
+  * Fit regression model with automatically selected ARIMA errors. (R will take care of differencing before estimation.)
   * Check that $\varepsilon_t$ series looks like white noise.
+
+\pause\vspace*{0.5cm}
 
 ### Selecting predictors
 
   * AICc can be calculated for final model.
-  * Repeat procedure for all subsets of predictors to be considered, and select model with lowest AIC value.
+  * Repeat procedure for all subsets of predictors to be considered, and select model with lowest AICc value.
 
 ## US personal consumption and income
 
@@ -198,7 +198,7 @@ Write down the equations for the fitted model.
 \end{alertblock}
 
 ## US personal consumption and income
-\fontsize{12}{14}\sf
+\fontsize{11}{14}\sf
 
 ```{r , echo=TRUE, fig.height=3.7}
 residuals(fit, type='regression') %>%
@@ -206,7 +206,7 @@ residuals(fit, type='regression') %>%
 ```
 
 ## US personal consumption and income
-\fontsize{12}{14}\sf
+\fontsize{11}{14}\sf
 
 ```{r , echo=TRUE, fig.height=3.7}
 residuals(fit, type='response') %>%
@@ -325,7 +325,6 @@ forecast(fit, vic_elec_future) %>%
   autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
 ```
 
-
 # Stochastic and deterministic trends
 
 ## Stochastic \& deterministic trends
@@ -343,7 +342,6 @@ Difference both sides until $\eta_t$ is stationary:
 \[ y'_t = \beta_1 + \eta'_t \]
 where $\eta'_t$ is ARMA process.
 \end{block}
-
 
 ## International visitors
 
@@ -365,14 +363,14 @@ fit_deterministic <- aus_visitors %>%
   model(Deterministic = ARIMA(value ~ trend() + pdq(d = 0)))
 report(fit_deterministic)
 ```
-\pause\vspace*{-0.1cm}
+\pause\vspace*{-0.3cm}
 
 ```{r austaparams, echo=FALSE}
 coef <- set_names(tidy(fit_deterministic)$estimate, tidy(fit_deterministic)$term)
 phi1 <- coef['ar1']
 phi2 <- coef['ar2']
 intercept <- coef['intercept']
-slope <- coef['trend']
+slope <- coef['trend()']
 sigma2 <- glance(fit_deterministic)$sigma^2
 ```
 
@@ -394,8 +392,7 @@ fit_stochastic <- aus_visitors %>%
   model(Stochastic = ARIMA(value ~ pdq(d=1)))
 report(fit_stochastic)
 ```
-\pause\vspace*{-0.1cm}
-
+\pause\vspace*{-0.3cm}
 
 ```{r austaparams2, cache=TRUE, echo=FALSE}
 coef <- set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
@@ -403,7 +400,6 @@ drift <- coef['constant']
 theta1 <- coef['ma1']
 sigma2 <- glance(fit_stochastic)$sigma^2
 ```
-
 
 ###
 \vspace*{-.2cm}
@@ -413,8 +409,6 @@ y_t-y_{t-1} &= `r format(drift, digits=2)` + \varepsilon_t \\
   \eta_t &= \eta_{t-1} + `r format(theta1,digits=2, nsmall=2)` \varepsilon_{t-1} + \varepsilon_{t}\\
   \varepsilon_t &\sim \text{NID}(0,`r format(sigma2, digits=3)`).
 \end{align*}
-
-
 
 ## International visitors
 
@@ -462,7 +456,6 @@ rbind(fc_deterministic, fc_stochastic) %>%
 ### Disadvantages
  * seasonality is assumed to be fixed
 
-
 ## Eating-out expenditure
 
 \fontsize{10}{11}\sf
@@ -495,7 +488,6 @@ glance(fit) %>%
   knitr::kable()
 ```
 
-
 ## Eating-out expenditure
 
 ```{r}
@@ -512,7 +504,6 @@ cafe_plot <- function(...){
     ylim(c(1500, 5100))
 }
 ```
-
 
 ```{r cafe1, dependson='cafe', fig.height=5, echo=FALSE}
 cafe_plot(K = 1)
@@ -610,15 +601,17 @@ calls %>% filter(month(date, label = TRUE) == "Apr") %>%
 \fontsize{8}{8}\sf
 
 ```{r callsmodel, echo=TRUE}
-calls_mdl <- calls %>% mutate(idx = row_number()) %>% update_tsibble(index = idx)
+calls_mdl <- calls %>% 
+  mutate(idx = row_number()) %>% 
+  update_tsibble(index = idx)
 fit <- calls_mdl %>%
   model(ARIMA(volume ~ fourier(169, K = 10) + pdq(d=0) + PDQ(0,0,0)))
 report(fit)
 ```
 
 ## 5-minute call centre volume
+\fontsize{10}{13}\sf
 
-\fontsize{12}{13}\sf
 ```{r callsres, echo=TRUE}
 augment(fit) %>%
   gg_tsdisplay(.resid, plot_type = "histogram", lag_max = 338)
@@ -650,8 +643,6 @@ fit %>% forecast(h = 1690) %>%
   * $x_t$ is often a leading indicator.
   * There can be multiple predictors.
 
-
-
 ## Lagged predictors
 
 The model include present and past values of predictor: $x_t,x_{t-1},x_{t-2},\dots.$
@@ -674,7 +665,6 @@ change in $x_t$ is transferred to $y_t$.
   * $x$ can influence $y$, but $y$ is not allowed to influence $x$.
 
 ## Example: Insurance quotes and TV adverts
-
 
 ```{r tvadvert}
 insurance <- as_tsibble(fpp2::insurance, pivot_longer = FALSE)
@@ -758,7 +748,6 @@ advert_a <- new_data(insurance, 20) %>%
 forecast(fit, advert_a) %>% autoplot(insurance)
 ```
 
-
 ## Example: Insurance quotes and TV adverts
 \fontsize{11}{13}\sf
 
@@ -776,22 +765,3 @@ advert_c <- new_data(insurance, 20) %>%
   mutate(TV.advert = 6)
 forecast(fit, advert_c) %>% autoplot(insurance)
 ```
-
-## Transfer function models
-
-\fontsize{13}{15}\sf
-
-\begin{block}{}\centerline
-{$y_t = a + \nu(B) x_t + \eta_t$}
-\end{block}
-where $\eta_t$ is an ARMA process. So $$\phi(B)\eta_t = \theta(B) \varepsilon_t\qquad\text{or}\qquad
-\eta_t = \frac{\theta(B)}{\phi(B)}\varepsilon_t = \psi(B) \varepsilon_t.$$\pause\vspace*{-0.2cm}
-\begin{block}{}\centerline
-{$y_t = a + \nu(B) x_t +  \psi(B)\varepsilon_t$}
-\end{block}\pause\vspace*{-0.1cm}
-
-  * ARMA models are rational approximations to general transfer functions of $\varepsilon_t$.
-  * We can also replace $\nu(B)$ by a rational approximation.
-  * There is no R package for forecasting using a general transfer function approach.
-
-
