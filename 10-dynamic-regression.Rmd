@@ -75,7 +75,7 @@ $x_{1,t},\dots,x_{k,t}$.
 \end{align*}\end{alertblock}\pause
 
   * Be careful in distinguishing $\eta_t$ from $\varepsilon_t$.
-  * Only the errors $\eta_t$ are assumed to be white noise.
+  * Only the errors $\varepsilon_t$ are assumed to be white noise.
   * In ordinary regression, $\eta_t$ is assumed to be white noise and so $\eta_t = \varepsilon_t$.
 
 ## Estimation
