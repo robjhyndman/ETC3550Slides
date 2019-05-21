@@ -272,7 +272,7 @@ vic_elec_daily %>%
 
 ```{r, echo=TRUE}
 fit <- vic_elec_daily %>%
-  model(ARIMA(Demand ~ Temperature + Temperature^2 +
+  model(ARIMA(Demand ~ Temperature + I(Temperature^2) +
                 (Day_Type=="Weekday")))
 report(fit)
 ```
