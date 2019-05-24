@@ -620,7 +620,7 @@ wn %>% autoplot(y)
 ```{r, echo=FALSE}
 wn %>% ACF(y, lag_max = 10) %>%
   as_tibble() %>%
-  spread(lag, acf) %>%
+  tidyr::spread(lag, acf) %>%
   rename_all(function(x){paste("$r_{",x,"}$",sep="")}) %>%
   knitr::kable(booktabs=TRUE,
                escape=FALSE, align="c", digits=3,

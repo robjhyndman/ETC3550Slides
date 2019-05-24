@@ -371,7 +371,7 @@ phi1 <- coef['ar1']
 phi2 <- coef['ar2']
 intercept <- coef['intercept']
 slope <- coef['trend()']
-sigma2 <- glance(fit_deterministic)$sigma^2
+sigma2 <- glance(fit_deterministic)$sigma2
 ```
 
 ###
@@ -398,7 +398,7 @@ report(fit_stochastic)
 coef <- set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
 drift <- coef['constant']
 theta1 <- coef['ma1']
-sigma2 <- glance(fit_stochastic)$sigma^2
+sigma2 <- glance(fit_stochastic)$sigma2
 ```
 
 ###
@@ -484,7 +484,7 @@ glance(fit)
 ```
 ```{r, echo = FALSE}
 glance(fit) %>%
-  select(.model, sigma, logLik, AIC, AICc, BIC) %>%
+  select(.model, sigma2, logLik, AIC, AICc, BIC) %>%
   knitr::kable()
 ```
 
@@ -601,8 +601,8 @@ calls %>% filter(month(date, label = TRUE) == "Apr") %>%
 \fontsize{8}{8}\sf
 
 ```{r callsmodel, echo=TRUE}
-calls_mdl <- calls %>% 
-  mutate(idx = row_number()) %>% 
+calls_mdl <- calls %>%
+  mutate(idx = row_number()) %>%
   update_tsibble(index = idx)
 fit <- calls_mdl %>%
   model(ARIMA(volume ~ fourier(169, K = 10) + pdq(d=0) + PDQ(0,0,0)))
@@ -701,7 +701,7 @@ glance(fit)
 ```
 ```{r, echo = FALSE}
 glance(fit) %>%
-  transmute(`Lag order` = 0:3, sigma, logLik, AIC, AICc, BIC) %>%
+  transmute(`Lag order` = 0:3, sigma2, logLik, AIC, AICc, BIC) %>%
   knitr::kable()
 ```
 

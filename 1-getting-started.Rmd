@@ -331,7 +331,7 @@ fit <- austa %>% model(ETS())
 ```
 
 ```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
-sim <- fit %>% imitate(h = 10, times = 10) %>%
+sim <- fit %>% generate(h = 10, times = 10) %>%
   mutate(
     replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10))
   )
