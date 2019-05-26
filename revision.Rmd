@@ -35,7 +35,7 @@ wrong and fix it.
 \begin{itemize}\itemsep=0cm\parskip=0cm
   \item  Program  written in COBOL making numerical calculations limited. It is not possible to do any optimisation.
   \item Their programmer has little experience in numerical computing.
-  \item They employ no statisticians and want the program to produce forecasts automatically.
+  \item They employ no statisticians and want the program to produce forecasts \rlap{automatically.}
 \end{itemize}
 \end{textblock}
 
@@ -125,9 +125,8 @@ most of the computing.
 
 ## 1. Introduction to forecasting and R
 
- - `ts` objects
- - seasonal periods
- - frequency, start, end
+ - time series data and `tsibble` objects
+ - what makes things hard/easy to forecast
  - You don't have to write R code for the exam, but you do have to read and understand R code.
 
 ## 2. Time series graphics
@@ -137,42 +136,45 @@ most of the computing.
  - subseries plot
  - lag plot
  - ACF
+ - white noise
 
 ## 3. The forecasters' toolbox
 
-  - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE
+  - tidy forecasting workflow
+  - Four benchmark methods: naive, seasonal naive, drift, mean.
+  - Box-Cox transformations to stabilize changing variance. Back-transformations after forecasting.
+ - Forecasting involves distributions of future observations
+
+## 4. Evaluating forecast accuracy
+
+  - Residual diagnostics: ACF, white noise, LB test.
   - Training/test sets. Out-of-sample accuracy
   - Problem of over-fitting.
-  - Time series cross-validation
-  - Box-Cox transformations to stabilize changing variance. Back-transformations after forecasting.
-  - Residual diagnostics: ACF, white noise, LB test.
-  - Simple methods: naive, seasonal naive, drift, \rlap{mean.}
+  - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE
   - One-step prediction intervals based on RMSE
+  - Time series cross-validation
 
-## 6: Time series decomposition
+## 7: Time series decomposition
 
   - Describing a time series: seasonality, trend, cycles, changing variance, unusual features.
   - Difference between seasonality and cyclicity
-  - Moving averages
-  - Classical decomposition, X-12-ARIMA, STL:
-      should know how to interpret.
+  - Interpreting a decomposition.
   - Seasonal adjustment
-  - Advantages/disadvantages of each method
   - Forecasting and decomposition
 
-## 7: Exponential smoothing
+## 8: Exponential smoothing
 
   - Simple exponential smoothing.
   - Holt's local trend method
   - Damped trend methods
   - Holt-Winters seasonal method (additive and multiplicative versions)
   - ETS state space formulation
-  - Interpretation of `ets()` output in R.
+  - Interpretation of output in R.
   - Computing forecasts by setting future $\varepsilon_t$ to 0.
   - Assumptions for prediction intervals
   - Formula sheet provided
 
-## 8: ARIMA models
+## 9: ARIMA models
 \fontsize{14}{16}\sf
 
   - Stationarity.
@@ -183,9 +185,9 @@ most of the computing.
   - ACF, PACF.  Model identification.
   - ARIMA models, Seasonal ARIMA models
   - Order selection and goodness of fit (AICc)
-  - Interpretation of `Arima()` and `auto.arima()` output in R.
+  - Interpretation of output in R.
 
-## 8: ARIMA models (cont'd)
+## 9: ARIMA models (cont'd)
 
   - Expanding out an ARIMA model for forecasting
   - Finding point forecasts for given ARIMA process
@@ -196,30 +198,26 @@ most of the computing.
   - ARIMA vs ETS
 
 
-## 5: Multiple regression
+## 6: Multiple regression
 
-  - Interpretation of coefficients as marginal effects
-  - Residual diagnostics: scatterplots of residuals vs predictors and residuals vs fitted values.
   - Dummy variables, seasonal dummies, piecewise linear trends, interventions
-  - Splines
   - Harmonic regression
   - AIC, AICc, BIC, $R^2$, adjusted $R^2$
-  - Matrix formulation
-  - Multicollinearity
+  - variable selection
   - Interpretation of R output.
+  - ex ante vs ex post forecasts
+  - scenario forecasting
 
-## 9: Dynamic regression models
+## 10: Dynamic regression models
 \fontsize{14}{16}\sf
 
   - Regression with ARMA errors
   - Using lagged predictors
   - Difference between regression residuals and ARIMA residuals.
-  - When estimating, need to difference all variables if errors non-stationary
   - Problems with OLS and autocorrelated errors
   - Forecasting for regression models with ARMA errors
   - Stochastic vs deterministic trends
   - Dynamic harmonic regression
-  - Multiple seasonal series
 
 # Exam
 
@@ -233,24 +231,29 @@ most of the computing.
   - Q4: ARIMA model
   - Q5: Dynamic regression.
 
-  - Formula page as for ETC3550 2017.
+  - Formula page as for ETC3550 2018.
 
-## Exam: 6 June am
+## Exam
 
-**Preparing for the exam**
+\begin{block}{}
+9.30am, 10 June.
+Rm G31, LTB, Clayton.
+\end{block}\pause
 
-  - 2015, 2016 \& 2017 exams from ETC2450/ ETC3550 to go on Moodle with solutions.
+**Preparing for the exam**\vspace*{-0.2cm}
+
+  - 2016, 2017 \& 2018 exams on Moodle. Solutions to follow soon.
   - Exercises.  Make sure you have done them all!
   - Identify your weak points and practice them.
-  - Write your own summary of the material covered.
+  - Write your own summary of the material.
   - Practice explaining the material to a class-mate.
 
 \pause
 
 ### Help available
-See Puwasala in first instance.
+ * Ask on Moodle forum
+ * See your tutor during the consultation times.
 
-See me at 11am-1pm on Wednesday 30th.
 
 
 ## Useful resources for forecasters
@@ -261,8 +264,8 @@ See me at 11am-1pm on Wednesday 30th.
 
 **Annual Conference:**
 
- * International Symposium on Forecasting, Boulder.
-   June 2018.
+ * International Symposium on Forecasting, Thessaloniki, Greece.
+   June 2019.
 
 **Journals:**
 
