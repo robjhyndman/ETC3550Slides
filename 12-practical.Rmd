@@ -15,8 +15,12 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=TRUE, warning=FALSE, message=FALSE)
-library(fpp2)
-options(digits=3,width=50)
+library(tidyverse)
+library(fable)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+library(lubridate)
 ```
 
 # Models for different frequencies
@@ -57,10 +61,11 @@ options(digits=3,width=50)
 \fontsize{12}{12}\sf
 
 ```{r}
-eggs %>%
-  ets(model="AAN", damped=FALSE, lambda=0) %>%
-  forecast(h=50, biasadj=TRUE) %>%
-  autoplot()
+eggs <- as_tsibble(fma::eggs)
+eggs %>% 
+  model(ETS(log(value) ~ error("A") + trend("A") + season("N"))) %>% 
+  forecast(h=50) %>%
+  autoplot(eggs)
 ```
 
 
@@ -73,66 +78,38 @@ eggs %>%
 
 ## Forecast combinations
 \fontsize{10}{10}\sf\vspace*{-0.2cm}
-```r
-train <- window(auscafe, end=c(2012,9))
-h <- length(auscafe) - length(train)
-ETS <- forecast(ets(train), h=h)
-ARIMA <- forecast(auto.arima(train, lambda=0, biasadj=TRUE),
-  h=h)
-STL <- stlf(train, lambda=0, h=h, biasadj=TRUE)
-NNAR <- forecast(nnetar(train), h=h)
-TBATS <- forecast(tbats(train, biasadj=TRUE), h=h)
-Combination <- (ETS[["mean"]] + ARIMA[["mean"]] +
-  STL[["mean"]] + NNAR[["mean"]] + TBATS[["mean"]])/5
 
-autoplot(auscafe) +
-  autolayer(ETS, series="ETS", PI=FALSE) +
-  autolayer(ARIMA, series="ARIMA", PI=FALSE) +
-  autolayer(STL, series="STL", PI=FALSE) +
-  autolayer(NNAR, series="NNAR", PI=FALSE) +
-  autolayer(TBATS, series="TBATS", PI=FALSE) +
-  autolayer(Combination, series="Combination") +
-  xlab("Year") + ylab("$ billion") +
-  ggtitle("Australian monthly expenditure on eating out")
+```{r}
+aus_cafe <- aus_retail %>% 
+  filter(Industry == "Cafes, restaurants and catering services") %>% 
+  summarise(Turnover = sum(Turnover))
+fc <- aus_cafe %>% 
+  filter(Month <= yearmonth("2013 Sep")) %>% 
+  model(
+    ETS = ETS(Turnover),
+    ARIMA = ARIMA(Turnover)
+  ) %>% 
+  mutate(
+    Combination = (ETS + ARIMA)/2
+  ) %>% 
+  forecast(h = "5 years")
 ```
+
 
 ## Forecast combinations
 \fontsize{10}{10}\sf\vspace*{-0.2cm}
-```{r combine1, message=FALSE, warning=FALSE, echo=FALSE}
-train <- window(auscafe, end=c(2012,9))
-h <- length(auscafe) - length(train)
-ETS <- forecast(ets(train), h=h)
-ARIMA <- forecast(auto.arima(train, lambda=0, biasadj=TRUE),
-  h=h)
-STL <- stlf(train, lambda=0, h=h, biasadj=TRUE)
-NNAR <- forecast(nnetar(train), h=h)
-TBATS <- forecast(tbats(train, biasadj=TRUE), h=h)
-Combination <- (ETS[["mean"]] + ARIMA[["mean"]] +
-  STL[["mean"]] + NNAR[["mean"]] + TBATS[["mean"]])/5
-```
 
-```{r combineplot, dependson="combine1", echo=FALSE, fig.height=4.8}
-autoplot(auscafe) +
-  autolayer(ETS, series="ETS", PI=FALSE) +
-  autolayer(ARIMA, series="ARIMA", PI=FALSE) +
-  autolayer(STL, series="STL", PI=FALSE) +
-  autolayer(NNAR, series="NNAR", PI=FALSE) +
-  autolayer(TBATS, series="TBATS", PI=FALSE) +
-  autolayer(Combination, series="Combination") +
-  xlab("Year") + ylab("$ billion") +
-  ggtitle("Australian monthly expenditure on eating out")
+```{r combineplot, echo=TRUE, fig.height=4.8}
+fc %>% autoplot(aus_cafe, level = NULL) + 
+  labs(x = "Year", y = "$ billion",
+       title = "Australian monthly expenditure on eating out")
 ```
 
 ## Forecast combinations
 \fontsize{11}{15}\sf
 ```{r combineaccuracy, dependson="combine1"}
-c(ETS = accuracy(ETS, auscafe)["Test set","RMSE"],
-  ARIMA = accuracy(ARIMA, auscafe)["Test set","RMSE"],
-  `STL-ETS` = accuracy(STL, auscafe)["Test set","RMSE"],
-  NNAR = accuracy(NNAR, auscafe)["Test set","RMSE"],
-  TBATS = accuracy(TBATS, auscafe)["Test set","RMSE"],
-  Combination =
-    accuracy(Combination, auscafe)["Test set","RMSE"])
+fc %>% 
+  accuracy(aus_cafe)
 ```
 
 # Missing values
@@ -142,37 +119,40 @@ c(ETS = accuracy(ETS, auscafe)["Test set","RMSE"],
 
 **Functions which can handle missing values**
 
- * `auto.arima()`, `Arima()`
- * `tslm()`
- * `nnetar()`
+ * `ARIMA()`
+ * `TSLM()`
+ * `NNETAR()`
+ * `VAR()`
+ * `FASSTER()`
 
 **Models which cannot handle missing values**
 
- * `ets()`
- * `stl()`
- * `stlf()`
- * `tbats()`
+ * `ETS()`
+ * `STL()`
+ * `TBATS()`
 
 \pause
 
 ### What to do?
  1. Model section of data after last missing value.
- 2. Estimate missing values with `na.interp()`.
+ 2. Estimate missing values with `interpolate()`.
 
 ## Missing values
 \fontsize{12}{12}\sf
 ```{r}
-autoplot(gold)
+gold <- as_tsibble(forecast::gold)
+gold %>% autoplot(value)
 ```
 
 ## Missing values
 \fontsize{12}{12}\sf
 ```{r, fig.height=3}
-gold %>% na.interp() %>%
-  autoplot(series="Interpolated") +
-    autolayer(gold, series="Original") +
-    scale_color_manual(
-      values=c(`Interpolated`="red",`Original`="gray"))
+gold_complete <- gold %>% 
+  model(ARIMA(value)) %>%
+  interpolate(gold)
+gold_complete %>% 
+  autoplot(value, colour = "red") + 
+  autolayer(gold, value)
 ```
 
 # Outliers
@@ -180,7 +160,7 @@ gold %>% na.interp() %>%
 ## Outliers
 
 ```{r, fig.height=3.4}
-autoplot(gold)
+gold %>% autoplot(value)
 ```
 
 ## Outliers
