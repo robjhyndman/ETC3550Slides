@@ -27,8 +27,6 @@ library(lubridate)
 
 ## Models for different frequencies
 
-\vspace*{-0.2cm}
-
 ### Models for annual data
 
  * ETS, ARIMA, Dynamic regression
@@ -58,12 +56,12 @@ library(lubridate)
 # Ensuring forecasts stay within limits
 
 ## Positive forecasts
-\fontsize{12}{12}\sf
+\fontsize{9}{9}\sf
 
-```{r}
+```{r, fig.height=3.8}
 eggs <- as_tsibble(fma::eggs)
-eggs %>% 
-  model(ETS(log(value) ~ error("A") + trend("A") + season("N"))) %>% 
+eggs %>%
+  model(ETS(log(value) ~ error("A") + trend("A") + season("N"))) %>%
   forecast(h=50) %>%
   autoplot(eggs)
 ```
@@ -77,21 +75,21 @@ eggs %>%
 "The results have been virtually unanimous: combining multiple forecasts leads to increased forecast accuracy. \dots In many cases one can make dramatic performance improvements by simply averaging the forecasts."
 
 ## Forecast combinations
-\fontsize{10}{10}\sf\vspace*{-0.2cm}
+\fontsize{9}{10}\sf\vspace*{-0.2cm}
 
 ```{r}
-aus_cafe <- aus_retail %>% 
-  filter(Industry == "Cafes, restaurants and catering services") %>% 
+aus_cafe <- aus_retail %>%
+  filter(Industry == "Cafes, restaurants and catering services") %>%
   summarise(Turnover = sum(Turnover))
-fc <- aus_cafe %>% 
-  filter(Month <= yearmonth("2013 Sep")) %>% 
+fc <- aus_cafe %>%
+  filter(Month <= yearmonth("2013 Sep")) %>%
   model(
     ETS = ETS(Turnover),
     ARIMA = ARIMA(Turnover)
-  ) %>% 
+  ) %>%
   mutate(
     Combination = (ETS + ARIMA)/2
-  ) %>% 
+  ) %>%
   forecast(h = "5 years")
 ```
 
@@ -99,23 +97,22 @@ fc <- aus_cafe %>%
 ## Forecast combinations
 \fontsize{10}{10}\sf\vspace*{-0.2cm}
 
-```{r combineplot, echo=TRUE, fig.height=4.8}
-fc %>% autoplot(aus_cafe, level = NULL) + 
+```{r combineplot, echo=TRUE, fig.height=4.2}
+fc %>% autoplot(aus_cafe, level = NULL) +
   labs(x = "Year", y = "$ billion",
        title = "Australian monthly expenditure on eating out")
 ```
 
 ## Forecast combinations
-\fontsize{11}{15}\sf
+\fontsize{10}{15}\sf
 ```{r combineaccuracy, dependson="combine1"}
-fc %>% 
-  accuracy(aus_cafe)
+fc %>% accuracy(aus_cafe)
 ```
 
 # Missing values
 
 ## Missing values
-\fontsize{14}{15}\sf
+\fontsize{12}{13}\sf
 
 **Functions which can handle missing values**
 
@@ -147,11 +144,11 @@ gold %>% autoplot(value)
 ## Missing values
 \fontsize{12}{12}\sf
 ```{r, fig.height=3}
-gold_complete <- gold %>% 
+gold_complete <- gold %>%
   model(ARIMA(value)) %>%
   interpolate(gold)
-gold_complete %>% 
-  autoplot(value, colour = "red") + 
+gold_complete %>%
+  autoplot(value, colour = "red") +
   autolayer(gold, value)
 ```
 
@@ -165,12 +162,12 @@ gold %>% autoplot(value)
 
 ## Outliers
 
-```{r, fig.height=3.4}
+```{r, fig.height=3.4, eval=FALSE}
 tsoutliers(gold)
 ```
 
 ## Outliers
 
-```{r, fig.height=3.4}
+```{r, fig.height=3.4, eval=FALSE}
 gold %>% tsclean() %>% autoplot()
 ```
