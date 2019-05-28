@@ -10,6 +10,8 @@ output:
     fig_height: 3.5
     includes:
       in_header: header.tex
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -155,19 +157,12 @@ gold_complete %>%
 # Outliers
 
 ## Outliers
+\fontsize{11}{13}\sf
 
 ```{r, fig.height=3.4}
-gold %>% autoplot(value)
-```
-
-## Outliers
-
-```{r, fig.height=3.4, eval=FALSE}
-tsoutliers(gold)
-```
-
-## Outliers
-
-```{r, fig.height=3.4, eval=FALSE}
-gold %>% tsclean() %>% autoplot()
+fit <- gold %>%
+  model(ARIMA(value))
+augment(fit) %>% 
+  mutate(stdres = .resid/sd(.resid, na.rm=TRUE)) %>% 
+  filter(abs(stdres) > 10)
 ```
