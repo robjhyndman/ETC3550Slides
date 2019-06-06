@@ -615,11 +615,6 @@ report(fit)
 
 \pause\vfill
 
-```{r usconsumptioncoefs, echo=FALSE}
-coef <- coefficients(fit)
-intercept <- coef['intercept'] * (1-coef['ar1'] - coef['ar2'])
-```
-
 ```{r}
 if(!grepl("ARIMA\\(1,0,3\\)", format(fit$arima)))
   warning("Needs fixing")
@@ -627,14 +622,14 @@ if(!grepl("ARIMA\\(1,0,3\\)", format(fit$arima)))
 
 ### ARIMA(1,0,3) model:
 \centerline{$
-  y_t = c + `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`y_{t-1}
-          + `r format(tidy(fit)$estimate[2], nsmall=3, digits=3)` \varepsilon_{t-1}
-          + `r format(tidy(fit)$estimate[3], nsmall=3, digits=3)` \varepsilon_{t-2}
-          + `r format(tidy(fit)$estimate[4], nsmall=3, digits=3)` \varepsilon_{t-2}
-          + \varepsilon_{t},
+  y_t = `r format(tidy(fit)$estimate[5], nsmall=3, digits=3)`
+      + `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`y_{t-1}
+      + `r format(tidy(fit)$estimate[2], nsmall=3, digits=3)` \varepsilon_{t-1}
+      + `r format(tidy(fit)$estimate[3], nsmall=3, digits=3)` \varepsilon_{t-2}
+      + `r format(tidy(fit)$estimate[4], nsmall=3, digits=3)` \varepsilon_{t-2}
+      + \varepsilon_{t},
 $}
-where $c= `r format(tidy(fit)$estimate[5], nsmall=3, digits=3)` \times (1 - `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`) = `r format(tidy(fit)$estimate[5] * (1-tidy(fit)$estimate[1]), nsmall=3, digits=3)`$
-and $\varepsilon_t$ is white noise with a standard deviation of $`r format(glance(fit)$sigma, nsmall=3, digits=3)` = \sqrt{`r format(glance(fit)$sigma^2, nsmall=3, digits=3)`}$.
+where $\varepsilon_t$ is white noise with a standard deviation of $`r format(sqrt(glance(fit)$sigma2), nsmall=3, digits=3)` = \sqrt{`r format(glance(fit)$sigma2, nsmall=3, digits=3)`}$.
 
 ## US personal consumption
 \fontsize{12}{15}\sf
