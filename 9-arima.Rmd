@@ -297,7 +297,7 @@ If $F_s > 0.64$, do one seasonal difference.
 
 ```{r, echo=TRUE}
 usmelec %>% mutate(log_gen = log(Generation)) %>%
-  features(log_gen, list(unitroot_nsdiffs, stl_features))
+  features(log_gen, list(unitroot_nsdiffs, features_stl))
 ```
 
 ## Automatically selecting differences
