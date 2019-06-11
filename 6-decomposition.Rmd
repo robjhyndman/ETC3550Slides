@@ -144,7 +144,7 @@ elecequip %>%
 
 ```{r elecequip-sa, echo=FALSE}
 elecequip %>% autoplot(value, series="Data") +
-  autolayer(dcmp, seas_adjust, series="Seasonally Adjusted") +
+  autolayer(dcmp, season_adjust, series="Seasonally Adjusted") +
   xlab("Year") + ylab("New orders index") +
   ggtitle("Electrical equipment manufacturing (Euro area)") +
   scale_colour_manual(breaks = c("Seasonally adjusted", "Data"), values=c("blue","grey"))
@@ -366,7 +366,7 @@ elecequip %>% SEATS(value) %>%
 fit <- elecequip %>% SEATS(value)
 autoplot(elecequip, value, series="Data") +
   autolayer(fit, trend, series="Trend") +
-  autolayer(fit, seas_adjust, series="Seasonally Adjusted") +
+  autolayer(fit, season_adjust, series="Seasonally Adjusted") +
   xlab("Year") + ylab("New orders index") +
   ggtitle("Electrical equipment manufacturing (Euro area)") +
   scale_colour_manual(values=c("gray","blue","red"),
@@ -482,7 +482,7 @@ elecequip %>% STL(value) %>% autoplot()
 dcmp <- elecequip %>%
   STL(value ~ trend(window=13) + season(window="periodic"))
 dcmp %>%
-  model(NAIVE(seas_adjust)) %>% forecast() %>%
+  model(NAIVE(season_adjust)) %>% forecast() %>%
   autoplot(dcmp) + ylab("New orders index") +
   ggtitle("ETS forecasts of seasonally adjusted data")
 ```
@@ -496,7 +496,7 @@ dcmp %>%
 ```{r elecequip5, echo=TRUE, fig.height=3.2}
 dcmp_def <- dcmp_model(STL,
   value ~ trend(window = 13) + season(window = "periodic"),
-  NAIVE(seas_adjust))
+  NAIVE(season_adjust))
 elecequip %>%
   model(STLM = dcmp_def) %>% forecast() %>%
   autoplot(elecequip) + ylab("New orders index") + xlab("Year")
@@ -508,7 +508,7 @@ elecequip %>%
 
 `dcmp_model()` creates a decomposition model
 
- * You must provide a method for forecasting the `seas_adjust` series.
+ * You must provide a method for forecasting the `season_adjust` series.
  * A seasonal naive method is used by default for the `seasonal` components.
 
 
