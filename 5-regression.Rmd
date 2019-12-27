@@ -591,7 +591,7 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
 
 ```{r, echo=TRUE}
 glance(fit_trends) %>%
-  select(r.squared, adj.r.squared, AIC, AICc)
+  select(r_squared, adj_r_squared, AIC, AICc)
 ```
 
  * Be careful making comparisons when transformations are used.

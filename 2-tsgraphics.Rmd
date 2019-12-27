@@ -182,8 +182,7 @@ a10 %>% autoplot(Cost) +
 \fontsize{12}{14}\sf
 
 ```{r maxtemp, echo=FALSE}
-maxtemp <- aus_elec %>%
-  filter(State=="Victoria") %>%
+maxtemp <- vic_elec %>%
   index_by(Day = lubridate::date(Time)) %>%
   summarise(
     Temperature = max(Temperature),

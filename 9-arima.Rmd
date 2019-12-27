@@ -840,14 +840,14 @@ Step 2:
 
 ```{r, echo=TRUE, fig.height=4}
 web_usage <- as_tsibble(WWWusage)
-web_usage %>% gg_tsdisplay(value)
+web_usage %>% gg_tsdisplay(value, plot_type = 'partial')
 ```
 
 ## Choosing your own model
 \fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-web_usage %>% gg_tsdisplay(difference(value))
+web_usage %>% mutate(difference(value)) %>% gg_tsdisplay(plot_type = 'partial')
 ```
 
 ## Choosing your own model
@@ -951,7 +951,7 @@ dcmp %>% as_tsibble %>%
 \fontsize{11}{12}\sf
 
 ```{r ee2, echo=TRUE, fig.height=4}
-dcmp %>% gg_tsdisplay(difference(season_adjust))
+dcmp %>% gg_tsdisplay(difference(season_adjust), plot_type = 'partial')
 ```
 
 ## \large Seasonally adjusted electrical equipment

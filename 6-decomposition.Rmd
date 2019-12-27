@@ -317,7 +317,7 @@ dcmp %>% as_tsibble %>%
 
 \fontsize{10}{12}\sf
 
-```{r x11, warning=FALSE, fig.width=8, fig.height=4.5}
+```{r x11, eval=FALSE, fig.height=4.5, fig.width=8, warning=FALSE}
 elecequip %>% X11(value, type="multiplicative") %>%
   autoplot() +
   ggtitle("X11 decomposition of electrical equipment index")
@@ -354,7 +354,7 @@ elecequip %>% X11(value, type="multiplicative") %>%
 
 \fontsize{10}{12}\sf
 
-```{r seats, warning=FALSE, fig.width=8, fig.height=4.5}
+```{r seats, warning=FALSE, fig.width=8, fig.height=4.5, eval=FALSE}
 elecequip %>% SEATS(value) %>%
   autoplot() +
   ggtitle("X-13ARIMA-SEATS decomposition of electrical equipment index")
@@ -362,7 +362,7 @@ elecequip %>% SEATS(value) %>%
 
 ## X-13ARIMA-SEATS decomposition
 
-```{r seats-seasadj, echo=FALSE, warning=FALSE, fig.width=9, fig.height=5.5}
+```{r seats-seasadj, echo=FALSE, warning=FALSE, fig.width=9, fig.height=5.5, eval=FALSE}
 fit <- elecequip %>% SEATS(value)
 autoplot(elecequip, value, series="Data") +
   autolayer(fit, trend, series="Trend") +
@@ -377,7 +377,7 @@ autoplot(elecequip, value, series="Data") +
 
 \fontsize{11}{14}\sf
 
-```{r elecequip-seats, echo=TRUE}
+```{r elecequip-seats, echo=TRUE,eval=FALSE}
 fit %>%
   gg_subseries(seasonal) + ylab("Seasonal")
 ```
@@ -493,7 +493,7 @@ dcmp %>%
 
 \fontsize{10}{11}\sf
 
-```{r elecequip5, echo=TRUE, fig.height=3.2}
+```{r elecequip5, echo=TRUE, fig.height=3.2, eval=FALSE}
 dcmp_def <- dcmp_model(STL,
   value ~ trend(window = 13) + season(window = "periodic"),
   NAIVE(season_adjust))

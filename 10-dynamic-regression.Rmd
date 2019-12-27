@@ -26,8 +26,8 @@ us_change <- read_csv("data/uschange.csv") %>%
   as_tsibble(index = Time) %>%
   select(Income, Consumption)
 
-vic_elec_daily <- aus_elec %>%
-  filter(State == "Victoria", year(Time) == 2014) %>%
+vic_elec_daily <- vic_elec %>%
+  filter(year(Time) == 2014) %>%
   index_by(Date = date(Time)) %>%
   summarise(
     Demand = sum(Demand)/1e3,
@@ -202,7 +202,7 @@ Write down the equations for the fitted model.
 
 ```{r , echo=TRUE, fig.height=3.7}
 residuals(fit, type='regression') %>%
-  gg_tsdisplay(.resid) + ggtitle("Regression errors")
+  gg_tsdisplay(.resid, plot_type = 'partial') + ggtitle("Regression errors")
 ```
 
 ## US personal consumption and income
@@ -210,7 +210,7 @@ residuals(fit, type='regression') %>%
 
 ```{r , echo=TRUE, fig.height=3.7}
 residuals(fit, type='response') %>%
-  gg_tsdisplay(.resid) + ggtitle("ARIMA errors")
+  gg_tsdisplay(.resid, plot_type = 'partial') + ggtitle("ARIMA errors")
 ```
 
 ## US personal consumption and income
@@ -484,7 +484,7 @@ glance(fit)
 ```
 ```{r, echo = FALSE}
 glance(fit) %>%
-  select(.model, sigma2, logLik, AIC, AICc, BIC) %>%
+  select(.model, sigma2, log_lik, AIC, AICc, BIC) %>%
   knitr::kable()
 ```
 
@@ -701,7 +701,7 @@ glance(fit)
 ```
 ```{r, echo = FALSE}
 glance(fit) %>%
-  transmute(`Lag order` = 0:3, sigma2, logLik, AIC, AICc, BIC) %>%
+  transmute(`Lag order` = 0:3, sigma2, log_lik, AIC, AICc, BIC) %>%
   knitr::kable()
 ```
 

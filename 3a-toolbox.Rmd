@@ -154,7 +154,7 @@ bricks <- aus_production %>%
   mutate(average = mean(Bricks))
 
 fc <- bricks %>%
-  filter(row_number() == n()) %>%
+  filter(row_number() == n()) %>% as_tibble() %>% 
   unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12*5))))
 
 bricks %>%
@@ -442,7 +442,7 @@ library(rlang)
 library(gganimate)
 library(latex2exp)
 food %>%
-  mutate(!!!set_names(map(seq(0,1,0.01), ~ expr(fablelite::box_cox(Turnover, !!.x))), seq(0,1,0.01))) %>%
+  mutate(!!!set_names(map(seq(0,1,0.01), ~ expr(box_cox(Turnover, !!.x))), seq(0,1,0.01))) %>%
   gather(lambda, Turnover) %>%
   mutate(lambda = as.numeric(lambda)) %>%
   ggplot(aes(x = Month, y = Turnover)) +
