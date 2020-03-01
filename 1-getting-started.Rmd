@@ -14,10 +14,9 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
-library(dplyr)
-library(ggplot2)
-library(fable)
+library(fpp3)
 library(patchwork)
+library(gganimate)
 austa <- as_tsibble(fpp2::austa) %>%
   rename(Year = index, Visitors = value)
 melsyd <- tsibbledata::ansett %>%
@@ -111,11 +110,11 @@ Something is easier to forecast if:
 
 ## Australian quarterly beer production
 
-```{r, echo=FALSE, fig.height=4}
+```{r, echo=FALSE, fig.height=5.5, fig.width=8}
 aus_production %>% autoplot(Beer)
 ```
 
-\only<2>{\begin{textblock}{6}(6.4,6.5)
+\only<2>{\begin{textblock}{6}(6.4,5.1)
 \begin{alertblock}{}
 Forecasting is estimating how the sequence of observations will continue into the future.
 \end{alertblock}
@@ -125,20 +124,20 @@ Forecasting is estimating how the sequence of observations will continue into th
 
 ## Australian quarterly beer production
 
-```{r, echo=FALSE, fig.height=5, include=FALSE}
+```{r, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
 fc <- aus_production %>%
   model(ETS(Beer)) %>%
-  forecast() 
-plist[[1]] <- fc %>% autoplot(aus_production)
-for(i in 2:51)
-  plist[[i]] <- fc %>% autoplot(tail(aus_production, 12+(51-i)*4))
-```
-
-## Australian quarterly beer production
-
-```{r, echo=FALSE, fig.height=4}
-## How to animate over all 40?
-aligned_p[[1]]
+  forecast()
+p <- autoplot(fc, aus_production)
+# More automatic approach to identifying plot limits
+p_built <- ggplot_build(p)
+ylim <- p_built$layout$panel_scales_y[[1]]$range$range
+p +
+  view_step_manual(
+    xmin = yearquarter(c("1956 Q1", "2007 Q4")),
+    xmax = yearquarter(c("2012 Q2", "2012 Q2")),
+    ymin = rep(ylim[1], 2),
+    ymax = rep(ylim[2], 2), wrap = FALSE)
 ```
 
 \vspace*{10cm}
