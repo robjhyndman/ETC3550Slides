@@ -19,18 +19,37 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 
 ## Contact details
 
-### Lecturer
+\begin{block}{Lecturer}
+\textbf{Professor Rob Hyndman}
+\begin{itemize}
+\item Room E762, Menzies Building
+\item Email: Rob.Hyndman@monash.edu
+\end{itemize}
+\end{block}
 
-**Professor Rob Hyndman**
+\begin{textblock}{5.4}(0.3,5)
+\begin{block}{Tutors}
+\begin{itemize}\itemsep=0cm
+\item Mitchell O'Hara-Wild
+\item Hansika Hewamalage
+\item Ryan Thompson
+\item Sayani Gupta
+\end{itemize}
+\end{block}
+\end{textblock}
 
-  - Room E762, Menzies Building
-  - Email: Rob.Hyndman@monash.edu
+\begin{textblock}{6.5}(6.2,5)
+\begin{alertblock}{Find me at ...}
+\href{https://twitter.com/robjhyndman}{\faicon{twitter} @robjhyndman}
 
-### Tutors
+\href{https://github.com/robjhyndman}{\faicon{github}  @robjhyndman}
 
- * Mitchell O'Hara-Wild
- * Puwasala Gamakumara
- * Sayani Gupta
+\href{https://robjhyndman.com}{\faicon{home} robjhyndman.com}
+
+\href{mailto:rob.hyndman@monash.edu}{\faicon{envelope}  rob.hyndman@monash.edu}
+\end{alertblock}
+\end{textblock}
+\vspace*{10cm}
 
 ## Brief bio
 
@@ -81,7 +100,7 @@ https://www.rstudio.com/products/rstudio/download/
 
 \begin{block}{}\bf
 \hangafter=1\hangindent=.3cm
- {Hyndman, R.~J. \& Athanasopoulos, G. (2019) \emph{Forecasting: principles and practice}, 3rd edition}
+ {Hyndman, R.~J. \& Athanasopoulos, G. (2020) \emph{Forecasting: principles and practice}, 3rd edition}
 \end{block}\pause
 \begin{alertblock}{}\Large
 \centerline{\bf OTexts.org/fpp3/}
@@ -93,6 +112,48 @@ https://www.rstudio.com/products/rstudio/download/
   * Data sets in associated R packages
   * R code for examples
 
+
+## Main packages
+
+\placefig{2.4}{1.4}{width=4cm}{tsibble.png}
+\placefig{6.4}{1.4}{width=4cm}{tsibbledata.png}
+\placefig{0.4}{4.85}{width=4cm}{tidyverse.png}
+\placefig{4.4}{4.85}{width=4cm}{feasts.png}
+\placefig{8.4}{4.85}{width=4cm}{fable.png}
+
+## Main packages
+\fontsize{13}{14}\sf
+
+```r
+# Data manipulation and plotting functions
+library(tidyverse)
+# Time series manipulation
+library(tsibble)
+# Tidy time series data
+library(tsibbledata)
+# Time series graphics and statistics
+library(feasts)
+# Forecasting functions
+library(fable)
+```
+
+\pause
+
+```r
+# All of the above
+library(fpp3)
+```
+
+## Install required packages
+\Large
+
+```r
+install.packages(c(
+  "tidyverse",
+  "fpp3"
+))
+```
+
 ## Outline
 
 \hbox{\hspace*{-0.5cm}\begin{tabular}{rp{8cm}l}
@@ -101,11 +162,11 @@ https://www.rstudio.com/products/rstudio/download/
 \midrule
 1             & Introduction to forecasting and R   & 1 \\
 2             & Time series graphics                & 2 \\
-3             & Forecasting tools                   & 3--4\\
-4             & Time series decomposition           & 7 \\
+3             & Time series decomposition           & 3 \\
+4             & The forecaster's toolbox            & 5\\
 5--6          & Exponential smoothing               & 8  \\
 7--9          & Forecasting with ARIMA models       & 9 \\
-10--11        & Multiple regression and forecasting & 6 \\
+10--11        & Multiple regression and forecasting & 7 \\
 11--12        & Dynamic regression                  & 10 \\
 \bottomrule
 \end{tabular}}
@@ -120,31 +181,42 @@ https://www.rstudio.com/products/rstudio/download/
 
 \begin{block}{}\small\centering
 \begin{tabular}{lll}
-	\toprule
 	  \textbf{Task}  & \textbf{Due Date}     & \textbf{Value} \\
   \midrule
     Assignments    & Mon 11:59pm each week & 2 or 4\% each\\
 	  Project        & Fri 31 May            & 20\%           \\
-	  Final exam     & Official exam period  & 60\%           \\
-  \bottomrule
+	  Final exam     & Official exam period  & 60\%
 \end{tabular}
 \end{block}
 
-\pause
+\pause\vspace*{-0.3cm}
 
-  - Need at least 50\% for exam, and 50\% for total.
+  - Need at least 45\% for exam, and 50\% for total.
+
+\pause\begin{alertblock}{}
+\textbf{ETC5550 students:} in-class exam on 5 June
+\end{alertblock}
+
 
 ## Moodle site
+\fontsize{18}{24}\sf
 
   - Includes all lecture notes, handouts, assignments
-  - Forum for asking questions, etc.
   - Assignment submissions
+  - Forum for asking questions, etc.
 
-## DataCamp
+###
+**Please don't send emails. Use the forum.**
 
-\centerline{\includegraphics[width=13cm]{DataCampTidyverse}}
 
- * Assignment 2: all students must complete this course by Monday 11 March.
+## Exercises Week 1
+\fontsize{18}{24}\sf
+
+ * Make sure you are familiar with R, RStudio and the tidyverse packages.
+ * If you've done ETC1010, then you have nothing to do.
+ * Otherwise:
+   * Read the first four chapters of "ModernDive": [`moderndive.netlify.com`](https://moderndive.netlify.com/)
+   * Work through the "RYouWithMe" course: [`rladiessydney.org/courses/ryouwithme/`](https://rladiessydney.org/courses/ryouwithme/)
 
 ## International Institute of Forecasters
 
@@ -158,4 +230,5 @@ https://www.rstudio.com/products/rstudio/download/
   \end{itemize}
   \end{block}
 \end{textblock}
+
 
