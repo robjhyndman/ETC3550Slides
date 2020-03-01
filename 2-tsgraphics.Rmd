@@ -608,6 +608,7 @@ gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
 \fontsize{13}{15}\sf
 
 ```{r}
+set.seed(1)
 wn <- tsibble(t = seq_len(36), y = rnorm(36),
               index = t)
 wn %>% autoplot(y)
