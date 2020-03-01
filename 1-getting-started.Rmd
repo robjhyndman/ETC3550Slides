@@ -17,54 +17,12 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 library(dplyr)
 library(ggplot2)
 library(fable)
-ausbeer <- as_tsibble(fpp2::ausbeer) %>%
-  rename(Time = index, Production = value)
+library(patchwork)
 austa <- as_tsibble(fpp2::austa) %>%
   rename(Year = index, Visitors = value)
 melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
-
-# Assignment 1
-
-## Assignment 1: forecast the following series
-\small
-
-  1. Google closing stock price on 13 March 2019.
-  2. Google closing stock price on 10 April 2019.
-  3. The difference in points (Collingwood-Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2019.
-  4. Maximum temperature at Melbourne airport on 8 May 2019.
-  5. The trend estimate of total employment for April 2019. ABS CAT 6202, to be released around mid May 2019.
-
-\begin{block}{}
-For each of these, give a point forecast and an 80\% prediction interval.
-\end{block}\pause
-\begin{alertblock}{}
-Prize: \$50 Amazon gift voucher
-\end{alertblock}
-
-## Assignment 1: scoring
-\small
-
-$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
-
-### Point forecasts:
-
-$$\text{Absolute Error} = |Y-F|
-$$
-
- * Rank results for all students in class
- * Add ranks across all five items
-
-### Prediction intervals:
-
-$$
-\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
-$$
-
- * Rank results for all students
- * Add ranks across all five items
-
 
 
 # What can we forecast?
@@ -137,43 +95,53 @@ Something is easier to forecast if:
 
 \fullheight{ncep-skill}
 
-
-
 # Time series data
-
 
 ## Time series data
 
-  - Daily IBM stock prices
-  - Monthly rainfall
+  - Four-yearly Olympic winning times
   - Annual Google profits
   - Quarterly Australian beer production
+  - Monthly rainfall
+  - Weekly retail sales
+  - Daily IBM stock prices
+  - Hourly electricity demand
+  - 5-minute freeway traffic counts
+  - Time-stamped stock transaction data
 
-\pause
+## Australian quarterly beer production
 
-
-```{r, echo=FALSE, fig.height=2}
-ausbeer %>% autoplot(Production)
+```{r, echo=FALSE, fig.height=4}
+aus_production %>% autoplot(Beer)
 ```
 
-\pause
+\only<2>{\begin{textblock}{6}(6.4,6.5)
+\begin{alertblock}{}
+Forecasting is estimating how the sequence of observations will continue into the future.
+\end{alertblock}
+\end{textblock}}
 
-**Forecasting is estimating how the sequence of observations will continue into the future.**
+\vspace*{10cm}
 
-## Australian beer production
+## Australian quarterly beer production
 
-```{r, echo=FALSE}
-ausbeer %>% model(ETS(Production)) %>% forecast() %>% autoplot(ausbeer)
+```{r, echo=FALSE, fig.height=5, include=FALSE}
+fc <- aus_production %>%
+  model(ETS(Beer)) %>%
+  forecast() 
+plist[[1]] <- fc %>% autoplot(aus_production)
+for(i in 2:51)
+  plist[[i]] <- fc %>% autoplot(tail(aus_production, 12+(51-i)*4))
 ```
 
-## Australian beer production
+## Australian quarterly beer production
 
-```{r, echo=FALSE}
-ausbeer %>%
-  model(ETS(Production)) %>%
-  forecast() %>%
-  autoplot(tail(ausbeer, 60))
+```{r, echo=FALSE, fig.height=4}
+## How to animate over all 40?
+aligned_p[[1]]
 ```
+
+\vspace*{10cm}
 
 # Some case studies
 
@@ -367,4 +335,45 @@ fit %>%
 - A prediction interval or ``interval forecast'' is a range of values of $y_t$ with high \rlap{probability.}
 - With time series, \rlap{${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$. }
 - $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).
+
+
+# Assignment 1
+
+## Assignment 1: forecast the following series
+\small
+
+  1. Google closing stock price on 18 March 2020.
+  2. Maximum temperature at Melbourne airport on 7 April 2020.
+  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2020.
+  4. The trend estimate of total employment for April 2020. ABS CAT 6202, to be released around mid May 2020.
+  5. Google closing stock price on 27 May 2020.
+
+\begin{block}{}
+For each of these, give a point forecast and an 80\% prediction interval.
+\end{block}\pause
+\begin{alertblock}{}
+Prize: \$50 Amazon gift voucher
+\end{alertblock}
+
+## Assignment 1: scoring
+\small
+
+$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
+
+### Point forecasts:
+
+$$\text{Absolute Error} = |Y-F|
+$$
+
+ * Rank results for all students in class
+ * Add ranks across all five items
+
+### Prediction intervals:
+
+$$
+\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
+$$
+
+ * Rank results for all students
+ * Add ranks across all five items
 
