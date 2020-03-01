@@ -79,7 +79,7 @@ google_2015
 google_2015 %>%
   autoplot(Close) +
     xlab("Day") + ylab("Closing Price (US$)") +
-    ggtitle("Google Stock (daily ending 6 December 2013)")
+    ggtitle("Google Stock (daily for 2015)")
 ```
 
 ## Example: Google stock price
@@ -484,7 +484,7 @@ For time series cross-validation, stretching windows are most commonly used.
 ```{r animate, echo = FALSE, warning = FALSE, message = FALSE, fig.show='animate', interval=1/10, fig.height=4, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
 library(tidyverse)
 library(gganimate)
-tourism_melb <- tourism %>% 
+tourism_melb <- tourism %>%
   filter(Region == "Melbourne", Purpose == "Holiday")
 types <- forcats::fct_inorder(c("Slide", "Tile", "Stretch"))
 slide_window <- slider(tourism_melb$Quarter, .size = 4) %>%
@@ -494,7 +494,7 @@ slide_window <- slider(tourism_melb$Quarter, .size = 4) %>%
 tile_window <- tiler(tourism_melb$Quarter, .size = 4) %>%
   map_dfr(function(x) tibble(xmin = min(x), xmax = max(x))) %>%
   mutate(ymin = -Inf, ymax = Inf, type = types[2])
-tile_window <- tile_window[c(rep(1:20, each = 4)), ] %>% 
+tile_window <- tile_window[c(rep(1:20, each = 4)), ] %>%
   mutate(group = row_number())
 
 stretch_window <- stretcher(tourism_melb$Quarter, .init = 4) %>%
@@ -509,7 +509,7 @@ ggplot() +
     xmin = xmin, xmax = xmax,
     ymin = ymin, ymax = ymax,
     group = group
-  ), data = window, 
+  ), data = window,
   fill = "#9ecae1", colour = "#9ecae1", size = 1.5, alpha = 0.6) +
   xlab("Quarter") +
   ylab("Trips") +
