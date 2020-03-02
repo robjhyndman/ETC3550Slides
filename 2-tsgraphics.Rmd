@@ -349,6 +349,14 @@ a10
 options(width = 60)
 ```
 
+## Your turn
+\fontsize{14}{15}\sf
+
+ 1. Download [`tourism.xlsx`](http://robjhyndman.com/data/tourism.xlsx) from [`http://robjhyndman.com/data/tourism.xlsx`](http://robjhyndman.com/data/tourism.xlsx), and read it into R using `read_excel()` from the `readxl` package.
+ 2. Create a tsibble which is identical to the `tourism` tsibble from the `tsibble` package.
+ 3. Find what combination of `Region` and `Purpose` had the maximum number of overnight trips on average.
+ 4. Create a new tsibble which combines the Purposes and Regions, and just has total trips by State.
+
 # Time plots
 
 ## Time plots
@@ -396,7 +404,7 @@ ansett %>%
 
 ## Your turn
 
-- Create plots of the following time series: Bricks from `aus_production`, Lynx from `pelt`, Google from `gafa_stock`
+- Create plots of the following time series: Bricks from `aus_production`, Lynx from `pelt`, Close from `gafa_stock`, Demand from `vic_elec`.
 - Use `help()` to find out about the data in each series.
 - For the last plot, modify the axis labels and title.
 
@@ -511,9 +519,8 @@ beer %>% gg_subseries(Beer)
 Look at the quarterly tourism data for the Snowy Mountains
 
 ```r
-snowy <- filter(tourism,
-  Region == "Snowy Mountains",
-  Purpose == "Holiday")
+snowy <- tourism %>%
+  filter(Region == "Snowy Mountains")
 ```
 
   - Use `autoplot()`, `gg_season()` and `gg_subseries()` to explore the data.
@@ -863,11 +870,13 @@ We have introduced the following functions:
   - `gg_lag`
   - `ACF`
 
-Explore the following time series using these functions. Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
+Use these functions to explore the following time series:
 
   - Bricks from `aus_production`
   - Lynx from `pelt`
   - Victorian Electricity Demand from `aus_elec`
+
+Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
 
 ## Which is which?
 
