@@ -154,7 +154,7 @@ bricks <- aus_production %>%
   mutate(average = mean(Bricks))
 
 fc <- bricks %>%
-  filter(row_number() == n()) %>% as_tibble() %>% 
+  filter(row_number() == n()) %>% as_tibble() %>%
   unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12*5))))
 
 bricks %>%
@@ -681,3 +681,573 @@ forecast(fit, h = 1) %>%
   * Use `level` argument to control coverage.
   * Check residual assumptions before believing them (we will see this next class).
   * Usually too narrow due to unaccounted uncertainty.
+# Residual diagnostics
+
+## Fitted values
+
+ - $\hat{y}_{t|t-1}$ is the forecast of $y_t$ based on observations $y_1,\dots,y_t$.
+ - We call these "fitted values".
+ - Sometimes drop the subscript: $\hat{y}_t \equiv \hat{y}_{t|t-1}$.
+ - Often not true forecasts since parameters are estimated on all data.
+
+### For example:
+
+ - $\hat{y}_{t} = \bar{y}$ for average method.
+ - $\hat{y}_{t} = y_{t-1} + (y_{T}-y_1)/(T-1)$ for drift method.
+
+## Forecasting residuals
+
+\begin{block}{}
+\textbf{Residuals in forecasting:} difference between observed value and its fitted value: $e_t = y_t-\hat{y}_{t|t-1}$.
+\end{block}
+\pause\fontsize{13}{15}\sf
+
+\alert{Assumptions}
+
+  1. $\{e_t\}$ uncorrelated. If they aren't, then information left in  residuals that should be used in computing forecasts.
+  2. $\{e_t\}$ have mean zero. If they don't, then forecasts are biased.
+
+\pause
+
+\alert{Useful properties} (for prediction intervals)
+
+  3. $\{e_t\}$ have constant variance.
+  4. $\{e_t\}$ are normally distributed.
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r goog-create, echo=TRUE}
+google_2015 <- tsibbledata::gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) == 2015) %>%
+  mutate(trading_day = row_number()) %>%
+  update_tsibble(index = trading_day, regular = TRUE)
+```
+```{r, echo = FALSE}
+google_2015
+```
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj3, echo = TRUE}
+google_2015 %>%
+  autoplot(Close) +
+    xlab("Day") + ylab("Closing Price (US$)") +
+    ggtitle("Google Stock (daily for 2015)")
+```
+
+## Example: Google stock price
+
+\alert{Na\"{\i}ve forecast:}
+
+\[\hat{y}_{t|t-1}= y_{t-1}\]\pause
+\[e_t = y_t-y_{t-1}\]\pause
+
+\begin{alertblock}{}
+Note: $e_t$ are one-step-forecast residuals
+\end{alertblock}
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r augment}
+fit <- google_2015 %>% model(NAIVE(Close))
+augment(fit)
+```
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj4, echo=TRUE, warning=FALSE}
+augment(fit) %>%
+  ggplot(aes(x = trading_day)) +
+    geom_line(aes(y = Close, colour = "Data")) +
+    geom_line(aes(y = .fitted, colour = "Fitted")) +
+    xlab("Day") + ylab("Closing Price (US$)") +
+    ggtitle("Google Stock (daily ending 6 December 2013)")
+```
+
+## Example: Google stock price
+\fontsize{10}{10}\sf
+
+```{r dj5, echo=TRUE, warning = FALSE}
+augment(fit) %>%
+  autoplot(.resid) + xlab("Day") + ylab("") +
+    ggtitle("Residuals from naïve method")
+```
+
+## Example: Google stock price
+\fontsize{11}{11}\sf
+
+```{r dj6, warning=FALSE}
+augment(fit) %>%
+  ggplot(aes(x = .resid)) +
+    geom_histogram(bins = 30) +
+    ggtitle("Histogram of residuals")
+```
+
+## Example: Google stock price
+\fontsize{11}{11}\sf
+
+```{r dj7}
+augment(fit) %>% ACF(.resid) %>%
+  autoplot() + ggtitle("ACF of residuals")
+```
+
+## ACF of residuals
+
+  * We assume that the residuals are white noise (uncorrelated, mean zero, constant variance). If they aren't, then there is information left in  the residuals that should be used in computing forecasts.
+
+  * So a standard residual diagnostic is to check the ACF of the residuals of a forecasting method.
+
+  * We *expect* these to look like white noise.
+
+## Portmanteau tests
+
+Consider a *whole set* of $r_{k}$  values, and develop a test to see whether the set is significantly different from a zero set.\pause
+
+\begin{block}{Box-Pierce test\phantom{g}}
+\centerline{$\displaystyle
+Q = T \sum_{k=1}^h r_k^2$}
+where $h$  is max lag being considered and $T$ is number of observations.
+\end{block}
+
+  * If each $r_k$ close to zero, $Q$ will be **small**.
+  * If some $r_k$ values large (positive or negative), $Q$ will be **large**.
+
+## Portmanteau tests
+
+Consider a *whole set* of $r_{k}$  values, and develop a test to see whether the set is significantly different from a zero set.
+
+\begin{block}{Ljung-Box test}
+\centerline{$\displaystyle
+ Q^* = T(T+2) \sum_{k=1}^h (T-k)^{-1}r_k^2$}
+where $h$  is max lag being considered and $T$ is number of observations.
+\end{block}
+
+  * My preferences: $h=10$ for non-seasonal data, $h=2m$ for seasonal data.
+  * Better performance, especially in small samples.
+
+\vspace*{10cm}
+
+## Portmanteau tests
+\fontsize{13}{15}\sf
+
+  * If data are WN, $Q^*$ has $\chi^2$ distribution with  $(h - K)$ degrees of freedom where $K=$ no.\ parameters in model.
+  * When applied to raw data, set $K=0$.
+
+\fontsize{11}{12}\sf
+
+```{r dj9, echo=TRUE}
+# lag=h and fitdf=K
+Box.test(augment(fit)$.resid,
+  lag = 10, fitdf = 0, type = "Lj")
+```
+
+## `gg_tsdisplay` function
+\fontsize{11}{12}\sf
+
+```{r dj10, echo=TRUE, fig.height=4, warning = FALSE}
+augment(fit) %>%
+  gg_tsdisplay(.resid, plot_type = "histogram")
+```
+
+## Your turn
+
+
+Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
+
+\fontsize{10}{12}\sf
+
+```{r, results = 'hide', fig.show='hide'}
+recent <- aus_production %>% filter(year(Quarter) >= 1992)
+fit <- recent %>% model(SNAIVE(Beer))
+fit %>% forecast() %>% autoplot(recent)
+```
+
+\fontsize{14}{15}\sf
+
+Test if the residuals are white noise.
+
+\fontsize{10}{12}\sf
+
+```{r, results = 'hide', fig.show='hide', warning = FALSE}
+Box.test(augment(fit)$.resid, lag=10, fitdf=0, type="Lj")
+augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
+```
+
+\fontsize{14}{15}\sf
+
+What do you conclude?
+
+# Evaluating forecast accuracy
+
+## Training and test sets
+
+```{r traintest, fig.height=1, echo=FALSE, cache=TRUE}
+train = 1:18
+test = 19:24
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+arrows(0,0.5,25,0.5,0.05)
+points(train, train*0+0.5, pch=19, col="blue")
+points(test,  test*0+0.5,  pch=19, col="red")
+text(26,0.5,"time")
+text(10,1,"Training data",col="blue")
+text(21,1,"Test data",col="red")
+```
+
+-   A model which fits the training data well will not necessarily forecast well.
+-   A perfect fit can always be obtained by using a model with enough parameters.
+-   Over-fitting a model to data is just as bad as failing to identify a systematic pattern in the data.
+  * The test set must not be used for *any* aspect of model development or calculation of forecasts.
+  * Forecast accuracy is based only on the test set.
+
+## Forecast errors
+
+Forecast "error": the difference between an observed value and its forecast.
+$$
+  e_{T+h} = y_{T+h} - \hat{y}_{T+h|T},
+$$
+where the training data is given by $\{y_1,\dots,y_T\}$
+
+- Unlike residuals, forecast errors on the test set involve multi-step forecasts.
+- These are *true* forecast errors as the test data is not used in computing $\hat{y}_{T+h|T}$.
+
+## Measures of forecast accuracy
+
+```{r beer-fc-1, echo=FALSE, fig.height=4}
+train <- aus_production %>%
+  filter(between(year(Quarter), 1992, 2007))
+beer <- aus_production %>%
+  filter(year(Quarter) >= 1992)
+beer_fc_plot <- train %>%
+  model(
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  ) %>%
+  forecast(h=11) %>%
+  autoplot(beer, level = NULL) +
+    ggtitle("Forecasts for quarterly beer production") +
+    xlab("Year") + ylab("Megalitres") +
+    guides(colour=guide_legend(title="Forecast"))
+beer_fc_plot
+```
+
+## Measures of forecast accuracy
+
+\begin{tabular}{rl}
+$y_{T+h}=$ & $(T+h)$th observation, $h=1,\dots,H$ \\
+$\pred{y}{T+h}{T}=$ & its forecast based on data up to time $T$. \\
+$e_{T+h} =$  & $y_{T+h} - \pred{y}{T+h}{T}$
+\end{tabular}
+
+\begin{align*}
+\text{MAE} &= \text{mean}(|e_{T+h}|) \\[-0.2cm]
+\text{MSE} &= \text{mean}(e_{T+h}^2) \qquad
+&&\text{RMSE} &= \sqrt{\text{mean}(e_{T+h}^2)} \\[-0.1cm]
+\text{MAPE} &= 100\text{mean}(|e_{T+h}|/ |y_{T+h}|)
+\end{align*}\pause
+
+  * MAE, MSE, RMSE are all scale dependent.
+  * MAPE is scale independent but is only sensible if $y_t\gg 0$ for all $t$, and $y$ has a natural zero.
+
+## Measures of forecast accuracy
+
+\begin{block}{Mean Absolute Scaled Error}
+$$
+\text{MASE} = \text{mean}(|e_{T+h}|/Q)
+$$
+where $Q$ is a stable measure of the scale of the time series $\{y_t\}$.
+\end{block}
+Proposed by Hyndman and Koehler (IJF, 2006).
+
+For non-seasonal time series,
+$$
+  Q = (T-1)^{-1}\sum_{t=2}^T |y_t-y_{t-1}|
+$$
+works well. Then MASE is equivalent to MAE relative to a naïve method.
+
+\vspace*{10cm}
+
+## Measures of forecast accuracy
+
+\begin{block}{Mean Absolute Scaled Error}
+$$
+\text{MASE} = \text{mean}(|e_{T+h}|/Q)
+$$
+where $Q$ is a stable measure of the scale of the time series $\{y_t\}$.
+\end{block}
+Proposed by Hyndman and Koehler (IJF, 2006).
+
+For seasonal time series,
+$$
+  Q = (T-m)^{-1}\sum_{t=m+1}^T |y_t-y_{t-m}|
+$$
+works well. Then MASE is equivalent to MAE relative to a seasonal naïve method.
+
+\vspace*{10cm}
+
+## Measures of forecast accuracy
+
+```{r beer-fc-2, echo=FALSE, fig.height=4}
+beer_fc_plot
+```
+
+## Training set accuracy
+
+\fontsize{10}{10}\sf
+
+```{r beer-train-accuracy, results = 'hide'}
+recent_production <- aus_production %>%
+  filter(year(Quarter) >= 1992)
+train <- recent_production %>% filter(year(Quarter) <= 2007)
+beer_fit <- train %>%
+  model(
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  )
+accuracy(beer_fit)
+```
+
+```{r beer-train-table, echo=FALSE}
+accuracy(beer_fit) %>%
+  mutate(Method = paste(.model, "method")) %>%
+  select(Method, RMSE, MAE, MAPE, MASE) %>%
+  gt::gt("Method") %>%
+  gt::as_latex()
+```
+
+## Test set accuracy
+
+\fontsize{12}{14}\sf
+
+```{r beer-test-accuracy, results = 'hide'}
+beer_fc <- beer_fit %>%
+  forecast(h = 10)
+accuracy(beer_fc, recent_production)
+```
+
+\fontsize{10}{11}\sf
+
+```{r beer-test-table, echo=FALSE}
+accuracy(beer_fc, recent_production) %>%
+  mutate(Method = paste(.model, "method")) %>%
+  select(Method, RMSE, MAE, MAPE, MASE) %>%
+  gt::gt("Method") %>%
+  gt::as_latex()
+```
+
+## Poll: true or false?
+
+  1. Good forecast methods should have normally distributed residuals.
+  2. A model with small residuals will give good forecasts.
+  3. The best measure of forecast accuracy is MAPE.
+  4. If your model doesn't forecast well, you should make it more complicated.
+  5. Always choose the model with the best forecast accuracy as measured on the test set.
+
+# Time series cross-validation
+
+## Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest2, fig.height=1, echo=FALSE, cache=TRUE}
+train = 1:18
+test = 19:24
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+arrows(0,0.5,25,0.5,0.05)
+points(train, train*0+0.5, pch=19, col="blue")
+points(test,  test*0+0.5,  pch=19, col="red")
+text(26,0.5,"time")
+text(10,1,"Training data",col="blue")
+text(21,1,"Test data",col="red")
+```
+
+\vspace*{10cm}
+
+## Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest3, fig.height=1, echo=FALSE, cache=TRUE}
+train = 1:18
+test = 19:24
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+arrows(0,0.5,25,0.5,0.05)
+points(train, train*0+0.5, pch=19, col="blue")
+points(test,  test*0+0.5,  pch=19, col="red")
+text(26,0.5,"time")
+text(10,1,"Training data",col="blue")
+text(21,1,"Test data",col="red")
+```
+
+**Time series cross-validation**
+
+```{r cv1, cache=TRUE, echo=FALSE, fig.height=4}
+par(mar=c(0,0,0,0))
+plot(0,0,xlim=c(0,28),ylim=c(0,1),
+       xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
+i <- 1
+for(j in 1:10)
+{
+  test <- (16+j):26
+  train <- 1:(15+j)
+  arrows(0,1-j/20,27,1-j/20,0.05)
+  points(train,rep(1-j/20,length(train)),pch=19,col="blue")
+  if(length(test) >= i)
+    points(test[i], 1-j/20, pch=19, col="red")
+  if(length(test) >= i)
+    points(test[-i], rep(1-j/20,length(test)-1), pch=19, col="gray")
+  else
+    points(test, rep(1-j/20,length(test)), pch=19, col="gray")
+}
+text(28,.95,"time")
+```
+
+\pause
+
+ * Forecast accuracy averaged over test sets.
+ * Also known as "evaluation on a rolling forecasting origin"
+
+ \vspace*{10cm}
+
+## Creating the rolling training sets {-}
+
+\fontsize{13}{14}\sf
+
+There are three main rolling types which can be used.
+
+* Stretch: extends a growing length window with new data.
+* Slide: shifts a fixed length window through the data.
+* Tile: moves a fixed length window without overlap.
+
+Three functions to roll a tsibble: `stretch_tsibble()`, `slide_tsibble()`,
+and `tile_tsibble()`.
+
+For time series cross-validation, stretching windows are most commonly used.
+
+## Creating the rolling training sets {-}
+
+```{r animate, echo = FALSE, warning = FALSE, message = FALSE, fig.show='animate', interval=1/10, fig.height=4, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+library(tidyverse)
+library(gganimate)
+tourism_melb <- tourism %>%
+  filter(Region == "Melbourne", Purpose == "Holiday")
+types <- forcats::fct_inorder(c("Slide", "Tile", "Stretch"))
+slide_window <- slider(tourism_melb$Quarter, .size = 4) %>%
+  map_dfr(function(x) tibble(xmin = min(x), xmax = max(x))) %>%
+  mutate(ymin = -Inf, ymax = Inf, group = row_number(), type = types[1])
+
+tile_window <- tiler(tourism_melb$Quarter, .size = 4) %>%
+  map_dfr(function(x) tibble(xmin = min(x), xmax = max(x))) %>%
+  mutate(ymin = -Inf, ymax = Inf, type = types[2])
+tile_window <- tile_window[c(rep(1:20, each = 4)), ] %>%
+  mutate(group = row_number())
+
+stretch_window <- stretcher(tourism_melb$Quarter, .init = 4) %>%
+  map_dfr(function(x) tibble(xmin = min(x), xmax = max(x))) %>%
+  mutate(ymin = -Inf, ymax = Inf, group = row_number(), type = types[3])
+
+window <- bind_rows(slide_window, tile_window, stretch_window)
+
+ggplot() +
+  geom_line(aes(x = Quarter, y = Trips), data = tourism_melb, colour = "grey", size = 1.2) +
+  geom_rect(aes(
+    xmin = xmin, xmax = xmax,
+    ymin = ymin, ymax = ymax,
+    group = group
+  ), data = window,
+  fill = "#9ecae1", colour = "#9ecae1", size = 1.5, alpha = 0.6) +
+  xlab("Quarter") +
+  ylab("Trips") +
+  facet_wrap(~ type, ncol = 1) +
+  theme_bw() +
+  transition_manual(group)
+```
+
+
+## Time series cross-validation {-}
+
+\fontsize{12}{13}\sf
+
+Stretch with a minimum length of 3, growing by 1 each step.
+
+```{r google-stretch, cache=TRUE}
+google_2015_stretch <- google_2015 %>%
+  stretch_tsibble(.init = 3, .step = 1) %>%
+  filter(.id != max(.id))
+```
+\fontsize{10}{11}\sf
+```{r google-stretch-print, echo = FALSE}
+options(width = 80)
+google_2015_stretch %>% select(Date, Close, trading_day, .id) %>% print(n=7)
+```
+
+## Time series cross-validation {-}
+
+\small
+
+Estimate RW w/ drift models for each window.
+
+```{r google-fit, cache = TRUE}
+fit_cv <- google_2015_stretch %>%
+  model(RW(Close ~ drift()))
+```
+
+\fontsize{10}{11}\sf
+```{r google-fit-print, echo = FALSE}
+print(fit_cv, n = 4)
+```
+
+## Time series cross-validation {-}
+
+\small
+
+Produce one step ahead forecasts from all models.
+
+```{r google-fc, cache = TRUE}
+fc_cv <- fit_cv %>%
+  forecast(h=1)
+```
+
+\fontsize{10}{11}\sf
+```{r google-fc-print, echo = FALSE}
+fc_cv %>% select(-.model) %>% print(n = 4)
+```
+
+
+## Time series cross-validation {-}
+
+\small
+
+```{r google-accuracy, cache = TRUE, results = 'hide', eval = FALSE}
+# Cross-validated
+fc_cv %>% accuracy(google_2015)
+# Training set
+google_2015 %>% model(NAIVE(Close)) %>% accuracy()
+```
+
+```{r, echo = FALSE, warning = FALSE}
+fc_cv %>% accuracy(google_2015) %>%
+  mutate(.type = "Cross-validation") %>%
+  bind_rows(
+    google_2015 %>%
+      model(NAIVE(Close)) %>%
+      accuracy()
+  ) %>%
+  transmute(Type = .type, RMSE, MAE, MAPE) %>%
+  gt::gt("Type") %>%
+  gt::as_latex()
+```
+
+
+A good way to choose the best forecasting model is to find the model with the smallest RMSE computed using time series cross-validation.
+
