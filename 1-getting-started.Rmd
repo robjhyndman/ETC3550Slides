@@ -124,7 +124,9 @@ Forecasting is estimating how the sequence of observations will continue into th
 
 ## Australian quarterly beer production
 
-```{r, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
+```{r, include=FALSE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
+# Not included because wrap=FALSE doesn't work here for some unknown reason
+# Latex code that follows only uses the relevant images
 fc <- aus_production %>%
   model(ETS(Beer)) %>%
   forecast()
@@ -139,6 +141,10 @@ p +
     ymin = rep(ylim[1], 2),
     ymax = rep(ylim[2], 2), wrap = FALSE)
 ```
+
+\animategraphics[,controls,buttonsize=0.3cm,width=11.5cm]{10}{1-getting-started_files/figure-beamer/unnamed-chunk-2-}{1}{50}
+
+\vspace*{10cm}
 
 \vspace*{10cm}
 
