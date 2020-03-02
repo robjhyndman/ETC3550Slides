@@ -13,162 +13,385 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-library(dplyr)
-library(ggplot2)
-library(fable)
-library(tsibble)
-library(feasts)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(digits = 3, width = 60)
+library(fpp3)
 library(lubridate)
-library(tsibbledata)
-options(width=50)
+global_economy <- global_economy %>%
+  select(Year, Country, GDP, Imports, Exports, Population)
+tourism <- tourism %>%
+  mutate(
+    State = recode(State,
+      "Australian Capital Territory" = "ACT",
+      "New South Wales" = "NSW",
+      "Northern Territory" = "NT",
+      "Queensland" = "QLD",
+      "South Australia" = "SA",
+      "Tasmania" = "TAS",
+      "Victoria" = "VIC",
+      "Western Australia" = "WA"
+    )
+  )
 ```
 
 # Time series in R
 
+## `tsibble` objects
 
-## Class packages
-\fontsize{13}{15}\sf
+\fontsize{10}{11.2}\sf
 
-```r
-# Data manipulation and plotting functions
-library(tidyverse)
-# Time series manipulation
-library(tsibble)
-# Forecasting functions
-library(fable)
-# Time series graphics and statistics
-library(feasts)
-# Tidy time series data
-library(tsibbledata)
+```{r, echo = TRUE}
+global_economy
 ```
 
-## `tsibble` objects
-
-\fontsize{12}{13}\sf
-
-A `tsibble` allows storage and manipulation of time series in R.
-
-It contains:
-
-- Measured variable(s): numbers of interest
-- Key variable(s): unique identifiers for each series
-- An index: time information about the observation
+\only<2->{\begin{textblock}{.75}(2.15,3.7)
+\begin{alertblock}{}\fontsize{10}{10}\sf Index\phantom{dg}\end{alertblock}
+\end{textblock}}
+\only<3->{\begin{textblock}{1.6}(3.28,3.7)
+\begin{alertblock}{}\fontsize{10}{10}\sf Key\phantom{dg}\end{alertblock}
+\end{textblock}}
+\only<4>{\begin{textblock}{6.7}(5.5,3.7)
+\begin{alertblock}{}\fontsize{10}{10}\sf Measured variables\phantom{dg}\end{alertblock}
+\end{textblock}}
 
 ## `tsibble` objects
+
+\fontsize{10}{11.3}\sf
+
+```{r, echo = TRUE}
+tourism
+```
+
+\only<2->{\begin{textblock}{1.1}(2.1,3.7)
+\begin{alertblock}{}\fontsize{10}{10}\sf Index\phantom{dg}\end{alertblock}
+\end{textblock}}
+\only<3->{\begin{textblock}{3.9}(3.65,3.7)
+\begin{alertblock}{}\fontsize{10}{10}\sf Keys\phantom{dg}\end{alertblock}
+\end{textblock}}
+\only<4-5>{\begin{textblock}{1.5}(7.95,3.7)
+\begin{alertblock}{}\fontsize{10}{10}\sf Measure\phantom{dg}\end{alertblock}
+\end{textblock}}
+
+\only<5>{\begin{textblock}{3}(9,5)
+\begin{block}{}\fontsize{10}{10}\sf Domestic visitor nights in thousands by state/region and purpose.\phantom{dg}\end{block}
+\end{textblock}}
+
+## `tsibble` objects
+
+* A `tsibble` allows storage and manipulation of multiple time series in R.
+
+* It contains:
+
+  + An index: time information about the observation
+  + Measured variable(s): numbers of interest
+  + Key variable(s): optional unique identifiers for each series
+
+* It works with tidyverse functions.
+
+## The `tsibble` index
 
 ### Example
-\fontsize{13}{15}\sf
+\fontsize{11}{12}\sf
 
 ```{r tstable, cache=TRUE}
-library(tsibble)
-y <- tsibble(year = 2012:2016,
-  y = c(123,39,78,52,110), index = year)
-y
+mydata <- tsibble(
+    year = 2012:2016,
+    y = c(123, 39, 78, 52, 110),
+    index = year
+)
+mydata
+```
+
+## The `tsibble` index
+
+### Example
+\fontsize{11}{12}\sf
+
+```{r astsibble, cache=TRUE}
+mydata <- tibble(
+    year = 2012:2016,
+    y = c(123, 39, 78, 52, 110)
+  ) %>%
+  as_tsibble(index = year)
+mydata
+```
+
+## The `tsibble` index
+
+\begin{block}{}
+For observations more frequent than once per year, we need to use a time class function on the index.
+\end{block}
+\fontsize{12}{13}\sf
+
+```{r tstablemonth, echo=FALSE}
+z <- tibble(Month = paste(2019, month.abb[1:5]), Observation = c(50, 23, 34, 30, 25))
+# knitr::kable(z, booktabs=TRUE)
+```
+
+```{r tstablemonth2}
+z
+```
+
+## The `tsibble` index
+
+\begin{block}{}
+For observations more frequent than once per year, we need to use a time class function on the index.
+\end{block}
+\fontsize{12}{13}\sf
+
+```{r month-tsibble}
+z %>%
+  mutate(Month = yearmonth(Month)) %>%
+  as_tsibble(index = Month)
 ```
 
 ## The `tsibble` index
 
 Common time index variables can be created with these functions:
 
+###
 ```{r tstable2, echo=FALSE}
 tribble(
-  ~ `Frequency`, ~ Function,
-  "Annual", "start:end",
-  "Quarterly", "yearquarter()",
-  "Monthly", "yearmonth()",
-  "Weekly", "yearweek()",
-  "Daily", "as_date(), ymd()",
-  "Sub-daily", "as_datetime()"
+  ~`Frequency`, ~Function,
+  "Annual", "`start:end`",
+  "Quarterly", "`yearquarter()`",
+  "Monthly", "`yearmonth()`",
+  "Weekly", "`yearweek()`",
+  "Daily", "`as_date()`, `ymd()`",
+  "Sub-daily", "`as_datetime()`"
 ) %>%
-  knitr::kable(booktabs=TRUE)
+  knitr::kable(booktabs = TRUE)
 ```
 
-## The `key` to many time series
+# Example: Australian prison population
 
-```{r tstablekey, echo=FALSE}
-tsibbledata::olympic_running %>%
-  group_by_key() %>%
-  slice(1) %>%
-  head(6) %>%
-  knitr::kable(booktabs=TRUE)
+## Australian prison population
+
+\fullwidth{Beechworth_prison}
+
+## Read a csv file and convert to a tsibble {-}
+\fontsize{10}{11}\sf
+
+```{r prison}
+prison <- readr::read_csv("data/prison_population.csv")
+```
+```{r prison2a, dependson="prison", echo=FALSE}
+prison
+```
+## Read a csv file and convert to a tsibble {-}
+\fontsize{10}{11}\sf
+
+```{r prison3}
+prison <- readr::read_csv("data/prison_population.csv") %>%
+  mutate(Quarter = yearquarter(date))
 ```
 
-## The `key` to many time series
-
-```{r key-tsibble}
-olympic_running %>% as_tsibble(
-  key = id(Length, Sex), index = Year)
+```{r prison3a, dependson="prison3", echo=FALSE}
+prison
 ```
 
-<!-- ## Seasonal periods -->
+## Read a csv file and convert to a tsibble {-}
+\fontsize{10}{11}\sf
 
-<!-- \begin{tabular}{lrl} -->
-<!-- \bf Type of data & \hspace*{1.95cm}\bf frequency                 & \bf start example\hspace*{0.25cm} \\ -->
-<!-- \midrule -->
-<!-- Annual           & \only<2->{1}                                  & \only<3->{1995}\\ -->
-<!-- Quarterly        & \only<4->{4}                                  & \only<5->{c(1995,2)}\\ -->
-<!-- Monthly          & \only<6->{12}                                 & \only<7->{c(1995,9)}\\ -->
-<!-- Daily            & \only<8->{7 \emph{or} 365.25}                 & \only<9->{1 \emph{or} c(1995,234)} \\ -->
-<!-- Weekly           & \only<10->{52.18}                             & \only<11->{c(1995,23)}\\ -->
-<!-- Hourly           & \only<12->{24 \emph{or} 168 \emph{or} 8,766}  & \only<13->{1}\\ -->
-<!-- Half-hourly      & \only<14->{48 \emph{or} 336 \emph{or} 17,532} & \only<15>{1} -->
-<!-- \end{tabular} -->
+```{r prison4}
+prison <- readr::read_csv("data/prison_population.csv") %>%
+  mutate(Quarter = yearquarter(date)) %>%
+  select(-date)
+```
 
-## Australian GDP
+```{r prison4a, dependson="prison4", echo=FALSE}
+prison
+```
 
+## Read a csv file and convert to a tsibble {-}
+\fontsize{10}{11}\sf
+
+```{r prison5}
+prison <- readr::read_csv("data/prison_population.csv") %>%
+  mutate(Quarter = yearquarter(date)) %>%
+  select(-date) %>%
+  as_tsibble(
+    index = Quarter,
+    key = c(state, gender, legal, indigenous)
+  )
+```
+
+```{r prison5a, dependson="prison5", echo=FALSE}
+prison
+```
+
+# Example: Australian pharmaceutical sales
+
+## Australian Pharmaceutical Benefits Scheme
+
+\fullwidth{pills}
+
+## Australian Pharmaceutical Benefits Scheme
+\begin{block}{}
+The \alert{Pharmaceutical Benefits Scheme} (PBS) is the Australian government drugs subsidy scheme.
+\end{block}
+\pause\fontsize{13.3}{15}\sf
+
+  * Many drugs bought from pharmacies are subsidised to allow more equitable access to modern drugs.
+  * The cost to government is determined by the number and types of drugs purchased. Currently nearly 1\% of GDP.
+  * The total cost is budgeted based on forecasts of drug usage.
+  * Costs are disaggregated by drug type (ATC1 x`r length(unique(PBS$ATC1))` / ATC2 `r length(unique(PBS$ATC2))`), concession category (x`r length(unique(PBS$Concession))`) and patient type (x`r length(unique(PBS$Type))`), giving $84\times2\times2=`r 84*2*2`$ time series.
+
+## Working with `tsibble` objects {-}
+\fontsize{8}{10}\sf
+
+```{r wide, include=FALSE}
+options(width = 78)
+```
+
+```{r pbs1, dependson='wide'}
+PBS
+```
+
+## Working with `tsibble` objects {-}
 \fontsize{12}{14}\sf
 
-```{r, echo = TRUE}
-aus_economy <- global_economy %>%
-  filter(Code == "AUS")
+We can use the `filter()` function to select rows.
+
+\fontsize{8}{10}\sf
+
+```{r pbs2}
+PBS %>%
+  filter(ATC2 == "A10")
 ```
 
-<!--   * Object: "tsibble" -->
-<!--   * Print and plotting methods available. -->
+## Working with `tsibble` objects {-}
+\fontsize{12}{14}\sf
 
-```{r, echo=FALSE}
-aus_economy
+We can use the `select()` function to select columns.
+
+\fontsize{8}{10}\sf
+
+```r
+PBS %>%
+  filter(ATC2=="A10") %>%
+  select(Cost)
 ```
 
-## Australian GDP
+```
+Selecting index: "Month"
+Error: The result is not a valid tsibble.
+Do you need `as_tibble()` to work with data frame?
+```
 
-```{r, echo=TRUE, fig.height=4}
-aus_economy %>% autoplot(GDP)
+\vspace*{10cm}
+
+## Working with `tsibble` objects {-}
+\fontsize{12}{14}\sf
+
+We can use the `select()` function to select columns.
+
+\fontsize{8}{10}\sf
+
+```{r pbs3}
+PBS %>%
+  filter(ATC2 == "A10") %>%
+  select(Month, Concession, Type, Cost)
+```
+
+## Working with `tsibble` objects {-}
+\fontsize{12}{14}\sf
+
+We can use the `summarise()` function to summarise over keys.
+
+\fontsize{8}{10}\sf
+
+```{r pbs4}
+PBS %>%
+  filter(ATC2 == "A10") %>%
+  select(Month, Concession, Type, Cost) %>%
+  summarise(total_cost = sum(Cost))
+```
+
+## Working with `tsibble` objects {-}
+\fontsize{12}{14}\sf
+
+We can use the `mutate()` function to create new variables.
+
+\fontsize{8}{10}\sf
+
+```{r pbs5}
+PBS %>%
+  filter(ATC2 == "A10") %>%
+  select(Month, Concession, Type, Cost) %>%
+  summarise(total_cost = sum(Cost)) %>%
+  mutate(total_cost = total_cost / 1e6)
+```
+
+## Working with `tsibble` objects {-}
+\fontsize{12}{14}\sf
+
+We can use the `mutate()` function to create new variables.
+
+\fontsize{8}{10}\sf
+
+```{r pbs6}
+PBS %>%
+  filter(ATC2 == "A10") %>%
+  select(Month, Concession, Type, Cost) %>%
+  summarise(total_cost = sum(Cost)) %>%
+  mutate(total_cost = total_cost / 1e6) -> a10
+```
+
+```{r a10, echo=FALSE, dependson="pbs6"}
+a10
+```
+
+```{r narrow, include=FALSE}
+options(width = 60)
 ```
 
 # Time plots
 
 ## Time plots
-
-\small
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
+a10 %>%
+  autoplot(total_cost)
+```
+
+## Ansett airlines
+\fontsize{11}{12}\sf
+
+```{r, echo=TRUE, fig.height=3.8}
 ansett %>%
-  filter(Airports=="MEL-SYD", Class=="Economy") %>%
   autoplot(Passengers)
 ```
 
-## Time plots
+## Ansett airlines
+\fontsize{11}{12}\sf
 
-```{r a10, echo = TRUE}
-a10 <- PBS %>%
-  filter(ATC2 == "A10") %>%
-  summarise(Cost = sum(Cost)/1e6)
-```
-```{r a10-print, echo = FALSE, dependson="a10"}
-a10
+```{r, echo=TRUE, fig.height=3.8}
+ansett %>%
+  filter(Class == "Economy") %>%
+  autoplot(Passengers)
 ```
 
+## Ansett airlines
+\fontsize{11}{12}\sf
 
-## Time plots
+```{r, echo=TRUE, fig.height=3.8}
+ansett %>%
+  filter(Airports == "MEL-SYD") %>%
+  autoplot(Passengers)
+```
 
-\small
+## Ansett airlines
+\fontsize{11}{12}\sf
 
-```{r a10-plot, echo=TRUE, dependson="a10"}
-a10 %>% autoplot(Cost) +
-  ylab("$ million") + xlab("Year") +
-  ggtitle("Antidiabetic drug sales")
+```{r, echo=TRUE, fig.height=3.8}
+ansett %>%
+  filter(Airports == "MEL-SYD") %>%
+  autoplot(Passengers)
 ```
 
 ## Your turn
@@ -177,29 +400,20 @@ a10 %>% autoplot(Cost) +
 - Use `help()` to find out about the data in each series.
 - For the last plot, modify the axis labels and title.
 
-## Are time plots best?
+## Are line plots best?
+\fontsize{11}{12}\sf
 
-\fontsize{12}{14}\sf
-
-```{r maxtemp, echo=FALSE}
+```{r maxtemp, fig.height=3}
 maxtemp <- vic_elec %>%
-  index_by(Day = lubridate::date(Time)) %>%
-  summarise(
-    Temperature = max(Temperature),
-    Demand = sum(Demand),
-    Holiday = any(Holiday)
-  )
-```
-
-```{r maxtemp1, warning=FALSE, message=FALSE, dependson="maxtemp"}
+  index_by(Day = date(Time)) %>%
+  summarise(Temperature = max(Temperature))
 maxtemp %>%
   autoplot(Temperature) +
   xlab("Week") + ylab("Max temperature")
 ```
 
-## Are time plots best?
-
-\fontsize{12}{14}\sf
+## Are line plots best?
+\fontsize{11}{12}\sf
 
 ```{r maxtemp2, warning=FALSE, message=FALSE, dependson="maxtemp"}
 maxtemp %>%
@@ -208,22 +422,23 @@ maxtemp %>%
   xlab("Week") + ylab("Max temperature")
 ```
 
-## Are time plots best?
+## Are line plots best?
+\fontsize{11}{12}\sf
 
-```{r maxtemp3, warning=FALSE, message=FALSE, echo=FALSE, dependson="maxtemp"}
+```{r maxtemp3, warning=FALSE, message=FALSE, dependson="maxtemp", fig.height=2.5}
 maxtemp %>%
   ggplot(aes(x = Day, y = 1)) +
   geom_tile(aes(fill = Temperature)) +
   scale_fill_gradient2(
-    low = "navy",
-    mid = "yellow",
-   high = "red", midpoint=28) +
-  ylab("") + scale_y_discrete(expand=c(0,0))
+    low = "navy", mid = "yellow",
+    high = "red", midpoint = 28
+  ) +
+  ylab("") + scale_y_discrete(expand = c(0, 0))
 ```
 
-## Are time plots best?
+## Are line plots best?
 
-\fullheight{TemperatureBlanket}
+\fullwidth{TemperatureBlanket}
 
 # Seasonal plots
 
@@ -232,7 +447,7 @@ maxtemp %>%
 \footnotesize
 
 ```{r, echo=TRUE, dependson="a10"}
-a10 %>% gg_season(Cost, labels = "both") +
+a10 %>% gg_season(total_cost, labels = "both") +
   ylab("$ million") +
   ggtitle("Seasonal plot: antidiabetic drug sales")
 ```
@@ -259,7 +474,7 @@ a10 %>% gg_season(Cost, labels = "both") +
 
 ```{r, echo=TRUE, dependson="a10"}
 a10 %>%
-  gg_subseries(Cost) + ylab("$ million") +
+  gg_subseries(total_cost) + ylab("$ million") +
   ggtitle("Subseries plot: antidiabetic drug sales")
 ```
 
@@ -304,6 +519,77 @@ snowy <- filter(tourism,
   - Use `autoplot()`, `gg_season()` and `gg_subseries()` to explore the data.
   - What do you learn?
 
+
+## Multiple seasonal periods
+\fontsize{10}{11}\sf
+
+```{r}
+vic_elec
+```
+
+## Multiple seasonal periods
+\fontsize{12}{13}\sf
+
+```{r, dev = "png", dpi = 180}
+vic_elec %>% gg_season(Demand)
+```
+
+## Multiple seasonal periods
+\fontsize{12}{13}\sf
+
+```{r, dev = "png", dpi = 180}
+vic_elec %>% gg_season(Demand, period = "week")
+```
+
+## Multiple seasonal periods
+\fontsize{12}{13}\sf
+
+```{r, dev = "png", dpi = 180}
+vic_elec %>% gg_season(Demand, period = "day")
+```
+
+
+## Australian holidays
+\fontsize{9}{10}\sf
+
+```{r holidays}
+holidays <- tourism %>%
+  filter(Purpose == "Holiday") %>%
+  group_by(State) %>%
+  summarise(Trips = sum(Trips))
+```
+
+```{r, echo=FALSE}
+holidays
+```
+
+## Australian holidays
+\fontsize{9}{10}\sf
+
+```{r holidays-plot, echo=TRUE, dependson="holidays", fig.height=3.9}
+holidays %>% autoplot(Trips) +
+  ylab("thousands of trips") + xlab("Year") +
+  ggtitle("Australian domestic holiday nights")
+```
+
+## Seasonal plots
+\fontsize{9}{10}\sf
+
+```{r graphics1, fig.width=4, fig.height=5, out.width="45%"}
+holidays %>% gg_season(Trips) +
+  ylab("thousands of trips") +
+  ggtitle("Australian domestic holiday nights")
+```
+
+## Seasonal subseries plots
+\fontsize{9}{10}\sf
+
+```{r graphics2, fig.height=4.1}
+holidays %>%
+  gg_subseries(Trips) + ylab("thousands of trips") +
+  ggtitle("Australian domestic holiday nights")
+```
+
 # Seasonal or cyclic?
 
 ## Time series patterns
@@ -325,18 +611,19 @@ Cyclic
 * average length of cycle longer than length of seasonal pattern
 * magnitude of cycle more variable than magnitude of seasonal pattern
 
+
 ## Time series patterns
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, fig.height=3}
-as_tsibble(fma::elec) %>%
-  filter(index >= 1980) %>%
-  autoplot(value) + xlab("Year") + ylab("GWh") +
+aus_production %>%
+  filter(year(Quarter) >= 1980) %>%
+  autoplot(Electricity) + ylab("GWh") +
   ggtitle("Australian electricity production")
 ```
 
 ## Time series patterns
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, warning=FALSE, fig.height=3}
 aus_production %>%
@@ -346,27 +633,28 @@ aus_production %>%
 ```
 
 ## Time series patterns
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, fig.height=3}
-as_tsibble(fma::hsales) %>%
-  autoplot(value) +
-  ggtitle("Sales of new one-family houses, USA") +
-  xlab("Year") + ylab("Total sales")
+us_employment %>%
+  filter(Title == "Retail Trade", year(Month) >= 1980) %>%
+  autoplot(Employed / 1e3) +
+  ggtitle("Retail employment, USA") + ylab("Million people")
 ```
 
 ## Time series patterns
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, fig.height=3}
-as_tsibble(fma::ustreas) %>%
-  autoplot(value) +
-  ggtitle("US Treasury Bill Contracts") +
-  xlab("Day") + ylab("price")
+gafa_stock %>%
+  filter(Symbol == "AMZN", year(Date) >= 2018) %>%
+  autoplot(Close) +
+  ggtitle("Amazon closing stock price") +
+  xlab("Day") + ylab("$")
 ```
 
 ## Time series patterns
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, fig.height=3}
 pelt %>%
@@ -392,7 +680,7 @@ The timing of peaks and troughs is predictable with seasonal data, but unpredict
 # Lag plots and autocorrelation
 
 ## Example: Beer production
-\fontsize{13}{15}\sf
+\fontsize{11}{13}\sf
 
 ```{r}
 new_production <- aus_production %>%
@@ -421,6 +709,11 @@ new_production %>% gg_lag(Beer, geom='point')
 different values of $k$.
   * The autocorrelations are the correlations associated
 with these scatterplots.
+  * ACF (autocorrelation function):
+     * $r_1=\text{Correlation}(y_{t}, y_{t-1})$
+     * $r_2=\text{Correlation}(y_{t}, y_{t-2})$
+     * $r_3=\text{Correlation}(y_{t}, y_{t-3})$
+     * etc.
 
 ## Autocorrelation
 
@@ -453,7 +746,6 @@ r_{k} &= c_k/c_0
 
 ## Autocorrelation
 
-
 Results for first 9 lags for beer data:
 
 \fontsize{11}{13}\sf
@@ -472,20 +764,23 @@ Results for first 9 lags for beer data:
 new_production %>% ACF(Beer, lag_max = 9) %>% autoplot()
 ```
 
+  * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
+  * The plot is known as a **correlogram**
+
+
 \vspace*{10cm}
 
 ## Autocorrelation
 
-  * $r_{4}$  higher than for the other lags. This is due to **the seasonal pattern in the data**: the peaks tend to be **4 quarters** apart and the troughs tend to be **2 quarters** apart.
-  * $r_2$ is more negative than for the other lags because troughs tend to be 2 quarters behind peaks.
-  * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
-  * The plot is known as a **correlogram**
+\fontsize{11}{13}\sf
 
-## ACF
-
-```{r, fig.height=4, echo=TRUE}
+```{r beeracf2, fig.height=2.5}
 new_production %>% ACF(Beer) %>% autoplot()
 ```
+
+  * $r_{4}$  higher than for the other lags. This is due to **the seasonal pattern in the data**: the peaks tend to be **4 quarters** apart and the troughs tend to be **2 quarters** apart.
+  * $r_2$ is more negative than for the other lags because troughs tend to be 2 quarters behind peaks.
+
 
 ## Trend and seasonality in ACF plots
 
@@ -493,29 +788,24 @@ new_production %>% ACF(Beer) %>% autoplot()
 - When data are seasonal, the autocorrelations will be larger at the seasonal lags (i.e., at multiples of the seasonal frequency)
 - When data are trended and seasonal, you see a combination of these effects.
 
-## Aus monthly electricity production
+
+## US retail trade employment
+\fontsize{11}{12}\sf
 
 ```{r}
-elec2 <- as_tsibble(fma::elec) %>%
-  filter(year(index) >= 1980)
-elec2 %>% autoplot(value)
+retail <- us_employment %>%
+  filter(Title == "Retail Trade", year(Month) >= 1980)
+retail %>% autoplot(Employed)
 ```
 
-## Aus monthly electricity production
+## US retail trade employment
+\fontsize{11}{12}\sf
 
 ```{r}
-elec2 %>% ACF(value, lag_max=48) %>%
+retail %>%
+  ACF(Employed, lag_max = 48) %>%
   autoplot()
 ```
-
-## Aus monthly electricity production
-
-Time plot shows clear trend and seasonality.
-
-The same features are reflected in the ACF.
-
-  * The slowly decaying ACF indicates trend.
-  * The ACF peaks at lags 12, 24, 36, \dots, indicate seasonality of length 12.
 
 ## Google stock price
 \fontsize{12}{14}\sf
@@ -549,12 +839,12 @@ google_2015
 ```
 
 ## Google stock price
-\fontsize{12}{14}\sf
+\fontsize{11}{13}\sf
 
 ```{r}
 google_2015 <- google_2015 %>%
   mutate(trading_day = row_number()) %>%
-  update_tsibble(index=trading_day, regular=TRUE)
+  update_tsibble(index = trading_day, regular = TRUE)
 google_2015
 ```
 
@@ -562,7 +852,7 @@ google_2015
 
 ```{r}
 google_2015 %>%
-  ACF(Close, lag_max=100) %>%
+  ACF(Close, lag_max = 100) %>%
   autoplot()
 ```
 
@@ -605,31 +895,63 @@ gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
 # White noise
 
 ## Example: White noise
-\fontsize{13}{15}\sf
+\fontsize{11}{13}\sf
 
-```{r}
+```{r, fig.height=3.3}
 set.seed(1)
-wn <- tsibble(t = seq_len(36), y = rnorm(36),
-              index = t)
+wn <- tsibble(t = seq(36), y = rnorm(36), index = t)
 wn %>% autoplot(y)
 ```
 
+\only<2>{
+\begin{textblock}{10}(1.4,7.2)\fontsize{13}{15}\sf
+\begin{alertblock}{}
+White noise data is uncorrelated across time with zero mean and constant variance.
+
+(Technically, we require independence as well.)
+\end{alertblock}
+\end{textblock}}
+
+\vspace*{10cm}
+
+
 ## Example: White noise
-\fontsize{10}{15}\sf\tabcolsep=0.1cm
+\fontsize{11}{11}\sf
+
+```r
+wn %>% ACF(y)
+```
+
+\fontsize{10}{11}\sf\tabcolsep=0.1cm
 
 ```{r, echo=FALSE}
-wn %>% ACF(y, lag_max = 10) %>%
+wn %>%
+  ACF(y, lag_max = 10) %>%
   as_tibble() %>%
-  tidyr::spread(lag, acf) %>%
-  rename_all(function(x){paste("$r_{",x,"}$",sep="")}) %>%
-  knitr::kable(booktabs=TRUE,
-               escape=FALSE, align="c", digits=3,
-               format.args=list(nsmall=3))
+  pivot_wider(names_from = lag, values_from = acf) %>%
+  rename_all(function(x) {
+    paste("$r_{", x, "}$", sep = "")
+  }) %>%
+  knitr::kable(
+    booktabs = TRUE,
+    escape = FALSE, align = "c", digits = 3,
+    format.args = list(nsmall = 3)
+  )
 ```
 
-```{r, echo=FALSE}
-wn %>% ACF(y) %>% autoplot()
+```{r, echo=FALSE, fig.height=2}
+wn %>%
+  ACF(y) %>%
+  autoplot()
 ```
+
+\pause\fontsize{11}{12}\sf
+
+ * Sample autocorrelations for white noise series.
+ * Expect each autocorrelation to be close to zero.
+ * Blue lines show 95% critical values.
+
+\vspace*{10cm}
 
 ## \large Sampling distribution of autocorrelations
 
