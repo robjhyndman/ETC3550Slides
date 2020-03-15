@@ -17,6 +17,9 @@ knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
 
 library(tidyverse)
 library(fpp3)
+library(purrr)
+library(gganimate)
+library(latex2exp)
 
 options(width=65)
 ```
@@ -177,9 +180,6 @@ $$\pause
 ## Box-Cox transformations
 
 ```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(rlang)
-library(gganimate)
-library(latex2exp)
 food %>%
   mutate(!!!set_names(map(seq(0, 1, 0.01), ~ expr(fabletools::box_cox(Turnover, !!.x))), seq(0, 1, 0.01))) %>%
   select(-Turnover) %>%
@@ -462,89 +462,36 @@ us_retail_employment %>%
 ## STL decomposition
 \fontsize{10}{11}\sf
 
-```{r stlwindow3, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
-  model(STL(Employed ~ season(window=3), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
-```
-
-## STL decomposition
-\fontsize{10}{11}\sf
-
-```{r stlwindow5, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
-  model(STL(Employed ~ season(window=5), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
-```
-
-## STL decomposition
-\fontsize{10}{11}\sf
-
-```{r stlwindow7, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
-  model(STL(Employed ~ season(window=7), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
-```
-
-## STL decomposition
-\fontsize{10}{11}\sf
-
 ```{r stlwindow9, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
+us_retail_employment %>%
   model(STL(Employed ~ season(window=9), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
+  components() %>% autoplot() +
+    ggtitle("STL decomposition: US retail employment")
 ```
 
 ## STL decomposition
 \fontsize{10}{11}\sf
 
-```{r stlwindow11, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
-  model(STL(Employed ~ season(window=11), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
-```
+```{r stlwindowanim, echo=FALSE, warning=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5.35, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+s_windows <- seq(5,55,by=2)
+stl_defs <- map(s_windows, function(s_window){
+  STL(Employed ~ season(window=s_window), robust=TRUE)
+})
+names(stl_defs) <- sprintf("season(window=%02d)", s_windows)
 
-## STL decomposition
-\fontsize{10}{11}\sf
-
-```{r stlwindow13, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
-  model(STL(Employed ~ season(window=13), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
-```
-
-## STL decomposition
-\fontsize{10}{11}\sf
-
-```{r stlwindow15, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-dcmp <- us_retail_employment %>%
-  model(STL(Employed ~ season(window=15), robust=TRUE)) %>%
-  components()
-autoplot(dcmp) +
-  ggtitle("STL decomposition of US retail employment")
-```
-
-## STL decomposition
-\fontsize{10}{11}\sf
-
-```{r stlwindowinf, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
-fit <- us_retail_employment %>%
-  model(STL(Employed ~ season(window="periodic"), robust=TRUE)) %>%
-  components()
-autoplot(fit) +
-  ggtitle("STL decomposition of US retail employment")
+us_retail_employment %>%
+  model(!!!stl_defs) %>%
+  components() %>%
+  as_tibble() %>%
+  pivot_longer(Employed:remainder,
+               names_to = "component", names_ptypes = list(component = factor(levels = c("Employed", "trend", "season_year", "remainder"))),
+               values_to = "Employed") %>%
+  ggplot(aes(x = Month, y = Employed)) +
+  geom_line() +
+  facet_grid(rows = vars(component), scales = "free_y") +
+  labs(title = "STL decomposition of US retail employment",
+       subtitle = "{closest_state}") +
+  transition_states(.model)
 ```
 
 ## STL decomposition
@@ -552,19 +499,21 @@ autoplot(fit) +
 
 ```{r echo = TRUE, results = 'hide'}
 us_retail_employment %>%
-  model(STL(Employed ~ season(window = 5))) %>%
+  model(STL(Employed ~ season(window=5))) %>%
   components()
 
 us_retail_employment %>%
-  model(STL(Employed ~ trend(window=15) + season(window="periodic"),
-      robust = TRUE)) %>%
-  components()
+  model(STL(Employed ~ trend(window=15) +
+                       season(window="periodic"),
+            robust = TRUE)
+  ) %>% components()
 ```
 
-\fontsize{14}{16}\sf
+\fontsize{12}{13}\sf
 
   *  `trend(window = ?)` controls wiggliness of trend component.
   *  `season(window = ?)` controls variation on seasonal component.
+  *  `season(window = 'periodic')` is equivalent to an infinite window.
 
 ## STL decomposition
 \fontsize{10}{11}\sf
