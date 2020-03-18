@@ -16,15 +16,8 @@ output:
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 options(digits=4, width=60)
 library(tidyverse)
-library(fable)
-library(tsibble)
-library(tsibbledata)
-library(feasts)
+library(fpp3)
 library(lubridate)
-us_change <- read_csv("data/uschange.csv") %>%
-  mutate(Time = yearquarter(Time)) %>%
-  as_tsibble(index = Time) %>%
-  select(Income, Consumption)
 
 vic_elec_daily <- vic_elec %>%
   filter(year(Time) == 2014) %>%
@@ -165,7 +158,7 @@ variables with the same differencing operator as in the ARIMA model.\pause
 ```{r usconsump, fig.height=6, fig.width=8.5}
 us_change %>%
   gather(key='variable', value='value') %>%
-  ggplot(aes(y=value, x=Time, group=variable)) +
+  ggplot(aes(y=value, x=Quarter, group=variable)) +
   geom_line() + facet_grid(variable ~ ., scales='free_y') +
   xlab("Year") + ylab("") +
   ggtitle("Quarterly changes in US consumption and personal income")
@@ -281,8 +274,7 @@ report(fit)
 \fontsize{9}{10}\sf
 
 ```{r, echo=TRUE}
-augment(fit) %>%
-  gg_tsdisplay(.resid, plot_type = "histogram")
+gg_tsresiduals(fit)
 ```
 
 ## Daily electricity demand
@@ -321,7 +313,7 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
 ## Daily electricity demand
 \fontsize{10}{13}\sf
 ```{r, echo = TRUE}
-forecast(fit, vic_elec_future) %>%
+forecast(fit, new_data=vic_elec_future) %>%
   autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
 ```
 

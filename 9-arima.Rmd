@@ -16,10 +16,7 @@ output:
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 options(digits=4, width=60)
 library(tidyverse)
-library(fable)
-library(tsibble)
-library(tsibbledata)
-library(feasts)
+library(fpp3)
 library(lubridate)
 
 usmelec <- as_tsibble(fpp2::usmelec) %>%
@@ -935,7 +932,9 @@ fit %>% forecast(h = 10) %>%
 ```{r ee1, fig.height=3.3, echo=TRUE}
 elecequip <- as_tsibble(fpp2::elecequip)
 dcmp <- elecequip %>%
-  STL(value ~ season(window = "periodic"))
+  model(STL(value ~ season(window = "periodic"))) %>%
+  components() %>%
+  select(-.model)
 dcmp %>% as_tsibble %>%
   autoplot(season_adjust) + xlab("Year") +
   ylab("Seasonally adjusted new orders index")
@@ -977,7 +976,7 @@ report(fit)
 \fontsize{11}{11}\sf
 
 ```{r, echo=FALSE, fig.height=3.4}
-augment(fit) %>% gg_tsdisplay(.resid, plot_type = "hist")
+gg_tsresiduals(fit)
 ```
 
 ## \large Seasonally adjusted electrical equipment
