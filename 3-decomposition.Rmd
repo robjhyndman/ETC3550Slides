@@ -472,7 +472,7 @@ us_retail_employment %>%
 ## STL decomposition
 \fontsize{10}{11}\sf
 
-```{r stlwindowanim, echo=FALSE, warning=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5.35, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+```{r stlwindowanim, echo=FALSE, warning=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5.35, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', eval=FALSE}
 s_windows <- seq(5,55,by=2)
 stl_defs <- map(s_windows, function(s_window){
   STL(Employed ~ season(window=s_window), robust=TRUE)
@@ -493,6 +493,9 @@ us_retail_employment %>%
        subtitle = "{closest_state}") +
   transition_states(.model)
 ```
+
+\animategraphics[controls,buttonsize=0.3cm,width=11.5cm]{10}{3-decomposition_files/figure-beamer/stlwindowanim-}{1}{100}
+
 
 ## STL decomposition
 \fontsize{10}{11}\sf
