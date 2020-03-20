@@ -1,5 +1,4 @@
 library(fpp3)
-library(lubridate)
 
 ## PRISON ----------------------------------------------------------------------
 
@@ -124,7 +123,7 @@ holidays %>% gg_season(Trips) +
   ylab("thousands of trips") +
   ggtitle("Australian domestic holiday nights")
 
-holidays %>% gg_subseries(Trips) + 
+holidays %>% gg_subseries(Trips) +
   ylab("thousands of trips") +
   ggtitle("Australian domestic holiday nights")
 
@@ -206,4 +205,17 @@ pigs %>% autoplot(Count/1e3) +
   ggtitle("Number of pigs slaughtered in Victoria")
 
 pigs %>% ACF(Count) %>% autoplot()
+
+## GOOGLE change in closing price ACF ---------------------------------------------
+
+gafa_stock %>%
+  filter(Symbol == "GOOG", year(Date) >= 2018) %>%
+  mutate(trading_day = row_number()) %>%
+  update_tsibble(index=trading_day, regular=TRUE) %>%
+  mutate(diff = difference(Close)) %>%
+  ACF(diff) %>%
+  autoplot()
+
+
+
 
