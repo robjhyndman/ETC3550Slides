@@ -330,8 +330,8 @@ fb_stock <- gafa_stock %>%
   group_by(Symbol) %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
-  filter(Symbol == "FB",
-         between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
+  ungroup() %>%
+  filter(Symbol == "FB")
 # Specify, estimate and forecast
 fb_stock %>%
   model(
@@ -341,20 +341,21 @@ fb_stock %>%
   ) %>%
   forecast(h=42) %>%
   autoplot(fb_stock, level = NULL) +
-  ggtitle("Facebook closing stock price (daily ending Sep 2018)") +
+  ggtitle("Facebook closing stock price") +
   xlab("Day") + ylab("") +
   guides(colour=guide_legend(title="Forecast"))
 ```
 
 ## Facebook closing stock price
 
-```{r fb-fc-plot, echo=FALSE, fig.height=4.6}
+```{r fb-fc-plot, echo=FALSE, fig.height=4.6, dependson="fbf2"}
 # Extract training data
 fb_stock <- gafa_stock %>%
+  group_by(Symbol) %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index=trading_day, regular=TRUE) %>%
-  filter(Symbol == "FB",
-         between(Date, ymd("2018-01-01"), ymd("2018-09-01")))
+  ungroup() %>%
+  filter(Symbol == "FB")
 
 # Specify, estimate and forecast
 fb_stock %>%
@@ -365,7 +366,7 @@ fb_stock %>%
   ) %>%
   forecast(h=42) %>%
   autoplot(fb_stock, level = NULL) +
-  ggtitle("Facebook closing stock price (daily ending Sep 2018)") +
+  ggtitle("Facebook closing stock price") +
   xlab("Day") + ylab("") +
   guides(colour=guide_legend(title="Forecast"))
 ```
@@ -916,14 +917,15 @@ works well. Then MASE is equivalent to MAE relative to a seasonal naïve method.
 beer_fc_plot
 ```
 
-## Training set accuracy
+## Measures of forecast accuracy
 
-\fontsize{10}{10}\sf
+\fontsize{12}{14}\sf
 
-```{r beer-train-accuracy, results = 'hide'}
+```{r beer-forecasts, results='hide'}
 recent_production <- aus_production %>%
   filter(year(Quarter) >= 1992)
-train <- recent_production %>% filter(year(Quarter) <= 2007)
+train <- recent_production %>% 
+  filter(year(Quarter) <= 2007)
 beer_fit <- train %>%
   model(
     Mean = MEAN(Beer),
@@ -931,36 +933,40 @@ beer_fit <- train %>%
     `Seasonal naïve` = SNAIVE(Beer),
     Drift = RW(Beer ~ drift())
   )
+beer_fc <- beer_fit %>%
+  forecast(h = 10)
+```
+
+## Measures of forecast accuracy
+\fontsize{11}{11}\sf
+
+```{r beer-train-accuracy, eval=FALSE}
 accuracy(beer_fit)
 ```
 
+\fontsize{9}{9}\sf
+
 ```{r beer-train-table, echo=FALSE}
 accuracy(beer_fit) %>%
-  mutate(Method = paste(.model, "method")) %>%
-  select(Method, RMSE, MAE, MAPE, MASE) %>%
-  gt::gt("Method") %>%
-  gt::as_latex()
+  arrange(.model) %>%
+  select(.model, .type, RMSE, MAE, MAPE, MASE)
 ```
 
-## Test set accuracy
+\fontsize{11}{11}\sf
 
-\fontsize{12}{14}\sf
-
-```{r beer-test-accuracy, results = 'hide'}
-beer_fc <- beer_fit %>%
-  forecast(h = 10)
+```{r beer-test-accuracy, eval=FALSE}
 accuracy(beer_fc, recent_production)
 ```
 
-\fontsize{10}{11}\sf
+\fontsize{9}{9}\sf
 
 ```{r beer-test-table, echo=FALSE}
 accuracy(beer_fc, recent_production) %>%
-  mutate(Method = paste(.model, "method")) %>%
-  select(Method, RMSE, MAE, MAPE, MASE) %>%
-  gt::gt("Method") %>%
-  gt::as_latex()
+  arrange(.model) %>%
+  select(.model, .type, RMSE, MAE, MAPE, MASE)
 ```
+
+\vspace*{10cm}
 
 ## Poll: true or false?
 
@@ -1143,21 +1149,23 @@ fc_cv %>% select(-.model) %>% print(n = 4)
 
 ## Time series cross-validation {-}
 
-\small
+\fontsize{11}{11}\sf
 
 ```{r google-accuracy, cache = TRUE, results = 'hide', eval = FALSE}
 # Cross-validated
-fc_cv %>% accuracy(google_2015)
+fc_cv %>% accuracy(fb_stock)
 # Training set
-fb_stock %>% model(NAIVE(Close)) %>% accuracy()
+fb_stock %>% model(RW(Close ~ drift())) %>% accuracy()
 ```
+
+\fontsize{13}{15}\sf
 
 ```{r, echo = FALSE, warning = FALSE}
 fc_cv %>% accuracy(fb_stock) %>%
   mutate(.type = "Cross-validation") %>%
   bind_rows(
     fb_stock %>%
-      model(NAIVE(Close)) %>%
+      model(RW(Close ~ drift())) %>%
       accuracy()
   ) %>%
   transmute(Type = .type, RMSE, MAE, MAPE) %>%
