@@ -51,7 +51,7 @@ Consider the GDP information in `global_economy`. Plot the GDP per capita for ea
 ## Inflation adjustments
 \fontsize{10}{10}\sf
 
-```{r, eval=FALSE}
+```{r retail_cpi, message=FALSE, warning=FALSE, fig.show='hide'}
 print_retail <- aus_retail %>%
   filter(Industry == "Newspaper and book retailing") %>%
   group_by(Industry) %>%
@@ -74,24 +74,7 @@ print_retail %>%
 ## Inflation adjustments
 \fontsize{10}{10}\sf
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.height=5}
-print_retail <- aus_retail %>%
-  filter(Industry == "Newspaper and book retailing") %>%
-  group_by(Industry) %>%
-  index_by(Year = year(Month)) %>%
-  summarise(Turnover = sum(Turnover))
-aus_economy <- filter(global_economy, Code == "AUS")
-print_retail %>%
-  left_join(aus_economy, by = "Year") %>%
-  mutate(Adj_turnover = Turnover / CPI) %>%
-  pivot_longer(c(Turnover, Adj_turnover),
-    names_to = "Type", values_to = "Turnover"
-  ) %>%
-  ggplot(aes(x = Year, y = Turnover)) +
-  geom_line() +
-  facet_grid(vars(Type), scales = "free_y") +
-  xlab("Years") + ylab(NULL) +
-  ggtitle("Turnover: Australian print media industry")
+```{r ref.label = 'retail_cpi', message=FALSE, warning=FALSE, echo=FALSE, fig.height=5}
 ```
 
 ## Mathematical transformations

@@ -324,7 +324,7 @@ brick_fc %>%
 
 \fontsize{9}{10}\sf
 
-```{r fbf2, eval=FALSE}
+```{r fbf2, fig.show='hide'}
 # Extract training data
 fb_stock <- gafa_stock %>%
   group_by(Symbol) %>%
@@ -348,27 +348,7 @@ fb_stock %>%
 
 ## Facebook closing stock price
 
-```{r fb-fc-plot, echo=FALSE, fig.height=4.6, dependson="fbf2"}
-# Extract training data
-fb_stock <- gafa_stock %>%
-  group_by(Symbol) %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index=trading_day, regular=TRUE) %>%
-  ungroup() %>%
-  filter(Symbol == "FB")
-
-# Specify, estimate and forecast
-fb_stock %>%
-  model(
-    Mean = MEAN(Close),
-    `Naïve` = NAIVE(Close),
-    Drift = RW(Close ~ drift())
-  ) %>%
-  forecast(h=42) %>%
-  autoplot(fb_stock, level = NULL) +
-  ggtitle("Facebook closing stock price") +
-  xlab("Day") + ylab("") +
-  guides(colour=guide_legend(title="Forecast"))
+```{r ref.label='fbf2', echo=FALSE, fig.height=4.6}
 ```
 
 ## Your turn
@@ -924,7 +904,7 @@ beer_fc_plot
 ```{r beer-forecasts, results='hide'}
 recent_production <- aus_production %>%
   filter(year(Quarter) >= 1992)
-train <- recent_production %>% 
+train <- recent_production %>%
   filter(year(Quarter) <= 2007)
 beer_fit <- train %>%
   model(

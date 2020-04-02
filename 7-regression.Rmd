@@ -481,13 +481,13 @@ fit_trends
 
 \fontsize{10}{10}\sf
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hide'}
+```{r, echo=TRUE, eval=FALSE}
 fit_trends %>% forecast(h=10) %>% autoplot(marathon)
 ```
 
-```{r, echo=FALSE, message=TRUE, warning=FALSE, eval=TRUE}
-fit_trends %>% 
-  forecast(h=10) %>% 
+```{r, echo=FALSE, message=TRUE, warning=FALSE}
+fit_trends %>%
+  forecast(h=10) %>%
   autoplot(marathon, alpha = 0.3) +
   geom_line(aes(y = .fitted, colour = .model), data = fitted(fit_trends)) +
   labs(x = "Year", y = "Winning times in minutes", title = "Boston Marathon") +
@@ -496,7 +496,7 @@ fit_trends %>%
 
 ## Example: Boston marathon winning times
 
-```{r residPiecewise, message=FALSE, warning=FALSE, eval = TRUE}
+```{r residPiecewise, message=FALSE, warning=FALSE}
 fit_trends %>% select(piecewise) %>%
   augment() %>% gg_tsdisplay(.resid, plot_type = "histogram")
 ```
