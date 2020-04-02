@@ -362,7 +362,7 @@ us_retail_employment %>%
 ## Seasonal adjustment
 
   * We use estimates of $S$ based on past values to seasonally adjust a current value.
-  *  Seasonally adjusted  series reflect **remainders** as well as **trend**. Therefore they are not "smooth"" and "downturns"" or "upturns" can be misleading.
+  *  Seasonally adjusted series reflect **remainders** as well as **trend**. Therefore they are not "smooth" and "downturns" or "upturns" can be misleading.
   *  It is better to use the trend-cycle component to look for turning points.
 
 # History of time series decomposition
