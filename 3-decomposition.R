@@ -21,9 +21,12 @@ print_retail <- aus_retail %>%
 
 aus_economy <- filter(global_economy, Code == "AUS")
 
-print_retail %>%
+print_retail <- print_retail %>%
   left_join(aus_economy, by = "Year") %>%
-  mutate(Adj_turnover = Turnover / CPI) %>%
+  mutate(Adj_turnover = Turnover / CPI)
+
+# Plot both on same graph
+print_retail %>%
   pivot_longer(c(Turnover, Adj_turnover),
     names_to = "Type", values_to = "Turnover"
   ) %>%
@@ -89,7 +92,7 @@ us_retail_employment %>%
 
 us_retail_employment %>%
   model(STL(Employed ~ season(window=9) + trend(window=15), robust=TRUE)) %>%
-  components() %>% 
+  components() %>%
   autoplot() +
     ggtitle("STL decomposition: US retail employment")
 
