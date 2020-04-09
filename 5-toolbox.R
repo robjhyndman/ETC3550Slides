@@ -20,8 +20,8 @@ fit %>% forecast(h = "3 years") %>%
 brick_fit <-  aus_production %>%
   filter(!is.na(Bricks)) %>%
   model(
-    `Seasonal_naïve` = SNAIVE(Bricks),
-    `Naïve` = NAIVE(Bricks),
+    Seasonal_naive = SNAIVE(Bricks),
+    Naive = NAIVE(Bricks),
     Drift = RW(Bricks ~ drift()),
     Mean = MEAN(Bricks)
   )
@@ -40,11 +40,9 @@ brick_fc %>%
 
 # Extract training data
 fb_stock <- gafa_stock %>%
-  group_by(Symbol) %>%
+  filter(Symbol == "FB") %>%
   mutate(trading_day = row_number()) %>%
-  update_tsibble(index=trading_day, regular=TRUE) %>%
-  ungroup() %>%
-  filter(Symbol == "FB")
+  update_tsibble(index=trading_day, regular=TRUE)
 
 fb_stock %>% autoplot(Close)
 
@@ -52,18 +50,19 @@ fb_stock %>% autoplot(Close)
 fb_stock %>%
   model(
     Mean = MEAN(Close),
-    `Naïve` = NAIVE(Close),
+    Naive = NAIVE(Close),
     Drift = RW(Close ~ drift())
   ) %>%
   forecast(h=42) %>%
   autoplot(fb_stock, level = NULL) +
-  ggtitle("Facebook closing stock price (daily ending Sep 2018)") +
+  ggtitle("Facebook closing stock price") +
   xlab("Day") + ylab("") +
   guides(colour=guide_legend(title="Forecast"))
 
 fit <- fb_stock %>% model(NAIVE(Close))
 
 augment(fit) %>%
+  filter(trading_day > 1200) %>%
   ggplot(aes(x = trading_day)) +
   geom_line(aes(y = Close, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted"))
@@ -81,11 +80,12 @@ augment(fit) %>%
   ACF(.resid) %>%
   autoplot() + ggtitle("ACF of residuals")
 
-Box.test(augment(fit)$.resid,
-  lag = 10, fitdf = 0, type = "Lj")
-
 gg_tsresiduals(fit)
 
+Box.test(augment(fit)$.resid,
+  lag = 10, fitdf = 0, type = "L")
+
+## -- Finished to here on 9 April
 
 ## BEER -------------------------------------------
 

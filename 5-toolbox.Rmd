@@ -360,7 +360,7 @@ fb_stock %>%
 
 ## Fitted values
 
- - $\hat{y}_{t|t-1}$ is the forecast of $y_t$ based on observations $y_1,\dots,y_t$.
+ - $\hat{y}_{t|t-1}$ is the forecast of $y_t$ based on observations $y_1,\dots,y_{t-1}$.
  - We call these "fitted values".
  - Sometimes drop the subscript: $\hat{y}_t \equiv \hat{y}_{t|t-1}$.
  - Often not true forecasts since parameters are estimated on all data.
