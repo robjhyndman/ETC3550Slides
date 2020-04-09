@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 )
 options(digits = 3, width = 60)
 library(fpp3)
-library(lubridate)
+library(patchwork)
 global_economy <- global_economy %>%
   select(Year, Country, GDP, Imports, Exports, Population)
 tourism <- tourism %>%
@@ -897,8 +897,7 @@ acfb <- ACF(cowtemp, value) %>% autoplot() + xlab("") + ggtitle("B") + ylim(-0.4
 acfa <- ACF(USAccDeaths, value) %>% autoplot() + xlab("") + ggtitle("A") + ylim(-0.4,1)
 acfd <- ACF(AirPassengers, value) %>% autoplot() + xlab("") + ggtitle("D") + ylim(-0.4,1)
 acfc <- ACF(mink, value) %>% autoplot() + xlab("") + ggtitle("C") + ylim(-0.4,1)
-gridExtra::grid.arrange(tp1,tp2,tp3,tp4,
-                        acfa,acfb,acfc,acfd,nrow=2)
+(tp1 | tp2 | tp3 | tp4) / (acfa | acfb | acfc | acfd)
 ```
 
 # White noise

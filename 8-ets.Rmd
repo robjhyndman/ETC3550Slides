@@ -15,12 +15,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 
-library(tidyverse)
-library(fable)
-library(tsibble)
-library(feasts)
-library(lubridate)
-library(tsibbledata)
+library(fpp3)
+library(patchwork)
 
 options(digits=4, width=55)
 ```
@@ -727,18 +723,18 @@ components(fit)
 ```
 
 ```{r fig-7-LevelTrendSeas}
-components(fit) %>%
+p <- components(fit) %>%
   gather("state", "value", -.model, -Quarter, factor_key = TRUE) %>%
   group_by(.model) %>%
   group_split() %>%
-  map(
+  purrr::map(
     ~ ggplot(., aes(x = Quarter, y = value)) +
       geom_line() +
       facet_grid(state ~ ., scales = "free") +
       xlab("Year") + ylab(NULL) +
-      ggtitle(str_to_title(unique(.$.model)) %>% paste("states"))
+      ggtitle(stringr::str_to_title(unique(.$.model)) %>% paste("states"))
   ) %>%
-  invoke(gridExtra::grid.arrange, ., ncol = 2)
+  wrap_plots(ncol=2)
 ```
 
 ## Holt-Winters damped method
