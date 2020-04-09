@@ -515,9 +515,8 @@ where $h$  is max lag being considered and $T$ is number of observations.
 \fontsize{11}{12}\sf
 
 ```{r dj9, echo=TRUE}
-# lag=h and fitdf=K
-Box.test(augment(fit)$.resid,
-  lag = 10, fitdf = 0, type = "Lj")
+augment(fit) %>%
+  features(.resid, ljung_box, lag=10, dof=0)
 ```
 
 ## `gg_tsresiduals` function
@@ -546,7 +545,7 @@ Test if the residuals are white noise.
 \fontsize{10}{12}\sf
 
 ```{r, results = 'hide', fig.show='hide', warning = FALSE}
-Box.test(augment(fit)$.resid, lag=10, fitdf=0, type="Lj")
+augment(fit) %>% features(.resid, ljung_box, lag=10, dof=0)
 gg_tsresiduals(fit)
 ```
 
