@@ -276,8 +276,8 @@ The `model()` function trains models to data.
 brick_fit <-  aus_production %>%
   filter(!is.na(Bricks)) %>%
   model(
-    `Seasonal_naïve` = SNAIVE(Bricks),
-    `Naïve` = NAIVE(Bricks),
+    Seasonal_naive = SNAIVE(Bricks),
+    Naive = NAIVE(Bricks),
     Drift = RW(Bricks ~ drift()),
     Mean = MEAN(Bricks)
   )
@@ -336,7 +336,7 @@ fb_stock <- gafa_stock %>%
 fb_stock %>%
   model(
     Mean = MEAN(Close),
-    `Naïve` = NAIVE(Close),
+    Naive = NAIVE(Close),
     Drift = RW(Close ~ drift())
   ) %>%
   forecast(h=42) %>%
@@ -825,8 +825,8 @@ beer <- aus_production %>%
 beer_fc_plot <- train %>%
   model(
     Mean = MEAN(Beer),
-    `Naïve` = NAIVE(Beer),
-    `Seasonal naïve` = SNAIVE(Beer),
+    Naive = NAIVE(Beer),
+    Seasonal_naive = SNAIVE(Beer),
     Drift = RW(Beer ~ drift())
   ) %>%
   forecast(h=11) %>%
@@ -909,8 +909,8 @@ train <- recent_production %>%
 beer_fit <- train %>%
   model(
     Mean = MEAN(Beer),
-    `Naïve` = NAIVE(Beer),
-    `Seasonal naïve` = SNAIVE(Beer),
+    Naive = NAIVE(Beer),
+    Seasonal_naive = SNAIVE(Beer),
     Drift = RW(Beer ~ drift())
   )
 beer_fc <- beer_fit %>%
