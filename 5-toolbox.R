@@ -82,24 +82,26 @@ augment(fit) %>%
 
 gg_tsresiduals(fit)
 
-Box.test(augment(fit)$.resid,
-  lag = 10, fitdf = 0, type = "L")
 
 ## -- Finished to here on 9 April
+
+augment(fit) %>%
+  features(.resid, ljung_box, lag=10, dof=0)
+
 
 ## BEER -------------------------------------------
 
 recent <- aus_production %>% filter(year(Quarter) >= 1992)
+recent %>% autoplot(Beer)
 fit <- recent %>% model(SNAIVE(Beer))
 fit %>% forecast() %>% autoplot(recent)
 
-Box.test(augment(fit)$.resid, lag=10, fitdf=0, type="Lj")
+augment(fit) %>%
+  features(.resid, ljung_box, lag=10, dof=0)
+
 gg_tsresiduals(fit)
 
-
-## BRICKS
-brick_fc %>% hilo(level = 95)
-
+fit %>% forecast %>% hilo(level = c(50,95))
 
 ## FOOD RETAILING
 
@@ -113,12 +115,15 @@ fit <- food %>%
 fc <- fit %>%
   forecast(h = "3 years")
 
+fc %>% autoplot(food)
+
 fc %>% autoplot(filter(food, year(Month) > 2010))
 
 
 ## EGG PRICES
 
 eggs <- as_tsibble(fma::eggs)
+autoplot(eggs)
 fit <- eggs %>% model(RW(log(value) ~ drift()))
 fc <- fit %>% forecast(h=50)
 fc_biased <- fit %>% forecast(h=50, bias_adjust = FALSE)
@@ -132,6 +137,8 @@ eggs %>% autoplot(value) + xlab("Year") +
 us_retail_employment <- us_employment %>%
   filter(year(Month) >= 1990, Title == "Retail Trade") %>%
   select(-Series_ID)
+
+autoplot(us_retail_employment, Employed)
 
 dcmp <- us_retail_employment %>%
   model(STL(Employed)) %>%
@@ -157,6 +164,7 @@ us_retail_employment %>%
 
 recent_production <- aus_production %>%
   filter(year(Quarter) >= 1992)
+recent_production %>% autoplot(Beer)
 train <- recent_production %>%
   filter(year(Quarter) <= 2007)
 beer_fit <- train %>%
@@ -167,12 +175,19 @@ beer_fit <- train %>%
     Drift = RW(Beer ~ drift())
   )
 beer_fc <- beer_fit %>%
-  forecast(h = 10)
+  forecast(h = 24)
 
-accuracy(beer_fit)
 accuracy(beer_fc, recent_production)
+accuracy(beer_fit)
 
 ## CROSS-VALIDATION: FACEBOOK
+
+fb_stock <- gafa_stock %>%
+  filter(Symbol == "FB") %>%
+  mutate(trading_day = row_number()) %>%
+  update_tsibble(index=trading_day, regular=TRUE)
+
+fb_stock %>% autoplot(Close)
 
 fb_stretch <- fb_stock %>%
   stretch_tsibble(.init = 3, .step = 1) %>%
