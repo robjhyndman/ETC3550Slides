@@ -17,8 +17,12 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 
 library(fpp3)
 library(patchwork)
+library(gganimate)
+library(purrr)
+library(rlang)
+library(patchwork)
 
-options(digits=4, width=55)
+options(digits=4, width=65)
 ```
 
 # Exponential smoothing
@@ -48,29 +52,27 @@ $\gamma$ controls the flexibility of the **seasonality**
 * If $\gamma = 0$, the seasonality is fixed (seasonal means)
 * If $\gamma = 1$, the seasonality updates completely (seasonal naive)
 
+
 ## A model for levels, trends, and seasonalities
+\fontsize{13}{14}\sf
 
 We want a model that captures the level ($\ell_t$), trend ($b_t$) and seasonality ($s_t$).
 
-How do we combine these elements?
+\alert{How do we combine these elements?}
 
 \pause
 
-### Additively?
-
+\begin{block}{Additively?}
 $y_t = \ell_{t-1} + b_{t-1} + s_{t-m} + \varepsilon_t$
-
-\pause
-
-### Multiplicatively?
-
+\end{block}\pause
+\begin{block}{Multiplicatively?}
 $y_t = \ell_{t-1}b_{t-1}s_{t-m}(1 + \varepsilon_t)$
-
-\pause
-
-### Perhaps a mix of both?
-
+\end{block}\pause
+\begin{block}{Perhaps a mix of both?}
 $y_t = (\ell_{t-1} + b_{t-1}) s_{t-m} + \varepsilon_t$
+\end{block}\pause
+
+\alert{How do the level, trend and seasonal components evolve over time?}
 
 ## ETS models
 
@@ -135,10 +137,9 @@ $y_{T-5}$    & $(0.2)(0.8)^5$  & $(0.4)(0.6)^5$   & $(0.6)(0.4)^5$  & $(0.8)(0.2
 ## Simple Exponential Smoothing
 
 ```{r alpha-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(gganimate)
-algeria_economy <- tsibbledata::global_economy %>%
+algeria_economy <- global_economy %>%
   filter(Country == "Algeria")
-alpha_anim <- map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(alpha){
+alpha_anim <- purrr::map_dfr(set_names(seq(0, 1, 0.01),seq(0, 1, 0.01)), function(alpha){
   algeria_economy %>%
   model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-1,1),
         beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>%
@@ -260,7 +261,7 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 
   * "innovations" or "single source of error" because equations have the same error process, $\varepsilon_t$.
   * Measurement equation: relationship between observations and states.
-  * Transition/state equation(s): evolution of the state(s) through time.
+  * State equation(s): evolution of the state(s) through time.
 
 ## ETS(M,N,N)
 
@@ -306,11 +307,19 @@ trend("N", alpha_range = c(0.2, 0.8))
 \fontsize{9}{10}\sf
 
 ```{r ses-fit, echo=TRUE, cache=TRUE}
-algeria_economy <- tsibbledata::global_economy %>%
+algeria_economy <- global_economy %>%
   filter(Country == "Algeria")
 fit <- algeria_economy %>%
   model(ANN = ETS(Exports ~ error("A") + trend("N") + season("N")))
 report(fit)
+```
+
+## Example: Algerian Exports
+
+\fontsize{10}{11}\sf\vspace*{-0.2cm}
+
+```{r ses-cmp0, echo = TRUE}
+components(fit) %>% autoplot()
 ```
 
 ## Example: Algerian Exports
@@ -366,52 +375,138 @@ Holt's linear method with additive errors.
 
 ## Exponential smoothing: trend/slope
 
-```{r beta-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(gganimate)
-apple_stock <- gafa_stock %>%
-  filter(Symbol == "AAPL") %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
-beta_anim <- map_dfr(set_names(seq(0, 0.005, length.out = 100),seq(0, 0.005, length.out = 100)),
-                     function(beta){
-    apple_stock %>%
-      model(ETS(Close ~ error("A") + trend("A", alpha = 0.001, alpha_range = c(-1,1),
-            beta = beta, beta_range = c(-1,1)) + season("N", gamma_range = c(-1,1)), bounds = "admissible")) %>%
+```{r beta-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', eval=FALSE}
+aus_economy <- global_economy %>%
+  filter(Code == "AUS") %>%
+  mutate(Pop = Population/1e6)
+beta_anim <- map_dfr(set_names(
+  seq(0, 0.5, length.out = 100),
+  seq(0, 0.5, length.out = 100)),
+  function(beta){
+    aus_economy %>%
+      model(ETS(Pop ~ error("A") +
+                  trend("A",
+                    alpha = 0.001,
+                    alpha_range = c(-1,1),
+                    beta = beta,
+                    beta_range = c(-1,1)) +
+                  season("N",
+                    gamma_range = c(-1,1)),
+                bounds = "admissible")
+      ) %>%
       augment() %>%
       as_tibble()
-  }, .id = "beta") %>%
+    }, .id = "beta") %>%
   mutate(beta = 0.005-as.numeric(beta))
 beta_anim %>%
-  left_join(select(apple_stock, trading_day, Date), by = "trading_day") %>%
-  ggplot(aes(x = Date, y = Close)) +
+  left_join(select(aus_economy, Year), by = "Year") %>%
+  ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
   transition_manual(beta) +
-  ylab("Closing price ($USD)") +
-  ggtitle("Apple closing stock price: trend (beta = {format(0.005-as.numeric(as.character(current_frame)), nsmall=2)})")
+  ylab("Population (millions)") +
+  ggtitle("Australian population: trend (beta = {format(0.005-as.numeric(as.character(current_frame)), nsmall=2)})")
+```
+
+```{r beta-static, fig.height=5, fig.width=8, eval=FALSE, echo=FALSE}
+aus_economy <- global_economy %>%
+  filter(Code == "AUS") %>%
+  mutate(Pop = Population/1e6)
+beta_static <- map_dfr(
+      list(0, 0.3,0.9),
+      function(beta) {
+        fit <- aus_economy %>%
+          model(ETS(Pop ~ error("A") +
+                      trend("A",
+                        alpha = 0.00001,
+                        alpha_range = c(-.1,1),
+                        beta = beta,
+                        beta_range = c(0,.99)) +
+                      season("N",
+                        gamma_range = c(-1,1)),
+                    bounds = "admissible")
+          )
+        fit %>%
+          augment() %>%
+          mutate(beta = tidy(fit)$estimate[tidy(fit)$term == "beta"]) %>%
+          as_tibble()
+      }
+  ) %>%
+  mutate(beta = factor(format(beta))) %>%
+  left_join(select(aus_economy, Year), by = "Year")
+aus_economy %>%
+  ggplot(aes(x = Year, y = Pop)) +
+  geom_line() +
+  geom_line(aes(y = .fitted, colour = beta), data = beta_static) +
+  ylab("Population (millions)") +
+  ggtitle("Australian population")
+```
+
+```{r beta-static1, fig.height=5, fig.width=8, echo=FALSE}
+beta <- 0
+global_economy %>%
+  filter(Code == "AUS") %>%
+  mutate(Pop = Population/1e6) %>%
+  model(ETS(Pop ~ error("A") +
+                   trend("A",
+                         alpha = 0.0001,
+                         beta =beta),
+             bounds = "admissible")
+          ) %>%
+  augment() %>%
+  mutate(beta = beta) %>%
+  as_tibble() %>%
+  ggplot(aes(x = Year, y = Pop)) +
+  geom_line() +
+  geom_line(aes(y = .fitted), colour = "blue") +
+  ylab("Population (millions)") +
+  ggtitle(paste("Australian population. beta =", beta))
 ```
 
 ## Exponential smoothing: trend/slope
 
-```{r beta-static, fig.height=5, fig.width=8}
-beta_static <- map_dfr(list(0, 0.001),
-                     function(beta){
-    fit <- apple_stock %>%
-      model(ETS(Close ~ error("A") + trend("A", alpha = 0.00001, alpha_range = c(-.1,1),
-            beta = beta, beta_range = c(-0.1,0.005)) + season("N", gamma_range = c(-1,1)), bounds = "admissible"))
-    fit %>%
-      augment() %>%
-      mutate(beta = tidy(fit)$estimate[tidy(fit)$term == "beta"]) %>%
-      as_tibble()
-  }) %>%
-  mutate(beta = factor(format(beta))) %>%
-  left_join(select(apple_stock, trading_day, Date), by = "trading_day")
-apple_stock %>%
-  ggplot(aes(x = Date, y = Close)) +
+```{r beta-static2, fig.height=5, fig.width=8, echo=FALSE}
+beta <- 0.15
+global_economy %>%
+  filter(Code == "AUS") %>%
+  mutate(Pop = Population/1e6) %>%
+  model(ETS(Pop ~ error("A") +
+                   trend("A",
+                         alpha = 0.0001,
+                         beta =beta),
+             bounds = "admissible")
+          ) %>%
+  augment() %>%
+  mutate(beta = beta) %>%
+  as_tibble() %>%
+  ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
-  geom_line(aes(y = .fitted, colour = beta), data = beta_static) +
-  ylab("Closing price ($USD)") +
-  ggtitle("Apple closing stock price: trend")
+  geom_line(aes(y = .fitted), colour = "blue") +
+  ylab("Population (millions)") +
+  ggtitle(paste("Australian population. beta =", beta))
+```
+
+## Exponential smoothing: trend/slope
+
+```{r beta-static3, fig.height=5, fig.width=8, echo=FALSE}
+beta <- 0.8
+global_economy %>%
+  filter(Code == "AUS") %>%
+  mutate(Pop = Population/1e6) %>%
+  model(ETS(Pop ~ error("A") +
+                   trend("A",
+                         alpha = 0.0001,
+                         beta =beta),
+             bounds = "admissible")
+          ) %>%
+  augment() %>%
+  mutate(beta = beta) %>%
+  as_tibble() %>%
+  ggplot(aes(x = Year, y = Pop)) +
+  geom_line() +
+  geom_line(aes(y = .fitted), colour = "blue") +
+  ylab("Population (millions)") +
+  ggtitle(paste("Australian population. beta =", beta))
 ```
 
 ## ETS(M,A,N)
@@ -447,8 +542,7 @@ trend("A", beta_range = c(0, 0.1))
 ```
 
 ## Example: Australian population
-
-\fontsize{10}{11}\sf
+\fontsize{9}{10}\sf
 
 ```{r holt-fit, echo=TRUE}
 aus_economy <- global_economy %>% filter(Code == "AUS") %>%
@@ -460,7 +554,15 @@ report(fit)
 
 ## Example: Australian population
 
-\fontsize{10}{11}\sf
+\fontsize{9}{10}\sf
+
+```{r holt-cmp-plot, echo=TRUE, dependson='holt-fit'}
+components(fit) %>% autoplot()
+```
+
+## Example: Australian population
+
+\fontsize{9}{10}\sf
 
 ```{r holt-cmp, echo=TRUE, dependson='holt-fit'}
 components(fit) %>%
@@ -499,17 +601,17 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
  * Write down the model for ETS(A,Ad,N)
 
 ## Example: Australian population
-\fontsize{10}{11}\sf
+\fontsize{9}{10}\sf
 
 ```{r, echo=TRUE, fig.height=3.6}
 aus_economy %>%
   model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
-  forecast(h = 10) %>%
+  forecast(h = 20) %>%
   autoplot(aus_economy)
 ```
 
 ## Example: Australian population
-\fontsize{9}{12}\sf
+\fontsize{10}{13}\sf
 
 ```{r, echo=TRUE}
 fit <- aus_economy %>%
@@ -594,7 +696,6 @@ s_{t} &= \gamma (y_{t}-\ell_{t-1}-b_{t-1}) + (1-\gamma)s_{t-m}
 ## Exponential smoothing: seasonality
 
 ```{r gamma-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-library(gganimate)
 j07 <- PBS %>%
   filter(ATC2 == "J07") %>%
   summarise(Cost = sum(Cost))
@@ -717,13 +818,17 @@ fc %>%
 ```
 
 ## Estimated components
+\fontsize{10}{11}\sf
 
-```{r, echo = TRUE, results = 'hide'}
+```{r, echo = TRUE}
 components(fit)
 ```
 
-```{r fig-7-LevelTrendSeas}
-p <- components(fit) %>%
+## Estimated components
+\fontsize{10}{11}\sf
+
+```{r fig-7-LevelTrendSeas, fig.width=9, fig.height=6, out.width="100%"}
+components(fit) %>%
   gather("state", "value", -.model, -Quarter, factor_key = TRUE) %>%
   group_by(.model) %>%
   group_split() %>%
@@ -934,6 +1039,88 @@ criterion).
 
 Method performed very well in M3 competition.
 
+## Example: National populations
+
+\fontsize{9}{9}\sf
+
+```{r popfit, echo=TRUE, cache=TRUE}
+fit <- global_economy %>%
+  mutate(Pop = Population / 1e6) %>%
+  model(ets = ETS(Pop))
+fit
+```
+
+## Example: National populations
+\fontsize{12}{12}\sf
+
+```{r popfc, echo=TRUE, cache=TRUE, dependson="popfit"}
+fit %>%
+  forecast(h = 5)
+```
+
+## Example: Australian holiday tourism
+
+\fontsize{9}{10}\sf
+
+```{r ausholidays-fit, echo=TRUE}
+holidays <- tourism %>%
+  filter(Purpose == "Holiday")
+fit <- holidays %>% model(ets = ETS(Trips))
+fit
+```
+
+## Example: Australian holiday tourism
+
+\fontsize{9}{10}\sf
+
+```{r ausholidays-report}
+fit %>%
+  filter(Region == "Snowy Mountains") %>%
+  report()
+```
+
+## Example: Australian holiday tourism
+
+\fontsize{9}{10}\sf
+
+```{r ausholidays-components}
+fit %>%
+  filter(Region == "Snowy Mountains") %>%
+  components(fit)
+```
+
+## Example: Australian holiday tourism
+
+\fontsize{9}{10}\sf
+
+```{r ausholidays-components-plot, fig.height=4.3}
+fit %>%
+  filter(Region == "Snowy Mountains") %>%
+  components(fit) %>%
+  autoplot()
+```
+
+## Example: Australian holiday tourism
+
+\fontsize{9}{10}\sf
+
+```{r ausholidays-forecast}
+fit %>% forecast()
+```
+
+## Example: Australian holiday tourism
+
+\fontsize{9}{10}\sf
+
+```{r ausholidays-forecast-plot}
+fit %>%
+  forecast() %>%
+  filter(Region == "Snowy Mountains") %>%
+  autoplot(holidays) +
+  xlab("Year") + ylab("Overnight trips (thousands)")
+```
+
+
 ## Some unstable models
 
 * Some of the combinations of (Error, Trend, Seasonal) can lead to numerical difficulties; see equations with division by a state.
@@ -971,38 +1158,6 @@ Method performed very well in M3 competition.
 \end{tabular}
 \end{block}
 
-## Example: Australian holiday tourism
-\fontsize{10}{10}\sf
-
-```{r, echo=TRUE}
-fit <- aus_holidays %>% model(ETS(Trips))
-report(fit)
-```
-
-## Example: Australian holiday tourism
-
-Model selected: ETS(M,N,M)
-\begin{align*}
-y_{t} &= \ell_{t-1}s_{t-m}(1 + \varepsilon_t)\\
-\ell_t &= \ell_{t-1}(1 + \alpha \varepsilon_t)\\
-s_t &=  s_{t-m}(1+ \gamma \varepsilon_t).
-\end{align*}
-
-$\hat\alpha=`r format(tidy(fit)$estimate[1],nsmall=4,digits=4)`$,
-and $\hat\gamma=`r format(tidy(fit)$estimate[2],nsmall=3,digits=3, scientific=FALSE)`$.
-
-## Example: Australian holiday tourism
-
-```{r MAMstates, fig.height=3.5,fig.width=6, echo=TRUE, results = "hide"}
-components(fit)
-```
-
-```{r r MAMstates, fig.height=3.5,fig.width=6}
-components(fit) %>%
-  autoplot() +
-  ggtitle("ETS(M,N,M) components")
-```
-
 ## Residuals
 \fontsize{16}{18}\sf
 
@@ -1015,6 +1170,18 @@ $$\hat\varepsilon_t = y_t - \hat{y}_{t|t-1}$$
 
 Multiplicative error model:
 $$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
+
+## Example: Australian holiday tourism
+\fontsize{9.5}{12}\sf
+
+```{r, echo = TRUE}
+aus_holidays <- tourism %>%
+  filter(Purpose == "Holiday") %>%
+  summarise(Trips = sum(Trips))
+fit <- aus_holidays %>%
+  model(ets = ETS(Trips)) %>%
+  report()
+```
 
 ## Example: Australian holiday tourism
 \fontsize{9.5}{12}\sf
@@ -1033,6 +1200,7 @@ residuals(fit) %>%
   facet_grid(Type ~ ., scales = "free_y") +
   ylab(NULL)
 ```
+
 
 # Forecasting with exponential smoothing
 
@@ -1110,7 +1278,7 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
 \fontsize{10}{10}\sf
 
 ```{r h02-plot, echo = TRUE}
-h02 <- tsibbledata::PBS %>%
+h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost))
 h02 %>%
@@ -1121,14 +1289,18 @@ h02 %>%
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-h02 %>% model(ETS(Cost)) %>% report
+h02 %>%
+  model(ETS(Cost)) %>%
+  report()
 ```
 
 ## Example: Corticosteroid drug sales
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% report
+h02 %>%
+  model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
+  report()
 ```
 
 ## Example: Corticosteroid drug sales
@@ -1139,7 +1311,7 @@ h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
 ```
 
 ## Example: Corticosteroid drug sales
-\fontsize{11}{13}\sf
+\fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, results = "hide"}
 h02 %>%
