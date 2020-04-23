@@ -4,9 +4,23 @@ library(fpp3)
 
 algeria_economy <- tsibbledata::global_economy %>%
   filter(Country == "Algeria")
+algeria_economy %>% autoplot(Exports)
 fit <- algeria_economy %>%
-  model(ANN = ETS(Exports ~ error("A") + trend("N") + season("N")))
-report(fit)
+  model(
+    ANN = ETS(Exports ~ error("A") + trend("N") + season("N")),
+    MNN = ETS(Exports ~ error("M") + trend("N") + season("N")),
+    autoNN = ETS(Exports ~ trend("N") + season("N")),
+
+  )
+fit %>%
+  select(ANN) %>%
+  report(fit)
+fit %>%
+  select(MNN) %>%
+  report(fit)
+fit %>%
+  select(autoNN) %>%
+  report(fit)
 
 components(fit) %>% autoplot()
 
