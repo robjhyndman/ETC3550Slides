@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 options(digits=4, width=60)
 library(fpp3)
 library(patchwork)
+library(purrr)
 
 usmelec <- as_tsibble(fpp2::usmelec) %>%
   rename(Month = index, Generation = value)
