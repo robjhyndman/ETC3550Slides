@@ -10,7 +10,6 @@ fit <- algeria_economy %>%
     ANN = ETS(Exports ~ error("A") + trend("N") + season("N")),
     MNN = ETS(Exports ~ error("M") + trend("N") + season("N")),
     autoNN = ETS(Exports ~ trend("N") + season("N")),
-
   )
 fit %>%
   select(ANN) %>%
@@ -33,11 +32,12 @@ fit %>%
   ylab("Exports (% of GDP)") + xlab("Year")
 
 
-# Australian popoulation
+# Australian population
 
 aus_economy <- global_economy %>%
   filter(Code == "AUS") %>%
   mutate(Pop = Population/1e6)
+aus_economy %>% autoplot(Pop)
 fit <- aus_economy %>%
   model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
 report(fit)
@@ -54,9 +54,15 @@ fit %>%
 
 aus_economy %>%
   model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
+  report()
+
+aus_economy %>%
+  model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
   forecast(h = 10) %>%
   autoplot(aus_economy)
-
+aus_economy %>%
+  filter(Year <= 2010) %>%
+  autoplot(Pop)
 fit <- aus_economy %>%
   filter(Year <= 2010) %>%
   model(
@@ -66,14 +72,17 @@ fit <- aus_economy %>%
   )
 
 tidy(fit)
+glance(fit)
 accuracy(fit)
+forecast(fit) %>% accuracy(aus_economy)
 
 
 # eggs
 
 eggs <- as_tsibble(fma::eggs)
+autoplot(eggs)
 fit <- eggs %>%
-  model(
+    model(
     ses = ETS(log(value) ~ trend("N")),
     holt = ETS(log(value) ~ trend("A")),
     damped = ETS(log(value) ~ trend("Ad"))
@@ -95,7 +104,7 @@ fit %>%
 fit %>%
   augment() %>%
   filter(.model=="holt") %>%
-  features(.resid, ljung_box, dof=2, lag=10)
+  features(.resid, ljung_box, dof=4, lag=10)
 
 
 # J07
@@ -118,6 +127,7 @@ j07 %>%
 aus_holidays <- tourism %>%
   filter(Purpose == "Holiday") %>%
   summarise(Trips = sum(Trips))
+aus_holidays %>% autoplot(Trips)
 fit <- aus_holidays %>%
   model(
     additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
@@ -126,19 +136,24 @@ fit <- aus_holidays %>%
 fc <- fit %>% forecast()
 
 fc %>%
-  autoplot(aus_holidays, level = NULL) + xlab("Year") +
+  autoplot(aus_holidays) + xlab("Year") +
   ylab("Overnight trips (thousands)")
 
 components(fit) %>% autoplot()
 
+fit %>% select(multiplicative) %>% components() %>% autoplot()
+
+
 # Gas production
 
+aus_production %>% autoplot(Gas)
 fit <- aus_production %>%
   model(
     hw = ETS(Gas ~ error("M") + trend("A") + season("M")),
     hwdamped = ETS(Gas ~ error("M") + trend("Ad") + season("M")),
   )
 
+fit %>% tidy()
 fit %>% glance()
 
 fit %>%
@@ -152,7 +167,7 @@ fit %>%
 fit %>%
   augment() %>%
   filter(.model=="hw") %>%
-  features(.resid, ljung_box, dof=6, lag=12)
+  features(.resid, ljung_box, dof=8, lag=16)
 
 fit %>%
   forecast(h=36) %>%
@@ -171,7 +186,8 @@ fit %>% forecast(h = 5)
 
 holidays <- tourism %>%
   filter(Purpose == "Holiday")
-fit <- holidays %>% model(ets = ETS(Trips))
+fit <- holidays %>%
+  model(ets = ETS(Trips))
 fit %>%
   filter(Region == "Snowy Mountains") %>%
   report()
@@ -180,9 +196,9 @@ fit %>%
   components(fit) %>%
   autoplot()
 fit %>%
-  forecast() %>%
   filter(Region == "Snowy Mountains") %>%
-  autoplot(holidays) +
+  forecast() %>%
+  autoplot(holidays, show_gap = FALSE) +
   xlab("Year") + ylab("Overnight trips (thousands)")
 
 
@@ -211,7 +227,6 @@ h02 <- PBS %>%
 h02 %>%
   autoplot(Cost)
 
-
 h02 %>% model(ETS(Cost)) %>% report
 
 h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% report
@@ -221,7 +236,9 @@ h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
 fit <- h02 %>%
   model(
     auto = ETS(Cost),
-    AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
+    AAA = ETS(Cost ~ error("A") + trend("A") + season("A")),
+    damped = ETS(Cost ~ trend("Ad"))
+    forbidden = ETS(Cost ~ error("A") + trend("Ad") + season("M"))
   )
 
 fit %>% accuracy()
