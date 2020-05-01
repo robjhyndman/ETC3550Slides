@@ -1,0 +1,52 @@
+---
+title: Deriving models for ETS trend models
+author: Rob J Hyndman
+branding: true
+fontfamily: mathpazo
+output: MonashEBSTemplates::memo
+---
+
+## ETS(A,A,N) {-}
+
+Component form:\vspace*{-0.8cm}
+\begin{align*}
+\hat{y}_{t+h|t} &= \ell_{t} + hb_{t} \\
+\hat{y}_{t|t-1} &= \ell_{t-1} + b_{t-1} \\
+\ell_{t} &= \alpha y_{t} + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
+b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*) b_{t-1}.
+\end{align*}
+Model form:\vspace*{-0.8cm}
+\begin{align*}
+y_t &= \hat{y}_{t|t-1} + \varepsilon_t \\
+   &= \ell_{t-1} + b_{t-1} + \varepsilon_t \\
+\ell_t &= \alpha y_{t} + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
+  &= \alpha (\ell_{t-1} + b_{t-1} + \varepsilon_t ) + (1 - \alpha)(\ell_{t-1} +  b_{t-1})\\
+  &= \ell_{t-1} + b_{t-1} + \alpha \varepsilon_t \\
+b_t &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*) b_{t-1}\\
+   &= \beta^*(b_{t-1} + \alpha \varepsilon_t ) + (1 -\beta^*) b_{t-1}\\
+   &=  b_{t-1} + \alpha\beta^* \varepsilon_t \\
+   &= b_{t-1} + \beta \varepsilon_t \qquad\text{where $\beta = \alpha\beta^*$.}
+\end{align*}
+
+
+## ETS(A,Ad,N) {-}
+
+Component form:\vspace*{-0.8cm}
+\begin{align*}
+\hat{y}_{t+h|t} &= \ell_{t} + (\phi+\phi^2 + \dots + \phi^{h})b_{t} \\
+\hat{y}_{t|t-1} &= \ell_{t-1} + \phi b_{t-1} \\
+\ell_{t} &= \alpha y_{t} + (1 - \alpha)(\ell_{t-1} + \phi b_{t-1})\\
+b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
+\end{align*}
+Model form:\vspace*{-0.8cm}
+\begin{align*}
+y_t &= \hat{y}_{t|t-1} + \varepsilon_t \\
+   &= \ell_{t-1} + \phi b_{t-1} + \varepsilon_t \\
+\ell_t &= \alpha y_{t} + (1 - \alpha)(\ell_{t-1} + \phi b_{t-1})\\
+  &= \alpha (\ell_{t-1} + \phi b_{t-1} + \varepsilon_t ) + (1 - \alpha)(\ell_{t-1} + \phi b_{t-1})\\
+  &= \ell_{t-1} + \phi b_{t-1} + \alpha \varepsilon_t \\
+b_t &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}\\
+   &= \beta^*(\phi b_{t-1} + \alpha \varepsilon_t ) + (1 -\beta^*)\phi b_{t-1}\\
+   &= \phi b_{t-1} + \alpha\beta^* \varepsilon_t \\
+   &= \phi b_{t-1} + \beta \varepsilon_t\qquad\text{where $\beta = \alpha\beta^*$.}
+\end{align*}
