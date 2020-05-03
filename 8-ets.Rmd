@@ -969,7 +969,7 @@ Multiplicative errors
 
 \begin{block}{}
 \begin{align*}
-L^*(\bm\theta,\bm{x}_0) &= T\log\!\bigg(\sum_{t=1}^T \varepsilon^2_t/k^2(\bm{x}_{t-1})\!\bigg) + 2\sum_{t=1}^T \log|k(\bm{x}_{t-1})|\\
+L^*(\bm\theta,\bm{x}_0) &= T\log\!\bigg(\sum_{t=1}^T \varepsilon^2_t\!\bigg) + 2\sum_{t=1}^T \log|k(\bm{x}_{t-1})|\\
 &= -2\log(\text{Likelihood}) + \mbox{constant}
 \end{align*}
 \end{block}
