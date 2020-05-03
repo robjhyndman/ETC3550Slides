@@ -786,7 +786,7 @@ Holt-Winters multiplicative method with multiplicative errors.
 \text{Forecast equation} && \hat{y}_{t+h|t} &= (\ell_{t} + hb_{t}) s_{t+h-m(k+1)}\\
 \text{Observation equation}&& y_t&= (\ell_{t-1}+b_{t-1})s_{t-m}(1 + \varepsilon_t)\\
 \text{State equations}&& \ell_t&=(\ell_{t-1}+b_{t-1})(1+\alpha \varepsilon_t)\\
-&&        b_t&=b_{t-1}(1+\beta \varepsilon_t) \\
+&&        b_t&=b_{t-1} +\beta(\ell_{t-1}+b_{t-1}) \varepsilon_t \\
 &&s_t &= s_{t-m}(1 + \gamma\varepsilon_t)
 \end{align*}
 \end{block}
