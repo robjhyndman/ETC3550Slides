@@ -1320,11 +1320,11 @@ usmelec %>% gg_tsdisplay(
 ## Example: US electricity production
 
  * $d=1$ and $D=1$ seems necessary
- * $Q=1$ and $P=0$ suggested by seasonal lags
- * $q=3$ and $p=0$ suggested by non-seasonal lags.
+ * $P=0$ and $Q=1$ suggested by seasonal lags
+ * $p=0$ and $q=3$ suggested by non-seasonal lags.
 
 ## Example: US electricity production
-\fontsize{11}{13}\sf
+\fontsize{9}{12}\sf
 
 ```{r usmelec2a, echo=TRUE}
 usmelec %>%
@@ -1473,7 +1473,7 @@ gg_tsresiduals(fit)
 
 ```{r, echo = TRUE, dependson='h02auto'}
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 5)
+  features(.resid, ljung_box, lag = 36, dof = 3)
 ```
 
 ## Cortecosteroid drug sales
@@ -1522,7 +1522,7 @@ fit <- h02 %>%
 
 fit %>%
   forecast(h = "2 years") %>%
-  accuracy(h02 %>% filter_index("2006 Jul" ~ .))
+  accuracy(h02)
 ```
 
 ## Cortecosteroid drug sales
@@ -1530,18 +1530,14 @@ fit %>%
 
 ```{r h02-rmse, cache=TRUE}
 models <- list(
-  c(3,0,0,2,1,0),
-  c(3,0,1,2,1,0),
-  c(3,0,2,2,1,0),
-  c(3,0,1,1,1,0),
-  c(3,0,1,0,1,1),
   c(3,0,1,0,1,2),
   c(3,0,1,1,1,1),
-  c(3,0,3,0,1,1),
-  c(3,0,2,0,1,1),
-  c(2,1,3,0,1,1),
-  c(2,1,4,0,1,1),
-  c(2,1,5,0,1,1),
+  c(3,0,1,0,1,1),
+  c(3,0,1,2,1,0),
+  c(3,0,0,2,1,0),
+  c(3,0,2,2,1,0),
+  c(3,0,1,1,1,0),
+  c(2,1,0,0,1,1),
   c(4,1,1,2,1,2))
 
 model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
@@ -1554,7 +1550,7 @@ fit <- h02 %>%
 
 fit %>%
   forecast(h = "2 years") %>%
-  accuracy(h02 %>% filter_index("2006 Jul" ~ .)) %>%
+  accuracy(h02) %>%
   arrange(RMSE) %>%
   select(.model, RMSE) %>%
   knitr::kable(digits=4)
@@ -1608,16 +1604,3 @@ fit %>% forecast %>% autoplot(h02) +
 | ETS(A,A,A)    | ARIMA(0,1,$m+1$)(0,1,0)$_m$ |                                      |
 | ETS(A,A,A)    | ARIMA(1,0,$m+1$)(0,1,0)$_m$ |                                      |
 
-## Your turn
-
-\fontsize{13}{13}\sf
-
-For the `fma::condmilk` series:
-
-  * Do the data need transforming? If so, find a suitable transformation.
-  * Are the data stationary? If not, find an appropriate differencing which yields stationary data.
-  * Identify a couple of ARIMA models that might be useful in describing the time series.
-  * Which of your models is the best according to their AIC values?
-  * Estimate the parameters of your best model and do diagnostic testing on the residuals. Do the residuals resemble white noise? If not, try to find another ARIMA model which fits better.
-  * Forecast the next 24 months of data using your preferred model.
-  * Compare the forecasts obtained using `ets()`.
