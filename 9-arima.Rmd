@@ -385,7 +385,7 @@ p1 | p2
 ## AR(1) model
 
 \begin{block}{}
-\centerline{$y_{t} = 2 -0.8 y_{t - 1} + \varepsilon_{t}$}
+\centerline{$y_{t} = 18 -0.8 y_{t - 1} + \varepsilon_{t}$}
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
