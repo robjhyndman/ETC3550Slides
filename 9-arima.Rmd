@@ -1588,6 +1588,32 @@ fit %>% forecast %>% autoplot(h02) +
 
 \vspace*{10cm}
 
+## ARIMA vs ETS
+
+```{r venn}
+library(latex2exp)
+cols = c(ets = "#e41a1c", arima = "#377eb8")
+tibble(
+    x = c(-0.866, 0.866),
+    y = c(-0.5, -0.5),
+    labels = c("ets", "arima"),
+  ) %>%
+  ggplot(aes(color = labels, fill=labels)) +
+  ggforce::geom_circle(aes(x0 = x, y0 = y, r = 1.5), alpha = 0.3, size = 1) +
+  scale_color_manual(values=cols) + scale_fill_manual(values=cols) +
+  coord_fixed() + guides(fill = FALSE) +
+  geom_text(aes(label = "ETS models", x = -1.5, y = 1.1), col = cols["ets"], fontface = "bold") +
+  geom_text(aes(label = "Combination\n of components", x = -1.5, y = 0.3), col = cols["ets"]) +
+  geom_text(aes(label = "9 non-additive\n ETS models", x = -1.5, y = -0.6), col = cols["ets"]) +
+  geom_text(aes(label = "All ETS models\n with M components", x = -.95, y = -1.6), col = cols["ets"]) +
+  geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.1), col = cols["arima"], fontface = "bold") +
+  geom_text(aes(label = "Modelling\n autocorrelations", x = 1.5, y = 0.3), col = cols["arima"]) +
+  annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.5, y = -0.6, col = cols["arima"]) +
+  geom_text(aes(label = "All stationary models\n Many large models", x = 1.01, y = -1.6), col = cols["arima"]) +
+  geom_text(aes(label = "6 additive\n ETS models", x = 0, y = -0.6), col = "#715D84") +
+  guides(col=FALSE, fill=FALSE) +  theme_void()
+```
+
 ## Equivalences
 
 \fontsize{12}{14}\sf
