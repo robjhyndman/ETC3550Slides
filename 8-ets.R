@@ -237,7 +237,7 @@ fit <- h02 %>%
   model(
     auto = ETS(Cost),
     AAA = ETS(Cost ~ error("A") + trend("A") + season("A")),
-    damped = ETS(Cost ~ trend("Ad"))
+    damped = ETS(Cost ~ trend("Ad")),
     forbidden = ETS(Cost ~ error("A") + trend("Ad") + season("M"))
   )
 
