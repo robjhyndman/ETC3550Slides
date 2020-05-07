@@ -8,7 +8,7 @@ google_2018 <- gafa_stock %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index = trading_day, regular = TRUE)
 
-google_2018 %>% autoplot()
+google_2018 %>% autoplot(Close)
 google_2018 %>% ACF(Close) %>% autoplot()
 
 google_2018 %>% autoplot(difference(Close)) +
@@ -18,9 +18,19 @@ google_2018 %>% ACF(difference(Close)) %>% autoplot()
 
 google_2018 %>%
   features(Close, unitroot_kpss)
-
+google_2018 %>%
+  features(difference(Close), unitroot_kpss)
 google_2018 %>%
   features(Close, unitroot_ndiffs)
+
+### WWW usage
+
+wwwusage <- as_tsibble(WWWusage)
+wwwusage %>% autoplot(value)
+wwwusage %>% autoplot(difference(value))
+wwwusage %>% autoplot(difference(value, differences=2))
+wwwusage %>% features(difference(value), unitroot_kpss)
+wwwusage %>% features(difference(value), unitroot_ndiffs)
 
 
 ####  US Monthly Electricity ---------------------------------------
@@ -57,11 +67,15 @@ total_trips <- tourism %>%
 
 total_trips %>% autoplot(Trips)
 
+total_trips %>% features(Trips, unitroot_nsdiffs)
+
+total_trips %>% features(difference(Trips,4), unitroot_ndiffs)
+
 total_trips %>%
   autoplot(Trips %>% difference(4))
 
 total_trips %>%
-  autoplot(Trips %>% difference(4) %>% difference(1))
+    autoplot(Trips %>% difference(4) %>% difference(1))
 
 
 ## US Consumption ------------------------------------------------------------------
