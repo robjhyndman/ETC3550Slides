@@ -773,7 +773,7 @@ $k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause\vspace*{0.cm}
 \centerline{$\text{AICc} = \text{AIC} + \displaystyle\frac{2(p+q+k+1)(p+q+k+2)}{T-p-q-k-2}.$}\pause\vspace*{0.cm}
 
 \alert{Bayesian Information Criterion:}
-\centerline{$\text{BIC} = \text{AIC} + [\log(T)-2](p+q+k-1).$}
+\centerline{$\text{BIC} = \text{AIC} + [\log(T)-2](p+q+k+1).$}
 \pause
 \begin{block}{}Good models are obtained by minimizing either the AIC, \text{AICc}\ or BIC\@. Our preference is to use the \text{AICc}.\end{block}
 
