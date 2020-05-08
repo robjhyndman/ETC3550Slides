@@ -614,9 +614,9 @@ if(!grepl("ARIMA\\(1,0,3\\)", format(fit$arima)))
 \centerline{$
   y_t = `r format(tidy(fit)$estimate[5], nsmall=3, digits=3)`
       + `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`y_{t-1}
-      + `r format(tidy(fit)$estimate[2], nsmall=3, digits=3)` \varepsilon_{t-1}
+      `r format(tidy(fit)$estimate[2], nsmall=3, digits=3)` \varepsilon_{t-1}
       + `r format(tidy(fit)$estimate[3], nsmall=3, digits=3)` \varepsilon_{t-2}
-      + `r format(tidy(fit)$estimate[4], nsmall=3, digits=3)` \varepsilon_{t-2}
+      + `r format(tidy(fit)$estimate[4], nsmall=3, digits=3)` \varepsilon_{t-3}
       + \varepsilon_{t},
 $}
 where $\varepsilon_t$ is white noise with a standard deviation of $`r format(sqrt(glance(fit)$sigma2), nsmall=3, digits=3)` = \sqrt{`r format(glance(fit)$sigma2, nsmall=3, digits=3)`}$.
