@@ -584,7 +584,7 @@ $$
  * $c = \mu(1-\phi_1 - \cdots - \phi_p )$.
  * fable uses intercept form
 
-## Australian household expenditure
+## US consumption expenditure
 
 \fontsize{10}{10}\sf
 
@@ -890,7 +890,7 @@ fit %>% forecast(h = 10) %>%
   autoplot(web_usage)
 ```
 
-## Modelling procedure with `ARIMA`
+## Modelling procedure with `ARIMA()`
 \fontsize{12}{13}\sf
 
 1. Plot the data. Identify any unusual observations.
@@ -901,7 +901,7 @@ fit %>% forecast(h = 10) %>%
 6. Check the residuals from your chosen model by plotting the ACF of the residuals, and doing a portmanteau test of the residuals. If they do not look like white noise, try a modified model.
 7. Once the residuals look like white noise, calculate forecasts.
 
-## Automatic modelling procedure with `ARIMA`
+## Automatic modelling procedure with `ARIMA()`
 \fontsize{12}{13}\sf
 
 1. Plot the data. Identify any unusual observations.
