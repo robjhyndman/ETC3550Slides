@@ -85,10 +85,11 @@ us_change %>% autoplot(Consumption) +
   ylab("Quarterly percentage change") +
   ggtitle("US consumption")
 
-fit <- us_change %>% model(arima = ARIMA(Consumption ~ PDQ(0,0,0)))
+fit <- us_change %>%
+  model(arima = ARIMA(Consumption ~ pdq(2,0,1) + PDQ(0,0,0)))
 report(fit)
 
-fit %>% forecast(h=10) %>%
+fit %>% forecast(h=100) %>%
   autoplot(us_change)
 
 fit %>% forecast(h=10) %>%
@@ -113,7 +114,7 @@ mink %>% gg_tsdisplay(value)
 web_usage <- as_tsibble(WWWusage)
 web_usage %>% gg_tsdisplay(value, plot_type = 'partial')
 
-web_usage %>% mutate(difference(value)) %>% gg_tsdisplay(plot_type = 'partial')
+web_usage %>% gg_tsdisplay(difference(value), plot_type = 'partial')
 
 fit <- web_usage %>%
   model(arima = ARIMA(value ~ pdq(3, 1, 0))) %>%
@@ -151,7 +152,9 @@ dcmp %>% gg_tsdisplay(difference(season_adjust), plot_type = 'partial')
 
 fit <- dcmp %>%
   model(
-    arima = ARIMA(season_adjust ~ pdq(3,1,1) + PDQ(0,0,0))
+    arima = ARIMA(season_adjust ~ pdq(d=1, p=0:11) + PDQ(0,0,0),
+                  stepwise=FALSE, approximation=FALSE,
+                  order_constraint = p + q + P + Q <= 11)
   )
 report(fit)
 
@@ -163,6 +166,31 @@ augment(fit) %>%
 fit %>% forecast %>% autoplot(dcmp)
 
 ## GDP --------------------------------------------------------------------------
+
+global_economy %>%
+  filter(Country=="United States") %>%
+  autoplot(log(GDP))
+
+fit <- global_economy %>%
+  model(
+    ARIMA(log(GDP))
+  )
+
+fit %>%
+  filter(Country == "Australia") %>%
+  report()
+fit %>%
+  filter(Country == "Australia") %>%
+  gg_tsresiduals()
+fit %>%
+  filter(Country == "Australia") %>%
+  augment() %>%
+  features(.resid, ljung_box, dof=2, lag=15)
+fit %>%
+  filter(Country == "Australia") %>%
+  forecast(h=10) %>%
+  autoplot(global_economy) +
+  scale_y_log10()
 
 
 
