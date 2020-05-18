@@ -1,6 +1,6 @@
 ---
 title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
-author: "Ch6. Regression models"
+author: "Ch7. Regression models"
 date: "OTexts.org/fpp3/"
 toc: true
 colortheme: monashwhite
@@ -16,16 +16,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
 options(digits=4, width=60)
-library(tidyverse)
-library(fable)
-library(tsibble)
-library(tsibbledata)
-library(feasts)
+library(fpp3)
 library(lubridate)
-
-us_change <- read_csv("data/uschange.csv") %>%
-  mutate(Time = yearquarter(Time)) %>%
-  as_tsibble(index = Time)
 ```
 
 # The linear model with time series
@@ -55,8 +47,7 @@ That is, the coefficients measure the **marginal effects**.
 
 
 ## Example: US consumption expenditure
-
-\fontsize{11}{13}\sf
+\fontsize{10}{11}\sf
 
 ```{r ConsInc, echo=TRUE, fig.height=3.5}
 us_change %>%
@@ -66,14 +57,14 @@ us_change %>%
 ```
 
 ## Example: US consumption expenditure
+\fontsize{10}{11}\sf
 
-```{r ConsInc2, echo=FALSE}
+```{r ConsInc2, echo=TRUE}
 us_change %>%
   ggplot(aes(x=Income, y=Consumption)) +
     ylab("Consumption (quarterly % change)") +
     xlab("Income (quarterly % change)") +
-    geom_point() +
-    geom_smooth(method="lm", se=FALSE)
+    geom_point() + geom_smooth(method="lm", se=FALSE)
 ```
 
 ## Example: US consumption expenditure
@@ -88,10 +79,10 @@ report(fit_cons)
 
 ## Example: US consumption expenditure
 
-```{r MultiPredictors, echo=FALSE}
+```{r MultiPredictors, echo=FALSE, fig.height=5}
 us_change %>%
   gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) %>%
-  ggplot(aes(x = Time, y = Change, colour = Measure)) +
+  ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
   geom_line() +
   facet_grid(vars(Measure), scales = "free_y") +
   ylab("") + xlab("Year") +
@@ -103,7 +94,7 @@ us_change %>%
 ```{r ScatterMatrix, echo=FALSE}
 us_change %>%
   as_tibble() %>%
-  select(-Time) %>%
+  select(-Quarter) %>%
   GGally::ggpairs()
 ```
 
@@ -121,7 +112,7 @@ report(fit_consMR)
 
 ```{r usfitted1, echo=FALSE}
 augment(fit_consMR) %>%
-  ggplot(aes(x = Time)) +
+  ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
   xlab("Year") + ylab("") +
@@ -451,8 +442,10 @@ x_{2,t} &= \left\{ \begin{array}{ll}
 \fontsize{11}{11}\sf
 
 ```{r, fig.height=3.5, echo=TRUE}
-marathon <- read_csv("data/marathon.csv") %>%
-  as_tsibble(index = Year)
+marathon <- boston_marathon %>%
+  filter(Event == "Men's open division") %>%
+  select(-Event) %>%
+  mutate(Minutes = as.numeric(Time)/60)
 marathon %>% autoplot(Minutes) +
   xlab("Year") +  ylab("Winning times in minutes")
 ```
@@ -546,16 +539,12 @@ where $k=$ no.\ predictors and $T=$ no.\ observations.
 ## Akaike's Information Criterion
 
 \begin{block}{}
-\[
-\text{AIC} = -2\log(L) + 2(k+2)
-\]
+$$\text{AIC} = -2\log(L) + 2(k+2)$$
 \end{block}
 where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
 
-* This is a \emph{penalized likelihood} approach.
-* \emph{Minimizing} the AIC gives the best model for prediction.
 * AIC penalizes terms more heavily than $\bar{R}^2$.
-* Minimizing the AIC is asymptotically equivalent to minimizing MSE via leave-one-out cross-validation.
+* Minimizing the AIC is asymptotically equivalent to minimizing MSE via **leave-one-out cross-validation** (for any linear regression).
 
 ## Corrected AIC
 
@@ -587,12 +576,14 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
  -->
 
 ## Comparing regression models
-\fontsize{12}{14}\sf
+\fontsize{11}{14}\sf
 
 ```{r, echo=TRUE}
 glance(fit_trends) %>%
-  select(r_squared, adj_r_squared, AIC, AICc)
+  select(.model, r_squared, adj_r_squared, AICc, CV)
 ```
+
+\fontsize{13}{14}\sf
 
  * Be careful making comparisons when transformations are used.
 
