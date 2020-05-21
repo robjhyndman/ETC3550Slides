@@ -222,7 +222,7 @@ usmelec %>%
   report()
 
 usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
+  model(arima = ARIMA(log(Generation), stepwise=FALSE, approximation=FALSE)) %>%
   report()
 
 fit <- usmelec %>%
@@ -249,39 +249,73 @@ h02 <- tsibbledata::PBS %>%
   summarise(Cost = sum(Cost))
 
 h02 %>% autoplot(Cost)
-ho2 %>% autoplot(log(Cost))
-h02 %>% gg_tsdisplay(difference(log(Cost),12), lag_max = 36)
 
+## Models using logs
+
+h02 %>% autoplot(log(Cost))
+h02 %>% gg_tsdisplay(difference(log(Cost),12), lag_max = 36, plot_type='partial')
+
+# My best guess
 fit <- h02 %>%
   model(best = ARIMA(log(Cost) ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
 report(fit)
-gg_tsresiduals(fit)
-
+gg_tsresiduals(fit, lag_max=36)
 augment(fit) %>%
   features(.resid, ljung_box, lag = 36, dof = 6)
 
-fit <- h02 %>% model(auto = ARIMA(log(Cost)))
+# Letting R choose
+fit <- h02 %>% model(auto = ARIMA(log(Cost), stepwise = FALSE))
 report(fit)
-
-gg_tsresiduals(fit)
-
+gg_tsresiduals(fit, lag_max=36)
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 5)
+  features(.resid, ljung_box, lag = 36, dof = 6)
 
+# Letting R work hard to choose
 fit <- h02 %>%
   model(best = ARIMA(log(Cost), stepwise = FALSE,
                  approximation = FALSE,
                  order_constraint = p + q + P + Q <= 9))
 report(fit)
-
-gg_tsresiduals(fit)
-
+gg_tsresiduals(fit, lag_max=36)
 augment(fit) %>%
   features(.resid, ljung_box, lag = 36, dof = 9)
 
-fit <- h02 %>%
-  model(ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
-
+# The forecasts
 fit %>% forecast %>% autoplot(h02) +
   ylab("H02 Expenditure ($AUD)") + xlab("Year")
+
+
+## Models without using logs
+
+h02 %>% gg_tsdisplay(difference(Cost,12), lag_max = 36, plot_type='partial')
+
+# My best guess
+fit <- h02 %>%
+  model(best = ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
+report(fit)
+gg_tsresiduals(fit, lag_max=36)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 36, dof = 6)
+
+# Letting R choose
+fit <- h02 %>% model(auto = ARIMA(Cost, stepwise = FALSE))
+report(fit)
+gg_tsresiduals(fit, lag_max=36)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 36, dof = 7)
+
+# Letting R work hard to choose
+fit <- h02 %>%
+  model(best = ARIMA(Cost, stepwise = FALSE,
+                     approximation = FALSE,
+                     order_constraint = p + q + P + Q <= 9))
+report(fit)
+gg_tsresiduals(fit, lag_max=36)
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 36, dof = 8)
+
+# The forecasts
+fit %>% forecast %>% autoplot(h02) +
+  ylab("H02 Expenditure ($AUD)") + xlab("Year")
+
 
