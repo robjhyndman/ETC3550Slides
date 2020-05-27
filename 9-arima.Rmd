@@ -1623,10 +1623,10 @@ tibble(
 | ETS(A,N,N)    | ARIMA(0,1,1)                | $\theta_1 = \alpha-1$                |
 | ETS(A,A,N)    | ARIMA(0,2,2)                | $\theta_1 = \alpha+\beta-2$          |
 |               |                             | $\theta_2 = 1-\alpha$                |
-| ETS(A,Ad,N)    | ARIMA(1,1,2)                | $\phi_1=\phi$                        |
+| ETS(A,A\damped,N)    | ARIMA(1,1,2)                | $\phi_1=\phi$                        |
 |               |                             | $\theta_1 = \alpha+\phi\beta-1-\phi$ |
 |               |                             | $\theta_2 = (1-\alpha)\phi$          |
 | ETS(A,N,A)    | ARIMA(0,0,$m$)(0,1,0)$_m$   |                                      |
 | ETS(A,A,A)    | ARIMA(0,1,$m+1$)(0,1,0)$_m$ |                                      |
-| ETS(A,Ad,A)    | ARIMA(1,0,$m+1$)(0,1,0)$_m$ |                                      |
+| ETS(A,A\damped,A)    | ARIMA(1,0,$m+1$)(0,1,0)$_m$ |                                      |
 
