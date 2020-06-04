@@ -275,7 +275,7 @@ gg_tsresiduals(fit)
 
 ```{r, echo=TRUE}
 augment(fit) %>%
-  features(.resid, ljung_box, dof = 8, lag = 14)
+  features(.resid, ljung_box, dof = 9, lag = 14)
 ```
 
 ## Daily electricity demand
@@ -663,12 +663,32 @@ change in $x_t$ is transferred to $y_t$.
 ## Example: Insurance quotes and TV adverts
 
 ```{r tvadvert}
-insurance <- as_tsibble(fpp2::insurance, pivot_longer = FALSE)
+insurance <- as_tsibble(fpp2::insurance, pivot_longer = FALSE) %>%
+  rename(Month = index)
 
-insurance %>% gather("key", "value", Quotes, TV.advert) %>%
-  ggplot(aes(x = index, y = value)) + geom_line() +
-  facet_grid(vars(key), scales = "free_y") +
+insurance %>%
+  pivot_longer(c(Quotes, TV.advert)) %>%
+  ggplot(aes(x = Month, y = value)) + geom_line() +
+  facet_grid(vars(name), scales = "free_y") +
   labs(x = "Year", y = NULL, title = "Insurance advertising and quotations")
+```
+
+
+## Example: Insurance quotes and TV adverts
+
+```{r tvadvertpairs, dependson='tvadvertdata'}
+insurance %>%
+  mutate(
+    lag1 = lag(TV.advert),
+    lag2 = lag(lag1)
+  ) %>%
+  as_tibble() %>%
+  select(-Month) %>%
+  rename(lag0 = TV.advert) %>%
+  pivot_longer(-Quotes, names_to="Lag", values_to="TV_advert") %>%
+  ggplot(aes(x = TV_advert, y = Quotes)) + geom_point() +
+  facet_grid(. ~ Lag) +
+  labs(title = "Insurance advertising and quotations")
 ```
 
 ## Example: Insurance quotes and TV adverts
