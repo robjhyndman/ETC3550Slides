@@ -173,6 +173,7 @@ fit <- us_gasoline %>%
     fourier13 = ARIMA(Barrels ~ fourier(K = 13) + PDQ(0,0,0)),
     fourier14 = ARIMA(Barrels ~ fourier(K = 14) + PDQ(0,0,0)),
   )
+
 library(purrr)
 models <- as.list(seq(26))
 model_defs <- models %>%
@@ -181,6 +182,7 @@ model_defs <- model_defs %>%
   set_names(map_chr(models, ~ sprintf("fourier%i", .[1])))
 fit <- us_gasoline %>%
   model(!!!model_defs)
+
 best <- glance(fit) %>%
   filter(AICc==min(AICc)) %>%
   pull(.model)
@@ -251,7 +253,7 @@ insurance %>%
 
 fit <- insurance %>%
   # Restrict data so models use same fitting period
-  # mutate(Quotes = c(NA,NA,NA,Quotes[4:40])) %>%
+  mutate(Quotes = c(NA,NA,NA,Quotes[4:40])) %>%
   # Estimate models
   model(
     ARIMA(Quotes ~ pdq(d = 0) + TV.advert),
@@ -267,8 +269,10 @@ glance(fit)
 glance(fit) %>%
   transmute(`Lag order` = 0:3, sigma2, log_lik, AIC, AICc, BIC)
 
+fit %>% select(2) %>% report()
+
 fit <- insurance %>%
-  model(ARIMA(Quotes ~ pdq(3, 0, 0) + TV.advert + lag(TV.advert)))
+  model(ARIMA(Quotes ~ pdq(d=0) + TV.advert + lag(TV.advert)))
 report(fit)
 
 advert_a <- new_data(insurance, 20) %>%
