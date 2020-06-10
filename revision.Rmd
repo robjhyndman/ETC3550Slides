@@ -125,42 +125,39 @@ most of the computing.
 
 ## 1. Introduction to forecasting and R
 
- - time series data and `tsibble` objects
- - what makes things hard/easy to forecast
- - You don't have to write R code for the exam, but you do have to read and understand R code.
+ - time series data and `tsibble` objects.
+ - what makes things hard/easy to forecast.
+ - Reading and writing simple R code. Interpreting R output.
 
 ## 2. Time series graphics
 
- - time plot
- - season plot
- - subseries plot
- - lag plot
- - ACF
- - white noise
+ - time plot.
+ - season plot.
+ - subseries plot.
+ - lag plot.
+ - ACF.
+ - white noise.
 
-## 3. The forecasters' toolbox
-
-  - tidy forecasting workflow
-  - Four benchmark methods: naive, seasonal naive, drift, mean.
-  - Box-Cox transformations to stabilize changing variance. Back-transformations after forecasting.
- - Forecasting involves distributions of future observations
-
-## 4. Evaluating forecast accuracy
-
-  - Residual diagnostics: ACF, white noise, LB test.
-  - Training/test sets. Out-of-sample accuracy
-  - Problem of over-fitting.
-  - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE
-  - One-step prediction intervals based on RMSE
-  - Time series cross-validation
-
-## 7: Time series decomposition
+## 3: Time series decomposition
 
   - Describing a time series: seasonality, trend, cycles, changing variance, unusual features.
-  - Difference between seasonality and cyclicity
+  - Difference between seasonality and cyclicity.
   - Interpreting a decomposition.
-  - Seasonal adjustment
-  - Forecasting and decomposition
+  - Seasonal adjustment.
+  - Forecasting and decomposition.
+
+## 5. The forecasters' toolbox
+\fontsize{14}{15}\sf
+
+  - Four benchmark methods: naive, seasonal naive, drift, mean.
+  - Transformations to stabilize changing variance.
+  - Forecasting involves distributions of future observations.
+  - Residual diagnostics: ACF, white noise, LB test.
+  - Training/test sets. Out-of-sample accuracy.
+  - Problem of over-fitting.
+  - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE.
+  - One-step prediction intervals based on RMSE from residuals.
+  - Time series cross-validation.
 
 ## 8: Exponential smoothing
 
@@ -172,7 +169,6 @@ most of the computing.
   - Interpretation of output in R.
   - Computing forecasts by setting future $\varepsilon_t$ to 0.
   - Assumptions for prediction intervals
-  - Formula sheet provided
 
 ## 9: ARIMA models
 \fontsize{14}{16}\sf
@@ -221,28 +217,40 @@ most of the computing.
 
 # Exam
 
-## Exam
+## Exam: 9.30am (AEST) 2 July
 
-  - Five questions, all to be attempted.
+Five questions, all to be attempted.
 
-  - Q1: Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required.
-  - Q2: Describing a time series, choosing a forecasting method
-  - Q3: ETS models
-  - Q4: ARIMA model
-  - Q5: Dynamic regression.
+A
+: Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required.
 
-  - Formula page as for ETC3550 2018.
+B
+: Describing a time series, choosing a forecasting method
 
-## Exam
+C
+: ETS models
 
-\begin{block}{}
-9.30am, 10 June.
-Rm G31, LTB, Clayton.
-\end{block}\pause
+D
+: ARIMA models
 
-**Preparing for the exam**\vspace*{-0.2cm}
+E
+: (Dynamic) regression models\newline (with extra part for PG students)
 
-  - 2016, 2017 \& 2018 exams on Moodle. Solutions to follow soon.
+###
+  $\bullet$ Moodle Quiz\qquad $\bullet$ Open book\qquad $\bullet$ 3.5 hours
+
+## Exam and R
+
+ * Parts \alert{B}--\alert{C} require interpretation of R output, but no coding.
+ * Parts \alert{D}--\alert{E} require some coding (part of the code will be provided) and interpretation of R output.
+ * All R coding will be very similar to examples you have done before.
+ * Every student will have different data sets.
+ * Submitted answers will be automatically checked for close matches.
+ * Enter answers on Moodle as you go, to avoid internet issues at the end.
+
+## Preparing for the exam
+
+  - Exams from 2015--2019 on Moodle. Solutions to follow soon.
   - Exercises.  Make sure you have done them all!
   - Identify your weak points and practice them.
   - Write your own summary of the material.
@@ -254,8 +262,6 @@ Rm G31, LTB, Clayton.
  * Ask on Moodle forum
  * See your tutor during the consultation times.
 
-
-
 ## Useful resources for forecasters
 
 **Organization:**
@@ -264,8 +270,7 @@ Rm G31, LTB, Clayton.
 
 **Annual Conference:**
 
- * International Symposium on Forecasting, Thessaloniki, Greece.
-   June 2019.
+ * 2020 International Symposium on Forecasting,\newline \st{Rio de Janeiro, Brazil}. \alert{Online}
 
 **Journals:**
 
@@ -274,7 +279,6 @@ Rm G31, LTB, Clayton.
 
 ###
 Links to all of the above at **forecasters.org**
-
 
 
 ## Happy forecasting
