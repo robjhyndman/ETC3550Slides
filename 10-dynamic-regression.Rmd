@@ -736,10 +736,10 @@ report(fit)
 
 ```{r tvadvertparam, echo=FALSE}
 # Store coefficients
-coef <- set_names(tidy(fit)$estimate, tidy(fit)$term)
+coef <- purrr::set_names(tidy(fit)$estimate, tidy(fit)$term)
 phi1 <- coef['ar1']
-phi2 <- coef['ar2']
-phi3 <- coef['ar3']
+ma1 <- coef['ma1']
+ma2 <- coef['ma2']
 intercept <- coef['intercept']
 gamma0 <- coef['TV.advert']
 gamma1 <- coef['lag(TV.advert)']
@@ -750,9 +750,10 @@ gamma1 <- coef['lag(TV.advert)']
   y_t &= `r format(intercept, digits=3)` +
          `r format(gamma0, digits=3)` x_t +
          `r format(gamma1, digits=2)` x_{t-1} + \eta_t,\\
-  \eta_t &= `r format(phi1, digits=3)` \eta_{t-1}
-        `r format(phi2, digits=2)` \eta_{t-2} +
-        `r format(phi3, digits=2)` \eta_{t-3} + \varepsilon_t,
+  \eta_t &= `r format(phi1, digits=3)` \eta_{t-1} +
+        \varepsilon_t +
+        `r format(ma1, digits=2)` \varepsilon_{t-1} +
+        `r format(ma2, digits=2)` \varepsilon_{t-2} 
 \end{align*}
 
 ## Example: Insurance quotes and TV adverts
