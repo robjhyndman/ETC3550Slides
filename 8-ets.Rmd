@@ -1136,11 +1136,11 @@ fit %>%
           \multicolumn{2}{c|}{\bf Trend}         &         N         &         A         &         M         \\
         \multicolumn{2}{c|}{\bf Component}       &     ~(None)~      &    (Additive)     & (Multiplicative)  \\ \cline{3-5}
            &                                     &                   &                   &  \\[-0.3cm]
-  N        & (None)                              &       A,N,N       &       A,N,A       &    \st{A,N,M}     \\
+  N        & (None)                              &       A,N,N       &       A,N,A       &    \str{A,N,M}     \\
            &                                     &                   &                   &  \\[-0.3cm]
-  A        & (Additive)                          &       A,A,N       &       A,A,A       &    \st{A,A,M}     \\
+  A        & (Additive)                          &       A,A,N       &       A,A,A       &    \str{A,A,M}     \\
            &                                     &                   &                   &  \\[-0.3cm]
-  A\damped & (Additive damped)                   &   A,A\damped,N    &   A,A\damped,A    & \st{A,A\damped,M}
+  A\damped & (Additive damped)                   &   A,A\damped,N    &   A,A\damped,A    & \str{A,A\damped,M}
 \end{tabular}
 \end{block}
 
