@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.0.0",
+    "Version": "4.0.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -79,10 +79,10 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "0.9.880.1.0",
+      "Version": "0.9.900.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "07a8bd218526e939d07fada5a950e5be"
+      "Hash": "9fcf8f42726ef53839d9b1d5ca44285f"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -135,10 +135,10 @@
     },
     "binb": {
       "Package": "binb",
-      "Version": "0.0.5",
+      "Version": "0.0.6",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "17229436fd1d65081634204b8fa826fd"
+      "Hash": "18632268319fd94ec3ae658edfe93578"
     },
     "blob": {
       "Package": "blob",
@@ -597,10 +597,10 @@
     },
     "pkgload": {
       "Package": "pkgload",
-      "Version": "1.0.2",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "5e655fb54cceead0f095f22d7be33da3"
+      "Hash": "b6b150cd4709e0c0c9b5d51ac4376282"
     },
     "plogr": {
       "Package": "plogr",
@@ -737,10 +737,10 @@
     },
     "rmarkdown": {
       "Package": "rmarkdown",
-      "Version": "2.1",
+      "Version": "2.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "9d1c61d476c448350c482d6664e1b28b"
+      "Hash": "aa82ab08b203d5a32a5b5f404e80c399"
     },
     "rprojroot": {
       "Package": "rprojroot",
