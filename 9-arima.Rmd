@@ -1,5 +1,5 @@
 ---
-title: "ETC3550 Applied&nbsp;forecasting&nbsp;for business&nbsp;and&nbsp;economics"
+title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch9. ARIMA models"
 date: "OTexts.org/fpp3/"
 toc: true
