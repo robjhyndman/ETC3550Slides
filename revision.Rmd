@@ -283,7 +283,12 @@ Links to all of the above at **forecasters.org**
 
 ## Happy forecasting
 
-###
+\begin{block}{}
 Good forecasters are not smarter than everyone else, they merely have their ignorance better organised.
+\end{block}
 
+\vspace*{2cm}\pause
 
+\begin{alertblock}{}\centering
+Please fill in your SETU
+\end{alertblock}
