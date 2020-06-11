@@ -351,7 +351,7 @@ report(fit_deterministic)
 \pause\vspace*{-0.3cm}
 
 ```{r austaparams, echo=FALSE}
-coef <- set_names(tidy(fit_deterministic)$estimate, tidy(fit_deterministic)$term)
+coef <- purrr::set_names(tidy(fit_deterministic)$estimate, tidy(fit_deterministic)$term)
 phi1 <- coef['ar1']
 phi2 <- coef['ar2']
 intercept <- coef['intercept']
@@ -380,7 +380,7 @@ report(fit_stochastic)
 \pause\vspace*{-0.3cm}
 
 ```{r austaparams2, cache=TRUE, echo=FALSE}
-coef <- set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
+coef <- purrr::set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
 drift <- coef['constant']
 theta1 <- coef['ma1']
 sigma2 <- glance(fit_stochastic)$sigma2
@@ -736,7 +736,7 @@ report(fit)
 
 ```{r tvadvertparam, echo=FALSE}
 # Store coefficients
-coef <- set_names(tidy(fit)$estimate, tidy(fit)$term)
+coef <- purrr::set_names(tidy(fit)$estimate, tidy(fit)$term)
 phi1 <- coef['ar1']
 phi2 <- coef['ar2']
 phi3 <- coef['ar3']
