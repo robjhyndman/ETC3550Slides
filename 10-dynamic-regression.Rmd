@@ -644,19 +644,19 @@ fit %>% forecast(h = 1690) %>%
 The model include present and past values of predictor: $x_t,x_{t-1},x_{t-2},\dots.$
 \begin{block}{}
 \centerline{$
-y_t = a + \nu_0x_t + \nu_1x_{t-1} + \dots + \nu_kx_{t-k} + \eta_t$}
+y_t = a + \gamma_0x_t + \gamma_1x_{t-1} + \dots + \gamma_kx_{t-k} + \eta_t$}
 \end{block}
 where $\eta_t$ is an ARIMA process.\pause
 
 **Rewrite model as **
 \begin{align*}
-y_{t} & = a+ (\nu_{0} + \nu_{1} B + \nu_{2} B^{2} + \dots + \nu_{k} B^{k}) x_{t} +\eta_t \\
-      & = a+ \nu(B) x_{t} +\eta_t.
+y_{t} & = a+ (\gamma_{0} + \gamma_{1} B + \gamma_{2} B^{2} + \dots + \gamma_{k} B^{k}) x_{t} +\eta_t \\
+      & = a+ \gamma(B) x_{t} +\eta_t.
 \end{align*}\pause\vspace*{-0.6cm}
 
 \fontsize{13}{14}\sf
 
-  * $\nu(B)$ is called a \textit{transfer function} since it describes how
+  * $\gamma(B)$ is called a \textit{transfer function} since it describes how
 change in $x_t$ is transferred to $y_t$.
   * $x$ can influence $y$, but $y$ is not allowed to influence $x$.
 
