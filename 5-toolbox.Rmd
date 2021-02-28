@@ -215,7 +215,7 @@ bricks %>%
   model(NAIVE(Bricks)) %>%
   forecast(h = "5 years") %>%
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
-  geom_point(data = slice(bricks, n()), colour = "blue") +
+  geom_point(data = slice(bricks, n()), aes(y=Bricks), colour = "blue") +
   ggtitle("Clay brick production in Australia")
 ```
 
@@ -232,7 +232,7 @@ bricks %>%
   model(SNAIVE(Bricks ~ lag("year"))) %>%
   forecast(h = "5 years") %>%
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
-  geom_point(data = slice(bricks, (n()-3):n()), colour = "blue") +
+  geom_point(data = slice(bricks, (n()-3):n()), aes(y=Bricks), colour = "blue") +
   ggtitle("Clay brick production in Australia")
 ```
 
@@ -262,7 +262,7 @@ aus_production %>%
   forecast(h = "5 years") %>%
   autoplot(aus_production, level = NULL) +
   geom_line(data = slice(aus_production, range(cumsum(!is.na(Bricks)))),
-            linetype = "dashed", colour = "blue") +
+            aes(y=Bricks), linetype = "dashed", colour = "blue") +
   ggtitle("Clay brick production in Australia")
 ```
 
@@ -1043,10 +1043,11 @@ For time series cross-validation, stretching windows are most commonly used.
 ```{r animate, echo = FALSE, warning = FALSE, message = FALSE, fig.show='animate', interval=1/10, fig.height=4, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
 library(tidyverse)
 library(gganimate)
+library(slider)
 tourism_melb <- tourism %>%
   filter(Region == "Melbourne", Purpose == "Holiday")
 types <- forcats::fct_inorder(c("Slide", "Tile", "Stretch"))
-slide_window <- slider(tourism_melb$Quarter, .size = 4) %>%
+slide_window <- slide(tourism_melb$Quarter, .size = 4) %>%
   map_dfr(function(x) tibble(xmin = min(x), xmax = max(x))) %>%
   mutate(ymin = -Inf, ymax = Inf, group = row_number(), type = types[1])
 

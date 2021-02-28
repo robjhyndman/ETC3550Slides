@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
 library(tidyverse)
 library(fpp3)
 library(purrr)
+library(transformr) # Just to get it on renv
 library(gganimate)
 library(latex2exp)
 

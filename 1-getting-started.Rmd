@@ -124,7 +124,7 @@ Forecasting is estimating how the sequence of observations will continue into th
 
 ## Australian quarterly beer production
 
-```{r, include=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
+```{r, eval=FALSE, include=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
 fc <- aus_production %>%
   model(ETS(Beer)) %>%
   forecast()
