@@ -10,19 +10,18 @@ output:
     fig_height: 3.5
     includes:
       in_header: header.tex
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache=TRUE, warning=FALSE, message=FALSE)
-library(tidyverse)
-library(fable)
-library(tsibble)
-library(tsibbledata)
-library(feasts)
-library(lubridate)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(digits = 3, width = 60)
+library(fpp3)
 ```
 
 # Models for different frequencies
@@ -162,7 +161,7 @@ gold_complete %>%
 ```{r, fig.height=3.4}
 fit <- gold %>%
   model(ARIMA(value))
-augment(fit) %>% 
-  mutate(stdres = .resid/sd(.resid, na.rm=TRUE)) %>% 
+augment(fit) %>%
+  mutate(stdres = .resid/sd(.resid, na.rm=TRUE)) %>%
   filter(abs(stdres) > 10)
 ```

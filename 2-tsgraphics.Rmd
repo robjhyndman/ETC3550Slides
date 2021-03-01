@@ -47,13 +47,13 @@ tourism <- tourism %>%
 global_economy
 ```
 
-\only<2->{\begin{textblock}{.75}(2.15,3.7)
+\only<2->{\begin{textblock}{.75}(2.15,3.75)
 \begin{alertblock}{}\fontsize{10}{10}\sf Index\phantom{dg}\end{alertblock}
 \end{textblock}}
-\only<3->{\begin{textblock}{1.6}(3.28,3.7)
+\only<3->{\begin{textblock}{1.6}(3.28,3.75)
 \begin{alertblock}{}\fontsize{10}{10}\sf Key\phantom{dg}\end{alertblock}
 \end{textblock}}
-\only<4>{\begin{textblock}{6.7}(5.5,3.7)
+\only<4>{\begin{textblock}{6.7}(5.5,3.75)
 \begin{alertblock}{}\fontsize{10}{10}\sf Measured variables\phantom{dg}\end{alertblock}
 \end{textblock}}
 
@@ -393,62 +393,102 @@ ansett %>%
   autoplot(Passengers)
 ```
 
-## Ansett airlines
-\fontsize{11}{12}\sf
-
-```{r, echo=TRUE, fig.height=3.8}
-ansett %>%
-  filter(Airports == "MEL-SYD") %>%
-  autoplot(Passengers)
-```
-
 ## Your turn
 
 - Create plots of the following time series: Bricks from `aus_production`, Lynx from `pelt`, Close from `gafa_stock`, Demand from `vic_elec`.
 - Use `help()` to find out about the data in each series.
 - For the last plot, modify the axis labels and title.
 
-## Are line plots best?
-\fontsize{11}{12}\sf
+# Time series patterns
 
-```{r maxtemp, fig.height=3}
-maxtemp <- vic_elec %>%
-  index_by(Day = date(Time)) %>%
-  summarise(Temperature = max(Temperature))
-maxtemp %>%
-  autoplot(Temperature) +
-  xlab("Week") + ylab("Max temperature")
+## Time series patterns
+
+Trend
+  : pattern exists when there is a long-term increase or decrease in the data.
+
+Seasonal
+  : pattern exists when a series is influenced by seasonal factors (e.g., the quarter of the year, the month, or day of the week).
+
+Cyclic
+  : pattern exists when data exhibit rises and falls that are \emph{not of fixed period} (duration usually of at least 2 years).
+
+## Time series components
+
+### Differences between seasonal and cyclic patterns:
+
+* seasonal pattern constant length; cyclic pattern variable length
+* average length of cycle longer than length of seasonal pattern
+* magnitude of cycle more variable than magnitude of seasonal pattern
+
+
+## Time series patterns
+\fontsize{10}{10}\sf
+
+```{r, fig.height=3}
+aus_production %>%
+  filter(year(Quarter) >= 1980) %>%
+  autoplot(Electricity) +
+  labs(y = "GWh",
+       title = "Australian electricity production")
 ```
 
-## Are line plots best?
-\fontsize{11}{12}\sf
+## Time series patterns
+\fontsize{10}{10}\sf
 
-```{r maxtemp2, warning=FALSE, message=FALSE, dependson="maxtemp"}
-maxtemp %>%
-  ggplot(aes(x = Day, y = Temperature)) +
-  geom_point() +
-  xlab("Week") + ylab("Max temperature")
+```{r, warning=FALSE, fig.height=3}
+aus_production %>%
+  autoplot(Bricks) +
+  labs(y = "million units",
+       title = "Australian clay brick production")
 ```
 
-## Are line plots best?
-\fontsize{11}{12}\sf
+## Time series patterns
+\fontsize{10}{10}\sf
 
-```{r maxtemp3, warning=FALSE, message=FALSE, dependson="maxtemp", fig.height=2.5}
-maxtemp %>%
-  ggplot(aes(x = Day, y = 1)) +
-  geom_tile(aes(fill = Temperature)) +
-  scale_fill_gradient2(
-    low = "navy", mid = "yellow",
-    high = "red", midpoint = 28
-  ) +
-  ylab("") + scale_y_discrete(expand = c(0, 0))
+```{r, fig.height=3}
+us_employment %>%
+  filter(Title == "Retail Trade", year(Month) >= 1980) %>%
+  autoplot(Employed / 1e3) +
+  labs(y = "Million people",
+       title = "Retail employment, USA")
 ```
 
-## Are line plots best?
+## Time series patterns
+\fontsize{10}{10}\sf
 
-\fullwidth{TemperatureBlanket}
+```{r, fig.height=3}
+gafa_stock %>%
+  filter(Symbol == "AMZN", year(Date) >= 2018) %>%
+  autoplot(Close) +
+  labs(y = "$US",
+       title = "Amazon closing stock price")
+```
 
-# Seasonal plots
+## Time series patterns
+\fontsize{10}{10}\sf
+
+```{r, fig.height=3}
+pelt %>%
+  autoplot(Lynx) +
+  labs(y="Number trapped",
+       title = "Annual Canadian Lynx Trappings")
+```
+
+## Seasonal or cyclic?
+
+\alert{Differences between seasonal and cyclic patterns:}
+
+  * seasonal pattern constant length; cyclic pattern variable length
+  * average length of cycle longer than length of seasonal pattern
+  * magnitude of cycle more variable than magnitude of seasonal pattern
+
+\pause
+
+\begin{alertblock}{}
+The timing of peaks and troughs is predictable with seasonal data, but unpredictable in the long term with cyclic data.
+\end{alertblock}
+
+# Seasonal and subseries plots
 
 ## Seasonal plots
 
@@ -456,8 +496,8 @@ maxtemp %>%
 
 ```{r, echo=TRUE, dependson="a10"}
 a10 %>% gg_season(total_cost, labels = "both") +
-  ylab("$ million") +
-  ggtitle("Seasonal plot: antidiabetic drug sales")
+  labs(y = "$ million",
+       title = "Seasonal plot: antidiabetic drug sales")
 ```
 
 ## Seasonal plots
@@ -478,12 +518,13 @@ a10 %>% gg_season(total_cost, labels = "both") +
 
 ## Seasonal subseries plots
 
-\small
+\fontsize{10}{11}\sf
 
 ```{r, echo=TRUE, dependson="a10"}
 a10 %>%
-  gg_subseries(total_cost) + ylab("$ million") +
-  ggtitle("Subseries plot: antidiabetic drug sales")
+  gg_subseries(total_cost) +
+  labs(y = "$ million",
+       title = "Subseries plot: antidiabetic drug sales")
 ```
 
 ## Seasonal subseries plots
@@ -575,8 +616,8 @@ holidays
 
 ```{r holidays-plot, echo=TRUE, dependson="holidays", fig.height=3.9}
 holidays %>% autoplot(Trips) +
-  ylab("thousands of trips") + xlab("Year") +
-  ggtitle("Australian domestic holiday nights")
+  labs(y = "thousands of trips",
+       title = "Australian domestic holiday nights")
 ```
 
 ## Seasonal plots
@@ -584,8 +625,8 @@ holidays %>% autoplot(Trips) +
 
 ```{r graphics1, fig.width=4, fig.height=5, out.width="45%"}
 holidays %>% gg_season(Trips) +
-  ylab("thousands of trips") +
-  ggtitle("Australian domestic holiday nights")
+  labs(y = "thousands of trips",
+       title = "Australian domestic holiday nights")
 ```
 
 ## Seasonal subseries plots
@@ -593,96 +634,10 @@ holidays %>% gg_season(Trips) +
 
 ```{r graphics2, fig.height=4.1}
 holidays %>%
-  gg_subseries(Trips) + ylab("thousands of trips") +
-  ggtitle("Australian domestic holiday nights")
+  gg_subseries(Trips) +
+    labs(y = "thousands of trips",
+       title = "Australian domestic holiday nights")
 ```
-
-# Seasonal or cyclic?
-
-## Time series patterns
-
-Trend
-  : pattern exists when there is a long-term increase or decrease in the data.
-
-Seasonal
-  : pattern exists when a series is influenced by seasonal factors (e.g., the quarter of the year, the month, or day of the week).
-
-Cyclic
-  : pattern exists when data exhibit rises and falls that are \emph{not of fixed period} (duration usually of at least 2 years).
-
-## Time series components
-
-### Differences between seasonal and cyclic patterns:
-
-* seasonal pattern constant length; cyclic pattern variable length
-* average length of cycle longer than length of seasonal pattern
-* magnitude of cycle more variable than magnitude of seasonal pattern
-
-
-## Time series patterns
-\fontsize{10}{10}\sf
-
-```{r, fig.height=3}
-aus_production %>%
-  filter(year(Quarter) >= 1980) %>%
-  autoplot(Electricity) + ylab("GWh") +
-  ggtitle("Australian electricity production")
-```
-
-## Time series patterns
-\fontsize{10}{10}\sf
-
-```{r, warning=FALSE, fig.height=3}
-aus_production %>%
-  autoplot(Bricks) +
-  ggtitle("Australian clay brick production") +
-  xlab("Year") + ylab("million units")
-```
-
-## Time series patterns
-\fontsize{10}{10}\sf
-
-```{r, fig.height=3}
-us_employment %>%
-  filter(Title == "Retail Trade", year(Month) >= 1980) %>%
-  autoplot(Employed / 1e3) +
-  ggtitle("Retail employment, USA") + ylab("Million people")
-```
-
-## Time series patterns
-\fontsize{10}{10}\sf
-
-```{r, fig.height=3}
-gafa_stock %>%
-  filter(Symbol == "AMZN", year(Date) >= 2018) %>%
-  autoplot(Close) +
-  ggtitle("Amazon closing stock price") +
-  xlab("Day") + ylab("$")
-```
-
-## Time series patterns
-\fontsize{10}{10}\sf
-
-```{r, fig.height=3}
-pelt %>%
-  autoplot(Lynx) +
-  ggtitle("Annual Canadian Lynx Trappings") +
-  xlab("Year") + ylab("Number trapped")
-```
-
-## Seasonal or cyclic?
-
-\alert{Differences between seasonal and cyclic patterns:}
-
-  * seasonal pattern constant length; cyclic pattern variable length
-  * average length of cycle longer than length of seasonal pattern
-  * magnitude of cycle more variable than magnitude of seasonal pattern
-
-\pause
-
-\begin{alertblock}{}
-The timing of peaks and troughs is predictable with seasonal data, but unpredictable in the long term with cyclic data.
-\end{alertblock}
 
 # Lag plots and autocorrelation
 
@@ -905,9 +860,9 @@ acfc <- ACF(mink, value) %>% autoplot() + xlab("") + ggtitle("C") + ylim(-0.4,1)
 ## Example: White noise
 \fontsize{11}{13}\sf
 
-```{r, fig.height=3.3}
-set.seed(1)
-wn <- tsibble(t = seq(36), y = rnorm(36), index = t)
+```{r wn, fig.height=3.3}
+set.seed(30)
+wn <- tsibble(t = 1:50, y = rnorm(50), index = t)
 wn %>% autoplot(y)
 ```
 
@@ -932,7 +887,7 @@ wn %>% ACF(y)
 
 \fontsize{10}{11}\sf\tabcolsep=0.1cm
 
-```{r, echo=FALSE}
+```{r wnacf, echo=FALSE, dependson="wn"}
 wn %>%
   ACF(y, lag_max = 10) %>%
   as_tibble() %>%
@@ -973,15 +928,15 @@ These are the \alert{critical values}.
 
 ## Example: Pigs slaughtered
 
-\fontsize{12}{13}\sf
+\fontsize{10}{12}\sf
 
 ```{r, fig.height=3}
 pigs <- aus_livestock %>%
   filter(State == "Victoria", Animal == "Pigs",
          year(Month) >= 2014)
 pigs %>% autoplot(Count/1e3) +
-  xlab("Year") + ylab("Thousands") +
-  ggtitle("Number of pigs slaughtered in Victoria")
+  labs(y = "Thousands",
+       title = "Number of pigs slaughtered in Victoria")
 ```
 
 ## Example: Pigs slaughtered

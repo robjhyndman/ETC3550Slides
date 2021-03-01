@@ -13,16 +13,16 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
-
-library(tidyverse)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(digits = 3, width = 60)
 library(fpp3)
 library(purrr)
 library(transformr) # Just to get it on renv
 library(gganimate)
 library(latex2exp)
-
-options(width=65)
 ```
 
 # Transformations and adjustments

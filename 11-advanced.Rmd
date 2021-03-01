@@ -11,16 +11,14 @@ output:
     includes:
       in_header: header.tex
 ---
----
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
-library(tidyverse)
-library(fable)
-library(tsibble)
-library(tsibbledata)
-library(feasts)
-library(lubridate)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(digits = 3, width = 60)
+library(fpp3)
 ```
 
 # Complex seasonality
@@ -42,8 +40,8 @@ calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
     time = X1, date = as.Date(date, format = "%d/%m/%Y"),
     datetime = as_datetime(date) + time, volume) %>%
   as_tsibble(index = datetime)
-calls %>% 
-  fill_gaps() %>% 
+calls %>%
+  fill_gaps() %>%
   autoplot(volume) +
   labs(x = "Weeks", y = "Call volume",
        title = "5 minute call volume at North American bank")
@@ -56,8 +54,8 @@ library(sugrrants)
 calls %>%
   filter(yearmonth(date) == yearmonth("2003 August")) %>%
   ggplot(aes(x = time, y = volume)) +
-  geom_line() + 
-  facet_calendar(date) + 
+  geom_line() +
+  facet_calendar(date) +
   labs(x = "Weeks", y = "Call volume",
        title = "5 minute call volume at North American bank")
 ```
@@ -66,8 +64,8 @@ calls %>%
 ## Examples
 
 ```{r turk}
-turkey_elec <- read_csv("data/turkey_elec.csv", col_names = "Demand") %>% 
-  mutate(Date = seq(ymd("2000-01-01"), ymd("2008-12-31"), by = "day")) %>% 
+turkey_elec <- read_csv("data/turkey_elec.csv", col_names = "Demand") %>%
+  mutate(Date = seq(ymd("2000-01-01"), ymd("2008-12-31"), by = "day")) %>%
   as_tsibble(index = Date)
 turkey_elec %>% autoplot(Demand) +
   labs(title = "Turkish daily electricity demand",
@@ -278,7 +276,7 @@ This tends to reduce the effect of extreme input values, thus making the network
 ```{r sunspot-nnetar, echo=TRUE, fig.height=4}
 sunspots <- as_tsibble(fpp2::sunspotarea)
 fit <- sunspots %>% model(NNETAR(value))
-fit %>% forecast(h=20, times = 1) %>% 
+fit %>% forecast(h=20, times = 1) %>%
   autoplot(sunspots, level = NULL)
 ```
 
@@ -286,7 +284,7 @@ fit %>% forecast(h=20, times = 1) %>%
 \fontsize{11}{11}\sf
 
 ```{r sunspot-nnetar-pi, echo=TRUE, fig.height=4}
-fit %>% forecast(h=20) %>% 
+fit %>% forecast(h=20) %>%
   autoplot(sunspots)
 ```
 

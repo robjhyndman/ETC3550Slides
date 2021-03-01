@@ -13,16 +13,22 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(digits = 3, width = 60)
 library(fpp3)
 library(patchwork)
 library(gganimate)
-austa <- as_tsibble(fpp2::austa) %>%
-  rename(Year = index, Visitors = value)
+```
+
+```{r datasets, include=FALSE}
+austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") %>%
+  as_tsibble(index = Year)
 melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
-
 
 # What can we forecast?
 

@@ -13,16 +13,17 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE)
-
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(digits = 3, width = 60)
 library(fpp3)
 library(patchwork)
 library(gganimate)
 library(purrr)
 library(rlang)
-library(patchwork)
-
-options(digits=4, width=65)
+library(magick)
 ```
 
 # Exponential smoothing
@@ -1192,15 +1193,15 @@ residuals(fit, type = "response")
 ```
 
 ```{r, echo=FALSE}
-residuals(fit) %>%
-  mutate(Type = "Innovation residuals") %>%
-  bind_rows(residuals(fit, type = "response") %>% mutate(Type = "Response residuals")) %>%
+bind_rows(
+    residuals(fit) %>% mutate(Type = "Innovation residuals") %>% as_tibble(),
+    residuals(fit, type = "response") %>% mutate(Type = "Response residuals") %>% as_tibble()
+  ) %>%
   ggplot(aes(x = Quarter, y = .resid)) +
   geom_line() +
   facet_grid(Type ~ ., scales = "free_y") +
   ylab(NULL)
 ```
-
 
 # Forecasting with exponential smoothing
 
