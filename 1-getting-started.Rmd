@@ -84,11 +84,10 @@ melsyd <- tsibbledata::ansett %>%
 
 Something is easier to forecast if:
 
- - we have a good understanding of the factors that contribute to it
- - there is lots of data available;
- - the forecasts cannot affect the thing we are trying to forecast.
- - there is relatively low natural/unexplainable random variation.
- - the future is somewhat similar to the past
+ 1. we have a good understanding of the factors that contribute to it
+ 2. there is lots of data available;
+ 3. the future is somewhat similar to the past
+ 4. the forecasts cannot affect the thing we are trying to forecast.
 
 ## Improving forecasts
 
@@ -124,7 +123,7 @@ Forecasting is estimating how the sequence of observations will continue into th
 
 ## Australian quarterly beer production
 
-```{r, eval=FALSE, include=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
+```{r, eval=TRUE, include=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
 fc <- aus_production %>%
   model(ETS(Beer)) %>%
   forecast()
@@ -132,12 +131,13 @@ p <- autoplot(fc, aus_production)
 # More automatic approach to identifying plot limits
 p_built <- ggplot_build(p)
 ylim <- p_built$layout$panel_scales_y[[1]]$range$range
+xlim <- p_built$layout$panel_scales_x[[1]]$range$range
 p +
   view_step_manual(
-    xmin = yearquarter(c("1956 Q1", "2007 Q4")),
-    xmax = yearquarter(c("2012 Q2", "2012 Q2")),
+    xmin = c(xlim[1],0.1*xlim[1]+0.9*xlim[2]),
+    xmax = rep(xlim[2], 2),
     ymin = rep(ylim[1], 2),
-    ymax = rep(ylim[2], 2), wrap = FALSE)
+    ymax = rep(ylim[2], 2), wrap=FALSE)
 ```
 
 \vspace*{10cm}
@@ -294,32 +294,37 @@ most of the computing.
 ## Sample futures
 
 ```{r austa1, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
-fit <- austa %>% model(ETS())
+fit <- austa %>% model(ETS(Visitors))
 ```
 
-```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
+```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.width=9, fig.height=6}
 sim <- fit %>% generate(h = 10, times = 10) %>%
   mutate(
     replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10))
   )
-ggplot(austa, aes(x = Year)) +
+p1 <- ggplot(austa, aes(x = Year)) +
   geom_line(aes(y = Visitors, colour = "Data")) +
   geom_line(aes(y = .sim, colour = replicate), data = sim) +
   ylab("Millions of visitors") + xlab("Year") +
   ggtitle("Total international visitors to Australia") +
   scale_colour_manual(values = c("#000000", rainbow(10)),
                       breaks = c("Data", paste("Future", 1:10)),
-                      name = " ")
+                      name = " ") +
+  ylim(0.8,10)
+p2 <- fit %>%
+  forecast(h = 10) %>%
+  autoplot(austa) +
+  ylab("Millions of visitors") + xlab("Year") +
+  ggtitle("Forecasts of total international visitors to Australia") +
+  ylim(0.8,10)
+aligned_plots <- align_patches(p1,p2)
+aligned_plots[[1]]
 ```
 
 ## Forecast intervals
 
-```{r austa2, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=8.6, fig.height=6}
-fit %>%
-  forecast(h = 10) %>%
-  autoplot(austa) +
-  ylab("Millions of visitors") + xlab("Year") +
-  ggtitle("Forecasts of total international visitors to Australia")
+```{r austa2, dependson='austa1a', echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.width=9, fig.height=6}
+aligned_plots[[2]]
 ```
 
 
@@ -341,11 +346,11 @@ fit %>%
 ## Assignment 1: forecast the following series
 \small
 
-  1. Google closing stock price on 18 March 2020.
-  2. Maximum temperature at Melbourne airport on 7 April 2020.
-  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2020.
-  4. The trend estimate of total employment for April 2020. ABS CAT 6202, to be released around mid May 2020.
-  5. Google closing stock price on 27 May 2020.
+  1. Google closing stock price on 22 March 2021.
+  2. Maximum temperature at Melbourne airport on 12 April 2021.
+  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2021.
+  4. The trend estimate of total employment for April 2021. ABS CAT 6202, to be released around mid May 2021.
+  5. Google closing stock price on 24 May 2021.
 
 \begin{block}{}
 For each of these, give a point forecast and an 80\% prediction interval.
