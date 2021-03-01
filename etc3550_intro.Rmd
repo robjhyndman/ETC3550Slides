@@ -91,6 +91,12 @@ https://www.rstudio.com/products/rstudio/download/
 
 <!-- \placefig{7}{3.5}{width=5.5cm}{figs/RStudio-Ball} -->
 
+## How familiar are you with R?
+
+\begin{alertblock}{}\Large\bfseries\sffamily
+https://pollev.com/robjhyndman
+\end{alertblock}
+
 ## Key reference
 
 \begin{block}{}\bf

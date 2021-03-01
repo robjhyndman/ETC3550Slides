@@ -81,10 +81,16 @@ melsyd <- tsibbledata::ansett %>%
  7. exchange rate of \$US/AUS next week
  8. total sales of drugs in Australian pharmacies next month
 
-\pause
+\only<2>{\begin{alertblock}{}\Large\bfseries\sffamily
+https://pollev.com/robjhyndman
+\end{alertblock}}
 
- - how do we measure "easiest"?
- - what makes something easy/difficult to forecast?
+\only<3>{\begin{block}{}\begin{itemize}\tightlist
+ \item how do we measure "easiest"?
+ \item what makes something easy/difficult to forecast?
+ \end{itemize}\end{block}}
+
+ \vspace*{10cm}
 
 ## Factors affecting forecastability
 
