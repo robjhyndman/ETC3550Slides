@@ -19,36 +19,29 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 
 ## Contact details
 
-\begin{block}{Lecturer}
-\textbf{Professor Rob Hyndman}
-\begin{itemize}
-\item Room E762, Menzies Building
-\item Email: Rob.Hyndman@monash.edu
-\end{itemize}
-\end{block}
+\begin{alertblock}{Lecturer:  Professor Rob Hyndman}\fontsize{13}{14}\sf
+\href{mailto:rob.hyndman@monash.edu}{\faicon{envelope}  rob.hyndman@monash.edu}
 
-\begin{textblock}{5.4}(0.3,5)
-\begin{block}{Tutors}
-\begin{itemize}\itemsep=0cm
-\item Mitchell O'Hara-Wild
-\item Hansika Hewamalage
-\item Ryan Thompson
-\item Sayani Gupta
-\end{itemize}
-\end{block}
-\end{textblock}
+\href{https://robjhyndman.com}{\faicon{home} robjhyndman.com}
 
-\begin{textblock}{6.5}(6.2,5)
-\begin{alertblock}{Find me at ...}
 \href{https://twitter.com/robjhyndman}{\faicon{twitter} @robjhyndman}
 
 \href{https://github.com/robjhyndman}{\faicon{github}  @robjhyndman}
 
-\href{https://robjhyndman.com}{\faicon{home} robjhyndman.com}
-
-\href{mailto:rob.hyndman@monash.edu}{\faicon{envelope}  rob.hyndman@monash.edu}
+\href{https://robjhyndman.com}{\faicon{university} Room E762, Menzies Building}
 \end{alertblock}
-\end{textblock}
+
+\begin{block}{Tutors}\fontsize{13}{14}\sf
+\begin{itemize}\itemsep=0cm\parskip=0cm
+\item Mitchell O'Hara-Wild
+\item Mahdi Abolghasemi
+\item Rakshitha Godahewa
+\item Sayani Gupta
+\item Elena Sanina
+\item Ryan Thompson
+\end{itemize}
+\end{block}
+
 \vspace*{10cm}
 
 ## Brief bio
@@ -59,12 +52,10 @@ knitr::opts_chunk$set(echo = FALSE, cache=TRUE)
 
 ### How my forecasting methodology is used:
    - Pharmaceutical Benefits Scheme
-   - Cancer incidence and mortality
    - Electricity demand
+   - Australian tourism demand
    - Ageing population
-   - Fertilizer sales
-
-\begin{textblock}{5.9}(6.6,8.2)\begin{alertblock}{}\Large robjhyndman.com\end{alertblock}\end{textblock}
+   - $>3$ million downloads per year
 
 ## Unit objectives
 
@@ -100,7 +91,7 @@ https://www.rstudio.com/products/rstudio/download/
 
 \begin{block}{}\bf
 \hangafter=1\hangindent=.3cm
- {Hyndman, R.~J. \& Athanasopoulos, G. (2020) \emph{Forecasting: principles and practice}, 3rd edition}
+ {Hyndman, R.~J. \& Athanasopoulos, G. (2021) \emph{Forecasting: principles and practice}, 3rd edition}
 \end{block}\pause
 \begin{alertblock}{}\Large
 \centerline{\bf OTexts.org/fpp3/}
@@ -173,7 +164,7 @@ install.packages(c(
 
 ## Assessment
 
-  - Nine short assignments, worth 2% or 4% each.
+  - 8 or 9 short assignments, worth a total of 20%.
   - One project due at the end of the semester, worth 20%.
   - Exam (2 hours): 60%.
 
@@ -183,8 +174,8 @@ install.packages(c(
 \begin{tabular}{lll}
 	  \textbf{Task}  & \textbf{Due Date}     & \textbf{Value} \\
   \midrule
-    Assignments    & Mon 11:59pm each week & 2 or 4\% each\\
-	  Project        & Fri 31 May            & 20\%           \\
+    Assignments    & Sun 11:59pm each week & 2 or 4\% each\\
+	  Project        & Fri 28 May            & 20\%           \\
 	  Final exam     & Official exam period  & 60\%
 \end{tabular}
 \end{block}
@@ -193,15 +184,15 @@ install.packages(c(
 
   - Need at least 45\% for exam, and 50\% for total.
 
-\pause\begin{alertblock}{}
-\textbf{ETC5550 students:} in-class exam on 5 June
-\end{alertblock}
+<!-- \pause\begin{alertblock}{} -->
+<!-- \textbf{ETC5550 students:} Additional assignment instead of exam -->
+<!-- \end{alertblock} -->
 
 
 ## Moodle site
 \fontsize{18}{24}\sf
 
-  - Includes all lecture notes, handouts, assignments
+  - Includes all course materials
   - Assignment submissions
   - Forum for asking questions, etc.
 
@@ -213,7 +204,7 @@ install.packages(c(
 \fontsize{18}{24}\sf
 
  * Make sure you are familiar with R, RStudio and the tidyverse packages.
- * If you've done ETC1010, then you have nothing to do.
+ * If you've done ETC1010 or ETC5010, then you have nothing to do.
  * Otherwise:
    * Read the first four chapters of "ModernDive": [`moderndive.netlify.com`](https://moderndive.netlify.com/)
    * Work through the "RYouWithMe" course: [`rladiessydney.org/courses/ryouwithme/`](https://rladiessydney.org/courses/ryouwithme/)
