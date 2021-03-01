@@ -255,9 +255,9 @@ melsyd %>%
   labs(
     title = "Economy class passengers",
     subtitle = "Melbourne-Sydney",
-    xlab = "Year"
-  ) +
-  ylab("Thousands")
+    x = "Year",
+    y = "Thousands"
+  )
 ```
 
 
@@ -269,9 +269,9 @@ melsyd %>%
   autoplot(Passengers) +
   labs(
     title = "Economy class passengers",
-    subtitle = "Melbourne-Sydney"
-  ) +
-  ylab("Thousands")
+    subtitle = "Melbourne-Sydney",
+    y = "Thousands"
+  )
 ```
 
 \begin{textblock}{4.2}(7,6.3)
@@ -311,8 +311,10 @@ sim <- fit %>% generate(h = 10, times = 10) %>%
 p1 <- ggplot(austa, aes(x = Year)) +
   geom_line(aes(y = Visitors, colour = "Data")) +
   geom_line(aes(y = .sim, colour = replicate), data = sim) +
-  ylab("Millions of visitors") + xlab("Year") +
-  ggtitle("Total international visitors to Australia") +
+  labs(
+    y = "Millions of visitors",
+    title = "Total international visitors to Australia"
+  ) +
   scale_colour_manual(values = c("#000000", rainbow(10)),
                       breaks = c("Data", paste("Future", 1:10)),
                       name = " ") +
@@ -320,8 +322,10 @@ p1 <- ggplot(austa, aes(x = Year)) +
 p2 <- fit %>%
   forecast(h = 10) %>%
   autoplot(austa) +
-  ylab("Millions of visitors") + xlab("Year") +
-  ggtitle("Forecasts of total international visitors to Australia") +
+  labs(
+    y = "Millions of visitors",
+    title = "Forecasts of total international visitors to Australia"
+  ) +
   ylim(0.8,10)
 aligned_plots <- align_patches(p1,p2)
 aligned_plots[[1]]

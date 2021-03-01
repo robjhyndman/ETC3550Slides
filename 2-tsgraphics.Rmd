@@ -507,15 +507,6 @@ a10 %>% gg_season(total_cost, labels = "both") +
   * Enables the underlying seasonal pattern to be seen more clearly, and also allows any substantial departures from the seasonal pattern to be easily identified.
   * In R: `gg_season()`
 
-<!-- ## Seasonal polar plots -->
-
-<!-- \small -->
-
-<!-- ```{r, fig.height=6, out.width="7.5cm"} -->
-<!-- a10 %>% gg_season(polar = TRUE) + -->
-<!--   ylab("$ million") -->
-<!-- ``` -->
-
 ## Seasonal subseries plots
 
 \fontsize{10}{11}\sf
@@ -840,18 +831,22 @@ cowtemp <- as_tsibble(fma::cowtemp)
 USAccDeaths <- as_tsibble(USAccDeaths)
 AirPassengers <- as_tsibble(AirPassengers)
 mink <- as_tsibble(fma::mink)
-tp1 <- autoplot(cowtemp, value) + xlab("") + ylab("chirps per minute") +
-  ggtitle("1. Daily temperature of cow")
-tp2 <- autoplot(USAccDeaths, value) + xlab("") + ylab("thousands") +
-  ggtitle("2. Monthly accidental deaths")
-tp3 <- autoplot(AirPassengers, value) + xlab("") + ylab("thousands") +
-  ggtitle("3. Monthly air passengers")
-tp4 <- autoplot(mink, value) + xlab("") + ylab("thousands") +
-  ggtitle("4. Annual mink trappings")
-acfb <- ACF(cowtemp, value) %>% autoplot() + xlab("") + ggtitle("B") + ylim(-0.4,1)
-acfa <- ACF(USAccDeaths, value) %>% autoplot() + xlab("") + ggtitle("A") + ylim(-0.4,1)
-acfd <- ACF(AirPassengers, value) %>% autoplot() + xlab("") + ggtitle("D") + ylim(-0.4,1)
-acfc <- ACF(mink, value) %>% autoplot() + xlab("") + ggtitle("C") + ylim(-0.4,1)
+tp1 <- autoplot(cowtemp, value) +
+  labs(x = "", y = "chirps per minute", title = "1. Daily temperature of cow")
+tp2 <- autoplot(USAccDeaths, value) +
+  labs(x = "", y = "thousands", title = "2. Monthly accidental deaths")
+tp3 <- autoplot(AirPassengers, value) +
+  labs(x = "", y = "thousands", title = "3. Monthly air passengers")
+tp4 <- autoplot(mink, value) +
+  labs(x = "", y = "thousands", title = "4. Annual mink trappings")
+acfb <- ACF(cowtemp, value) %>% autoplot() +
+  labs(x="", title="B") + ylim(-0.4,1)
+acfa <- ACF(USAccDeaths, value) %>% autoplot() +
+  labs(x = "", title = "A") + ylim(-0.4,1)
+acfd <- ACF(AirPassengers, value) %>% autoplot() +
+  labs(x = "", title = "D") + ylim(-0.4,1)
+acfc <- ACF(mink, value) %>% autoplot() +
+  labs(x = "", title ="C") + ylim(-0.4,1)
 (tp1 | tp2 | tp3 | tp4) / (acfa | acfb | acfc | acfd)
 ```
 
