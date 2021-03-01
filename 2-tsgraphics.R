@@ -1,5 +1,9 @@
 library(fpp3)
 
+global_economy
+
+tourism
+
 ## PRISON ----------------------------------------------------------------------
 
 prison <- readr::read_csv("data/prison_population.csv") %>%
@@ -24,14 +28,17 @@ a10 %>%
   autoplot(total_cost)
 
 a10 %>% gg_season(total_cost, labels = "both") +
-  ylab("$ million") +
-  ggtitle("Seasonal plot: antidiabetic drug sales")
+  labs(
+    y = "$ million",
+    title = "Seasonal plot: antidiabetic drug sales"
+  )
 
 a10 %>%
-  gg_subseries(total_cost) + ylab("$ million") +
-  ggtitle("Subseries plot: antidiabetic drug sales")
-
-
+  gg_subseries(total_cost) + 
+  labs(
+    y = "$ million",
+    title = "Subseries plot: antidiabetic drug sales"
+  )
 
 ## ANSETT ----------------------------------------------------------------------
 
@@ -53,22 +60,48 @@ maxtemp <- vic_elec %>%
   summarise(Temperature = max(Temperature))
 maxtemp %>%
   autoplot(Temperature) +
-  xlab("Week") + ylab("Max temperature")
+  labs(y = "Max temperature")
 
-maxtemp %>%
-  ggplot(aes(x = Day, y = Temperature)) +
-  geom_point() +
-  xlab("Week") + ylab("Max temperature")
 
-maxtemp %>%
-  ggplot(aes(x = Day, y = 1)) +
-  geom_tile(aes(fill = Temperature)) +
-  scale_fill_gradient2(
-    low = "navy", mid = "yellow",
-    high = "red", midpoint = 28
-  ) +
-  ylab("") + scale_y_discrete(expand = c(0, 0))
+## LOTS OF EXAMPLES -------------------------------------------------------------
 
+aus_production %>%
+  filter(year(Quarter) >= 1980) %>%
+  autoplot(Electricity) + 
+  labs(
+    y = "GWh",
+    title = "Australian electricity production"
+  )
+
+aus_production %>%
+  autoplot(Bricks) +
+  labs(
+    title = "Australian clay brick production",
+    y = "million units"
+  )
+
+us_employment %>%
+  filter(Title == "Retail Trade", year(Month) >= 1980) %>%
+  autoplot(Employed / 1e3) +
+  labs(
+    title = "Retail employment, USA",
+    y = "Million people"
+  )
+
+gafa_stock %>%
+  filter(Symbol == "AMZN", year(Date) >= 2018) %>%
+  autoplot(Close) +
+  labs(
+    title = "Amazon closing stock price",
+    y = "$US"
+  )
+
+pelt %>%
+  autoplot(Lynx) +
+  labs(
+    title = "Annual Canadian Lynx Trappings",
+    y = "Number trapped"
+  )
 
 ## BEER -------------------------------------------------------------------------
 
@@ -115,47 +148,26 @@ holidays <- tourism %>%
 
 holidays
 
-holidays %>% autoplot(Trips) +
-  ylab("thousands of trips") + xlab("Year") +
-  ggtitle("Australian domestic holiday nights")
+holidays %>% 
+  autoplot(Trips) +
+  labs(
+    y = "thousands of trips",
+    title = "Australian domestic holiday nights"
+  )
 
-holidays %>% gg_season(Trips) +
-  ylab("thousands of trips") +
-  ggtitle("Australian domestic holiday nights")
+holidays %>% 
+  gg_season(Trips) +
+  labs(
+    y = "thousands of trips",
+    title = "Australian domestic holiday nights"
+  )
 
-holidays %>% gg_subseries(Trips) +
-  ylab("thousands of trips") +
-  ggtitle("Australian domestic holiday nights")
-
-
-## LOTS OF EXAMPLES -------------------------------------------------------------
-
-aus_production %>%
-  filter(year(Quarter) >= 1980) %>%
-  autoplot(Electricity) + ylab("GWh") +
-  ggtitle("Australian electricity production")
-
-aus_production %>%
-  autoplot(Bricks) +
-  ggtitle("Australian clay brick production") +
-  xlab("Year") + ylab("million units")
-
-us_employment %>%
-  filter(Title == "Retail Trade", year(Month) >= 1980) %>%
-  autoplot(Employed / 1e3) +
-  ggtitle("Retail employment, USA") + ylab("Million people")
-
-gafa_stock %>%
-  filter(Symbol == "AMZN", year(Date) >= 2018) %>%
-  autoplot(Close) +
-  ggtitle("Amazon closing stock price") +
-  xlab("Day") + ylab("$")
-
-pelt %>%
-  autoplot(Lynx) +
-  ggtitle("Annual Canadian Lynx Trappings") +
-  xlab("Year") + ylab("Number trapped")
-
+holidays %>% 
+  gg_subseries(Trips) +
+  labs(
+    y = "thousands of trips",
+    title = "Australian domestic holiday nights"
+  )
 
 ## RETAIL TRADE ------------------------------------------------------------------
 
@@ -201,8 +213,10 @@ pigs <- aus_livestock %>%
   filter(State == "Victoria", Animal == "Pigs",
          year(Month) >= 2014)
 pigs %>% autoplot(Count/1e3) +
-  xlab("Year") + ylab("Thousands") +
-  ggtitle("Number of pigs slaughtered in Victoria")
+  labs(
+    y = "Thousands",
+    title = "Number of pigs slaughtered in Victoria"
+  )
 
 pigs %>% ACF(Count) %>% autoplot()
 
@@ -215,7 +229,4 @@ gafa_stock %>%
   mutate(diff = difference(Close)) %>%
   ACF(diff) %>%
   autoplot()
-
-
-
 
