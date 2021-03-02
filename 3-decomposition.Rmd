@@ -206,7 +206,7 @@ food %>% autoplot(box_cox(Turnover, 0.0524)) +
 * Simple transformations are easier to explain and work well enough.
 * Transformations can have very large effect on PI.
 * If some data are zero or negative, then use $\lambda>0$.
-* `logp1()` can also be useful for data with zeros.
+* `log1p()` can also be useful for data with zeros.
 * Choosing logs is a simple way to force forecasts to be positive
 * Transformations must be reversed to obtain forecasts on the original scale. (Handled automatically by `fable`.)
 
