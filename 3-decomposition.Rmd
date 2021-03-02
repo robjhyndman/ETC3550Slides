@@ -61,7 +61,7 @@ print_retail <- aus_retail %>%
 aus_economy <- filter(global_economy, Code == "AUS")
 print_retail %>%
   left_join(aus_economy, by = "Year") %>%
-  mutate(Adj_turnover = Turnover / CPI) %>%
+  mutate(Adj_turnover = Turnover / CPI * 100) %>%
   pivot_longer(c(Turnover, Adj_turnover),
     names_to = "Type", values_to = "Turnover"
   ) %>%
@@ -205,9 +205,8 @@ food %>% autoplot(box_cox(Turnover, 0.0524)) +
 * Often no transformation needed.
 * Simple transformations are easier to explain and work well enough.
 * Transformations can have very large effect on PI.
-* If the data contains zeros, then don't take logs.
-* `logp1()` can be useful for data with zeros.
-* If some data are negative, no power transformation is possible unless a constant is added to all values.
+* If some data are zero or negative, then use $\lambda>0$.
+* `logp1()` can also be useful for data with zeros.
 * Choosing logs is a simple way to force forecasts to be positive
 * Transformations must be reversed to obtain forecasts on the original scale. (Handled automatically by `fable`.)
 
