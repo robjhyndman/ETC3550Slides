@@ -86,7 +86,7 @@ https://pollev.com/robjhyndman
 \end{alertblock}}
 
 \only<3>{\begin{block}{}\begin{itemize}\tightlist
- \item how do we measure "easiest"?
+ \item how do we measure ``easiest''?
  \item what makes something easy/difficult to forecast?
  \end{itemize}\end{block}}
 
@@ -173,7 +173,7 @@ wrong and fix it.
 \begin{itemize}\itemsep=0cm\parskip=0cm
 \item  Program  written in COBOL making numerical calculations limited. It is not possible to do any optimisation.
 \item Their programmer has little experience in numerical computing.
-\item They employ no statisticians and want the program to produce forecasts \rlap{automatically.}
+\item They employ no statisticians and want the program to produce forecasts automatically.
 \end{itemize}
 \end{textblock}
 
@@ -349,11 +349,11 @@ aligned_plots[[2]]
 \fontsize{14}{16}\sf
 
 - Thing to be forecast: a random variable, $y_t$.
-- Forecast distribution: If ${\cal I}$ is all observations, then $y_{t} |{\cal I}$ means ``the random variable $y_{t}$ given what we know in \rlap{${\cal I}$''.}
-- The ``point forecast'' is the mean (or median) of $y_{t} |{\cal I}$
-- The ``forecast variance'' is $\text{var}[y_{t} |{\cal I}]$
-- A prediction interval or ``interval forecast'' is a range of values of $y_t$ with high \rlap{probability.}
-- With time series, \rlap{${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$. }
+- Forecast distribution: If ${\cal I}$ is all observations, then $y_{t} |{\cal I}$ means "the random variable $y_{t}$ given what we know in ${\cal I}$.
+- The "point forecast" is the mean (or median) of $y_{t} |{\cal I}$
+- The "forecast variance" is $\text{var}[y_{t} |{\cal I}]$
+- A prediction interval or "interval forecast" is a range of values of $y_t$ with high probability.
+- With time series, ${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$.
 - $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).
 
 
