@@ -158,22 +158,22 @@ p +
 
 ## CASE STUDY 1: Paperware company
 
-\fontsize{12}{14}\sf
+\fontsize{11.5}{13}\sf
 
-\begin{textblock}{7.6}(0.2,1.4)
+\begin{textblock}{7.6}(0.2,1.5)
 \textbf{Problem:} Want forecasts of each of hundreds of
 items. Series can be stationary, trended or seasonal. They currently
 have a large forecasting program written in-house but it doesn't seem
 to produce sensible forecasts. They want me to tell them what is
 wrong and fix it.
 
-\vspace*{0.1cm}
+\vspace*{0.cm}
 
-\textbf{Additional information}\vspace*{-0.2cm}\fontsize{12}{13.5}\sf
+\textbf{Additional information}\vspace*{-0.2cm}\fontsize{11.5}{13}\sf
 \begin{itemize}\itemsep=0cm\parskip=0cm
 \item  Program  written in COBOL making numerical calculations limited. It is not possible to do any optimisation.
 \item Their programmer has little experience in numerical computing.
-\item They employ no statisticians and want the program to produce forecasts automatically.
+\item They employ no statisticians and want the program to produce forecasts \rlap{automatically.}
 \end{itemize}
 \end{textblock}
 
