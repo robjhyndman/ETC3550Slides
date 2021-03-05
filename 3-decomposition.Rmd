@@ -264,7 +264,7 @@ where & $y_t=$ & data at period $t$ \\
   *  Alternative: use a Box-Cox transformation, and then use additive decomposition.
   *  Logs turn multiplicative relationship into an additive relationship:
 
-$$y_t = S_t \times T_t \times E_t \quad\Rightarrow\quad
+$$y_t = S_t \times T_t \times R_t \quad\Rightarrow\quad
 \log y_t = \log S_t + \log T_t + \log R_t.
 $$
 
