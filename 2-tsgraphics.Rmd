@@ -270,27 +270,6 @@ We can use the `select()` function to select columns.
 
 \fontsize{8}{10}\sf
 
-```r
-PBS %>%
-  filter(ATC2=="A10") %>%
-  select(Cost)
-```
-
-```
-Selecting index: "Month"
-Error: The result is not a valid tsibble.
-Do you need `as_tibble()` to work with data frame?
-```
-
-\vspace*{10cm}
-
-## Working with `tsibble` objects {-}
-\fontsize{12}{14}\sf
-
-We can use the `select()` function to select columns.
-
-\fontsize{8}{10}\sf
-
 ```{r pbs3}
 PBS %>%
   filter(ATC2 == "A10") %>%
