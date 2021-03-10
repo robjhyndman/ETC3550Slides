@@ -720,6 +720,19 @@ new_production %>% ACF(Beer) %>% autoplot()
 - When data are seasonal, the autocorrelations will be larger at the seasonal lags (i.e., at multiples of the seasonal frequency)
 - When data are trended and seasonal, you see a combination of these effects.
 
+## Autocorrelation functions
+
+\only<1>{\centering\includegraphics[width=17cm]{acf_1}}
+\only<2>{\centering\includegraphics[width=17cm]{acf_2}}
+\only<3>{\centering\includegraphics[width=17cm]{acf_3}}
+\only<4>{\centering\includegraphics[width=17cm]{acf_4}}
+\only<5>{\centering\includegraphics[width=17cm]{acf_5}}
+\only<6>{\centering\includegraphics[width=17cm]{acf_6}}
+\only<7>{\centering\includegraphics[width=17cm]{acf_7}}
+\only<8>{\centering\includegraphics[width=17cm]{acf_8}}
+\only<9>{\centering\includegraphics[width=17cm]{acf_9}}
+
+\vspace*{10cm}
 
 ## US retail trade employment
 \fontsize{11}{12}\sf
