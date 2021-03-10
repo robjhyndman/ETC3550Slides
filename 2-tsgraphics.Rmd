@@ -734,6 +734,10 @@ new_production %>% ACF(Beer) %>% autoplot()
 
 \vspace*{10cm}
 
+\begin{textblock}{9}(6,9.2)\fontsize{7}{9}\sf
+Artwork by @allison\_horst
+\end{textblock}
+
 ## US retail trade employment
 \fontsize{11}{12}\sf
 
