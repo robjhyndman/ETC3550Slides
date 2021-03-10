@@ -122,7 +122,7 @@ beer %>% ACF(Beer) %>% autoplot()
 ## ELECTRICITY DEMAND ---------------------------------------------------------
 
 vic_elec
-
+vic_elec %>% autoplot(Demand)
 vic_elec %>% gg_season(Demand)
 vic_elec %>% gg_season(Demand, period = "week")
 vic_elec %>% gg_season(Demand, period = "day")
@@ -188,6 +188,8 @@ google_2015
 
 google_2015 %>% autoplot(Close)
 
+google_2015 %>% ACF(Close)
+      
 google_2015 <- google_2015 %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index = trading_day, regular = TRUE)
