@@ -10,7 +10,6 @@ global_economy %>%
   filter(Country == "Australia") %>%
   autoplot(GDP / Population)
 
-
 ## Print retail adjusted by CPI --------------------------------------------------
 
 print_retail <- aus_retail %>%
@@ -19,22 +18,32 @@ print_retail <- aus_retail %>%
   index_by(Year = year(Month)) %>%
   summarise(Turnover = sum(Turnover))
 
-aus_economy <- filter(global_economy, Code == "AUS")
+aus_economy <- global_economy %>%
+  filter(Code == "AUS")
 
 print_retail <- print_retail %>%
   left_join(aus_economy, by = "Year") %>%
-  mutate(Adj_turnover = Turnover / CPI)
+  mutate(Adj_turnover = Turnover / CPI * 100) %>%
+  pivot_longer(c(Turnover, Adjusted_turnover),
+               names_to = "Type", values_to = "Turnover")
 
 # Plot both on same graph
 print_retail %>%
-  pivot_longer(c(Turnover, Adj_turnover),
-    names_to = "Type", values_to = "Turnover"
-  ) %>%
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
   facet_grid(vars(Type), scales = "free_y") +
   xlab("Years") + ylab(NULL) +
   ggtitle("Turnover: Australian print media industry")
+
+print_retail %>%
+  mutate(name = factor(name,
+         levels=c("Turnover","Adjusted_turnover"))) %>%
+  ggplot(aes(x = Year, y = Turnover)) +
+  geom_line() +
+  facet_grid(name ~ ., scales = "free_y") +
+  labs(title = "Turnover: Australian print media industry",
+       y = "$AU")
+
 
 
 ## Australian food retail --------------------------------------------------------

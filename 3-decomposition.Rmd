@@ -45,9 +45,10 @@ global_economy %>%
   autoplot(GDP / Population)
 ```
 
+<!--
 ## Your turn
 
-Consider the GDP information in `global_economy`. Plot the GDP per capita for each country over time. Which country has the highest GDP per capita? How has this changed over time?
+Consider the GDP information in `global_economy`. Plot the GDP per capita for each country over time. Which country has the highest GDP per capita? How has this changed over time? -->
 
 ## Inflation adjustments
 \fontsize{10}{10}\sf
@@ -58,18 +59,20 @@ print_retail <- aus_retail %>%
   group_by(Industry) %>%
   index_by(Year = year(Month)) %>%
   summarise(Turnover = sum(Turnover))
-aus_economy <- filter(global_economy, Code == "AUS")
+aus_economy <- global_economy %>%
+  filter(Code == "AUS")
 print_retail %>%
   left_join(aus_economy, by = "Year") %>%
-  mutate(Adj_turnover = Turnover / CPI * 100) %>%
-  pivot_longer(c(Turnover, Adj_turnover),
-    names_to = "Type", values_to = "Turnover"
-  ) %>%
+  mutate(Adjusted_turnover = Turnover / CPI * 100) %>%
+  pivot_longer(c(Turnover, Adjusted_turnover),
+               values_to = "Turnover") %>%
+  mutate(name = factor(name,
+         levels=c("Turnover","Adjusted_turnover"))) %>%
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
-  facet_grid(vars(Type), scales = "free_y") +
-  xlab("Years") + ylab(NULL) +
-  ggtitle("Turnover: Australian print media industry")
+  facet_grid(name ~ ., scales = "free_y") +
+  labs(title = "Turnover: Australian print media industry",
+       y = "$AU")
 ```
 
 ## Inflation adjustments
@@ -173,7 +176,7 @@ food %>%
   geom_line() +
   transition_states(1 - lambda, state_length = 0) +
   view_follow() +
-  ggtitle("Box-Cox transformed food retailing turnover (lambda = {format(1 - as.numeric(closest_state), digits = 2)})")
+  labs(title = "Box-Cox transformed food retailing turnover (lambda = {format(1 - as.numeric(closest_state), digits = 2)})")
 ```
 
 ## Box-Cox transformations
@@ -210,7 +213,7 @@ food %>% autoplot(box_cox(Turnover, 0.0524)) +
 * Choosing logs is a simple way to force forecasts to be positive
 * Transformations must be reversed to obtain forecasts on the original scale. (Handled automatically by `fable`.)
 
-## Your turn
+<!-- ## Your turn
 
 \fontsize{13}{14}\sf
 
@@ -222,6 +225,7 @@ food %>% autoplot(box_cox(Turnover, 0.0524)) +
     * Gas production from `aus_production`
 
 2. Why is a Box-Cox transformation unhelpful for the `canadian_gas` data?
+ -->
 
 # Time series components
 
@@ -286,8 +290,8 @@ us_retail_employment
 ```{r dable1}
 us_retail_employment %>%
   autoplot(Employed) +
-  xlab("Year") + ylab("Persons (thousands)") +
-  ggtitle("Total employment in US retail")
+  labs(y = "Persons (thousands)",
+       title = "Total employment in US retail")
 ```
 
 \vspace*{10cm}
@@ -319,9 +323,9 @@ components(dcmp)
 ```{r dable4}
 us_retail_employment %>%
   autoplot(Employed, color='gray') +
-  autolayer(components(dcmp), trend, color='red') +
-  xlab("Year") + ylab("Persons (thousands)") +
-  ggtitle("Total employment in US retail")
+  autolayer(components(dcmp), trend, color='#D55E00') +
+  labs(y = "Persons (thousands)",
+       title = "Total employment in US retail")
 ```
 
 \vspace*{10cm}
@@ -330,7 +334,7 @@ us_retail_employment %>%
 \fontsize{10}{11}\sf
 
 ```{r usretail-stl, fig.width=8, fig.height=5}
-components(dcmp) %>% autoplot() + xlab("Year")
+components(dcmp) %>% autoplot()
 ```
 
 ## US Retail Employment
@@ -354,9 +358,9 @@ $$y_t / S_t = T_t \times R_t$$
 ```{r usretail-sa}
 us_retail_employment %>%
   autoplot(Employed, color='gray') +
-  autolayer(components(dcmp), season_adjust, color='blue') +
-  xlab("Year") + ylab("Persons (thousands)") +
-  ggtitle("Total employment in US retail")
+  autolayer(components(dcmp), season_adjust, color='#0072B2') +
+  labs(y = "Persons (thousands)",
+       title = "Total employment in US retail")
 ```
 
 ## Seasonal adjustment
@@ -449,7 +453,7 @@ us_retail_employment %>%
 us_retail_employment %>%
   model(STL(Employed ~ season(window=9), robust=TRUE)) %>%
   components() %>% autoplot() +
-    ggtitle("STL decomposition: US retail employment")
+    labs(title = "STL decomposition: US retail employment")
 ```
 
 ## STL decomposition
@@ -529,15 +533,15 @@ us_retail_employment %>%
 
 ## The ABS stuff-up
 
-\fullwidth{abs1}
+\fullheight{abs1}
 
 ## The ABS stuff-up
 
-\fullwidth{abs2}
+\fullheight{abs2}
 
 ## The ABS stuff-up
 
-\fullwidth{abs3}
+\fullheight{abs3}
 
 ## The ABS stuff-up
 
@@ -606,7 +610,7 @@ employed
 ```{r abs3, fig.height=4}
 employed %>%
   autoplot(Employed) +
-  ggtitle("Total employed") + ylab("Thousands") + xlab("Year")
+  labs(title = "Total employed", y = "Thousands")
 ```
 
 ## The ABS stuff-up
@@ -617,7 +621,7 @@ employed %>%
 employed %>%
   filter(Year >= 2005) %>%
   autoplot(Employed) +
-  ggtitle("Total employed") + ylab("Thousands") + xlab("Year")
+  labs(title = "Total employed", y = "Thousands")
 ```
 
 ## The ABS stuff-up
@@ -628,7 +632,7 @@ employed %>%
 employed %>%
   filter(Year >= 2005) %>%
   gg_season(Employed, label = "right") +
-  ggtitle("Total employed") + ylab("Thousands")
+  labs(title = "Total employed", y = "Thousands")
 ```
 
 ## The ABS stuff-up
@@ -641,8 +645,7 @@ employed %>%
   filter(Month == "Sep") %>%
   ggplot(aes(y = diff, x = 1)) +
   geom_boxplot() + coord_flip() +
-  ggtitle("Sep - Aug: total employed") +
-  xlab("") + ylab("Thousands") +
+  labs(title = "Sep - Aug: total employed", y = "Thousands") +
   scale_x_continuous(breaks = NULL, labels = NULL)
 ```
 
@@ -665,7 +668,7 @@ components(dcmp) %>% autoplot()
 components(dcmp) %>%
   filter(year(Time) == 2013) %>%
   gg_season(season_year) +
-  ggtitle("Seasonal component") +
+  labs(title = "Seasonal component") +
   guides(colour = "none")
 ```
 
