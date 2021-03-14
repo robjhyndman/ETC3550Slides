@@ -24,26 +24,25 @@ aus_economy <- global_economy %>%
 print_retail <- print_retail %>%
   left_join(aus_economy, by = "Year") %>%
   mutate(Adj_turnover = Turnover / CPI * 100) %>%
-  pivot_longer(c(Turnover, Adjusted_turnover),
+  pivot_longer(c(Turnover, Adj_turnover),
                names_to = "Type", values_to = "Turnover")
 
 # Plot both on same graph
 print_retail %>%
-  ggplot(aes(x = Year, y = Turnover)) +
+  ggplot(aes(x = Year, y = Turnover, col=Type)) +
   geom_line() +
-  facet_grid(vars(Type), scales = "free_y") +
-  xlab("Years") + ylab(NULL) +
-  ggtitle("Turnover: Australian print media industry")
+  labs(title = "Turnover: Australian print media industry",
+       y = "$AU")
 
+# Use faceting
 print_retail %>%
-  mutate(name = factor(name,
-         levels=c("Turnover","Adjusted_turnover"))) %>%
+  mutate(name = factor(Type,
+         levels=c("Turnover","Adj_turnover"))) %>%
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
   facet_grid(name ~ ., scales = "free_y") +
   labs(title = "Turnover: Australian print media industry",
        y = "$AU")
-
 
 
 ## Australian food retail --------------------------------------------------------
@@ -76,8 +75,8 @@ us_retail_employment <- us_employment %>%
 
 us_retail_employment %>%
   autoplot(Employed) +
-  xlab("Year") + ylab("Persons (thousands)") +
-  ggtitle("Total employment in US retail")
+  labs(y = "Persons (thousands)", 
+       title = "Total employment in US retail")
 
 dcmp <- us_retail_employment %>%
   model(stl = STL(Employed))
@@ -86,22 +85,22 @@ components(dcmp)
 us_retail_employment %>%
   autoplot(Employed, color='gray') +
   autolayer(components(dcmp), trend, color='red') +
-  xlab("Year") + ylab("Persons (thousands)") +
-  ggtitle("Total employment in US retail")
+  labs(y = "Persons (thousands)",
+       title = "Total employment in US retail")
 
-components(dcmp) %>% autoplot() + xlab("Year")
+components(dcmp) %>% autoplot()
 
 components(dcmp) %>% gg_subseries(season_year)
 
 us_retail_employment %>%
   autoplot(Employed, color='gray') +
   autolayer(components(dcmp), season_adjust, color='blue') +
-  xlab("Year") + ylab("Persons (thousands)") +
-  ggtitle("Total employment in US retail")
+  labs(y = "Persons (thousands)",
+       title = "Total employment in US retail")
 
 us_retail_employment %>%
   model(STL(Employed ~ season(window=9) + trend(window=15), robust=TRUE)) %>%
   components() %>%
   autoplot() +
-    ggtitle("STL decomposition: US retail employment")
+    labs(title = "STL decomposition: US retail employment")
 
