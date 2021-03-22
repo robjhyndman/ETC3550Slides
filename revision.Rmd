@@ -105,9 +105,11 @@ should this affect leasing and sales policies?
 \fontsize{12}{14}\sf
 
 ```{r, fig.height=3.5}
-autoplot(melsyd[,"Economy.Class"],
-  main="Economy class passengers: Melbourne-Sydney",
-  xlab="Year",ylab="Thousands")
+ansett %>%
+  filter(Airports == "MEL-SYD") %>%
+  autoplot(Passengers) +
+  labs(title="Economy class passengers: Melbourne-Sydney",
+       y="Thousands")
 ```
 
 ## CASE STUDY 4: Airline
