@@ -79,14 +79,25 @@ ggplot() +
   coord_equal(ratio = 1)
 ```
 
-## Data preparation and visualisation
+## Data preparation (tidy)
+\fontsize{10}{13}\sf
+
+```{r GDPpc, fig.height = 3.2}
+gdppc <- global_economy %>%
+  mutate(GDP_per_capita = GDP/Population) %>%
+  select(Year, Country, GDP, Population, GDP_per_capita)
+gdppc
+```
+
+
+## Data visualisation
 \fontsize{10}{13}\sf
 
 ```{r GDP-plot, fig.height = 3.2}
-global_economy %>%
+gdppc %>%
   filter(Country=="Sweden") %>%
-  autoplot(GDP) +
-    ggtitle("GDP for Sweden") + ylab("$US billions")
+  autoplot(GDP_per_capita) +
+    labs(title = "GDP per capita for Sweden", y = "$US")
 ```
 
 ## Model estimation
@@ -96,12 +107,16 @@ The `model()` function trains models to data.
 \fontsize{10}{13}\sf
 
 ```{r GDP-model, warning=FALSE}
-fit <- global_economy %>%
-  model(trend_model = TSLM(GDP ~ trend()))
+fit <- gdppc %>%
+  model(trend_model = TSLM(GDP_per_capita ~ trend()))
 fit
 ```
 
-A `mable` is a model table, each cell corresponds to a fitted model.
+\only<2>{\begin{textblock}{9.5}(1,8.6)
+\begin{alertblock}{}
+A \texttt{mable} is a model table, each cell corresponds to a fitted model.
+\end{alertblock}
+\end{textblock}}
 
 ## Producing forecasts
 
@@ -111,7 +126,13 @@ A `mable` is a model table, each cell corresponds to a fitted model.
 fit %>% forecast(h = "3 years")
 ```
 
-A `fable` is a forecast table with point forecasts and distributions.
+
+\only<2>{\begin{textblock}{9.5}(1,8.6)
+\begin{alertblock}{}
+A \texttt{fable} is a forecast table with point forecasts and distributions.
+\end{alertblock}
+\end{textblock}}
+
 
 ## Visualising forecasts
 
@@ -120,59 +141,11 @@ A `fable` is a forecast table with point forecasts and distributions.
 ```{r GDP-fc-plot, warning=FALSE, message=FALSE, fig.height=3}
 fit %>% forecast(h = "3 years") %>%
   filter(Country=="Sweden") %>%
-  autoplot(global_economy) +
-    ggtitle("GDP for Sweden") + ylab("$US billions")
+  autoplot(gdppc) +
+    labs(title = "GDP per capita for Sweden", y = "$US")
 ```
 
 # Some simple forecasting methods
-
-## Some simple forecasting methods
-
-```{r ausbeer, fig.height=4.6, echo=FALSE}
-new_production <- aus_production %>%
-  filter(year(Quarter) >= 1992)
-new_production %>% autoplot(Beer) +
-  xlab("Year") + ylab("megalitres") +
-    ggtitle("Australian quarterly beer production")
-```
-
-\begin{textblock}{7}(0.2,8.7)
-\begin{alertblock}{}
-\small{How would you forecast these series?}
-\end{alertblock}
-\end{textblock}
-
-## Some simple forecasting methods
-
-```{r pigs, fig.height=4.6, echo=FALSE}
-aus_livestock %>% filter(between(year(Month), 1990, 1995),
-  Animal == "Pigs", State == "Victoria") %>%
-  autoplot(Count) +
-  xlab("Year") + ylab("thousands") +
-  ggtitle("Number of pigs slaughtered in Victoria, 1990-1995")
-```
-
-\begin{textblock}{7}(0.2,8.7)
-\begin{alertblock}{}
-\small{How would you forecast these series?}
-\end{alertblock}
-\end{textblock}
-
-## Some simple forecasting methods
-
-```{r dj, fig.height=4.6, echo=FALSE}
-gafa_stock %>%
-  filter(Symbol == "FB", Date >= ymd("2018-01-01")) %>%
-  autoplot(Close) +
-  labs(title = "Facebook closing stock price in 2018",
-       x = NULL, y = "Closing price ($USD)")
-```
-
-\begin{textblock}{7}(0.2,8.7)
-\begin{alertblock}{}
-\small{How would you forecast these series?}
-\end{alertblock}
-\end{textblock}
 
 ## Some simple forecasting methods
 \fontsize{13}{14}\sf
@@ -194,10 +167,12 @@ fc <- bricks %>%
 bricks %>%
   ggplot(aes(x = Quarter, y = Bricks)) +
   geom_line() +
-  geom_line(aes(y = average), colour = "blue", linetype = "dashed") +
-  geom_line(aes(y = average), data = fc, colour = "blue") +
-  ggtitle("Clay brick production in Australia")
+  geom_line(aes(y = average), colour = "#0072B2", linetype = "dashed") +
+  geom_line(aes(y = average), data = fc, colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
 ```
+
+\vspace*{10cm}
 
 ## Some simple forecasting methods
 \fontsize{13}{14}\sf
@@ -214,9 +189,11 @@ bricks %>%
   model(NAIVE(Bricks)) %>%
   forecast(h = "5 years") %>%
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
-  geom_point(data = slice(bricks, n()), aes(y=Bricks), colour = "blue") +
-  ggtitle("Clay brick production in Australia")
+  geom_point(data = slice(bricks, n()), aes(y=Bricks), colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
 ```
+
+\vspace*{10cm}
 
 ## Some simple forecasting methods
 \fontsize{13}{14}\sf
@@ -231,9 +208,11 @@ bricks %>%
   model(SNAIVE(Bricks ~ lag("year"))) %>%
   forecast(h = "5 years") %>%
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
-  geom_point(data = slice(bricks, (n()-3):n()), aes(y=Bricks), colour = "blue") +
-  ggtitle("Clay brick production in Australia")
+  geom_point(data = slice(bricks, (n()-3):n()), aes(y=Bricks), colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
 ```
+
+\vspace*{10cm}
 
 ## Some simple forecasting methods
 \fontsize{13}{14}\sf
@@ -261,9 +240,11 @@ aus_production %>%
   forecast(h = "5 years") %>%
   autoplot(aus_production, level = NULL) +
   geom_line(data = slice(aus_production, range(cumsum(!is.na(Bricks)))),
-            aes(y=Bricks), linetype = "dashed", colour = "blue") +
-  ggtitle("Clay brick production in Australia")
+            aes(y=Bricks), linetype = "dashed", colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
 ```
+
+\vspace*{10cm}
 
 ## Model fitting
 
@@ -286,9 +267,6 @@ brick_fit <-  aus_production %>%
 brick_fit
 ```
 
-\vspace*{-0.2cm}\begin{alertblock}{}
-A \texttt{mable} is a model table, each cell corresponds to a fitted model.
-\end{alertblock}
 
 ## Producing forecasts
 
@@ -303,10 +281,6 @@ brick_fc <- brick_fit %>%
 print(brick_fc, n = 4)
 ```
 
-\begin{alertblock}{}
-A \texttt{fable} is a forecast table with point forecasts and distributions.
-\end{alertblock}
-
 ## Visualising forecasts
 
 \footnotesize
@@ -314,8 +288,8 @@ A \texttt{fable} is a forecast table with point forecasts and distributions.
 ```{r brick-fc-plot, warning=FALSE, message=FALSE, fig.height=3, dependson='brick-fc'}
 brick_fc %>%
   autoplot(aus_production, level = NULL) +
-  ggtitle("Forecasts for quarterly clay brick production") +
-  xlab("Year") + ylab("Millions of bricks") +
+  labs(title = "Clay brick production in Australia",
+       y = "Millions of bricks") +
   guides(colour = guide_legend(title = "Forecast"))
 ```
 
@@ -326,11 +300,10 @@ brick_fc %>%
 ```{r fbf2, fig.show='hide'}
 # Extract training data
 fb_stock <- gafa_stock %>%
-  group_by(Symbol) %>%
+  filter(Symbol == "FB") %>%
   mutate(trading_day = row_number()) %>%
-  update_tsibble(index=trading_day, regular=TRUE) %>%
-  ungroup() %>%
-  filter(Symbol == "FB")
+  update_tsibble(index=trading_day, regular=TRUE)
+
 # Specify, estimate and forecast
 fb_stock %>%
   model(
@@ -340,8 +313,7 @@ fb_stock %>%
   ) %>%
   forecast(h=42) %>%
   autoplot(fb_stock, level = NULL) +
-  ggtitle("Facebook closing stock price") +
-  xlab("Day") + ylab("") +
+  labs(title = "Facebook closing stock price", y="$US") +
   guides(colour=guide_legend(title="Forecast"))
 ```
 
@@ -350,10 +322,12 @@ fb_stock %>%
 ```{r ref.label='fbf2', echo=FALSE, fig.height=4.6}
 ```
 
+<!-- 
 ## Your turn
 
  * Produce forecasts using an appropriate benchmark method for household wealth (`hh_budget`). Plot the results using `autoplot()`.
  * Produce forecasts using an appropriate benchmark method for Australian takeaway food turnover (`aus_retail`). Plot the results using `autoplot()`.
+ -->
 
 # Residual diagnostics
 
@@ -446,8 +420,9 @@ augment(fit) %>%
 
 ```{r dj5, echo=TRUE, warning = FALSE}
 augment(fit) %>%
-  autoplot(.resid) + xlab("Day") + ylab("") +
-  ggtitle("Residuals from naïve method")
+  autoplot(.resid) + 
+  labs(y = "$US",
+       title = "Residuals from naïve method")
 ```
 
 ## Facebook closing stock price
@@ -457,7 +432,7 @@ augment(fit) %>%
 augment(fit) %>%
   ggplot(aes(x = .resid)) +
   geom_histogram(bins = 150) +
-  ggtitle("Histogram of residuals")
+  labs(title = "Histogram of residuals")
 ```
 
 ## Facebook closing stock price
@@ -466,8 +441,16 @@ augment(fit) %>%
 ```{r dj7}
 augment(fit) %>%
   ACF(.resid) %>%
-  autoplot() + ggtitle("ACF of residuals")
+  autoplot() + labs(title = "ACF of residuals")
 ```
+
+## `gg_tsresiduals()` function
+\fontsize{11}{12}\sf
+
+```{r dj10, echo=TRUE, fig.height=4, warning = FALSE}
+gg_tsresiduals(fit)
+```
+
 
 ## ACF of residuals
 
@@ -483,8 +466,8 @@ Consider a *whole set* of $r_{k}$  values, and develop a test to see whether the
 
 \begin{block}{Box-Pierce test\phantom{g}}
 \centerline{$\displaystyle
-Q = T \sum_{k=1}^h r_k^2$}
-where $h$  is max lag being considered and $T$ is number of observations.
+Q = T \sum_{k=1}^\ell r_k^2$}
+where $\ell$  is max lag being considered and $T$ is number of observations.
 \end{block}
 
   * If each $r_k$ close to zero, $Q$ will be **small**.
@@ -496,11 +479,11 @@ Consider a *whole set* of $r_{k}$  values, and develop a test to see whether the
 
 \begin{block}{Ljung-Box test}
 \centerline{$\displaystyle
- Q^* = T(T+2) \sum_{k=1}^h (T-k)^{-1}r_k^2$}
-where $h$  is max lag being considered and $T$ is number of observations.
+ Q^* = T(T+2) \sum_{k=1}^\ell (T-k)^{-1}r_k^2$}
+where $\ell$  is max lag being considered and $T$ is number of observations.
 \end{block}
 
-  * My preferences: $h=10$ for non-seasonal data, $h=2m$ for seasonal data.
+  * My preferences: $\ell=10$ for non-seasonal data, $h=2m$ for seasonal data.
   * Better performance, especially in small samples.
 
 \vspace*{10cm}
@@ -508,8 +491,9 @@ where $h$  is max lag being considered and $T$ is number of observations.
 ## Portmanteau tests
 \fontsize{13}{15}\sf
 
-  * If data are WN, $Q^*$ has $\chi^2$ distribution with  $(h - K)$ degrees of freedom where $K=$ no.\ parameters in model.
+  * If data are WN, $Q^*$ has $\chi^2$ distribution with  $(\ell - K)$ degrees of freedom where $K=$ no.\ parameters in model.
   * When applied to raw data, set $K=0$.
+  * `lag` $= \ell$, `dof` $= K$
 
 \fontsize{11}{12}\sf
 
@@ -518,14 +502,7 @@ augment(fit) %>%
   features(.resid, ljung_box, lag=10, dof=0)
 ```
 
-## `gg_tsresiduals` function
-\fontsize{11}{12}\sf
-
-```{r dj10, echo=TRUE, fig.height=4, warning = FALSE}
-gg_tsresiduals(fit)
-```
-
-## Your turn
+<!-- ## Your turn
 
 Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
 
@@ -550,7 +527,7 @@ gg_tsresiduals(fit)
 
 \fontsize{14}{15}\sf
 
-What do you conclude?
+What do you conclude? -->
 
 # Distributional forecasts and prediction intervals
 
@@ -601,54 +578,57 @@ brick_fc %>% hilo(level = 95)
 
 ## Prediction intervals
 
- * Point forecasts are often useless without a measure of uncertainty (such as prediction intervals).
+ * Point forecasts often useless without a measure of uncertainty (such as prediction intervals).
  * Prediction intervals require a stochastic model (with random errors, etc).
- * Multi-step forecasts for time series require a more sophisticated approach (with PI getting wider as the forecast horizon increases).
-
-## Prediction intervals
-
-  * Computed automatically from the forecast distribution.
-  * Use `level` argument to control coverage.
-  * Check residual assumptions before believing them (we will see this next class).
-  * Usually too narrow due to unaccounted uncertainty.
+ * For most models, prediction intervals get wider as the forecast horizon increases.
+ * Use `level` argument to control coverage.
+ * Check residual assumptions before believing them.
+ * Usually too narrow due to unaccounted uncertainty.
 
 # Forecasting with transformations
 
 ## Modelling with transformations
 
-Transformations used in the left of the formula will be automatically back-transformed. To model log-transformed food retailing turnover, you could use:
+\fontsize{12}{13}\sf
+
+```{r food, echo=TRUE, fig.height=3}
+eggs <- prices %>% 
+  filter(!is.na(eggs)) %>% select(eggs)
+eggs %>% autoplot() +
+  labs(title="Annual egg prices",
+       y="$US (adjusted for inflation)")
+```
+
+
+## Modelling with transformations
+
+Transformations used in the left of the formula will be automatically back-transformed. To model log-transformed egg prices, you could use:
 
 \fontsize{13}{15}\sf
 
-```{r food, echo=TRUE}
-food <- aus_retail %>%
-  filter(Industry == "Food retailing") %>%
-  summarise(Turnover = sum(Turnover))
-```
-
 ```{r food-bt-fit, dependson='food'}
-fit <- food %>%
-  model(SNAIVE(log(Turnover)))
+fit <- eggs %>%
+  model(RW(log(eggs) ~ drift()))
+fit
 ```
 
 ## Forecasting with transformations
 
+\fontsize{11}{12}\sf
+
 ```{r food-bt-fc, dependson='food-bt-fit'}
 fc <- fit %>%
-  forecast(h = "3 years")
-```
-
-\fontsize{10}{13}\sf
-
-```{r food-bt-fbl, echo = FALSE, dependson='food-bt-fc'}
-print(fc, n = 6)
+  forecast(h = 50)
+fc
 ```
 
 ## Forecasting with transformations
 \fontsize{12}{13}\sf
 
-```{r elec9,echo=TRUE,fig.height=4, dependson='food-bt-fc'}
-fc %>% autoplot(filter(food, year(Month) > 2010))
+```{r elec9,echo=TRUE,fig.height=3.5, dependson='food-bt-fc'}
+fc %>% autoplot(eggs) +
+  labs(title="Annual egg prices",
+       y="US$ (adjusted for inflation)")
 ```
 
 ## Bias adjustment
@@ -700,23 +680,28 @@ f''(x) &= \begin{cases}
 ## Bias adjustment
 \fontsize{9}{9}\sf
 
-```{r biasadj, fig.height=3.2, message=FALSE}
-eggs <- prices %>% filter(!is.na(eggs)) %>% select(eggs)
-eggs %>% model(RW(log(eggs) ~ drift())) %>%
-  forecast(h = 50) %>%
+```{r biasadj, fig.height=3.4, message=FALSE}
+fc %>%
   autoplot(eggs, level = 80, point_forecast = lst(mean, median)) +
   labs(title="Annual egg prices",
-       y="US$ (adjusted for inflation) ")
+       y="US$ (adjusted for inflation)")
 ```
 
 # Forecasting and decomposition
 
 ## Forecasting and decomposition
 
-  *  Forecast seasonal component by repeating the last year
-  *  Forecast seasonally adjusted data using non-seasonal time series method.
-  *  Combine forecasts of seasonal component with forecasts of seasonally adjusted data to get forecasts of original data.
-  *  Sometimes a decomposition is useful just for understanding the data before building a separate forecasting model.
+\begin{block}{}
+$$y_t = \hat{S}_t + \hat{A}_t$$
+\vspace*{-0.5cm}\begin{itemize}\tightlist
+  \item $\hat{A}_t$ is seasonally adjusted component
+  \item $\hat{S}_t$ is seasonal component.
+\end{itemize}
+\end{block}
+
+  *  Forecast $\hat{S}_t$ using SNAIVE.
+  *  Forecast $\hat{A}_t$ using non-seasonal time series method.
+  *  Combine forecasts of $\hat{S}_t$ and $\hat{A}_t$ to get forecasts of original data.
 
 ## US Retail Employment
 \fontsize{10}{11}\sf
@@ -750,7 +735,7 @@ dcmp %>%
   model(NAIVE(season_adjust)) %>%
   forecast() %>%
   autoplot(dcmp) +
-  ggtitle("Naive forecasts of seasonally adjusted data")
+  labs(title = "Naive forecasts of seasonally adjusted data")
 ```
 
 \vspace*{10cm}
@@ -783,16 +768,16 @@ us_retail_employment %>%
 ## Training and test sets
 
 ```{r traintest, fig.height=1, echo=FALSE, cache=TRUE}
-train = 1:18
-test = 19:24
-par(mar=c(0,0,0,0))
-plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
-arrows(0,0.5,25,0.5,0.05)
-points(train, train*0+0.5, pch=19, col="blue")
-points(test,  test*0+0.5,  pch=19, col="red")
-text(26,0.5,"time")
-text(10,1,"Training data",col="blue")
-text(21,1,"Test data",col="red")
+train <- 1:18
+test <- 19:24
+par(mar = c(0, 0, 0, 0))
+plot(0, 0, xlim = c(0, 26), ylim = c(0, 2), xaxt = "n", yaxt = "n", bty = "n", xlab = "", ylab = "", type = "n")
+arrows(0, 0.5, 25, 0.5, 0.05)
+points(train, train * 0 + 0.5, pch = 19, col = "#0072B2")
+points(test, test * 0 + 0.5, pch = 19, col = "#D55E00")
+text(26, 0.5, "time")
+text(10, 1, "Training data", col = "#0072B2")
+text(21, 1, "Test data", col = "#D55E00")
 ```
 
 -   A model which fits the training data well will not necessarily forecast well.
@@ -828,8 +813,8 @@ beer_fc_plot <- train %>%
   ) %>%
   forecast(h=11) %>%
   autoplot(beer, level = NULL) +
-    ggtitle("Forecasts for quarterly beer production") +
-    xlab("Year") + ylab("Megalitres") +
+    labs(title = "Forecasts for quarterly beer production",
+         y = "Megalitres") +
     guides(colour=guide_legend(title="Forecast"))
 beer_fc_plot
 ```
@@ -947,11 +932,10 @@ accuracy(beer_fc, recent_production) %>%
 
 ## Poll: true or false?
 
-  1. Good forecast methods should have normally distributed residuals.
-  2. A model with small residuals will give good forecasts.
-  3. The best measure of forecast accuracy is MAPE.
-  4. If your model doesn't forecast well, you should make it more complicated.
-  5. Always choose the model with the best forecast accuracy as measured on the test set.
+
+\begin{alertblock}{}\Large\bfseries\sffamily
+https://pollev.com/robjhyndman
+\end{alertblock}
 
 # Time series cross-validation
 
@@ -965,11 +949,11 @@ test = 19:24
 par(mar=c(0,0,0,0))
 plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
 arrows(0,0.5,25,0.5,0.05)
-points(train, train*0+0.5, pch=19, col="blue")
-points(test,  test*0+0.5,  pch=19, col="red")
+points(train, train*0+0.5, pch=19, col="#0072B2")
+points(test,  test*0+0.5,  pch=19, col="#D55E00")
 text(26,0.5,"time")
-text(10,1,"Training data",col="blue")
-text(21,1,"Test data",col="red")
+text(10,1,"Training data",col="#0072B2")
+text(21,1,"Test data",col="#D55E00")
 ```
 
 \vspace*{10cm}
@@ -984,11 +968,11 @@ test = 19:24
 par(mar=c(0,0,0,0))
 plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
 arrows(0,0.5,25,0.5,0.05)
-points(train, train*0+0.5, pch=19, col="blue")
-points(test,  test*0+0.5,  pch=19, col="red")
+points(train, train*0+0.5, pch=19, col="#0072B2")
+points(test,  test*0+0.5,  pch=19, col="#D55E00")
 text(26,0.5,"time")
-text(10,1,"Training data",col="blue")
-text(21,1,"Test data",col="red")
+text(10,1,"Training data",col="#0072B2")
+text(21,1,"Test data",col="#D55E00")
 ```
 
 **Time series cross-validation**
@@ -1003,9 +987,9 @@ for(j in 1:10)
   test <- (16+j):26
   train <- 1:(15+j)
   arrows(0,1-j/20,27,1-j/20,0.05)
-  points(train,rep(1-j/20,length(train)),pch=19,col="blue")
+  points(train,rep(1-j/20,length(train)),pch=19,col="#0072B2")
   if(length(test) >= i)
-    points(test[i], 1-j/20, pch=19, col="red")
+    points(test[i], 1-j/20, pch=19, col="#D55E00")
   if(length(test) >= i)
     points(test[-i], rep(1-j/20,length(test)-1), pch=19, col="gray")
   else
@@ -1070,8 +1054,7 @@ ggplot() +
     group = .id
   ), data = window,
   fill = "#9ecae1", colour = "#9ecae1", size = 1.5, alpha = 0.6) +
-  xlab("Quarter") +
-  ylab("Trips") +
+  labs(x = "Quarter", y = "Trips") +
   facet_wrap(~ type, ncol = 1) +
   theme_bw() +
   transition_manual(.id)
@@ -1090,7 +1073,7 @@ fb_stretch <- fb_stock %>%
 ```
 \fontsize{10}{11}\sf
 ```{r google-stretch-print, echo = FALSE}
-options(width = 80)
+options(width = 60)
 fb_stretch %>% select(Date, Close, trading_day, .id) %>% print(n=7)
 ```
 
