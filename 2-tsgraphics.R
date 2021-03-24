@@ -224,10 +224,7 @@ pigs %>% ACF(Count) %>% autoplot()
 
 ## GOOGLE change in closing price ACF ---------------------------------------------
 
-gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) >= 2018) %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index=trading_day, regular=TRUE) %>%
+google_2015  %>%
   mutate(diff = difference(Close)) %>%
   ACF(diff) %>%
   autoplot()

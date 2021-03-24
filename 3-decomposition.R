@@ -40,7 +40,7 @@ print_retail %>%
          levels=c("Turnover","Adj_turnover"))) %>%
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
-  facet_grid(name ~ ., scales = "free_y") +
+  facet_grid(Type ~ ., scales = "free_y") +
   labs(title = "Turnover: Australian print media industry",
        y = "$AU")
 
