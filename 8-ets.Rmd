@@ -45,8 +45,8 @@ $\alpha$ controls the flexibility of the **level**
 
 $\beta$ controls the flexibility of the **trend**
 
-* If $\beta = 0$, the trend is linear (regression trend)
-* If $\beta = 1$, the trend updates every observation
+* If $\beta = 0$, the trend is linear
+* If $\beta = 1$, the trend changes suddenly every observation
 
 $\gamma$ controls the flexibility of the **seasonality**
 
@@ -153,8 +153,8 @@ alpha_anim %>%
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
   transition_manual(alpha) +
-  ylab("Exports (% of GDP)") +
-  ggtitle("Algerian exports of goods and services: level (alpha = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
+  labs(y = "% of GDP",
+       title = "Algerian exports of goods and services: level (alpha = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
 ```
 
 ## Simple Exponential Smoothing
@@ -199,7 +199,7 @@ fit <- algeria_economy %>%
 
 ## Simple Exponential Smoothing
 
-```{r alpha-static, fig.height=5, fig.width=8}
+```{r alpha-static, fig.height=5, fig.width=8, echo=FALSE}
 alpha_static <- map_dfr(list(0, as.numeric(tidy(fit)[1,4]), 1), function(alpha){
   fit <- algeria_economy %>%
     model(ETS(Exports ~ error("A") + trend("N", alpha = alpha, alpha_range = c(-0.01,1),
@@ -214,8 +214,8 @@ algeria_economy %>%
   ggplot(aes(x = Year, y = Exports)) +
   geom_line() +
   geom_line(aes(y = .fitted, colour = alpha), data = alpha_static) +
-  ylab("Exports (% of GDP)") +
-  ggtitle("Algerian exports of goods and services: level")
+  labs(y = "% of GDP",
+      title = "Algerian exports of goods and services: level")
 ```
 
 ## Models and methods
@@ -319,7 +319,7 @@ report(fit)
 
 \fontsize{10}{11}\sf\vspace*{-0.2cm}
 
-```{r ses-cmp0, echo = TRUE}
+```{r ses-cmp0, echo = TRUE, fig.asp=0.7}
 components(fit) %>% autoplot()
 ```
 
@@ -340,7 +340,7 @@ components(fit) %>%
 fit %>%
   forecast(h = 5) %>%
   autoplot(algeria_economy) +
-  ylab("Exports (% of GDP)") + xlab("Year")
+  labs(y = "% of GDP", title = "Exports: Algeria")
 ```
 
 # Models with trend
@@ -405,8 +405,8 @@ beta_anim %>%
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
   transition_manual(beta) +
-  ylab("Population (millions)") +
-  ggtitle("Australian population: trend (beta = {format(0.005-as.numeric(as.character(current_frame)), nsmall=2)})")
+  labs(y = "Millions",
+       title = "Australian population: trend (beta = {format(0.005-as.numeric(as.character(current_frame)), nsmall=2)})")
 ```
 
 ```{r beta-static, fig.height=5, fig.width=8, eval=FALSE, echo=FALSE}
@@ -439,8 +439,8 @@ aus_economy %>%
   ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
   geom_line(aes(y = .fitted, colour = beta), data = beta_static) +
-  ylab("Population (millions)") +
-  ggtitle("Australian population")
+  labs(y = "Millions",
+       title = "Australian population")
 ```
 
 ```{r beta-static1, fig.height=5, fig.width=8, echo=FALSE}
@@ -460,8 +460,8 @@ global_economy %>%
   ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
-  ylab("Population (millions)") +
-  ggtitle(paste("Australian population. beta =", beta))
+  labs(y = "Millions",
+       title = paste("Australian population. beta =", beta))
 ```
 
 ## Exponential smoothing: trend/slope
@@ -483,8 +483,8 @@ global_economy %>%
   ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
-  ylab("Population (millions)") +
-  ggtitle(paste("Australian population. beta =", beta))
+  labs(y = "Millions",
+      title = paste("Australian population. beta =", beta))
 ```
 
 ## Exponential smoothing: trend/slope
@@ -506,8 +506,8 @@ global_economy %>%
   ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
-  ylab("Population (millions)") +
-  ggtitle(paste("Australian population. beta =", beta))
+  labs(y = "Millions",
+       title = paste("Australian population. beta =", beta))
 ```
 
 ## ETS(M,A,N)
@@ -572,13 +572,13 @@ components(fit) %>%
 
 ## Example: Australian population
 
-\fontsize{12}{12}\sf
+\fontsize{10}{11}\sf
 
 ```{r holt-fc, echo=TRUE, cache=TRUE, dependson='holt-fit'}
 fit %>%
   forecast(h = 10) %>%
   autoplot(aus_economy) +
-  ylab("Population") + xlab("Year")
+  labs(y = "Millions", title= "Population: Australia")
 ```
 
 ## Damped trend method
@@ -612,7 +612,7 @@ aus_economy %>%
 ```
 
 ## Example: Australian population
-\fontsize{10}{13}\sf
+\fontsize{9.5}{12}\sf
 
 ```{r, echo=TRUE}
 fit <- aus_economy %>%
@@ -656,9 +656,10 @@ bind_rows(fit_terms, fit_accuracy) %>%
   knitr::kable(booktabs = TRUE, align='r')
 ```
 
+<!--
 ## Your turn
 
-`fma::eggs` contains the price of a dozen eggs in the United States from 1900–1993
+`prices` contains the price of a dozen eggs in the United States from 1900–1993
 
  1. Use SES and Holt’s method (with and without damping) to forecast “future” data.
 
@@ -666,6 +667,7 @@ bind_rows(fit_terms, fit_accuracy) %>%
  1. Which method gives the best training RMSE?
  1. Are these RMSE values comparable?
  1. Do the residuals from the best fitting method look like white noise?
+ -->
 
 # Models with seasonality
 
@@ -713,13 +715,13 @@ gamma_anim %>%
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
   transition_manual(gamma) +
-  ylab("Cost of scripts ($AUD)") +
-  ggtitle("Medicare Australia cost of vaccine scripts: seasonality (gamma = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
+  labs(y = "$AUD",
+       title = "Medicare Australia cost of vaccine scripts: seasonality (gamma = {format(1-as.numeric(as.character(current_frame)), nsmall=2)})")
 ```
 
 ## Exponential smoothing: seasonality
 
-```{r gamma-static, fig.height=5, fig.width=8}
+```{r gamma-static, fig.height=5, fig.width=8, echo=FALSE}
 gamma_static <- map_dfr(list(0, NULL, 1), function(gamma){
   fit <- j07 %>%
     model(ETS(Cost ~ error("A") + trend("N", alpha = 0.001, alpha_range = c(-1,1),
@@ -734,8 +736,8 @@ j07 %>%
   ggplot(aes(x = Month, y = Cost)) +
   geom_line() +
   geom_line(aes(y = .fitted, colour = gamma), data = gamma_static) +
-  ylab("Cost of scripts ($AUD)") +
-  ggtitle("Medicare Australia cost of vaccine scripts: seasonality")
+  labs(y = "Cost of scripts ($AUD)",
+       title = "Medicare Australia cost of vaccine scripts: seasonality")
 ```
 
 ## ETS(A,A,A)
@@ -797,7 +799,7 @@ Holt-Winters multiplicative method with multiplicative errors.
 
 ## Example: Australian holiday tourism
 
-\fontsize{9}{10}\sf
+\fontsize{8}{10}\sf
 
 ```{r 7-HW, echo=TRUE}
 aus_holidays <- tourism %>%
@@ -811,11 +813,14 @@ fit <- aus_holidays %>%
 fc <- fit %>% forecast()
 ```
 
-```{r, fig.height=2.6}
+## Example: Australian holiday tourism
+
+\fontsize{8}{10}\sf
+
+```{r, fig.height=3.5}
 fc %>%
-  autoplot(aus_holidays, level = NULL) + xlab("Year") +
-  ylab("Overnight trips (thousands)") +
-  scale_color_brewer(type = "qual", palette = "Dark2")
+  autoplot(aus_holidays, level = NULL) +
+  labs(y = "Thousands", title = "Overnight trips")
 ```
 
 ## Estimated components
@@ -828,7 +833,7 @@ components(fit)
 ## Estimated components
 \fontsize{10}{11}\sf
 
-```{r fig-7-LevelTrendSeas, fig.width=9, fig.height=6, out.width="100%"}
+```{r fig-7-LevelTrendSeas, fig.width=9, fig.height=6, out.width="100%", echo=FALSE}
 components(fit) %>%
   gather("state", "value", -.model, -Quarter, factor_key = TRUE) %>%
   group_by(.model) %>%
@@ -837,8 +842,8 @@ components(fit) %>%
     ~ ggplot(., aes(x = Quarter, y = value)) +
       geom_line() +
       facet_grid(state ~ ., scales = "free") +
-      xlab("Year") + ylab(NULL) +
-      ggtitle(stringr::str_to_title(unique(.$.model)) %>% paste("states"))
+      labs(x = "Year", y = "",
+           title = stringr::str_to_title(unique(.$.model)) %>% paste("states"))
   ) %>%
   wrap_plots(ncol=2)
 ```
@@ -854,6 +859,7 @@ s_{t} &= \gamma \frac{y_{t}}{(\ell_{t-1} + \phi b_{t-1})} + (1 - \gamma)s_{t-m}
 \end{align*}
 \end{block}
 
+<!--
 ## Your turn
 
 Apply Holt-Winters’ multiplicative method to the Gas data from `aus_production`.
@@ -861,6 +867,33 @@ Apply Holt-Winters’ multiplicative method to the Gas data from `aus_production
  1. Why is multiplicative seasonality necessary here?
  1. Experiment with making the trend damped.
  1. Check that the residuals from the best method look like white noise.
+ -->
+
+## Holt-Winters with daily data
+\fontsize{9.5}{12}\sf
+
+```{r hwdaily, echo=TRUE, eval=FALSE}
+ sth_cross_ped <- pedestrian %>%
+  filter(Date >= "2016-07-01",
+         Sensor == "Southern Cross Station") %>%
+  index_by(Date) %>%
+  summarise(Count = sum(Count)/1000)
+sth_cross_ped %>%
+  filter(Date <= "2016-07-31") %>%
+  model(
+    hw = ETS(Count ~ error("M") + trend("Ad") + season("M"))
+  ) %>%
+  forecast(h = "2 weeks") %>%
+  autoplot(sth_cross_ped %>% filter(Date <= "2016-08-14")) +
+  labs(title = "Daily traffic: Southern Cross",
+       y="Pedestrians ('000)")
+```
+
+## Holt-Winters with daily data
+
+
+```{r hwdaily, echo=FALSE, eval=TRUE}
+```
 
 # Innovations state space models
 
@@ -956,11 +989,11 @@ g(\bm{x}_{t-1})\varepsilon_t$\\
 \end{block}
 
 Additive errors
-: \mbox{}\vspace*{-0.5cm}\newline
+: \mbox{}\vspace*{-0.cm}\newline
   $k(x)=1$.\qquad $y_t = \mu_{t} + \varepsilon_t$.
 
 Multiplicative errors
-: \mbox{}\vspace*{-0.5cm}\newline
+: \mbox{}\vspace*{-0.cm}\newline
   $k(\bm{x}_{t-1}) = \mu_{t}$.\qquad $y_t = \mu_{t}(1 + \varepsilon_t)$.\newline
   $\varepsilon_t = (y_t - \mu_t)/\mu_t$ is relative error.
 
@@ -1052,7 +1085,7 @@ fit
 ```
 
 ## Example: National populations
-\fontsize{12}{12}\sf
+\fontsize{11}{11}\sf
 
 ```{r popfc, echo=TRUE, cache=TRUE, dependson="popfit"}
 fit %>%
@@ -1094,7 +1127,7 @@ fit %>%
 
 \fontsize{9}{10}\sf
 
-```{r ausholidays-components-plot, fig.height=4.3}
+```{r ausholidays-components-plot, fig.height=3.7}
 fit %>%
   filter(Region == "Snowy Mountains") %>%
   components(fit) %>%
@@ -1118,46 +1151,9 @@ fit %>%
   forecast() %>%
   filter(Region == "Snowy Mountains") %>%
   autoplot(holidays) +
-  xlab("Year") + ylab("Overnight trips (thousands)")
+  labs(y = "Thousands", title = "Overnight trips")
 ```
 
-
-## Some unstable models
-
-* Some of the combinations of (Error, Trend, Seasonal) can lead to numerical difficulties; see equations with division by a state.
-* These are: ETS(A,N,M), ETS(A,A,M), ETS(A,A\damped,M).
-* Models with multiplicative errors are useful for strictly positive data, but are not numerically stable with data containing zeros or negative values. In that case only the six fully additive models will be applied.
-
-## Exponential smoothing models
-\fontsize{11}{12}\sf
-
-\begin{block}{}
-\begin{tabular}{ll|ccc}
-  \multicolumn{2}{l}{\alert{\bf Additive Error}} &        \multicolumn{3}{c}{\bf Seasonal Component}         \\
-          \multicolumn{2}{c|}{\bf Trend}         &         N         &         A         &         M         \\
-        \multicolumn{2}{c|}{\bf Component}       &     ~(None)~      &    (Additive)     & (Multiplicative)  \\ \cline{3-5}
-           &                                     &                   &                   &  \\[-0.3cm]
-  N        & (None)                              &       A,N,N       &       A,N,A       &    \str{A,N,M}     \\
-           &                                     &                   &                   &  \\[-0.3cm]
-  A        & (Additive)                          &       A,A,N       &       A,A,A       &    \str{A,A,M}     \\
-           &                                     &                   &                   &  \\[-0.3cm]
-  A\damped & (Additive damped)                   &   A,A\damped,N    &   A,A\damped,A    & \str{A,A\damped,M}
-\end{tabular}
-\end{block}
-
-\begin{block}{}
-\begin{tabular}{ll|ccc}
-  \multicolumn{2}{l}{\alert{\bf Multiplicative Error}} &     \multicolumn{3}{c}{\bf Seasonal Component}      \\
-             \multicolumn{2}{c|}{\bf Trend}            &      N       &         A         &        M         \\
-           \multicolumn{2}{c|}{\bf Component}          &   ~(None)~   &    (Additive)     & (Multiplicative) \\ \cline{3-5}
-           &                                           &              &                   &  \\[-0.3cm]
-  N        & (None)                                    &    M,N,N     &       M,N,A       &      M,N,M       \\
-           &                                           &              &                   &  \\[-0.3cm]
-  A        & (Additive)                                &    M,A,N     &       M,A,A       &      M,A,M       \\
-           &                                           &              &                   &  \\[-0.3cm]
-  A\damped & (Additive damped)                         & M,A\damped,N &   M,A\damped,A    &   M,A\damped,M
-\end{tabular}
-\end{block}
 
 ## Residuals
 \fontsize{16}{18}\sf
@@ -1200,16 +1196,76 @@ bind_rows(
   ggplot(aes(x = Quarter, y = .resid)) +
   geom_line() +
   facet_grid(Type ~ ., scales = "free_y") +
-  ylab(NULL)
+  labs(y = "")
 ```
+
+
+## Example: Australian holiday tourism
+\fontsize{8.5}{9}\sf
+
+```{r wider, include=FALSE}
+fred <- options(width=67)
+```
+
+```{r tourismresiduals, dependson="wider"}
+fit %>%
+  filter(Region == "Snowy Mountains") %>%
+  augment()
+```
+
+\only<2>{\begin{textblock}{9}(2,8.4)\begin{block}{}Innovation residuals are given by $\hat{\varepsilon}_t$ while regular residuals are $y_t - \hat{y}_{t-1}$. They are different when the model has multiplicative errors.
+\end{block}\end{textblock}}
+
+
+```{r normal, include=FALSE}
+options(fred)
+```
+
+## Some unstable models
+
+* Some of the combinations of (Error, Trend, Seasonal) can lead to numerical difficulties; see equations with division by a state.
+* These are: ETS(A,N,M), ETS(A,A,M), ETS(A,A\damped,M).
+* Models with multiplicative errors are useful for strictly positive data, but are not numerically stable with data containing zeros or negative values. In that case only the six fully additive models will be applied.
+
+## Exponential smoothing models
+\fontsize{11}{12}\sf
+
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+  \multicolumn{2}{l}{\alert{\bf Additive Error}} &        \multicolumn{3}{c}{\bf Seasonal Component}         \\
+          \multicolumn{2}{c|}{\bf Trend}         &         N         &         A         &         M         \\
+        \multicolumn{2}{c|}{\bf Component}       &     ~(None)~      &    (Additive)     & (Multiplicative)  \\ \cline{3-5}
+           &                                     &                   &                   &  \\[-0.3cm]
+  N        & (None)                              &       A,N,N       &       A,N,A       &    \str{A,N,M}     \\
+           &                                     &                   &                   &  \\[-0.3cm]
+  A        & (Additive)                          &       A,A,N       &       A,A,A       &    \str{A,A,M}     \\
+           &                                     &                   &                   &  \\[-0.3cm]
+  A\damped & (Additive damped)                   &   A,A\damped,N    &   A,A\damped,A    & \str{A,A\damped,M}
+\end{tabular}
+\end{block}
+
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+  \multicolumn{2}{l}{\alert{\bf Multiplicative Error}} &     \multicolumn{3}{c}{\bf Seasonal Component}      \\
+             \multicolumn{2}{c|}{\bf Trend}            &      N       &         A         &        M         \\
+           \multicolumn{2}{c|}{\bf Component}          &   ~(None)~   &    (Additive)     & (Multiplicative) \\ \cline{3-5}
+           &                                           &              &                   &  \\[-0.3cm]
+  N        & (None)                                    &    M,N,N     &       M,N,A       &      M,N,M       \\
+           &                                           &              &                   &  \\[-0.3cm]
+  A        & (Additive)                                &    M,A,N     &       M,A,A       &      M,A,M       \\
+           &                                           &              &                   &  \\[-0.3cm]
+  A\damped & (Additive damped)                         & M,A\damped,N &   M,A\damped,A    &   M,A\damped,M
+\end{tabular}
+\end{block}
 
 # Forecasting with exponential smoothing
 
 ## Forecasting with ETS models
 
-\structure{Point forecasts:} iterate the equations for $t=T+1,T+2,\dots,T+h$ and set all $\varepsilon_t=0$ for $t>T$.\pause
+\structure{Traditional point forecasts:} iterate the equations for $t=T+1,T+2,\dots,T+h$ and set all $\varepsilon_t=0$ for $t>T$.\pause
 
 * Not the same as $\text{E}(y_{t+h} | \bm{x}_t)$ unless trend and seasonality are both additive.
+* `fable` uses $\text{E}(y_{t+h} | \bm{x}_t)$.
 * Point forecasts for ETS(A,\*,\*) are identical to ETS(M,\*,\*) if the parameters are the same.
 
 ## Example: ETS(A,A,N)
@@ -1248,7 +1304,7 @@ etc.
 
 ## Forecasting with ETS models
 
-\structure{Prediction intervals:} can only generated using the models.
+\structure{Prediction intervals:} can only be generated using the models.
 
   * The prediction intervals will differ between models with additive and multiplicative errors.
   * Exact formulae for some models.
@@ -1323,7 +1379,7 @@ h02 %>%
   accuracy()
 ```
 
-```{r}
+```{r, echo=FALSE, eval=TRUE}
 h02 %>%
   model(
     auto = ETS(Cost),
@@ -1334,6 +1390,7 @@ h02 %>%
   knitr::kable(booktabs = TRUE)
 ```
 
+<!--
 ## Your turn
 
 * Use `ETS()` on some of these series:\vspace*{0.2cm}
@@ -1344,3 +1401,4 @@ h02 %>%
 
 * Find an example where it does not work well. Can you figure out why?
 
+ -->
