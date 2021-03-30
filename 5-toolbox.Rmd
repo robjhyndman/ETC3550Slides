@@ -322,7 +322,7 @@ fb_stock %>%
 ```{r ref.label='fbf2', echo=FALSE, fig.height=4.6}
 ```
 
-<!-- 
+<!--
 ## Your turn
 
  * Produce forecasts using an appropriate benchmark method for household wealth (`hh_budget`). Plot the results using `autoplot()`.
@@ -420,7 +420,7 @@ augment(fit) %>%
 
 ```{r dj5, echo=TRUE, warning = FALSE}
 augment(fit) %>%
-  autoplot(.resid) + 
+  autoplot(.resid) +
   labs(y = "$US",
        title = "Residuals from naïve method")
 ```
@@ -592,7 +592,7 @@ brick_fc %>% hilo(level = 95)
 \fontsize{12}{13}\sf
 
 ```{r food, echo=TRUE, fig.height=3}
-eggs <- prices %>% 
+eggs <- prices %>%
   filter(!is.na(eggs)) %>% select(eggs)
 eggs %>% autoplot() +
   labs(title="Annual egg prices",
@@ -930,81 +930,124 @@ accuracy(beer_fc, recent_production) %>%
 
 \vspace*{10cm}
 
-## Poll: true or false?
+<!-- ## Poll: true or false?
 
 
 \begin{alertblock}{}\Large\bfseries\sffamily
 https://pollev.com/robjhyndman
 \end{alertblock}
+ -->
 
 # Time series cross-validation
 
-## Time series cross-validation {-}
 
-**Traditional evaluation**
-
-```{r traintest2, fig.height=1, echo=FALSE, cache=TRUE}
-train = 1:18
-test = 19:24
-par(mar=c(0,0,0,0))
-plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
-arrows(0,0.5,25,0.5,0.05)
-points(train, train*0+0.5, pch=19, col="#0072B2")
-points(test,  test*0+0.5,  pch=19, col="#D55E00")
-text(26,0.5,"time")
-text(10,1,"Training data",col="#0072B2")
-text(21,1,"Test data",col="#D55E00")
-```
-
-\vspace*{10cm}
-
-## Time series cross-validation {-}
-
-**Traditional evaluation**
-
-```{r traintest3, fig.height=1, echo=FALSE, cache=TRUE}
-train = 1:18
-test = 19:24
-par(mar=c(0,0,0,0))
-plot(0,0,xlim=c(0,26),ylim=c(0,2),xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
-arrows(0,0.5,25,0.5,0.05)
-points(train, train*0+0.5, pch=19, col="#0072B2")
-points(test,  test*0+0.5,  pch=19, col="#D55E00")
-text(26,0.5,"time")
-text(10,1,"Training data",col="#0072B2")
-text(21,1,"Test data",col="#D55E00")
-```
-
-**Time series cross-validation**
-
-```{r cv1, cache=TRUE, echo=FALSE, fig.height=4}
-par(mar=c(0,0,0,0))
-plot(0,0,xlim=c(0,28),ylim=c(0,1),
-       xaxt="n",yaxt="n",bty="n",xlab="",ylab="",type="n")
-i <- 1
-for(j in 1:10)
-{
-  test <- (16+j):26
-  train <- 1:(15+j)
-  arrows(0,1-j/20,27,1-j/20,0.05)
-  points(train,rep(1-j/20,length(train)),pch=19,col="#0072B2")
-  if(length(test) >= i)
-    points(test[i], 1-j/20, pch=19, col="#D55E00")
-  if(length(test) >= i)
-    points(test[-i], rep(1-j/20,length(test)-1), pch=19, col="gray")
-  else
-    points(test, rep(1-j/20,length(test)), pch=19, col="gray")
+```{r tscvplots, echo=FALSE}
+tscv_plot <- function(.init, .step, h = 1) {
+  expand.grid(
+    time = seq(26),
+    .id = seq(trunc(20 / .step))
+  ) %>%
+    group_by(.id) %>%
+    mutate(
+      observation = case_when(
+        time <= ((.id - 1) * .step + .init) ~ "train",
+        time %in% c((.id - 1) * .step + .init + h) ~ "test",
+        TRUE ~ "unused"
+      )
+    ) %>%
+    ungroup() %>%
+    filter(.id <= 26 - .init) %>%
+    ggplot(aes(x = time, y = .id)) +
+    geom_segment(
+      aes(x = 0, xend = 27, y = .id, yend = .id),
+      arrow = arrow(length = unit(0.015, "npc")),
+      col = "black", size = .25
+    ) +
+    geom_point(aes(col = observation), size = 2) +
+    scale_y_reverse() +
+    scale_color_manual(values = c(train = "#0072B2", test = "#D55E00", unused = "gray")) +
+    #theme_void() +
+    #geom_label(aes(x = 28.5, y = 1, label = "time")) +
+    guides(col = FALSE) +
+    labs(x="time", y="") +
+    theme_void() +
+    theme(axis.title = element_text())
 }
-text(28,.95,"time")
+```
+
+## Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest1, fig.height=1, echo=FALSE, dependson="tscvplots"}
+tscv_plot(.init = 18, .step = 20, h = 1:8) +
+  geom_text(aes(x=10,y=0.8,label="Training data"), color = "#0072B2") +
+  geom_text(aes(x=21,y=0.8,label="Test data"), color = "#D55E00") +
+  ylim(1,0)
 ```
 
 \pause
 
- * Forecast accuracy averaged over test sets.
- * Also known as "evaluation on a rolling forecasting origin"
+**Time series cross-validation**
 
- \vspace*{10cm}
+```{r tscvggplot1, echo=FALSE}
+tscv_plot(.init = 3, .step = 1, h = 1) +
+  geom_text(aes(x=21,y=0,label="h = 1"), color = "#D55E00")
+```
 
+
+## Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest2, ref.label="traintest1", fig.height=1, echo=FALSE}
+```
+
+**Time series cross-validation**
+
+```{r tscvggplot2, echo=FALSE,  dependson="tscvplots"}
+tscv_plot(.init = 3, .step = 1, h = 2) +
+  geom_text(aes(x=21,y=0,label="h = 2"), color = "#D55E00")
+```
+
+## Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest3, ref.label="traintest1", fig.height=1, echo=FALSE}
+```
+
+**Time series cross-validation**
+
+```{r tscvggplot3, echo=FALSE,  dependson="tscvplots"}
+tscv_plot(.init = 3, .step = 1, h = 3) +
+  geom_text(aes(x=21,y=0,label="h = 3"), color = "#D55E00")
+```
+
+
+## Time series cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest4, ref.label="traintest1", fig.height=1, echo=FALSE}
+```
+
+**Time series cross-validation**
+
+```{r tscvggplot4, echo=FALSE,  dependson="tscvplots"}
+tscv_plot(.init = 3, .step = 1, h = 4) +
+  geom_text(aes(x=21,y=0,label="h = 4"), color = "#D55E00")
+```
+
+\only<2>{\begin{textblock}{9}(2,7)\begin{block}{}\fontsize{12}{13}\sf
+\begin{itemize}\tightlist
+\item Forecast accuracy averaged over test sets.
+\item Also known as "evaluation on a rolling forecasting origin"
+\end{itemize}\end{block}\end{textblock}}
+
+\vspace*{10cm}
+
+<!--
 ## Creating the rolling training sets {-}
 
 \fontsize{13}{14}\sf
@@ -1018,9 +1061,9 @@ There are three main rolling types which can be used.
 Three functions to roll a tsibble: `stretch_tsibble()`, `slide_tsibble()`,
 and `tile_tsibble()`.
 
-For time series cross-validation, stretching windows are most commonly used.
+For time series cross-validation, stretching windows are most commonly used. -->
 
-## Creating the rolling training sets {-}
+<!-- ## Creating the rolling training sets {-}
 
 ```{r animate, echo = FALSE, warning = FALSE, message = FALSE, fig.show='animate', interval=1/10, fig.height=4, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
 library(gganimate)
@@ -1059,6 +1102,7 @@ ggplot() +
   theme_bw() +
   transition_manual(.id)
 ```
+ -->
 
 ## Time series cross-validation {-}
 
@@ -1095,7 +1139,7 @@ print(fit_cv, n = 4)
 
 ## Time series cross-validation {-}
 
-\small
+\fontsize{9.5}{11}\sf
 
 Produce one step ahead forecasts from all models.
 
@@ -1104,7 +1148,6 @@ fc_cv <- fit_cv %>%
   forecast(h=1)
 ```
 
-\fontsize{10}{11}\sf
 ```{r google-fc-print, echo = FALSE}
 fc_cv %>% select(-.model) %>% print(n = 4)
 ```
