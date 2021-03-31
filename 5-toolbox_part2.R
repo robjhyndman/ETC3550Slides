@@ -1,3 +1,4 @@
+library(fpp3)
 
 ## US RETAIL EMPLOYMENT
 
@@ -10,8 +11,12 @@ us_retail_employment %>%
 
 dcmp <- us_retail_employment %>%
   model(STL(Employed)) %>%
-  components() %>%
-  select(-.model)
+  components() 
+
+autoplot(dcmp)
+
+dcmp <- dcmp %>% select(-.model)
+dcmp %>% autoplot(season_adjust)
 
 dcmp %>%
   model(NAIVE(season_adjust)) %>%
@@ -19,14 +24,21 @@ dcmp %>%
   autoplot(dcmp) +
   labs(title = "Naive forecasts of seasonally adjusted data")
 
+dcmp %>% autoplot(season_year)
+
+dcmp %>%
+  model(SNAIVE(season_year)) %>%
+  forecast() %>%
+  autoplot(dcmp) +
+  labs(title = "Seasonal naive forecasts of seasonal component")
+
 us_retail_employment %>%
   model(stlf = decomposition_model(
-    STL(Employed ~ trend(window = 7), robust = TRUE),
+    STL(Employed),
     NAIVE(season_adjust)
   )) %>%
   forecast() %>%
   autoplot(us_retail_employment)
-
 
 ## BEER PRODUCTION
 
@@ -73,38 +85,3 @@ fc_cv %>% accuracy(fb_stock)
 fb_stock %>%
   model(RW(Close ~ drift())) %>%
   accuracy()
-
-## BEER -------------------------------------------
-
-recent <- aus_production %>% filter(year(Quarter) >= 1992)
-recent %>% autoplot(Beer)
-fit <- recent %>% model(SNAIVE(Beer))
-fit %>%
-  forecast() %>%
-  autoplot(recent)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 0)
-
-gg_tsresiduals(fit)
-
-fit %>%
-  forecast() %>%
-  hilo(level = c(50, 95))
-
-## FOOD RETAILING
-
-food <- aus_retail %>%
-  filter(Industry == "Food retailing") %>%
-  summarise(Turnover = sum(Turnover))
-
-fit <- food %>%
-  model(SNAIVE(log(Turnover)))
-
-fc <- fit %>%
-  forecast(h = "3 years")
-
-fc %>% autoplot(food)
-
-fc %>% autoplot(filter(food, year(Month) > 2010))
-
