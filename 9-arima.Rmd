@@ -21,20 +21,11 @@ options(digits = 3, width = 60)
 library(fpp3)
 library(patchwork)
 library(purrr)
-
-usmelec <- as_tsibble(fpp2::usmelec) %>%
-  rename(Month = index, Generation = value)
-
-eu_retail <- as_tsibble(fpp2::euretail)
-
-h02 <- tsibbledata::PBS %>%
-  filter(ATC2 == "H02") %>%
-  summarise(Cost = sum(Cost))
 ```
 
 ## ARIMA models
 
-\begin{tabular}{rl}
+\begin{tabular}{@{}rl}
 \textbf{AR}: & autoregressive (lagged observations as inputs)\\
 \textbf{I}: & integrated (differencing to make series stationary)\\
 \textbf{MA}: & moving average (lagged errors as inputs)
@@ -60,58 +51,99 @@ A **stationary series** is:
 * no patterns predictable in the long-term
 
 ## Stationary?
+\fontsize{11}{13}\sf
 
 ```{r}
 gafa_stock %>%
   filter(Symbol == "GOOG", year(Date) == 2018) %>%
-  autoplot(Close) + ylab("Google closing stock price") + xlab("Day")
+  autoplot(Close) +
+  labs(y = "Google closing stock price", x = "Day")
 ```
 
 ## Stationary?
+\fontsize{11}{13}\sf
 
 ```{r}
 gafa_stock %>%
   filter(Symbol == "GOOG", year(Date) == 2018) %>%
-  autoplot(difference(Close)) + ylab("Google closing stock price") + xlab("Day")
+  autoplot(difference(Close)) +
+  labs(y = "Google closing stock price", x = "Day")
 ```
 
 ## Stationary?
+\fontsize{11}{13}\sf
 
 ```{r}
-as_tsibble(fma::strikes) %>% autoplot(value) +
-  ylab("Number of strikes") + xlab("Year")
+global_economy %>%
+  filter(Country == "Algeria") %>%
+  autoplot(Exports) +
+  labs(y = "% of GDP", title = "Algerian Exports")
 ```
 
 ## Stationary?
+\fontsize{11}{13}\sf
 
 ```{r}
-as_tsibble(fma::hsales) %>% autoplot(value) + xlab("Year") + ylab("Total sales") +
-  ggtitle("Sales of new one-family houses, USA")
+aus_production %>%
+  autoplot(Bricks) +
+  labs(title = "Clay brick production in Australia")
 ```
 
 ## Stationary?
+\fontsize{11}{13}\sf
+
 ```{r}
-as_tsibble(fma::eggs) %>% autoplot(value) + xlab("Year") + ylab("$") +
-  ggtitle("Price of a dozen eggs in 1993 dollars")
+prices %>%
+  filter(year >= 1900) %>%
+  autoplot(eggs) +
+  labs(y="$US (1993)", title="Price of a dozen eggs")
 ```
 
 ## Stationary?
+\fontsize{9}{10}\sf
+
 ```{r}
 aus_livestock %>%
   filter(
-    Animal == "Pigs",
-    State == "Victoria",
-    year(Month) >= 2010
+    Animal == "Pigs", State == "Victoria",
   ) %>%
-  autoplot(Count/1e3) + xlab("Year") + ylab("thousands") +
-  ggtitle("Number of pigs slaughtered in Victoria")
+  autoplot(Count/1e3) +
+  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
+```
+
+## Stationary?
+\fontsize{9}{10}\sf
+
+```{r}
+aus_livestock %>%
+  filter(
+    Animal == "Pigs", State == "Victoria", year(Month) >= 2010
+  ) %>%
+  autoplot(Count/1e3) +
+  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
+```
+
+## Stationary?
+\fontsize{9}{10}\sf
+
+```{r}
+aus_livestock %>%
+  filter(
+    Animal == "Pigs", State == "Victoria", year(Month) >= 2015
+  ) %>%
+  autoplot(Count/1e3) +
+  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
 ```
 
 ## Stationary?
 
+\fontsize{11}{13}\sf
+
 ```{r}
-pelt %>% autoplot(Lynx) + xlab("Year") + ylab("Number trapped") +
-  ggtitle("Annual Canadian Lynx Trappings")
+pelt %>%
+  autoplot(Lynx) +
+  labs(y = "Number trapped",
+       title = "Annual Canadian Lynx Trappings")
 ```
 
 ## Stationarity
@@ -133,34 +165,42 @@ For ARIMA modelling, we also need to **stabilize the mean**.
 * For non-stationary data, the value of $r_1$ is often large and positive.
 
 ## Example: Google stock price
-
-```{r}
-gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) == 2018) %>%
-  autoplot(Close) + ylab("Closing stock price ($USD)") + xlab("Day")
-```
-
-## Example: Google stock price
+\fontsize{10}{12}\sf
 
 ```{r}
 google_2018 <- gafa_stock %>%
   filter(Symbol == "GOOG", year(Date) == 2018) %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index = trading_day, regular = TRUE)
-google_2018 %>%
-  ACF(Close) %>% autoplot()
 ```
 
 ## Example: Google stock price
+\fontsize{10}{12}\sf
 
 ```{r}
-gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) == 2018) %>%
-  autoplot(difference(Close)) +
-  ylab("Change in Google closing stock price ($USD)") + xlab("Day")
+google_2018 %>%
+  autoplot(Close) +
+  labs(y = "Closing stock price ($USD)")
 ```
 
 ## Example: Google stock price
+\fontsize{10}{12}\sf
+
+```{r, fig.height=3.5}
+google_2018 %>% ACF(Close) %>% autoplot()
+```
+
+## Example: Google stock price
+\fontsize{10}{12}\sf
+
+```{r}
+google_2018 %>%
+  autoplot(difference(Close)) +
+  labs(y = "Change in Google closing stock price ($USD)")
+```
+
+## Example: Google stock price
+\fontsize{10}{12}\sf
 
 ```{r}
 google_2018 %>% ACF(difference(Close)) %>% autoplot()
@@ -195,43 +235,88 @@ where $m=$ number of seasons.\pause
 * For monthly data $m=12$.
 * For quarterly data $m=4$.
 
-## Electricity production
+## Antidiabetic drug sales
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  Generation
-)
+a10 <- PBS %>%
+  filter(ATC2 == "A10") %>%
+  summarise(Cost = sum(Cost)/1e6)
 ```
 
-## Electricity production
+## Antidiabetic drug sales
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  log(Generation)
+a10 %>% autoplot(
+  Cost
 )
 ```
 
-## Electricity production
+## Antidiabetic drug sales
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12)
+a10 %>% autoplot(
+  log(Cost)
 )
 ```
 
-## Electricity production
+## Antidiabetic drug sales
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12) %>% difference()
+a10 %>% autoplot(
+  log(Cost) %>% difference(12)
 )
 ```
 
-## Electricity production
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 <- PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost)/1e6)
+```
+
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  Cost
+)
+```
+
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  log(Cost)
+)
+```
+
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  log(Cost) %>% difference(12)
+)
+```
+
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  log(Cost) %>% difference(12) %>% difference(1)
+)
+```
+
+## Cortecosteroid drug sales
 
 * Seasonally differenced series is closer to being stationary.
 * Remaining non-stationarity can be removed with further first difference.
@@ -272,7 +357,7 @@ But taking lag 3 differences for yearly data, for example, results in a model wh
   3. Other tests available for seasonal data.
 
 ## KPSS test
-\fontsize{9}{10}\sf
+\fontsize{11}{12}\sf
 
 ```{r, echo=TRUE}
 google_2018 %>%
@@ -294,27 +379,27 @@ Seasonal strength $F_s = \max\big(0, 1-\frac{\text{Var}(R_t)}{\text{Var}(S_t+R_t
 
 If $F_s > 0.64$, do one seasonal difference.
 
-\fontsize{9}{10}\sf
+\fontsize{10}{11}\sf
 
 ```{r, echo=TRUE}
-usmelec %>% mutate(log_gen = log(Generation)) %>%
-  features(log_gen, list(unitroot_nsdiffs, feat_stl))
+h02 %>% mutate(log_sales = log(Cost)) %>%
+  features(log_sales, list(unitroot_nsdiffs, feat_stl))
 ```
 
 ## Automatically selecting differences
-
-\fontsize{9}{10}\sf
+\fontsize{10}{11}\sf
 
 ```{r, echo=TRUE}
-usmelec %>% mutate(log_gen = log(Generation)) %>%
-  features(log_gen, unitroot_nsdiffs)
-usmelec %>% mutate(d_log_gen = difference(log(Generation), 12)) %>%
-  features(d_log_gen, unitroot_ndiffs)
+h02 %>% mutate(log_sales = log(Cost)) %>%
+  features(log_sales, unitroot_nsdiffs)
+h02 %>% mutate(d_log_sales = difference(log(Cost), 12)) %>%
+  features(d_log_sales, unitroot_ndiffs)
 ```
 
-## Your turn
+<!-- ## Your turn
 
 For the `tourism` dataset, compute the total number of trips and find an appropriate differencing (after transformation if necessary) to obtain stationary data.
+-->
 
 ## Backshift notation
 
@@ -379,9 +464,9 @@ where $\varepsilon_t$ is white noise. This is a multiple regression with \textbf
 ```{r arp, echo=FALSE, fig.height=3}
 set.seed(1)
 p1 <- tsibble(idx = seq_len(100), sim = 10 + arima.sim(list(ar = -0.8), n = 100), index = idx) %>%
-  autoplot(sim) + ylab("") + ggtitle("AR(1)")
+  autoplot(sim) + labs(y="", title  = "AR(1)")
 p2 <- tsibble(idx = seq_len(100), sim = 20 + arima.sim(list(ar = c(1.3, -0.7)), n = 100), index = idx) %>%
-  autoplot(sim) + ylab("") + ggtitle("AR(2)")
+  autoplot(sim) + labs(y="", title ="AR(2)")
 p1 | p2
 ```
 
@@ -414,7 +499,7 @@ p1
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$, \qquad $T=100$.}
 
-```{r}
+```{r, echo=FALSE}
 p2
 ```
 
@@ -442,12 +527,12 @@ where $\varepsilon_t$ is white noise.
 This is a multiple regression with \textbf{past \emph{errors}} as predictors. \emph{Don't confuse this with moving average smoothing!}
 \end{block}
 
-```{r maq, fig.height=2.5}
+```{r maq, fig.height=2.5, echo=FALSE}
 set.seed(2)
 p1 <- tsibble(idx = seq_len(100), sim = 20 + arima.sim(list(ma = 0.8), n = 100), index = idx) %>%
-  autoplot(sim) + ylab("") + ggtitle("MA(1)")
+  autoplot(sim) + labs(y="", title = "MA(1)")
 p2 <- tsibble(idx = seq_len(100), sim = arima.sim(list(ma = c(-1, +0.8)), n = 100), index = idx) %>%
-  autoplot(sim) + ylab("") + ggtitle("MA(2)")
+  autoplot(sim) + labs(y="",title="MA(2)")
 
 p1 | p2
 ```
@@ -459,7 +544,7 @@ p1 | p2
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-```{r}
+```{r, echo=FALSE}
 p1
 ```
 
@@ -470,7 +555,7 @@ p1
 \end{block}
 \rightline{$\varepsilon_t\sim N(0,1)$,\quad $T=100$.}
 
-```{r}
+```{r, echo=FALSE}
 p2
 ```
 
@@ -587,49 +672,67 @@ $$
  * $c = \mu(1-\phi_1 - \cdots - \phi_p )$.
  * fable uses intercept form
 
-## US consumption expenditure
+## Egyptian exports
 
 \fontsize{10}{10}\sf
 
-```{r, echo=TRUE}
-us_change %>% autoplot(Consumption) +
-  xlab("Year") +
-  ylab("Quarterly percentage change") +
-  ggtitle("US consumption")
+```{r egyptexportsauto, echo=TRUE}
+global_economy %>%
+  filter(Code == "EGY") %>%
+  autoplot(Exports) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
 ```
 
-## US personal consumption
+## Egyptian exports
 \fontsize{9}{10}\sf
 
-```{r, echo=TRUE}
-fit <- us_change %>% model(arima = ARIMA(Consumption ~ PDQ(0,0,0)))
+```{r, echo=TRUE, dependson="egyptexportsauto"}
+fit <- global_economy %>% filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
 report(fit)
 ```
 
 \pause\vfill
 
-```{r}
-if(!grepl("ARIMA\\(1,0,3\\)", format(fit$arima)))
-  warning("Needs fixing")
+```{r egyptexportsmodel, include=FALSE, warning=FALSE, dependson="egyptexportsauto"}
+stopifnot(identical(
+  unlist(fit[1,2][[1]][[1]]$fit$spec),
+  c(p=2L, d=0L, q=1L, P=0, D=0, Q=0, constant=TRUE, period.year=1)
+))
+coef <- rlang::set_names(tidy(fit)$estimate, tidy(fit)$term)
 ```
 
-### ARIMA(1,0,3) model:
-\centerline{$
-  y_t = `r format(tidy(fit)$estimate[5], nsmall=3, digits=3)`
-      + `r format(tidy(fit)$estimate[1], nsmall=3, digits=3)`y_{t-1}
-      `r format(tidy(fit)$estimate[2], nsmall=3, digits=3)` \varepsilon_{t-1}
-      + `r format(tidy(fit)$estimate[3], nsmall=3, digits=3)` \varepsilon_{t-2}
-      + `r format(tidy(fit)$estimate[4], nsmall=3, digits=3)` \varepsilon_{t-3}
-      + \varepsilon_{t},
-$}
-where $\varepsilon_t$ is white noise with a standard deviation of $`r format(sqrt(glance(fit)$sigma2), nsmall=3, digits=3)` = \sqrt{`r format(glance(fit)$sigma2, nsmall=3, digits=3)`}$.
+### ARIMA(2,0,1) model:
+$$
+  y_t = `r sprintf("%.2f", coef['constant'])`
+         + `r sprintf("%.2f", coef['ar1'])` y_{t-1}
+          `r sprintf("%.2f", coef['ar2'])` y_{t-2}
+          `r sprintf("%.2f", coef['ma1'])` \varepsilon_{t-1}
+          + \varepsilon_{t},
+$$
+where $\varepsilon_t$ is white noise with a standard deviation of $`r sprintf("%.3f", sqrt(glance(fit)$sigma2))` = \sqrt{`r sprintf("%.3f", glance(fit)$sigma2)`}$.
 
-## US personal consumption
-\fontsize{12}{15}\sf
+## Egyptian exports
+\fontsize{10}{12}\sf
+```{r, echo=TRUE, fig.height=4}
+gg_tsresiduals(fit)
+```
 
-```{r, echo=TRUE, fig.height=3.8}
+## Egyptian exports
+\fontsize{10}{12}\sf
+
+```{r, echo = TRUE}
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 10, dof = 3)
+```
+
+## Egyptian exports
+\fontsize{12}{13}\sf
+
+```{r egyptexportsf, fig.cap="Forecasts of Egyptian exports.", fig.asp=0.55, dependson="egyptexportsauto"}
 fit %>% forecast(h=10) %>%
-  autoplot(tail(us_change, 80))
+  autoplot(global_economy) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
 ```
 
 ## Understanding ARIMA models
@@ -689,29 +792,27 @@ $$
 * same critical values of $\pm 1.96/\sqrt{T}$ as for ACF.
 * Last significant $\alpha_k$ indicates the order of an AR model.
 
-## Example: Mink trapping
+## Egyptian exports
+\fontsize{10}{11}\sf
 
-```{r}
-mink <- as_tsibble(fma::mink)
-mink %>% autoplot(value) +
-  xlab("Year") +
-  ylab("Minks trapped (thousands)") +
-  ggtitle("Annual number of minks trapped")
+```{r, eval=FALSE}
+egypt <- global_economy %>% filter(Code == "EGY")
+egypt %>% ACF(Exports) %>% autoplot()
+egypt %>% PACF(Exports) %>% autoplot()
 ```
 
-## Example: Mink trapping
-
-```{r}
-p1 <- mink %>% ACF(value) %>% autoplot()
-p2 <- mink %>% PACF(value) %>% autoplot()
+```{r, echo=FALSE}
+p1 <- global_economy %>% filter(Code == "EGY") %>% ACF(Exports) %>% autoplot()
+p2 <- global_economy %>% filter(Code == "EGY") %>% PACF(Exports) %>% autoplot()
 p1 | p2
 ```
 
-## Example: Mink trapping
+## Egyptian exports
 \fontsize{12}{13}\sf
 
 ```{r, echo=TRUE}
-mink %>% gg_tsdisplay(value, plot_type='partial')
+global_economy %>% filter(Code == "EGY") %>%
+  gg_tsdisplay(Exports, plot_type='partial')
 ```
 
 ## ACF and PACF interpretation
@@ -826,71 +927,106 @@ Step 2:
 
 \alert{Repeat Step 2 until no lower AICc can be found.}
 
-## Choosing your own model
+## Egyptian exports
+\fontsize{10}{12}\sf
+
+```{r, echo=TRUE}
+global_economy %>% filter(Code == "EGY") %>%
+  gg_tsdisplay(Exports, plot_type='partial')
+```
+
+## Egyptian exports
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-web_usage <- as_tsibble(WWWusage)
-web_usage %>% gg_tsdisplay(value, plot_type = 'partial')
+fit1 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports ~ pdq(4,0,0)))
+report(fit1)
 ```
 
-## Choosing your own model
+## Egyptian exports
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4}
-web_usage %>% mutate(diff = difference(value)) %>%
-  gg_tsdisplay(diff, plot_type = 'partial')
+fit2 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
+report(fit2)
 ```
 
-## Choosing your own model
-\fontsize{11}{12}\sf
+## Central African Republic exports
+\fontsize{10}{12}\sf
 
-```{r, echo=TRUE, fig.height=4}
-fit <- web_usage %>%
-  model(arima = ARIMA(value ~ pdq(3, 1, 0)))
-report(fit)
+```{r}
+global_economy %>%
+  filter(Code == "CAF") %>%
+  autoplot(Exports) +
+  labs(title="Central African Republic exports",
+       y="% of GDP")
 ```
 
-## Choosing your own model
-\fontsize{11}{12}\sf
+## Central African Republic exports
+\fontsize{10}{12}\sf
 
-```{r, echo=TRUE, fig.height=4}
-web_usage %>%
-  model(ARIMA(value ~ pdq(d=1))) %>%
-report()
+```{r caf2, warning=FALSE}
+global_economy %>%
+  filter(Code == "CAF") %>%
+  gg_tsdisplay(difference(Exports), plot_type='partial')
 ```
 
-## Choosing your own model
-\fontsize{11}{12}\sf
+## Central African Republic exports
+\fontsize{10}{12}\sf
 
-```{r internettryharder, echo=TRUE, fig.height=4}
-web_usage %>%
-  model(ARIMA(value ~ pdq(d=1),
-    stepwise = FALSE, approximation = FALSE)) %>%
-  report()
+```{r caf_fit}
+caf_fit <- global_economy %>%
+  filter(Code == "CAF") %>%
+  model(arima210 = ARIMA(Exports ~ pdq(2,1,0)),
+        arima013 = ARIMA(Exports ~ pdq(0,1,3)),
+        stepwise = ARIMA(Exports),
+        search = ARIMA(Exports, stepwise=FALSE))
 ```
 
-## Choosing your own model
-\fontsize{11}{12}\sf
+## Central African Republic exports
+\fontsize{10}{12}\sf
 
-```{r, echo=TRUE, fig.height=4}
-gg_tsresiduals(fit)
+```{r caf_fit2}
+caf_fit %>% pivot_longer(!Country, names_to = "Model name",
+                         values_to = "Orders")
 ```
 
-## Choosing your own model
-\fontsize{11}{12}\sf
+## Central African Republic exports
+\fontsize{10}{12}\sf
 
-```{r, echo = TRUE}
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 3)
+```{r caf_fit3, dependson=c("digits","caf_fit2")}
+glance(caf_fit) %>% arrange(AICc) %>% select(.model:BIC)
 ```
 
-## Choosing your own model
-\fontsize{11}{12}\sf
+## Central African Republic exports
+\fontsize{10}{12}\sf
 
-```{r, echo=TRUE, fig.height=4}
-fit %>% forecast(h = 10) %>%
-  autoplot(web_usage)
+```{r cafres, dependson='caf_fit'}
+caf_fit %>%
+  select(search) %>%
+  gg_tsresiduals()
+```
+
+## Central African Republic exports
+\fontsize{10}{12}\sf
+
+```{r caf_lb, dependson='caf_fit',}
+augment(caf_fit) %>%
+  features(.innov, ljung_box, lag = 10, dof = 3)
+```
+
+## Central African Republic exports
+\fontsize{10}{12}\sf
+
+```{r caffc, dependson="caf_fit"}
+caf_fit %>%
+  forecast(h=5) %>%
+  filter(.model=='search') %>%
+  autoplot(global_economy)
 ```
 
 ## Modelling procedure with `ARIMA()`
@@ -922,81 +1058,6 @@ fit %>% forecast(h = 10) %>%
 ## Modelling procedure
 
 \centerline{\includegraphics[height=8.cm]{Figure-8-10}}
-
-## \large Seasonally adjusted electrical equipment
-\fontsize{10}{11}\sf
-
-```{r ee1, fig.height=3, echo=TRUE}
-elecequip <- as_tsibble(fpp2::elecequip)
-dcmp <- elecequip %>%
-  model(STL(value ~ season(window = "periodic"))) %>%
-  components() %>% select(-.model)
-dcmp %>% as_tsibble %>%
-  autoplot(season_adjust) + xlab("Year") +
-  ylab("Seasonally adjusted new orders index")
-```
-
-## \large Seasonally adjusted electrical equipment
-
-1. Time plot shows sudden changes, particularly big drop in 2008/2009 due to global economic environment. Otherwise nothing unusual and no need for data adjustments.
-2. No evidence of changing variance, so no Box-Cox transformation.
-3. Data are clearly non-stationary, so we take first differences.
-
-## \large Seasonally adjusted electrical equipment
-\fontsize{10}{11}\sf
-
-```{r ee2, echo=TRUE, fig.height=4}
-dcmp %>% mutate(diff = difference(season_adjust)) %>%
-  gg_tsdisplay(diff, plot_type = 'partial')
-```
-
-## \large Seasonally adjusted electrical equipment
-
-4. PACF is suggestive of AR(3). So initial candidate model is ARIMA(3,1,0). No other obvious candidates.
-5. Fit ARIMA(3,1,0) model along with variations: ARIMA(4,1,0), ARIMA(2,1,0), ARIMA(3,1,1), etc. ARIMA(3,1,1) has smallest \text{AICc} value.
-
-## \large Seasonally adjusted electrical equipment
-\fontsize{10}{11}\sf
-
-```{r, echo=TRUE}
-fit <- dcmp %>%
-  model(arima = ARIMA(season_adjust))
-report(fit)
-```
-
-## \large Seasonally adjusted electrical equipment
-\fontsize{10}{11}\sf
-
-```{r, echo=TRUE}
-fit <- dcmp %>%
-  model(arima = ARIMA(season_adjust, approximation=FALSE))
-report(fit)
-```
-
-## \large Seasonally adjusted electrical equipment
-
-6. ACF plot of residuals from ARIMA(3,1,1) model look like white noise.
-
-\fontsize{11}{11}\sf
-
-```{r, echo=FALSE, fig.height=3.4}
-gg_tsresiduals(fit)
-```
-
-## \large Seasonally adjusted electrical equipment
-\fontsize{11}{12}\sf
-
-```{r}
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 24, dof = 4)
-```
-
-## \large Seasonally adjusted electrical equipment
-\fontsize{11}{12}\sf
-
-```{r, echo=TRUE}
-fit %>% forecast %>% autoplot(dcmp)
-```
 
 # Forecasting
 
@@ -1100,13 +1161,13 @@ v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad
     * the ARIMA model assumes historical patterns will not change during the forecast period.
     * the ARIMA model assumes uncorrelated future \rlap{errors}
 
-## Your turn
+<!-- ## Your turn
 
 For the GDP data (from `global_economy`):
 
  * fit a suitable ARIMA model to the logged data for all countries
  * check the residual diagnostics for Australia;
- * produce forecasts of your fitted model for Australia.
+ * produce forecasts of your fitted model for Australia. -->
 
 <!-- # Backshift notation revisited
 
@@ -1275,128 +1336,128 @@ the PACF and ACF.
   * exponential decay in the seasonal lags of the ACF
   * a single significant spike at lag 12 in the PACF.
 
-## Example: US electricity production
-\fontsize{11}{13}\sf
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  Generation
-)
+```{r, fig.height=3}
+leisure <- us_employment %>%
+  filter(Title == "Leisure and Hospitality",
+         year(Month) > 2000) %>%
+  mutate(Employed = Employed/1000) %>%
+  select(Month, Employed)
+autoplot(leisure, Employed) +
+  labs(title = "US employment: leisure and hospitality",
+       y="Number of people (millions)")
 ```
 
-## Example: US electricity production
-\fontsize{11}{13}\sf
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  log(Generation)
-)
+```{r}
+leisure %>%
+  gg_tsdisplay(difference(Employed, 12),
+               plot_type='partial', lag=36) +
+  labs(title="Seasonally differenced", y="")
 ```
 
-## Example: US electricity production
-\fontsize{11}{13}\sf
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12)
-)
+```{r}
+leisure %>%
+  gg_tsdisplay(difference(Employed, 12) %>% difference(),
+               plot_type='partial', lag=36) +
+  labs(title = "Double differenced", y="")
 ```
 
-## Example: US electricity production
-\fontsize{11}{13}\sf
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12) %>% difference()
-)
+```{r}
+fit <- leisure %>%
+  model(
+    arima012011 = ARIMA(Employed ~ pdq(0,1,2) + PDQ(0,1,1)),
+    arima210011 = ARIMA(Employed ~ pdq(2,1,0) + PDQ(0,1,1)),
+    auto = ARIMA(Employed, stepwise = FALSE, approx = FALSE)
+  )
+fit %>% pivot_longer(everything(), names_to = "Model name",
+                     values_to = "Orders")
 ```
 
-## Example: US electricity production
-\fontsize{11}{13}\sf
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
-usmelec %>% gg_tsdisplay(
-  log(Generation) %>% difference(12) %>% difference(),
-  plot_type = "partial")
+```{r}
+glance(fit) %>% arrange(AICc) %>% select(.model:BIC)
 ```
 
-## Example: US electricity production
+## US leisure employment
+\fontsize{9}{10}\sf
 
- * $d=1$ and $D=1$ seems necessary
- * $P=0$ and $Q=1$ suggested by seasonal lags
- * $p=0$ and $q=3$ suggested by non-seasonal lags.
-
-## Example: US electricity production
-\fontsize{9}{12}\sf
-
-```{r usmelec2a, echo=TRUE}
-usmelec %>%
-  model(arima = ARIMA(log(Generation) ~ pdq(0,1,3) + PDQ(0,1,1))) %>%
-  report()
+```{r}
+fit %>% select(auto) %>% gg_tsresiduals(lag=36)
 ```
 
-## Example: US electricity production
-\fontsize{11}{13}\sf
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r usmelec2, echo=TRUE}
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  report()
+```{r}
+augment(fit) %>% features(.innov, ljung_box, lag=24, dof=4)
 ```
 
-## Example: US electricity production
-\fontsize{11}{12}
+## US leisure employment
+\fontsize{9}{10}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
-fit <- usmelec %>%
-  model(arima = ARIMA(log(Generation)))
-gg_tsresiduals(fit)
-```
-
-## Example: US electricity production
-\fontsize{11}{12}\sf
-
-```{r, echo = TRUE}
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 24, dof = 5)
-```
-
-## Example: US electricity production
-\fontsize{11}{13}\sf
-
-```{r usmelec3, echo=TRUE, fig.height=3.2}
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  forecast(h = "3 years") %>%
-  autoplot(usmelec)
-```
-
-## Example: US electricity production
-\fontsize{11}{13}\sf
-
-```{r usmelec4, echo=TRUE, fig.height=3.2}
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  forecast(h = "3 years") %>%
-  autoplot(filter(usmelec, year(Month) >= 2005))
+```{r}
+forecast(fit, h=36) %>%
+  filter(.model=='auto') %>%
+  autoplot(leisure) +
+  labs(title = "US employment: leisure and hospitality",
+       y="Number of people (millions)")
 ```
 
 ## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
 
-```{r h02}
-h02 %>%
-  mutate(log(Cost)) %>%
-  gather() %>%
-  ggplot(aes(x = Month, y = value)) +
-  geom_line() +
-  facet_grid(key ~ ., scales = "free_y") +
-  xlab("Year") + ylab("") +
-  ggtitle("Cortecosteroid drug scripts (H02)")
+```{r, echo=TRUE, fig.height=3.5}
+h02 <- PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost)/1e6)
 ```
 
 ## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  Cost
+)
+```
+
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  log(Cost)
+)
+```
+
+## Cortecosteroid drug sales
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE, fig.height=3.5}
+h02 %>% autoplot(
+  log(Cost) %>% difference(12)
+)
+```
+
+## Cortecosteroid drug sales
+\fontsize{9}{10}\sf
+
 ```{r h02b}
-h02 %>% gg_tsdisplay(difference(log(Cost),12), lag_max = 36, plot_type = 'partial')
+h02 %>% gg_tsdisplay(difference(log(Cost),12),
+                 lag_max = 36, plot_type = 'partial')
 ```
 
 ## Cortecosteroid drug sales
@@ -1531,7 +1592,7 @@ fit %>%
 ## Cortecosteroid drug sales
 \fontsize{12}{14}\sf
 
-```{r h02-rmse, cache=TRUE}
+```{r h02-rmse, cache=TRUE, echo=FALSE}
 models <- list(
   c(3,0,1,0,1,2),
   c(3,0,1,1,1,1),
@@ -1572,7 +1633,7 @@ fit %>%
 fit <- h02 %>%
   model(ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
 fit %>% forecast %>% autoplot(h02) +
-  ylab("H02 Expenditure ($AUD)") + xlab("Year")
+  labs(y = "H02 Expenditure ($AUD)")
 ```
 
 # ARIMA vs ETS
@@ -1593,9 +1654,9 @@ fit %>% forecast %>% autoplot(h02) +
 
 ## ARIMA vs ETS
 
-```{r venn}
+```{r venn, echo=FALSE}
 library(latex2exp)
-cols = c(ets = "#e41a1c", arima = "#377eb8")
+cols = c(ets = "#D55E00", arima = "#0072b2")
 tibble(
     x = c(-0.866, 0.866),
     y = c(-0.5, -0.5),
@@ -1605,15 +1666,15 @@ tibble(
   ggforce::geom_circle(aes(x0 = x, y0 = y, r = 1.5), alpha = 0.3, size = 1) +
   scale_color_manual(values=cols) + scale_fill_manual(values=cols) +
   coord_fixed() + guides(fill = FALSE) +
-  geom_text(aes(label = "ETS models", x = -1.5, y = 1.1), col = cols["ets"], fontface = "bold") +
+  geom_text(aes(label = "ETS models", x = -1.5, y = 1.15), col = cols["ets"], fontface = "bold", size=6) +
   geom_text(aes(label = "Combination\n of components", x = -1.5, y = 0.3), col = cols["ets"]) +
   geom_text(aes(label = "9 non-additive\n ETS models", x = -1.5, y = -0.6), col = cols["ets"]) +
   geom_text(aes(label = "All ETS models\n with M components", x = -.95, y = -1.6), col = cols["ets"]) +
-  geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.1), col = cols["arima"], fontface = "bold") +
+  geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.15), col = cols["arima"], fontface = "bold", size=6) +
   geom_text(aes(label = "Modelling\n autocorrelations", x = 1.5, y = 0.3), col = cols["arima"]) +
   annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.5, y = -0.6, col = cols["arima"]) +
   geom_text(aes(label = "All stationary models\n Many large models", x = 1.01, y = -1.6), col = cols["arima"]) +
-  geom_text(aes(label = "6 additive\n ETS models", x = 0, y = -0.6), col = "#715D84") +
+  geom_text(aes(label = "6 additive\n ETS models", x = 0, y = -0.6), col = "#6b6859") +
   guides(col=FALSE, fill=FALSE) +  theme_void()
 ```
 
@@ -1633,3 +1694,121 @@ tibble(
 | ETS(A,A,A)    | ARIMA(0,1,$m+1$)(0,1,0)$_m$ |                                      |
 | ETS(A,A\damped,A)    | ARIMA(1,0,$m+1$)(0,1,0)$_m$ |                                      |
 
+
+## Example: Australian population
+\fontsize{10}{11}\sf
+
+```{r tscvpop, echo=TRUE, warning=FALSE}
+aus_economy <- global_economy %>% filter(Code == "AUS") %>%
+  mutate(Population = Population/1e6)
+aus_economy %>%
+  slice(-n()) %>%
+  stretch_tsibble(.init = 10) %>%
+  model(eta = ETS(Population),
+        arima = ARIMA(Population)
+  ) %>%
+  forecast(h = 1) %>%
+  accuracy(aus_economy) %>%
+  select(.model, ME:RMSSE)
+```
+
+## Example: Australian population
+\fontsize{10}{11}\sf
+
+```{r popetsplot, echo=TRUE, fig.height=3.1}
+aus_economy %>%
+  model(ETS(Population)) %>%
+  forecast(h = "5 years") %>%
+  autoplot(aus_economy) +
+  labs(title = "Australian population",
+       y = "People (millions)")
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement1, echo=TRUE}
+cement <- aus_production %>%
+  select(Cement) %>%
+  filter_index("1988 Q1" ~ .)
+train <- cement %>% filter_index(. ~ "2007 Q4")
+fit <- train %>%
+  model(
+    arima = ARIMA(Cement),
+    ets = ETS(Cement)
+  )
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement2, dependson="qcement1"}
+fit %>%
+  select(arima) %>%
+  report()
+```
+
+## Example: Cement production
+\fontsize{10}{10.5}\sf
+
+```{r qcement3, dependson="qcement1"}
+fit %>%
+  select(ets) %>%
+  report()
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement4, dependson="qcement1"}
+gg_tsresiduals(fit %>% select(arima), lag_max = 16)
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement5, dependson="qcement1"}
+gg_tsresiduals(fit %>% select(ets), lag_max = 16)
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement6, dependson="qcement1"}
+fit %>%
+  select(arima) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 16, dof = 6)
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement7, dependson="qcement1"}
+fit %>%
+  select(ets) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 16, dof = 6)
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement8, dependson=c("qcement2","qcement3")}
+fit %>%
+  forecast(h = "2 years 6 months") %>%
+  accuracy(cement) %>%
+  select(-ME, -MPE, -ACF1)
+```
+
+## Example: Cement production
+\fontsize{10}{11}\sf
+
+```{r qcement9, echo=TRUE, dependson="qcement1", fig.height=3}
+fit %>%
+  select(arima) %>%
+  forecast(h="3 years") %>%
+  autoplot(cement) +
+  labs(title = "Cement production in Australia",
+       y="Tonnes ('000)")
+```
