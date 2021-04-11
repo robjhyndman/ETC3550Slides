@@ -161,8 +161,7 @@ us_change %>%
   gather(key='variable', value='value') %>%
   ggplot(aes(y=value, x=Quarter, group=variable, colour=variable)) +
   geom_line() + facet_grid(variable ~ ., scales='free_y') +
-  xlab("Year") + ylab("") +
-  ggtitle("Quarterly changes in US consumption and personal income") +
+  labs(y="",title ="Quarterly changes in US consumption and personal income") +
   guides(colour="none")
 ```
 
@@ -189,7 +188,7 @@ Write down the equations for the fitted model.
 ```{r , echo=TRUE, fig.height=3.7}
 residuals(fit, type='regression') %>%
   gg_tsdisplay(.resid, plot_type = 'partial') +
-  ggtitle("Regression errors")
+  labs(title = "Regression errors")
 ```
 
 ## US personal consumption and income
@@ -198,7 +197,7 @@ residuals(fit, type='regression') %>%
 ```{r , echo=TRUE, fig.height=3.7}
 residuals(fit, type='response') %>%
   gg_tsdisplay(.resid, plot_type = 'partial') +
-  ggtitle("ARIMA errors")
+  labs(title = "ARIMA errors")
 ```
 
 ## US personal consumption and income
@@ -309,7 +308,7 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
 \fontsize{10}{13}\sf
 ```{r, echo = TRUE}
 forecast(fit, new_data=vic_elec_future) %>%
-  autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
+  autoplot(vic_elec_daily) + labs(y="Electricity demand (GW)")
 ```
 
 # Stochastic and deterministic trends
@@ -482,7 +481,7 @@ cafe_plot <- function(...){
   fit %>%
     select(...) %>%
     forecast() %>% autoplot(aus_cafe) +
-    ggtitle(sprintf("Log transformed %s, fourier(K = %s)", model_sum(select(fit,...)[[1]][[1]]), deparse(..1))) +
+    labs(title = sprintf("Log transformed %s, fourier(K = %s)", model_sum(select(fit,...)[[1]][[1]]), deparse(..1))) +
     geom_label(
       aes(x = yearmonth("2007 Jan"), y = 4250, label = paste0("AICc = ", format(AICc))),
       data = glance(select(fit,...))

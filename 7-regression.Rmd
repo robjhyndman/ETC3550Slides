@@ -54,7 +54,7 @@ That is, the coefficients measure the **marginal effects**.
 us_change %>%
   gather("Measure", "Change", Consumption, Income) %>%
   autoplot(Change) +
-  ylab("% change") + xlab("Year")
+  labs(y="% change")
 ```
 
 ## Example: US consumption expenditure
@@ -63,8 +63,8 @@ us_change %>%
 ```{r ConsInc2, echo=TRUE}
 us_change %>%
   ggplot(aes(x=Income, y=Consumption)) +
-    ylab("Consumption (quarterly % change)") +
-    xlab("Income (quarterly % change)") +
+    labs(y="Consumption (quarterly % change)",
+         x="Income (quarterly % change)") +
     geom_point() + geom_smooth(method="lm", se=FALSE)
 ```
 
@@ -86,7 +86,7 @@ us_change %>%
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
   geom_line() +
   facet_grid(vars(Measure), scales = "free_y") +
-  ylab("") + xlab("Year") +
+  labs(y="") +
   guides(colour="none")
 ```
 
@@ -116,8 +116,7 @@ augment(fit_consMR) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  xlab("Year") + ylab("") +
-  ggtitle("Percentage change in US consumption expenditure") +
+  labs(y="",title = "Percentage change in US consumption expenditure") +
   guides(colour=guide_legend(title=""))
 ```
 
@@ -127,9 +126,9 @@ augment(fit_consMR) %>%
 augment(fit_consMR) %>%
   ggplot(aes(x=.fitted, y=Consumption)) +
     geom_point() +
-    xlab("Fitted (predicted values)") +
-    ylab("Data (actual values)") +
-    ggtitle("Percentage change in US consumption expenditure") +
+    labs(y="Fitted (predicted values)",
+         x="Data (actual values)",
+         title ="Percentage change in US consumption expenditure") +
     geom_abline(intercept=0, slope=1)
 ```
 
@@ -283,8 +282,7 @@ number of categories).
 ```{r, echo=FALSE}
 recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
 recent_production %>% autoplot(Beer) +
-  xlab("Year") + ylab("Megalitres") +
-  ggtitle("Australian quarterly beer production")
+  labs(y="Megalitres",title ="Australian quarterly beer production")
 ```
 
 \pause
@@ -311,8 +309,7 @@ augment(fit_beer) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Beer, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  xlab("Year") + ylab("Megalitres") +
-  ggtitle("Quarterly Beer Production")
+  labs(y="Megalitres",title ="Australian quarterly beer production")
 ```
 
 ## Beer production revisited
@@ -321,8 +318,8 @@ augment(fit_beer) %>%
 augment(fit_beer) %>%
   ggplot(aes(x=Beer, y=.fitted, colour=factor(quarter(Quarter)))) +
     geom_point() +
-    ylab("Fitted") + xlab("Actual values") +
-    ggtitle("Quarterly beer production") +
+    labs(y="Fitted", x="Actual values",
+         title = "Quarterly beer production") +
     scale_colour_brewer(palette="Dark2", name="Quarter") +
     geom_abline(intercept=0, slope=1)
 ```
@@ -448,7 +445,7 @@ marathon <- boston_marathon %>%
   select(-Event) %>%
   mutate(Minutes = as.numeric(Time)/60)
 marathon %>% autoplot(Minutes) +
-  xlab("Year") +  ylab("Winning times in minutes")
+  labs(y="Winning times in minutes")
 ```
 
 ## Example: Boston marathon winning times
@@ -652,8 +649,8 @@ recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
 fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
 fc_beer <- forecast(fit_beer)
 fc_beer %>% autoplot(recent_production) +
-  ggtitle("Forecasts of beer production using regression") +
-  xlab("Year") + ylab("megalitres")
+  labs(title = "Forecasts of beer production using regression",
+       y="megalitres")
 ```
 
 ## US Consumption
@@ -679,7 +676,7 @@ fc_up <- forecast(fit_consBest, new_data = up_future)
 
 ```{r usconsumptionf2, echo=TRUE, fig.height=3.5}
 us_change %>% autoplot(Consumption) +
-  ylab("% change in US consumption") +
+  labs(y="% change in US consumption") +
   autolayer(fc_up, series = "increase") +
   autolayer(fc_down, series = "decrease") +
   guides(colour = guide_legend(title = "Scenario"))
