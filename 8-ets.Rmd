@@ -1264,7 +1264,7 @@ options(fred)
 
 \structure{Traditional point forecasts:} iterate the equations for $t=T+1,T+2,\dots,T+h$ and set all $\varepsilon_t=0$ for $t>T$.\pause
 
-* Not the same as $\text{E}(y_{t+h} | \bm{x}_t)$ unless trend and seasonality are both additive.
+* Not the same as $\text{E}(y_{t+h} | \bm{x}_t)$ unless seasonality is additive.
 * `fable` uses $\text{E}(y_{t+h} | \bm{x}_t)$.
 * Point forecasts for ETS(A,\*,\*) are identical to ETS(M,\*,\*) if the parameters are the same.
 
