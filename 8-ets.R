@@ -13,13 +13,17 @@ fit <- algeria_economy %>%
   )
 fit %>%
   select(ANN) %>%
-  report(fit)
+  report()
 fit %>%
   select(MNN) %>%
-  report(fit)
+  report()
 fit %>%
   select(autoNN) %>%
-  report(fit)
+  report()
+
+tidy(fit)
+glance(fit)
+
 
 components(fit) %>% autoplot()
 
