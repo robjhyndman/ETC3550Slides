@@ -2,7 +2,7 @@ library(fpp3)
 
 # Algerian Exports
 
-algeria_economy <- tsibbledata::global_economy %>%
+algeria_economy <- global_economy %>%
   filter(Country == "Algeria")
 algeria_economy %>% autoplot(Exports)
 fit <- algeria_economy %>%
@@ -81,19 +81,21 @@ accuracy(fit)
 forecast(fit) %>% accuracy(aus_economy)
 
 
-# eggs
+# egg prices
 
-eggs <- as_tsibble(fma::eggs)
-autoplot(eggs)
-fit <- eggs %>%
-    model(
-    ses = ETS(log(value) ~ trend("N")),
-    holt = ETS(log(value) ~ trend("A")),
-    damped = ETS(log(value) ~ trend("Ad"))
+egg_prices <- prices %>% 
+  filter(!is.na(eggs)) 
+egg_prices %>%
+  autoplot(eggs)
+fit <- egg_prices %>%
+  model(
+    ses = ETS(log(eggs) ~ trend("N")),
+    holt = ETS(log(eggs) ~ trend("A")),
+    damped = ETS(log(eggs) ~ trend("Ad"))
   )
 fit %>%
   forecast(h=100) %>%
-  autoplot(eggs, level=NULL)
+  autoplot(egg_prices, level=NULL)
 
 fit %>% glance()
 
@@ -116,6 +118,8 @@ fit %>%
 j07 <- PBS %>%
   filter(ATC2 == "J07") %>%
   summarise(Cost = sum(Cost))
+j07 %>% autoplot(Cost)
+
 j07 %>%
   model(ETS(Cost ~ error("A") + trend("N") + season("A"))) %>%
   forecast(h=36) %>%

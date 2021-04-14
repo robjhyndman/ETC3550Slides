@@ -596,10 +596,10 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
   * As $h\rightarrow\infty$, $\pred{y}{T+h}{T}\rightarrow \ell_T+\phi b_T/(1-\phi)$.
   * Short-run forecasts trended, long-run forecasts constant.
 
-## Your turn
-\large
+<!-- ## Your turn -->
+<!-- \large -->
 
- * Write down the model for ETS(A,A\damped,N)
+<!--  * Write down the model for ETS(A,A\damped,N) -->
 
 ## Example: Australian population
 \fontsize{9}{10}\sf
@@ -757,10 +757,10 @@ Holt-Winters additive method with additive errors.
 * Forecast errors: $\varepsilon_{t} = y_t - \hat{y}_{t|t-1}$
 * $k$ is integer part of $(h-1)/m$.
 
-## Your turn
-\large
+<!-- ## Your turn -->
+<!-- \large -->
 
- * Write down the model for ETS(A,N,A)
+<!--  * Write down the model for ETS(A,N,A) -->
 
 ## Holt-Winters multiplicative method
 \fontsize{13}{14}\sf\vspace*{-0.1cm}
