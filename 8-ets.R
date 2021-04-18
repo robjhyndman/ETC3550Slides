@@ -42,8 +42,12 @@ aus_economy <- global_economy %>%
   filter(Code == "AUS") %>%
   mutate(Pop = Population/1e6)
 aus_economy %>% autoplot(Pop)
+aus_economy %>% 
+  model(auto = ETS(Pop)) %>%
+  report()
+
 fit <- aus_economy %>%
-  model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
+  model(AAN = ETS(Pop ~ error("M") + trend("A") + season("N")))
 report(fit)
 
 components(fit) %>% autoplot()
@@ -79,6 +83,13 @@ tidy(fit)
 glance(fit)
 accuracy(fit)
 forecast(fit) %>% accuracy(aus_economy)
+
+fit <- global_economy %>%
+  model(
+    ets = ETS(Population)
+  )
+fc <- fit %>%
+  forecast(h=10)
 
 
 # egg prices
@@ -141,6 +152,9 @@ fit <- aus_holidays %>%
     additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
     multiplicative = ETS(Trips ~ error("M") + trend("A") + season("M"))
   )
+fit %>%
+  select(multiplicative) %>%
+  report()
 fc <- fit %>% forecast()
 
 fc %>%
