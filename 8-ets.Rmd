@@ -1209,7 +1209,6 @@ fred <- options(width=67)
 
 ```{r tourismresiduals, dependson="wider"}
 fit %>%
-  filter(Region == "Snowy Mountains") %>%
   augment()
 ```
 
@@ -1386,7 +1385,7 @@ h02 %>%
     AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
   ) %>%
   accuracy() %>%
-  transmute(Model = .model, ME, MAE, RMSE, MAPE, MASE) %>%
+  transmute(Model = .model, MAE, RMSE, MAPE, MASE, RMSSE) %>%
   knitr::kable(booktabs = TRUE)
 ```
 
