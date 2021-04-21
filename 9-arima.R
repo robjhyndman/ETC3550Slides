@@ -1,6 +1,5 @@
 library(fpp3)
 
-
 #### GOOGLE STOCK PRICE 2018 ----------------
 
 google_2018 <- gafa_stock %>%
@@ -29,35 +28,50 @@ wwwusage <- as_tsibble(WWWusage)
 wwwusage %>% autoplot(value)
 wwwusage %>% autoplot(difference(value))
 wwwusage %>% autoplot(difference(value, differences=2))
-wwwusage %>% features(difference(value), unitroot_kpss)
+wwwusage %>% features(value, unitroot_kpss)
+wwwusage %>% features(difference(value), unitroot_pp)
+
 wwwusage %>% features(difference(value), unitroot_ndiffs)
 
+## A10 drugs
 
-####  US Monthly Electricity ---------------------------------------
+a10 <- PBS %>%
+  filter(ATC2 == "A10") %>%
+  summarise(Cost = sum(Cost)/1e6)
 
-usmelec <- as_tsibble(fpp2::usmelec) %>%
-  rename(Month = index, Generation = value)
+a10 %>% autoplot(Cost)
 
-usmelec %>% autoplot(Generation)
+a10 %>% autoplot(log(Cost))
 
-usmelec %>% autoplot(log(Generation))
-
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12)
+a10 %>% autoplot(
+  log(Cost) %>% difference(12)
 )
 
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12) %>% difference(1)
+## H02 drugs
+
+h02 <- PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost)/1e6)
+
+h02 %>% autoplot(Cost)
+
+h02 %>% autoplot(log(Cost))
+
+h02 %>% autoplot(
+  log(Cost) %>% difference(12)
 )
 
-usmelec %>% mutate(log_gen = log(Generation)) %>%
-  features(log_gen, list(unitroot_nsdiffs, feat_stl))
+h02 %>% autoplot(
+  log(Cost) %>% difference(12) %>% difference(1)
+)
 
-usmelec %>% mutate(log_gen = log(Generation)) %>%
-  features(log_gen, unitroot_nsdiffs)
+h02 %>% mutate(log_sales = log(Cost)) %>%
+  features(log_sales, list(unitroot_nsdiffs, feat_stl))
 
-usmelec %>% mutate(d_log_gen = difference(log(Generation), 12)) %>%
-  features(d_log_gen, unitroot_ndiffs)
+h02 %>% mutate(log_sales = log(Cost)) %>%
+  features(log_sales, unitroot_nsdiffs)
+h02 %>% mutate(d_log_sales = difference(log(Cost), 12)) %>%
+  features(d_log_sales, unitroot_ndiffs)
 
 
 ## Australian tourism --------------------------
