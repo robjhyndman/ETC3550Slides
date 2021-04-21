@@ -42,7 +42,7 @@ aus_economy <- global_economy %>%
   filter(Code == "AUS") %>%
   mutate(Pop = Population/1e6)
 aus_economy %>% autoplot(Pop)
-aus_economy %>% 
+aus_economy %>%
   model(auto = ETS(Pop)) %>%
   report()
 
@@ -94,8 +94,8 @@ fc <- fit %>%
 
 # egg prices
 
-egg_prices <- prices %>% 
-  filter(!is.na(eggs)) 
+egg_prices <- prices %>%
+  filter(!is.na(eggs))
 egg_prices %>%
   autoplot(eggs)
 fit <- egg_prices %>%
@@ -229,6 +229,7 @@ fit %>%
 aus_holidays <- tourism %>%
   filter(Purpose == "Holiday") %>%
   summarise(Trips = sum(Trips))
+aus_holidays %>% autoplot()
 
 fit <- aus_holidays %>% model(ETS(Trips))
 report(fit)
@@ -237,8 +238,14 @@ components(fit) %>%
   autoplot() +
   ggtitle("ETS(M,N,M) components")
 
+fit %>% augment()
+
 residuals(fit)
 residuals(fit, type = "response")
+
+fit %>%
+  gg_tsresiduals()
+
 
 
 ## H02
@@ -249,9 +256,10 @@ h02 <- PBS %>%
 h02 %>%
   autoplot(Cost)
 
-h02 %>% model(ETS(Cost)) %>% report
+h02 %>% model(ETS(Cost)) %>% report()
 
-h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>% report
+h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
+  report()
 
 h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
 
