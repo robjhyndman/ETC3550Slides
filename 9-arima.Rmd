@@ -927,6 +927,166 @@ Step 2:
 
 \alert{Repeat Step 2 until no lower AICc can be found.}
 
+## How does ARIMA() work?
+
+```{r ARMAgridsearch, echo=FALSE, message=FALSE, warning=FALSE, fig.asp=1, out.width="60%", fig.width=4, fig.height=4}
+start <- tribble(
+  ~p, ~q,
+  0, 0,
+  1, 0,
+  0, 1,
+  2, 2
+)
+selected <- tribble(
+  ~p, ~q,
+  2, 2,
+  3, 3,
+  4, 2
+)
+griddf <- expand.grid(p = 0:6, q = 0:6) %>%
+  as_tibble() %>%
+  left_join(start %>% mutate(start = TRUE)) %>%
+  left_join(selected %>% mutate(chosen = TRUE)) %>%
+  replace_na(list(start = FALSE, chosen = FALSE)) %>%
+  mutate(
+    step = case_when(
+      start ~ 1,
+      (p - selected$p[1])^2 + (q - selected$q[1])^2 <= 2 ~ 2,
+      (p - selected$p[2])^2 + (q - selected$q[2])^2 <= 2 ~ 3,
+      (p - selected$p[3])^2 + (q - selected$q[3])^2 <= 2 ~ 4,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  left_join(selected %>%
+              mutate(step = row_number() + 1) %>%
+              rename(fromp = p, fromq = q)
+  ) %>%
+  mutate(step = as.character(step))
+griddf %>%
+  ggplot(aes(x = q, y = p)) +
+  geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
+               data = griddf %>% filter(step %in% "1"),
+               arrow = arrow(length = unit(0.15, "inches"), type='open'),
+               size = 1, lineend = "butt") +
+  geom_point(aes(col = step), size = 5, shape = 19, 
+             data = griddf %>% filter(step=="1")) +
+  geom_point(data = filter(griddf %>% filter(step=="1"), chosen), size = 12, shape = 21, stroke = 1.4) +
+  scale_y_reverse(breaks = 0:6) +
+  scale_x_continuous(position = "top", breaks = 0:6) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(size = 10),
+    axis.title.x = element_text(size = 12, hjust = 0),
+    axis.title.y = element_text(
+      size = 12, hjust = 1,
+      angle = 0, margin = margin(t = 0, r = 10, b = 0, l = 0)
+    )
+  ) +
+  scale_colour_manual(
+    breaks = paste(1:4),
+    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+  ) +
+  guides(alpha = FALSE)
+```
+
+## How does ARIMA() work?
+
+```{r ARMAgridsearch2, echo=FALSE, message=FALSE, warning=FALSE, fig.asp=1, out.width="60%", fig.width=4, fig.height=4}
+griddf %>%
+  ggplot(aes(x = q, y = p)) +
+  geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
+               data = griddf %>% filter(step=="2"),
+               arrow = arrow(length = unit(0.15, "inches"), type='open'),
+               size = 1, lineend = "butt") +
+  geom_point(aes(col = step), size = 5, shape = 19,
+             data = griddf %>% filter(step %in% c("1","2"))) +
+  geom_point(data = filter(griddf %>% filter(step %in% c("1","2")), chosen), size = 12, shape = 21, stroke = 1.4) +
+  scale_y_reverse(breaks = 0:6) +
+  scale_x_continuous(position = "top", breaks = 0:6) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(size = 10),
+    axis.title.x = element_text(size = 12, hjust = 0),
+    axis.title.y = element_text(
+      size = 12, hjust = 1,
+      angle = 0, margin = margin(t = 0, r = 10, b = 0, l = 0)
+    )
+  ) +
+  scale_colour_manual(
+    breaks = paste(1:4),
+    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+  ) +
+  guides(alpha = FALSE)
+```
+
+## How does ARIMA() work?
+
+```{r ARMAgridsearch3, echo=FALSE, message=FALSE, warning=FALSE, fig.asp=1, out.width="60%", fig.width=4, fig.height=4}
+griddf %>%
+  ggplot(aes(x = q, y = p)) +
+  geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
+               data = griddf %>% filter(step %in% "3"),
+               arrow = arrow(length = unit(0.15, "inches"), type='open'),
+               size = 1, lineend = "butt") +
+  geom_point(aes(col = step), size = 5, shape = 19,
+             data = griddf %>% filter(step %in% c("1","2","3"))) +
+  geom_point(data = griddf %>% filter(step %in% c("1","2","3"), chosen), 
+             size = 12, shape = 21, stroke = 1.4) +
+  scale_y_reverse(breaks = 0:6) +
+  scale_x_continuous(position = "top", breaks = 0:6) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(size = 10),
+    axis.title.x = element_text(size = 12, hjust = 0),
+    axis.title.y = element_text(
+      size = 12, hjust = 1,
+      angle = 0, margin = margin(t = 0, r = 10, b = 0, l = 0)
+    )
+  ) +
+  scale_colour_manual(
+    breaks = paste(1:4),
+    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+  ) +
+  guides(alpha = FALSE)
+```
+
+## How does ARIMA() work?
+
+```{r ARMAgridsearch4, echo=FALSE, message=FALSE, warning=FALSE, fig.asp=1, out.width="60%", fig.width=4, fig.height=4}
+griddf %>%
+  ggplot(aes(x = q, y = p)) +
+  geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
+               data = griddf %>% filter(step %in% "4"),
+               arrow = arrow(length = unit(0.15, "inches"), type='open'),
+               size = 1, lineend = "butt") +
+  geom_point(aes(col = step), size = 5, shape = 19) +
+  geom_point(data = filter(griddf, chosen), size = 12, shape = 21, stroke = 1.4) +
+  scale_y_reverse(breaks = 0:6) +
+  scale_x_continuous(position = "top", breaks = 0:6) +
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(size = 10),
+    axis.title.x = element_text(size = 12, hjust = 0),
+    axis.title.y = element_text(
+      size = 12, hjust = 1,
+      angle = 0, margin = margin(t = 0, r = 10, b = 0, l = 0)
+    )
+  ) +
+  scale_colour_manual(
+    breaks = paste(1:4),
+    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+  ) +
+  guides(alpha = FALSE)
+```
+
 ## Egyptian exports
 \fontsize{10}{12}\sf
 
@@ -1016,6 +1176,7 @@ caf_fit %>%
 
 ```{r caf_lb, dependson='caf_fit',}
 augment(caf_fit) %>%
+  filter(.model=='search') %>%
   features(.innov, ljung_box, lag = 10, dof = 3)
 ```
 
