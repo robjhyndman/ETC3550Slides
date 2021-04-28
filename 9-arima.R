@@ -92,36 +92,107 @@ total_trips %>%
     autoplot(Trips %>% difference(4) %>% difference(1))
 
 
-## US Consumption ------------------------------------------------------------------
+## EGYPTIAN EXPORTS
 
-us_change %>% autoplot(Consumption) +
-  xlab("Year") +
-  ylab("Quarterly percentage change") +
-  ggtitle("US consumption")
+global_economy %>%
+  filter(Code == "EGY") %>%
+  autoplot(Exports) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
 
-fit <- us_change %>%
-  model(arima = ARIMA(Consumption ~ pdq(2,0,1) + PDQ(0,0,0)))
+fit <- global_economy %>% 
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
 report(fit)
 
-fit %>% forecast(h=100) %>%
-  autoplot(us_change)
+gg_tsresiduals(fit)
 
-fit %>% forecast(h=10) %>%
-  autoplot(tail(us_change, 80))
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 10, dof = 4)
+
+fit %>% 
+  forecast(h=10) %>%
+  autoplot(global_economy) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
+
+global_economy %>% filter(Code == "EGY") %>% ACF(Exports) %>% autoplot()
+global_economy %>% filter(Code == "EGY") %>% PACF(Exports) %>% autoplot()
+
+global_economy %>% filter(Code == "EGY") %>%
+  gg_tsdisplay(Exports, plot_type='partial')
+
+fit1 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports ~ pdq(4,0,0)))
+report(fit1)
+
+fit2 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
+report(fit2)
+
+## CAF EXPORTS
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  autoplot(Exports) +
+  labs(title="Central African Republic exports",
+       y="% of GDP")
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  gg_tsdisplay(difference(Exports), plot_type='partial')
+
+caf_fit <- global_economy %>%
+  filter(Code == "CAF") %>%
+  model(arima210 = ARIMA(Exports ~ pdq(2,1,0)),
+        arima013 = ARIMA(Exports ~ pdq(0,1,3)),
+        stepwise = ARIMA(Exports),
+        search = ARIMA(Exports, stepwise=FALSE))
+
+caf_fit
+
+caf_fit %>% pivot_longer(!Country, names_to = "Model name",
+                         values_to = "Orders")
+
+glance(caf_fit) %>% arrange(AICc) %>% select(.model:BIC)
+
+caf_fit %>%
+  select(search) %>%
+  gg_tsresiduals()
+
+augment(caf_fit) %>%
+  features(.innov, ljung_box, lag = 10, dof = 3)
+
+caf_fit %>%
+  forecast(h=5) %>%
+  filter(.model=='search') %>%
+  autoplot(global_economy)
 
 
 ## MINKS --------------------------------------------------------------------------
 
 mink <- as_tsibble(fma::mink)
 mink %>% autoplot(value) +
-  xlab("Year") +
-  ylab("Minks trapped (thousands)") +
-  ggtitle("Annual number of minks trapped")
+  labs(y="Minks trapped (thousands)",
+       title = "Annual number of minks trapped")
 
 mink %>% ACF(value) %>% autoplot()
 mink %>% PACF(value) %>% autoplot()
-mink %>% gg_tsdisplay(value)
 
+fit <- mink %>%
+  model(
+    ar4 = ARIMA(value ~ pdq(4,0,0)),
+    auto = ARIMA(value),
+    best = ARIMA(value, stepwise=FALSE, approximation=FALSE)
+  )
+
+glance(fit)
+
+fit %>% select(best) %>% report()
+
+fit %>% select(best) %>% gg_tsresiduals()
+
+fit %>% select(best) %>% forecast(h=20) %>% autoplot(mink)
 
 ## WWW usage -----------------------------------------------------------------------
 
@@ -151,34 +222,6 @@ augment(fit) %>%
 fit %>% forecast(h = 10) %>% autoplot(web_usage)
 
 
-## Electrical Equipment --------------------------------------------------------
-
-elecequip <- as_tsibble(fpp2::elecequip)
-dcmp <- elecequip %>%
-  model(STL(value ~ season(window = "periodic"))) %>%
-  components() %>%
-  select(-.model)
-dcmp %>% as_tsibble %>%
-  autoplot(season_adjust) + xlab("Year") +
-  ylab("Seasonally adjusted new orders index")
-
-dcmp %>% gg_tsdisplay(difference(season_adjust), plot_type = 'partial')
-
-fit <- dcmp %>%
-  model(
-    arima = ARIMA(season_adjust ~ pdq(d=1, p=0:11) + PDQ(0,0,0),
-                  stepwise=FALSE, approximation=FALSE,
-                  order_constraint = p + q + P + Q <= 11)
-  )
-report(fit)
-
-gg_tsresiduals(fit)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 24, dof = 4)
-
-fit %>% forecast %>% autoplot(dcmp)
-
 ## GDP --------------------------------------------------------------------------
 
 global_economy %>%
@@ -189,6 +232,8 @@ fit <- global_economy %>%
   model(
     ARIMA(log(GDP))
   )
+
+fit
 
 fit %>%
   filter(Country == "Australia") %>%
@@ -208,53 +253,11 @@ fit %>%
 
 
 
-### US Monthly Electricity -----------------------------------------------------
-
-usmelec %>% autoplot(
-  Generation
-)
 
 
-usmelec %>% autoplot(
-  log(Generation)
-)
 
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12)
-)
 
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12) %>% difference()
-)
 
-usmelec %>% gg_tsdisplay(
-  log(Generation) %>% difference(12) %>% difference(),
-  plot_type = "partial")
-
-usmelec %>%
-  model(arima = ARIMA(log(Generation) ~ pdq(0,1,3) + PDQ(0,1,1))) %>%
-  report()
-
-usmelec %>%
-  model(arima = ARIMA(log(Generation), stepwise=FALSE, approximation=FALSE)) %>%
-  report()
-
-fit <- usmelec %>%
-  model(arima = ARIMA(log(Generation)))
-gg_tsresiduals(fit)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 24, dof = 5)
-
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  forecast(h = "3 years") %>%
-  autoplot(usmelec)
-
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  forecast(h = "3 years") %>%
-  autoplot(filter(usmelec, year(Month) >= 2005))
 
 ## h02 drugs ----------------------------------------------------------------------
 
