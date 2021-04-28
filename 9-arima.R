@@ -11,7 +11,7 @@ google_2018 %>% autoplot(Close)
 google_2018 %>% ACF(Close) %>% autoplot()
 
 google_2018 %>% autoplot(difference(Close)) +
-   ylab("Google closing stock price") + xlab("Day")
+   labs(y="Google closing stock price", x="Day")
 
 google_2018 %>% ACF(difference(Close)) %>% autoplot()
 
@@ -117,7 +117,8 @@ fit %>%
 global_economy %>% filter(Code == "EGY") %>% ACF(Exports) %>% autoplot()
 global_economy %>% filter(Code == "EGY") %>% PACF(Exports) %>% autoplot()
 
-global_economy %>% filter(Code == "EGY") %>%
+global_economy %>% 
+  filter(Code == "EGY") %>%
   gg_tsdisplay(Exports, plot_type='partial')
 
 fit1 <- global_economy %>%
@@ -151,20 +152,19 @@ caf_fit <- global_economy %>%
 
 caf_fit
 
-caf_fit %>% pivot_longer(!Country, names_to = "Model name",
-                         values_to = "Orders")
-
 glance(caf_fit) %>% arrange(AICc) %>% select(.model:BIC)
 
 caf_fit %>%
   select(search) %>%
   gg_tsresiduals()
 
-augment(caf_fit) %>%
+caf_fit %>%
+  select(search) %>%
+  augment() %>%
   features(.innov, ljung_box, lag = 10, dof = 3)
 
 caf_fit %>%
-  forecast(h=5) %>%
+  forecast(h=50) %>%
   filter(.model=='search') %>%
   autoplot(global_economy)
 
@@ -299,7 +299,7 @@ augment(fit) %>%
 
 # The forecasts
 fit %>% forecast %>% autoplot(h02) +
-  ylab("H02 Expenditure ($AUD)") + xlab("Year")
+  labs(y="H02 Expenditure ($AUD)")
 
 
 ## Models without using logs
@@ -333,6 +333,6 @@ augment(fit) %>%
 
 # The forecasts
 fit %>% forecast %>% autoplot(h02) +
-  ylab("H02 Expenditure ($AUD)") + xlab("Year")
+  labs(y="H02 Expenditure ($AUD)")
 
 
