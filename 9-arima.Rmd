@@ -723,7 +723,7 @@ gg_tsresiduals(fit)
 
 ```{r, echo = TRUE}
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 3)
+  features(.resid, ljung_box, lag = 10, dof = 4)
 ```
 
 ## Egyptian exports
