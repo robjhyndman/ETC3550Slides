@@ -169,36 +169,12 @@ caf_fit %>%
   autoplot(global_economy)
 
 
-## MINKS --------------------------------------------------------------------------
-
-mink <- as_tsibble(fma::mink)
-mink %>% autoplot(value) +
-  labs(y="Minks trapped (thousands)",
-       title = "Annual number of minks trapped")
-
-mink %>% ACF(value) %>% autoplot()
-mink %>% PACF(value) %>% autoplot()
-
-fit <- mink %>%
-  model(
-    ar4 = ARIMA(value ~ pdq(4,0,0)),
-    auto = ARIMA(value),
-    best = ARIMA(value, stepwise=FALSE, approximation=FALSE)
-  )
-
-glance(fit)
-
-fit %>% select(best) %>% report()
-
-fit %>% select(best) %>% gg_tsresiduals()
-
-fit %>% select(best) %>% forecast(h=20) %>% autoplot(mink)
+library(fpp3)
 
 ## WWW usage -----------------------------------------------------------------------
 
 web_usage <- as_tsibble(WWWusage)
 web_usage %>% gg_tsdisplay(value, plot_type = 'partial')
-
 web_usage %>% gg_tsdisplay(difference(value), plot_type = 'partial')
 
 fit <- web_usage %>%
@@ -211,7 +187,7 @@ web_usage %>%
 
 web_usage %>%
   model(auto2 = ARIMA(value ~ pdq(d=1),
-       stepwise = FALSE, approximation = FALSE)) %>%
+                      stepwise = FALSE, approximation = FALSE)) %>%
   report()
 
 gg_tsresiduals(fit)
@@ -225,7 +201,7 @@ fit %>% forecast(h = 10) %>% autoplot(web_usage)
 ## GDP --------------------------------------------------------------------------
 
 global_economy %>%
-  filter(Country=="United States") %>%
+  filter(Country=="Australia") %>%
   autoplot(log(GDP))
 
 fit <- global_economy %>%
@@ -252,16 +228,52 @@ fit %>%
   scale_y_log10()
 
 
+## US leisure employment
 
+leisure <- us_employment %>%
+  filter(Title == "Leisure and Hospitality",
+         year(Month) > 2000) %>%
+  mutate(Employed = Employed/1000) %>%
+  select(Month, Employed)
+autoplot(leisure, Employed) +
+  labs(title = "US employment: leisure and hospitality",
+       y="Number of people (millions)")
 
+leisure %>%
+  gg_tsdisplay(difference(Employed, 12),
+               plot_type='partial', lag=36) +
+  labs(title="Seasonally differenced", y="")
 
+leisure %>%
+  gg_tsdisplay(difference(Employed, 12) %>% difference(),
+               plot_type='partial', lag=36) +
+  labs(title = "Double differenced", y="")
 
+fit <- leisure %>%
+  model(
+    arima012011 = ARIMA(Employed ~ pdq(0,1,2) + PDQ(0,1,1)),
+    arima210011 = ARIMA(Employed ~ pdq(2,1,0) + PDQ(0,1,1)),
+    auto = ARIMA(Employed, stepwise = FALSE, approx = FALSE)
+  )
+fit %>% pivot_longer(everything(), names_to = "Model name",
+                     values_to = "Orders")
 
+glance(fit) %>% arrange(AICc) %>% select(.model:BIC)
+
+fit %>% select(auto) %>% gg_tsresiduals(lag=36)
+
+augment(fit) %>% features(.innov, ljung_box, lag=24, dof=4)
+
+forecast(fit, h=36) %>%
+  filter(.model=='auto') %>%
+  autoplot(leisure) +
+  labs(title = "US employment: leisure and hospitality",
+       y="Number of people (millions)")
 
 
 ## h02 drugs ----------------------------------------------------------------------
 
-h02 <- tsibbledata::PBS %>%
+h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost))
 
@@ -290,8 +302,8 @@ augment(fit) %>%
 # Letting R work hard to choose
 fit <- h02 %>%
   model(best = ARIMA(log(Cost), stepwise = FALSE,
-                 approximation = FALSE,
-                 order_constraint = p + q + P + Q <= 9))
+                     approximation = FALSE,
+                     order_constraint = p + q + P + Q <= 9 & (constant + d + D <= 2)))
 report(fit)
 gg_tsresiduals(fit, lag_max=36)
 augment(fit) %>%
@@ -302,37 +314,71 @@ fit %>% forecast %>% autoplot(h02) +
   labs(y="H02 Expenditure ($AUD)")
 
 
-## Models without using logs
+## AUS ECONOMY ETS vs ARIMA
+aus_economy <- global_economy %>% 
+  filter(Code == "AUS") %>%
+  mutate(Population = Population/1e6)
+aus_economy %>%
+  slice(-n()) %>%
+  stretch_tsibble(.init = 10) %>%
+  model(eta = ETS(Population),
+        arima = ARIMA(Population)
+  ) %>%
+  forecast(h = 1) %>%
+  accuracy(aus_economy) %>%
+  select(.model, ME:RMSSE)
 
-h02 %>% gg_tsdisplay(difference(Cost,12), lag_max = 36, plot_type='partial')
+aus_economy %>%
+  model(ETS(Population)) %>%
+  forecast(h = "5 years") %>%
+  autoplot(aus_economy) +
+  labs(title = "Australian population",
+       y = "People (millions)")
 
-# My best guess
-fit <- h02 %>%
-  model(best = ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
-report(fit)
-gg_tsresiduals(fit, lag_max=36)
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 6)
 
-# Letting R choose
-fit <- h02 %>% model(auto = ARIMA(Cost, stepwise = FALSE))
-report(fit)
-gg_tsresiduals(fit, lag_max=36)
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 7)
+# QUARTERLY CEMENT ETS vs ARIMA
 
-# Letting R work hard to choose
-fit <- h02 %>%
-  model(best = ARIMA(Cost, stepwise = FALSE,
-                     approximation = FALSE,
-                     order_constraint = p + q + P + Q <= 9))
-report(fit)
-gg_tsresiduals(fit, lag_max=36)
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 8)
+cement <- aus_production %>%
+  select(Cement) %>%
+  filter_index("1988 Q1" ~ .)
+train <- cement %>% filter_index(. ~ "2007 Q4")
+fit <- train %>%
+  model(
+    arima = ARIMA(Cement),
+    ets = ETS(Cement)
+  )
 
-# The forecasts
-fit %>% forecast %>% autoplot(h02) +
-  labs(y="H02 Expenditure ($AUD)")
+fit %>%
+  select(arima) %>%
+  report()
 
+fit %>%
+  select(ets) %>%
+  report()
+
+gg_tsresiduals(fit %>% select(arima), lag_max = 16)
+
+gg_tsresiduals(fit %>% select(ets), lag_max = 16)
+
+fit %>%
+  select(arima) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 16, dof = 6)
+
+fit %>%
+  select(ets) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 16, dof = 6)
+
+fit %>%
+  forecast(h = "2 years 6 months") %>%
+  accuracy(cement) %>%
+  select(-ME, -MPE, -ACF1)
+
+fit %>%
+  select(arima) %>%
+  forecast(h="3 years") %>%
+  autoplot(cement) +
+  labs(title = "Cement production in Australia",
+       y="Tonnes ('000)")
 
