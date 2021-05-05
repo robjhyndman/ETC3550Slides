@@ -14,10 +14,20 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
   dev.args = list(pointsize = 11)
 )
-options(digits = 3, width = 60)
+options(
+  digits = 3,
+  width = 60,
+  ggplot2.continuous.colour="viridis",
+  ggplot2.continuous.fill = "viridis",
+  ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
+  ggplot2.discrete.fill = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442")
+)
 library(fpp3)
 ```
 
@@ -33,10 +43,9 @@ library(fpp3)
 \]
 \end{block}
 
-* $y_t$ is the variable we want to predict: the ``response'' variable
-* Each $x_{j,t}$ is numerical and is called a ``predictor''.
+* $y_t$ is the variable we want to predict: the "response" variable
+* Each $x_{j,t}$ is numerical and is called a "predictor".
  They are usually assumed to be known for all past and future times.
-
 * The coefficients $\beta_1,\dots,\beta_k$ measure the effect of each
 predictor after taking account of the effect of all other predictors
 in the model.
@@ -52,20 +61,20 @@ That is, the coefficients measure the **marginal effects**.
 
 ```{r ConsInc, echo=TRUE, fig.height=3.5}
 us_change %>%
-  gather("Measure", "Change", Consumption, Income) %>%
-  autoplot(Change) +
+  pivot_longer(c(Consumption, Income), names_to="Series") %>%
+  autoplot(value) +
   labs(y="% change")
 ```
 
 ## Example: US consumption expenditure
-\fontsize{10}{11}\sf
+\fontsize{9}{10}\sf
 
 ```{r ConsInc2, echo=TRUE}
 us_change %>%
-  ggplot(aes(x=Income, y=Consumption)) +
-    labs(y="Consumption (quarterly % change)",
-         x="Income (quarterly % change)") +
-    geom_point() + geom_smooth(method="lm", se=FALSE)
+  ggplot(aes(x = Income, y = Consumption)) +
+    labs(y = "Consumption (quarterly % change)",
+         x = "Income (quarterly % change)") +
+    geom_point() + geom_smooth(method = "lm", se = FALSE)
 ```
 
 ## Example: US consumption expenditure
@@ -92,7 +101,7 @@ us_change %>%
 
 ## Example: US consumption expenditure
 
-```{r ScatterMatrix, echo=FALSE}
+```{r ScatterMatrix, echo=FALSE, fig.height=5, fig.width=8}
 us_change %>%
   as_tibble() %>%
   select(-Quarter) %>%
@@ -116,8 +125,11 @@ augment(fit_consMR) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  labs(y="",title = "Percentage change in US consumption expenditure") +
-  guides(colour=guide_legend(title=""))
+  labs(y = NULL,
+    title = "Percent change in US consumption expenditure"
+  ) +
+  scale_colour_manual(values=c(Data="black",Fitted="#D55E00")) +
+  guides(colour = guide_legend(title = NULL))
 ```
 
 ## Example: US consumption expenditure
@@ -303,13 +315,15 @@ report(fit_beer)
 ```
 
 ## Beer production revisited
+\fontsize{8.5}{9}\sf
 
-```{r}
+```{r, fig.height=3.3}
 augment(fit_beer) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Beer, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  labs(y="Megalitres",title ="Australian quarterly beer production")
+  labs(y="Megalitres",title ="Australian quarterly beer production") +
+  scale_colour_manual(values = c(Data = "black", Fitted = "#D55E00"))
 ```
 
 ## Beer production revisited
@@ -437,7 +451,7 @@ x_{2,t} &= \left\{ \begin{array}{ll}
 
 ## Example: Boston marathon winning times
 
-\fontsize{11}{11}\sf
+\fontsize{9}{9}\sf
 
 ```{r, fig.height=3.5, echo=TRUE}
 marathon <- boston_marathon %>%
@@ -450,7 +464,7 @@ marathon %>% autoplot(Minutes) +
 
 ## Example: Boston marathon winning times
 
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
 fit_trends <- marathon %>%
@@ -477,15 +491,18 @@ fit_trends %>% forecast(h=10) %>% autoplot(marathon)
 ```
 
 ```{r, echo=FALSE, message=TRUE, warning=FALSE}
-fit_trends %>%
-  forecast(h=10) %>%
-  autoplot(marathon, alpha = 0.3) +
-  geom_line(aes(y = .fitted, colour = .model), data = fitted(fit_trends)) +
-  labs(x = "Year", y = "Winning times in minutes", title = "Boston Marathon") +
-  guides(colour=guide_legend(title=NULL))
+fc_trends <- fit_trends %>% forecast(h = 10)
+marathon %>%
+  autoplot(Minutes) +
+  geom_line(data = fitted(fit_trends),
+            aes(y = .fitted, colour = .model)) +
+  autolayer(fc_trends, alpha = 0.5, level = 95) +
+  labs(y = "Minutes",
+       title = "Boston marathon winning times")
 ```
 
 ## Example: Boston marathon winning times
+\fontsize{9}{9}\sf
 
 ```{r residPiecewise, message=FALSE, warning=FALSE}
 fit_trends %>% select(piecewise) %>%
@@ -640,19 +657,6 @@ $$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
 
  * A different model for each forecast horizon $h$.
 
-
-## Beer production
-\fontsize{9}{9}\sf
-
-```{r beeryetagain, echo=TRUE, fig.height=3.5}
-recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
-fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
-fc_beer <- forecast(fit_beer)
-fc_beer %>% autoplot(recent_production) +
-  labs(title = "Forecasts of beer production using regression",
-       y="megalitres")
-```
-
 ## US Consumption
 \fontsize{10}{11}\sf
 
@@ -662,13 +666,14 @@ fit_consBest <- us_change %>%
     TSLM(Consumption ~ Income + Savings + Unemployment)
   )
 
-down_future <- new_data(us_change, 4) %>%
-  mutate(Income = -1, Savings = -0.5, Unemployment = 0)
-fc_down <- forecast(fit_consBest, new_data = down_future)
+future_scenarios <- scenarios(
+  Increase = new_data(us_change, 4) %>%
+    mutate(Income=1, Savings=0.5, Unemployment=0),
+  Decrease = new_data(us_change, 4) %>%
+    mutate(Income=-1, Savings=-0.5, Unemployment=0),
+  names_to = "Scenario")
 
-up_future <- new_data(us_change, 4) %>%
-  mutate(Income = 1, Savings = 0.5, Unemployment = 0)
-fc_up <- forecast(fit_consBest, new_data = up_future)
+fc <- forecast(fit_consBest, new_data = future_scenarios)
 ```
 
 ## US Consumption
@@ -677,9 +682,8 @@ fc_up <- forecast(fit_consBest, new_data = up_future)
 ```{r usconsumptionf2, echo=TRUE, fig.height=3.5}
 us_change %>% autoplot(Consumption) +
   labs(y="% change in US consumption") +
-  autolayer(fc_up, series = "increase") +
-  autolayer(fc_down, series = "decrease") +
-  guides(colour = guide_legend(title = "Scenario"))
+  autolayer(fc) +
+  labs(title = "US consumption", y = "% change")
 ```
 
 # Matrix formulation
@@ -813,13 +817,4 @@ If multicollinearity exists\dots
 * there is no problem with model *predictions* provided the predictors used for forecasting are within the range used for fitting.
 * omitting variables can help.
 * combining variables can help.
-
-## Outliers and influential observations
-
-**Things to watch for**
-
-* *Outliers*: observations that produce large residuals.
-* *Influential observations*: removing them would markedly change the coefficients.  (Often outliers in the $x$ variable).
-* *Lurking variable*: a predictor not included in the regression but which has an important effect on the response.
-* Points should not normally be removed without a good explanation of why they are different.
 

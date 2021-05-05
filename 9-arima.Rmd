@@ -12,12 +12,23 @@ output:
       in_header: header.tex
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
   dev.args = list(pointsize = 11)
 )
-options(digits = 3, width = 60)
+options(
+  digits = 3,
+  width = 60,
+  ggplot2.continuous.colour="viridis",
+  ggplot2.continuous.fill = "viridis",
+  ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
+  ggplot2.discrete.fill = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442")
+)
 library(fpp3)
 library(patchwork)
 library(purrr)
@@ -969,7 +980,7 @@ griddf %>%
                data = griddf %>% filter(step %in% "1"),
                arrow = arrow(length = unit(0.15, "inches"), type='open'),
                size = 1, lineend = "butt") +
-  geom_point(aes(col = step), size = 5, shape = 19, 
+  geom_point(aes(col = step), size = 5, shape = 19,
              data = griddf %>% filter(step=="1")) +
   geom_point(data = filter(griddf %>% filter(step=="1"), chosen), size = 12, shape = 21, stroke = 1.4) +
   scale_y_reverse(breaks = 0:6) +
@@ -1035,7 +1046,7 @@ griddf %>%
                size = 1, lineend = "butt") +
   geom_point(aes(col = step), size = 5, shape = 19,
              data = griddf %>% filter(step %in% c("1","2","3"))) +
-  geom_point(data = griddf %>% filter(step %in% c("1","2","3"), chosen), 
+  geom_point(data = griddf %>% filter(step %in% c("1","2","3"), chosen),
              size = 12, shape = 21, stroke = 1.4) +
   scale_y_reverse(breaks = 0:6) +
   scale_x_continuous(position = "top", breaks = 0:6) +
