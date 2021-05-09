@@ -794,7 +794,7 @@ $$
 \begin{align*}
 \alpha_k &= \text{$k$th partial autocorrelation coefficient}\\
          &= \text{equal to the estimate of $\phi_k$ in regression:}\\
-         & \hspace*{0.8cm} y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_k y_{t-k}.
+         & \hspace*{0.8cm} y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_k y_{t-k} +\varepsilon_t.
 \end{align*}
 \end{block}\pause
 
