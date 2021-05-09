@@ -856,8 +856,8 @@ So we have an AR($p$) model when
 
 **MA(1)**
 \begin{align*}
-\hspace*{1cm}\rho_1 &= \theta_1\qquad \rho_k = 0\qquad\text{for $k=2,3,\dots$};\\
-\alpha_k &= -(-\theta_1)^k
+\hspace*{1cm}\rho_1 &= \theta_1/(1 + \theta_1^2)\qquad \rho_k = 0\qquad\text{for $k=2,3,\dots$};\\
+\alpha_k &= -(-\theta_1)^k/(1 + \theta_1^2 + \dots + \theta_1^{2k})
 \end{align*}
 
 So we have an MA(1) model when
