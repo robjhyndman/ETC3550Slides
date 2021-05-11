@@ -1,36 +1,40 @@
+options(
+  digits = 3,
+  width = 60,
+  ggplot2.continuous.colour="viridis",
+  ggplot2.continuous.fill = "viridis",
+  ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
+  ggplot2.discrete.fill = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442")
+)
 library(fpp3)
-library(lubridate)
 
-
-## US change ------------------------------------------------------------------
+# US consumption quarterly changes
 
 us_change %>%
-  gather("Measure", "Change", Consumption, Income) %>%
-  autoplot(Change) +
-  ylab("% change") + xlab("Year")
+  pivot_longer(c(Consumption, Income), names_to="Series") %>%
+  autoplot(value) +
+  labs(y="% change")
 
 us_change %>%
-  ggplot(aes(x=Income, y=Consumption)) +
-    ylab("Consumption (quarterly % change)") +
-    xlab("Income (quarterly % change)") +
-    geom_point() + geom_smooth(method="lm", se=FALSE)
+  ggplot(aes(x = Income, y = Consumption)) +
+    labs(y = "Consumption (quarterly % change)",
+         x = "Income (quarterly % change)") +
+    geom_point() + geom_smooth(method = "lm", se = FALSE)
 
 fit_cons <- us_change %>%
   model(lm = TSLM(Consumption ~ Income))
 report(fit_cons)
 
 us_change %>%
-  gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) %>%
+  pivot_longer(-Quarter, names_to="Measure", values_to="Change") %>%
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
   geom_line() +
   facet_grid(vars(Measure), scales = "free_y") +
-  ylab("") + xlab("Year") +
+  labs(y="") +
   guides(colour="none")
 
 us_change %>%
-  as_tibble() %>%
-  select(Income, Production, Savings, Unemployment, Consumption) %>%
-  GGally::ggpairs()
+  GGally::ggpairs(columns = 2:6)
 
 fit_consMR <- us_change %>%
   model(lm = TSLM(Consumption ~ Income + Production + Unemployment + Savings))
@@ -40,99 +44,62 @@ augment(fit_consMR) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  xlab("Year") + ylab("") +
-  ggtitle("Percentage change in US consumption expenditure") +
-  guides(colour=guide_legend(title=""))
+  labs(y = NULL,
+    title = "Percent change in US consumption expenditure"
+  ) +
+  scale_colour_manual(values=c(Data="black",Fitted="#D55E00")) +
+  guides(colour = guide_legend(title = NULL))
 
 augment(fit_consMR) %>%
   ggplot(aes(x=.fitted, y=Consumption)) +
     geom_point() +
-    xlab("Fitted (predicted values)") +
-    ylab("Data (actual values)") +
-    ggtitle("Percentage change in US consumption expenditure") +
+    labs(y="Fitted (predicted values)",
+         x="Data (actual values)",
+         title ="Percentage change in US consumption expenditure") +
     geom_abline(intercept=0, slope=1)
 
-gg_tsresiduals(fit_consMR)
-
-fit_consBest <- us_change %>%
-  model(
-    TSLM(Consumption ~ Income + Savings + Unemployment)
-  )
-
-down_future <- new_data(us_change, 4) %>%
-  mutate(Income = -1, Savings = -0.5, Unemployment = 0)
-fc_down <- forecast(fit_consBest, new_data = down_future)
-
-up_future <- new_data(us_change, 4) %>%
-  mutate(Income = c(1,2,3,3), Savings = 0.5, Unemployment = 0)
-fc_up <- forecast(fit_consBest, new_data = up_future)
-
-us_change %>% autoplot(Consumption) +
-  ylab("% change in US consumption") +
-  autolayer(fc_up) +
-  autolayer(fc_down) +
-  guides(colour = guide_legend(title = "Scenario"))
+fit_consMR %>% gg_tsresiduals()
 
 
-## BEER ---------------------------------------------------------------------
+# Australian beer production
 
-recent_production <- aus_production %>%
-  filter(year(Quarter) >= 1992)
+recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
 recent_production %>% autoplot(Beer) +
-  xlab("Year") + ylab("Megalitres") +
-  ggtitle("Australian quarterly beer production")
+  labs(y="Megalitres",title ="Australian quarterly beer production")
 
-fit_beer <- recent_production %>%
-  model(TSLM(Beer ~ trend() + season()))
+fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
 report(fit_beer)
 
 augment(fit_beer) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Beer, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  xlab("Year") + ylab("Megalitres") +
-  ggtitle("Quarterly Beer Production")
+  labs(y="Megalitres",title ="Australian quarterly beer production") +
+  scale_colour_manual(values = c(Data = "black", Fitted = "#D55E00"))
 
 augment(fit_beer) %>%
   ggplot(aes(x=Beer, y=.fitted, colour=factor(quarter(Quarter)))) +
     geom_point() +
-    ylab("Fitted") + xlab("Actual values") +
-    ggtitle("Quarterly beer production") +
+    labs(y="Fitted", x="Actual values",
+         title = "Quarterly beer production") +
     scale_colour_brewer(palette="Dark2", name="Quarter") +
     geom_abline(intercept=0, slope=1)
 
-gg_tsresiduals(fit_beer)
+fit_beer %>% gg_tsresiduals()
 
-fit_beer %>%
-  forecast(h="3 years") %>%
-  autoplot(recent_production)
+fit_beer %>% forecast %>% autoplot(recent_production)
 
-fourier_beer <- recent_production %>%
-  model(TSLM(Beer ~ trend() + fourier(K=2)))
-glance(fourier_beer)
+fourier_beer <- recent_production %>% model(TSLM(Beer ~ trend() + fourier(K=2)))
 report(fourier_beer)
 
-recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
-fit_beer <- recent_production %>%
-  model(
-    season = TSLM(Beer ~ trend() + season()),
-    fourier = TSLM(Beer ~ trend() + fourier(K=2))
-  )
-fc_beer <- forecast(fit_beer)
-fc_beer %>% autoplot(recent_production) +
-  ggtitle("Forecasts of beer production using regression") +
-  xlab("Year") + ylab("megalitres")
-
-
-## Boston Marathon -------------------------------------------------------------
+## Boston Marathon
 
 marathon <- boston_marathon %>%
   filter(Event == "Men's open division") %>%
   select(-Event) %>%
   mutate(Minutes = as.numeric(Time)/60)
 marathon %>% autoplot(Minutes) +
-  xlab("Year") +  ylab("Winning times in minutes")
-
+  labs(y="Winning times in minutes")
 
 fit_trends <- marathon %>%
   model(
@@ -141,25 +108,45 @@ fit_trends <- marathon %>%
     # Exponential trend
     exponential = TSLM(log(Minutes) ~ trend()),
     # Piecewise linear trend
-    piecewise = TSLM(Minutes ~ trend(knots = c(1940, 1980))),
-    better = TSLM(Minutes ~ trend(knots = c(1919,1930,1940,1980)))
+    piecewise = TSLM(Minutes ~ trend(knots = c(1940, 1980)))
   )
-glance(fit_trends) %>%
-  select(.model, r_squared, adj_r_squared, AICc, BIC, CV, log_lik)
 
+fit_trends
 
-fit_trends %>%
-  forecast(h=10) %>%
-  autoplot(marathon, alpha = 0.5) +
-  geom_line(aes(y = .fitted, colour = .model), data = augment(fit_trends)) +
-  labs(x = "Year", y = "Winning times in minutes", title = "Boston Marathon") +
-  guides(colour=guide_legend(title=NULL))
+fc_trends <- fit_trends %>% forecast(h = 10)
+marathon %>%
+  autoplot(Minutes) +
+  geom_line(data = fitted(fit_trends),
+            aes(y = .fitted, colour = .model)) +
+  autolayer(fc_trends, alpha = 0.5, level = 95) +
+  labs(y = "Minutes",
+       title = "Boston marathon winning times")
 
-fit_trends %>%
+fit_trends %>% 
   select(piecewise) %>%
   gg_tsresiduals()
 
 glance(fit_trends) %>%
-  select(.model, r_squared, adj_r_squared, AICc, BIC, CV, log_lik)
+  select(.model, r_squared, adj_r_squared, AICc, CV)
 
+# US consumption quarterly changes
+
+fit_consBest <- us_change %>%
+  model(
+    TSLM(Consumption ~ Income + Savings + Unemployment)
+  )
+
+future_scenarios <- scenarios(
+  Increase = new_data(us_change, 4) %>%
+    mutate(Income=1, Savings=0.5, Unemployment=0),
+  Decrease = new_data(us_change, 4) %>%
+    mutate(Income=-1, Savings=-0.5, Unemployment=0),
+  names_to = "Scenario")
+
+fc <- forecast(fit_consBest, new_data = future_scenarios)
+
+us_change %>% autoplot(Consumption) +
+  labs(y="% change in US consumption") +
+  autolayer(fc) +
+  labs(title = "US consumption", y = "% change")
 

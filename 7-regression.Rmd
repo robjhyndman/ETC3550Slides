@@ -147,8 +147,7 @@ augment(fit_consMR) %>%
 ## Example: US consumption expenditure
 
 ```{r, echo=TRUE}
-augment(fit_consMR) %>%
-  gg_tsdisplay(.resid, plot_type="hist")
+fit_consMR %>% gg_tsresiduals()
 ```
 <!--
 # Residual diagnostics
@@ -342,7 +341,7 @@ augment(fit_beer) %>%
 \fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
-augment(fit_beer) %>% gg_tsdisplay(.resid, plot_type="hist")
+fit_beer %>% gg_tsresiduals()
 ```
 
 ## Beer production revisited
@@ -506,7 +505,7 @@ marathon %>%
 
 ```{r residPiecewise, message=FALSE, warning=FALSE}
 fit_trends %>% select(piecewise) %>%
-  augment() %>% gg_tsdisplay(.resid, plot_type = "histogram")
+  gg_tsresiduals()
 ```
 
 # Selecting predictors and forecast evaluation
