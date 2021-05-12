@@ -149,78 +149,7 @@ augment(fit_consMR) %>%
 ```{r, echo=TRUE}
 fit_consMR %>% gg_tsresiduals()
 ```
-<!--
-# Residual diagnostics
 
-##  Multiple regression and forecasting
-For forecasting purposes, we require the following assumptions:
-
-* $\varepsilon_t$ are uncorrelated and zero mean
-
-* $\varepsilon_t$ are uncorrelated with each $x_{j,t}$.
-\pause
-
-It is **useful** to also have $\varepsilon_t \sim \text{N}(0,\sigma^2)$ when producing prediction intervals or doing statistical tests.
-
-## Residual plots
-
-Useful for spotting outliers and whether the linear model was
-appropriate.
-
-* Scatterplot of residuals $\varepsilon_t$ against each predictor $x_{j,t}$.
-
-* Scatterplot residuals against the fitted values $\hat y_t$
-
-* Expect to see scatterplots resembling a horizontal band with
-no values too far from the band and no patterns such as curvature or
-increasing spread.
-
-## Residual patterns
-
-* If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
-
-* If a plot of the residuals vs any predictor **not** in the model shows a pattern, then the predictor should be added to the model.
-
-* If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
-
-
-## Breusch-Godfrey test
-
-**OLS regression:**
-$$
-y_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+u_{t}
-$$
-**Auxiliary regression:**
-$$
-{\hat {u}}_{t}=\beta_{0}+\beta_{1}x_{t,1}+\dots+\beta_{k}x_{t,k}+\rho_{1}{\hat {u}}_{t-1}+\dots +\rho_{p}{\hat {u}}_{t-p}+\varepsilon_{t}
-$$
-
-###
-If $R^{2}$ statistic is calculated for this model, then
-$$
-  (T-p)R^{2}\,\sim \,\chi_{p}^{2},
-$$
-when there is no serial correlation up to lag $p$, and $T=$ length of series.
-
-
-* Breusch-Godfrey test better than Ljung-Box for regression models.
-
-## US consumption again
-
-\fontsize{9}{13}\sf
-
-```{r}
-warning("This is not easy with fable.")
-# lmtest::bgtest(residuals(fit_consMR)$.resid, order = 8)
-```
-
-### If the model fails the Breusch-Godfrey test \dots
-
-* The forecasts are not wrong, but have higher variance than they need to.
-* There is information in the residuals that we should exploit.
-* This is done with a regression model with ARMA errors.
-
- -->
 
 # Some useful predictors for linear models
 
@@ -377,6 +306,84 @@ fourier_beer <- recent_production %>% model(TSLM(Beer ~ trend() + fourier(K=2)))
 report(fourier_beer)
 ```
 
+## Harmonic regression: eating-out expenditure
+
+\fontsize{9}{10}\sf
+
+```{r cafe, echo=TRUE, fig.height=3.8, fig.width=8}
+aus_cafe <- aus_retail %>% filter(
+    Industry == "Cafes, restaurants and takeaway food services",
+    year(Month) %in% 2004:2018
+  ) %>% summarise(Turnover = sum(Turnover))
+aus_cafe %>% autoplot(Turnover)
+```
+
+## Harmonic regression: eating-out expenditure
+
+\fontsize{9}{10}\sf
+
+```{r cafefit, dependson='cafe', fig.height=5, echo=TRUE}
+fit <- aus_cafe %>% 
+  model(K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
+        K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
+        K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
+        K4 = TSLM(log(Turnover) ~ trend() + fourier(K = 4)),
+        K5 = TSLM(log(Turnover) ~ trend() + fourier(K = 5)),
+        K6 = TSLM(log(Turnover) ~ trend() + fourier(K = 6)))
+glance(fit) %>% select(.model, r_squared, adj_r_squared, AICc)
+```
+
+## Harmonic regression: eating-out expenditure
+
+```{r, echo=FALSE}
+cafe_plot <- function(...){
+  fit %>%
+    select(...) %>%
+    forecast() %>% autoplot(aus_cafe) +
+    labs(title = sprintf("Log transformed %s, trend() + fourier(K = %s)", model_sum(select(fit,...)[[1]][[1]]), deparse(..1))) +
+    geom_label(
+      aes(x = yearmonth("2007 Jan"), y = 4250, label = paste0("AICc = ", format(AICc))),
+      data = glance(select(fit,...))
+    ) +
+    geom_line(aes(y = .fitted), colour = "red", augment(select(fit, ...))) +
+    ylim(c(1500, 5100))
+}
+```
+
+```{r cafe1, dependson='cafe', fig.height=5, echo=FALSE}
+cafe_plot(K = 1)
+```
+
+## Harmonic regression: eating-out expenditure
+
+```{r cafe2, dependson='cafe', fig.height=5, echo=FALSE}
+cafe_plot(K = 2)
+```
+
+## Harmonic regression: eating-out expenditure
+
+```{r cafe3, dependson='cafe', fig.height=5, echo=FALSE}
+cafe_plot(K = 3)
+```
+
+## Harmonic regression: eating-out expenditure
+
+```{r cafe4, dependson='cafe', fig.height=5, echo=FALSE}
+cafe_plot(K = 4)
+```
+
+## Harmonic regression: eating-out expenditure
+
+```{r cafe5, dependson='cafe', fig.height=5, echo=FALSE}
+cafe_plot(K = 5)
+```
+
+## Harmonic regression: eating-out expenditure
+
+```{r cafe6, dependson='cafe', fig.height=5, echo=FALSE}
+cafe_plot(K = 6)
+```
+
 ## Intervention variables
 
 **Spikes**
@@ -508,6 +515,39 @@ fit_trends %>% select(piecewise) %>%
   gg_tsresiduals()
 ```
 
+# Residual diagnostics
+
+##  Multiple regression and forecasting
+For forecasting purposes, we require the following assumptions:
+
+* $\varepsilon_t$ are uncorrelated and zero mean
+
+* $\varepsilon_t$ are uncorrelated with each $x_{j,t}$.
+\pause
+
+It is **useful** to also have $\varepsilon_t \sim \text{N}(0,\sigma^2)$ when producing prediction intervals or doing statistical tests.
+
+## Residual plots
+
+Useful for spotting outliers and whether the linear model was
+appropriate.
+
+* Scatterplot of residuals $\varepsilon_t$ against each predictor $x_{j,t}$.
+
+* Scatterplot residuals against the fitted values $\hat y_t$
+
+* Expect to see scatterplots resembling a horizontal band with
+no values too far from the band and no patterns such as curvature or
+increasing spread.
+
+## Residual patterns
+
+* If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
+
+* If a plot of the residuals vs any predictor **not** in the model shows a pattern, then the predictor should be added to the model.
+
+* If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
+
 # Selecting predictors and forecast evaluation
 
 
@@ -572,7 +612,6 @@ For small values of $T$, the AIC tends to select too many predictors, and so a b
 
 As with the AIC, the AIC$_{\text{C}}$ should be minimized.
 
-<!--
 ## Bayesian Information Criterion
 
 \begin{block}{}
@@ -587,7 +626,110 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
 * Also called SBIC and SC.
 
 * Minimizing BIC is asymptotically equivalent to leave-$v$-out cross-validation when $v = T[1-1/(log(T)-1)]$.
- -->
+
+## Leave-one-out cross-validation
+
+For regression, leave-one-out cross-validation is faster and more efficient than time-series cross-validation.
+
+* Select one observation for test set, and use *remaining* observations in training set. Compute error on test observation.
+* Repeat using each possible observation as the test set.
+* Compute accuracy measure over all errors.
+
+
+```{r tscvplots, echo=FALSE}
+tscv_plot <- function(.init, .step, h = 1) {
+  expand.grid(
+    time = seq(26),
+    .id = seq(trunc(20 / .step))
+  ) %>%
+    group_by(.id) %>%
+    mutate(
+      observation = case_when(
+        time <= ((.id - 1) * .step + .init) ~ "train",
+        time %in% c((.id - 1) * .step + .init + h) ~ "test",
+        TRUE ~ "unused"
+      )
+    ) %>%
+    ungroup() %>%
+    filter(.id <= 26 - .init) %>%
+    ggplot(aes(x = time, y = .id)) +
+    geom_segment(
+      aes(x = 0, xend = 27, y = .id, yend = .id),
+      arrow = arrow(length = unit(0.015, "npc")),
+      col = "black", size = .25
+    ) +
+    geom_point(aes(col = observation), size = 2) +
+    scale_y_reverse() +
+    scale_color_manual(values = c(train = "#0072B2", test = "#D55E00", unused = "gray")) +
+    #theme_void() +
+    #geom_label(aes(x = 28.5, y = 1, label = "time")) +
+    guides(col = FALSE) +
+    labs(x="time", y="") +
+    theme_void() +
+    theme(axis.title = element_text())
+}
+loocv_plot <- function() {
+  expand.grid(time = seq(26), .id = seq(26)) %>%
+    group_by(.id) %>%
+    mutate(observation = if_else(time == .id, "test", "train")) %>%
+    ungroup() %>%
+    filter(.id <= 20) %>%
+    ggplot(aes(x = time, y = .id)) +
+    geom_segment(
+      aes(x = 0, xend = 27, y = .id, yend = .id),
+      arrow = arrow(length = unit(0.015, "npc")),
+      col = "black", size = .25
+    ) +
+    geom_point(aes(col = observation), size = 2) +
+    scale_y_reverse() +
+    scale_color_manual(values = c(train = "#0072B2", test = "#D55E00", unused = "gray")) +
+    guides(col = FALSE) +
+    labs(x="time", y="") +
+    theme_void() +
+    theme(axis.title = element_text())
+}
+```
+
+## Cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest1, fig.height=1, echo=FALSE, dependson="tscvplots"}
+tscv_plot(.init = 18, .step = 20, h = 1:8) +
+  geom_text(aes(x=10,y=0.8,label="Training data"), color = "#0072B2") +
+  geom_text(aes(x=21,y=0.8,label="Test data"), color = "#D55E00") +
+  ylim(1,0)
+```
+
+\pause
+
+**Time series cross-validation**
+
+```{r tscvggplot1, echo=FALSE}
+tscv_plot(.init = 3, .step = 1, h = 1) +
+  geom_text(aes(x=21,y=0,label="h = 1"), color = "#D55E00")
+```
+
+## Cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest1a, fig.height=1, echo=FALSE, dependson="tscvplots"}
+tscv_plot(.init = 18, .step = 20, h = 1:8) +
+  geom_text(aes(x=10,y=0.8,label="Training data"), color = "#0072B2") +
+  geom_text(aes(x=21,y=0.8,label="Test data"), color = "#D55E00") +
+  ylim(1,0)
+```
+
+**Leave-one-out cross-validation**
+
+```{r, echo=FALSE}
+loocv_plot() +
+  geom_text(aes(x=21,y=0,label="h = 1"), color = "#ffffff")
+```
+
+\only<2>{\begin{textblock}{4}(6,6)\begin{block}{}\fontsize{13}{15}\sf
+CV = MSE on \textcolor[HTML]{D55E00}{test sets}\end{block}\end{textblock}}
 
 ## Comparing regression models
 \fontsize{11}{14}\sf
@@ -721,7 +863,7 @@ Differentiate wrt $\bm{\beta}$ gives
 \end{block}
 
 \pause
-(The ``normal equation''.)\pause
+(The "normal equation".)\pause
 
 \[
 \hat{\sigma}^2 = \frac{1}{T-k-1}(\bm{y} - \bm{X}\hat{\bm{\beta}})'(\bm{y} - \bm{X}\hat{\bm{\beta}})
@@ -741,7 +883,7 @@ L = \frac{1}{\sigma^T(2\pi)^{T/2}}\exp\left(-\frac1{2\sigma^2}(\bm{y}-\bm{X}\bm{
 \]\pause
 which is maximized when $(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})$ is minimized.\pause
 
-\centerline{\textcolor{orange}{So \textbf{MLE = OLS}.}}
+\centerline{\alert{So \textbf{MLE = OLS}.}}
 
 ## Multiple regression forecasts
 

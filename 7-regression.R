@@ -1,11 +1,3 @@
-options(
-  digits = 3,
-  width = 60,
-  ggplot2.continuous.colour="viridis",
-  ggplot2.continuous.fill = "viridis",
-  ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
-  ggplot2.discrete.fill = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442")
-)
 library(fpp3)
 
 # US consumption quarterly changes
@@ -64,10 +56,12 @@ fit_consMR %>% gg_tsresiduals()
 # Australian beer production
 
 recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
-recent_production %>% autoplot(Beer) +
+recent_production %>% 
+  autoplot(Beer) +
   labs(y="Megalitres",title ="Australian quarterly beer production")
 
-fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
+fit_beer <- recent_production %>% 
+  model(TSLM(Beer ~ trend() + season()))
 report(fit_beer)
 
 augment(fit_beer) %>%
@@ -87,10 +81,22 @@ augment(fit_beer) %>%
 
 fit_beer %>% gg_tsresiduals()
 
-fit_beer %>% forecast %>% autoplot(recent_production)
+fit_beer %>% 
+  forecast() %>% 
+  autoplot(recent_production)
 
-fourier_beer <- recent_production %>% model(TSLM(Beer ~ trend() + fourier(K=2)))
+fourier_beer <- recent_production %>% 
+  model(TSLM(Beer ~ trend() + fourier(K=2)))
 report(fourier_beer)
+
+recent_production %>% 
+  model(
+    f1 = TSLM(Beer ~ trend() + fourier(K=1)),
+    f2 = TSLM(Beer ~ trend() + fourier(K=2)),
+    season = TSLM(Beer ~ trend() + season())
+  ) %>%
+  glance()
+
 
 ## Boston Marathon
 
@@ -98,7 +104,8 @@ marathon <- boston_marathon %>%
   filter(Event == "Men's open division") %>%
   select(-Event) %>%
   mutate(Minutes = as.numeric(Time)/60)
-marathon %>% autoplot(Minutes) +
+marathon %>% 
+  autoplot(Minutes) +
   labs(y="Winning times in minutes")
 
 fit_trends <- marathon %>%
@@ -108,12 +115,13 @@ fit_trends <- marathon %>%
     # Exponential trend
     exponential = TSLM(log(Minutes) ~ trend()),
     # Piecewise linear trend
-    piecewise = TSLM(Minutes ~ trend(knots = c(1940, 1980)))
+    piecewise = TSLM(log(Minutes) ~ trend(knots = c(1940, 1980)))
   )
 
 fit_trends
 
-fc_trends <- fit_trends %>% forecast(h = 10)
+fc_trends <- fit_trends %>% 
+  forecast(h = 10)
 marathon %>%
   autoplot(Minutes) +
   geom_line(data = fitted(fit_trends),
@@ -129,11 +137,68 @@ fit_trends %>%
 glance(fit_trends) %>%
   select(.model, r_squared, adj_r_squared, AICc, CV)
 
+# Fourier terms for cafe data
+
+aus_cafe <- aus_retail %>% filter(
+    Industry == "Cafes, restaurants and takeaway food services",
+    year(Month) %in% 2004:2018
+  ) %>% 
+  summarise(Turnover = sum(Turnover))
+aus_cafe %>% 
+  autoplot(Turnover)
+aus_cafe %>% 
+  autoplot(log(Turnover))
+
+fit <- aus_cafe %>% 
+  model(
+    K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
+    K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
+    K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
+    K4 = TSLM(log(Turnover) ~ trend() + fourier(K = 4)),
+    K5 = TSLM(log(Turnover) ~ trend() + fourier(K = 5)),
+    K6 = TSLM(log(Turnover) ~ trend() + fourier(K = 6))
+  )
+
+augment(fit) %>%
+  filter(.model %in% c("K1","K2","K3")) %>%
+  ggplot(aes(x=Month, y=Turnover)) +
+  geom_line() +
+  geom_line(aes(y=.fitted, col=.model)) +
+  facet_grid(.model ~ .)
+
+glance(fit) %>%
+  select(.model, sigma2, log_lik, AIC, AICc, BIC)
+
 # US consumption quarterly changes
+
+fit_all <- us_change %>%
+  model(
+    TSLM(Consumption ~ Income + Production + Unemployment + Savings),
+    TSLM(Consumption ~ Production + Unemployment + Savings),
+    TSLM(Consumption ~ Income + Unemployment + Savings),
+    TSLM(Consumption ~ Income + Production + Savings),
+    TSLM(Consumption ~ Income + Production + Unemployment),
+    TSLM(Consumption ~ Income + Production),
+    TSLM(Consumption ~ Income + Unemployment),
+    TSLM(Consumption ~ Income + Savings),
+    TSLM(Consumption ~ Production + Unemployment),
+    TSLM(Consumption ~ Production + Savings),
+    TSLM(Consumption ~ Unemployment + Savings),
+    TSLM(Consumption ~ Income),
+    TSLM(Consumption ~ Production),
+    TSLM(Consumption ~ Unemployment),
+    TSLM(Consumption ~ Savings),
+    TSLM(Consumption ~ 1),
+  )
+
+fit_all %>% 
+  glance() %>% 
+  select(.model, adj_r_squared, AICc, BIC, CV) %>%
+  arrange(AICc)
 
 fit_consBest <- us_change %>%
   model(
-    TSLM(Consumption ~ Income + Savings + Unemployment)
+    TSLM(Consumption ~ Income + Production + Unemployment + Savings),
   )
 
 future_scenarios <- scenarios(
