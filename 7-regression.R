@@ -191,21 +191,27 @@ fit_all <- us_change %>%
     TSLM(Consumption ~ 1),
   )
 
+us_change %>% model(    
+  TSLM(Consumption ~ Income*Savings + Production + Unemployment),
+) %>% report()
+
 fit_all %>% 
   glance() %>% 
   select(.model, adj_r_squared, AICc, BIC, CV) %>%
-  arrange(AICc)
+  arrange(CV)
 
 fit_consBest <- us_change %>%
   model(
     TSLM(Consumption ~ Income + Production + Unemployment + Savings),
   )
 
+fit_consBest %>% report()
+
 future_scenarios <- scenarios(
   Increase = new_data(us_change, 4) %>%
-    mutate(Income=1, Savings=0.5, Unemployment=0),
+    mutate(Income=1, Savings=0.5, Unemployment=0, Production=0),
   Decrease = new_data(us_change, 4) %>%
-    mutate(Income=-1, Savings=-0.5, Unemployment=0),
+    mutate(Income=-1, Savings=-0.5, Unemployment=0, Production=0),
   names_to = "Scenario")
 
 fc <- forecast(fit_consBest, new_data = future_scenarios)
