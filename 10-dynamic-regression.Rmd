@@ -168,7 +168,7 @@ variables with the same differencing operator as in the ARIMA model.\pause
 
 ## US personal consumption and income
 
-```{r usconsump, fig.height=6, fig.width=8.5}
+```{r usconsump, fig.height=6, fig.width=8.5, echo=FALSE}
 us_change %>%
   gather(key='variable', value='value') %>%
   ggplot(aes(y=value, x=Quarter, group=variable, colour=variable)) +
@@ -342,13 +342,14 @@ where $\eta'_t$ is ARMA process.
 \end{block}
 
 ## International visitors
+\fontsize{10}{10}\sf
 
 ```{r}
 aus_visitors <- as_tsibble(fpp2::austa)
 aus_visitors %>%
   autoplot(value) +
   labs(x = "Year", y = "millions of people",
-       title = "Total annual international visitors to Australia")
+       title = "Annual international visitors to Australia")
 ```
 
 ## International visitors
@@ -409,6 +410,7 @@ y_t-y_{t-1} &= `r sprintf("%.3f",drift)` + \varepsilon_t + `r sprintf("%.3f",the
 \end{align*}
 
 ## International visitors
+\fontsize{10}{10}\sf
 
 ```{r}
 fc_deterministic <- forecast(fit_deterministic, h = 10)
