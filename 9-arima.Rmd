@@ -1749,10 +1749,10 @@ Test data: July 2006--June 2008
 fit <- h02 %>%
   filter_index(~ "2006 Jun") %>%
   model(
-    ARIMA(log(Cost) ~ pdq(3, 0, 0) + PDQ(2, 1, 0)),
-    ARIMA(log(Cost) ~ pdq(3, 0, 1) + PDQ(2, 1, 0)),
-    ARIMA(log(Cost) ~ pdq(3, 0, 2) + PDQ(2, 1, 0)),
-    ARIMA(log(Cost) ~ pdq(3, 0, 1) + PDQ(1, 1, 0))
+    ARIMA(log(Cost) ~ 0 + pdq(3, 0, 0) + PDQ(2, 1, 0)),
+    ARIMA(log(Cost) ~ 0 + pdq(3, 0, 1) + PDQ(2, 1, 0)),
+    ARIMA(log(Cost) ~ 0 + pdq(3, 0, 2) + PDQ(2, 1, 0)),
+    ARIMA(log(Cost) ~ 0 + pdq(3, 0, 1) + PDQ(1, 1, 0))
     # ... #
   )
 
