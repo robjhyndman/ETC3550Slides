@@ -11,7 +11,7 @@ google_2018 %>% autoplot(Close)
 google_2018 %>% ACF(Close) %>% autoplot()
 
 google_2018 %>% autoplot(difference(Close)) +
-   ylab("Google closing stock price") + xlab("Day")
+   labs(y="Google closing stock price", x="Day")
 
 google_2018 %>% ACF(difference(Close)) %>% autoplot()
 
@@ -92,42 +92,89 @@ total_trips %>%
     autoplot(Trips %>% difference(4) %>% difference(1))
 
 
-## US Consumption ------------------------------------------------------------------
+## EGYPTIAN EXPORTS
 
-us_change %>% autoplot(Consumption) +
-  xlab("Year") +
-  ylab("Quarterly percentage change") +
-  ggtitle("US consumption")
+global_economy %>%
+  filter(Code == "EGY") %>%
+  autoplot(Exports) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
 
-fit <- us_change %>%
-  model(arima = ARIMA(Consumption ~ pdq(2,0,1) + PDQ(0,0,0)))
+fit <- global_economy %>% 
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
 report(fit)
 
-fit %>% forecast(h=100) %>%
-  autoplot(us_change)
+gg_tsresiduals(fit)
 
-fit %>% forecast(h=10) %>%
-  autoplot(tail(us_change, 80))
+augment(fit) %>%
+  features(.resid, ljung_box, lag = 10, dof = 4)
+
+fit %>% 
+  forecast(h=10) %>%
+  autoplot(global_economy) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
+
+global_economy %>% filter(Code == "EGY") %>% ACF(Exports) %>% autoplot()
+global_economy %>% filter(Code == "EGY") %>% PACF(Exports) %>% autoplot()
+
+global_economy %>% 
+  filter(Code == "EGY") %>%
+  gg_tsdisplay(Exports, plot_type='partial')
+
+fit1 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports ~ pdq(4,0,0)))
+report(fit1)
+
+fit2 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
+report(fit2)
+
+## CAF EXPORTS
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  autoplot(Exports) +
+  labs(title="Central African Republic exports",
+       y="% of GDP")
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  gg_tsdisplay(difference(Exports), plot_type='partial')
+
+caf_fit <- global_economy %>%
+  filter(Code == "CAF") %>%
+  model(arima210 = ARIMA(Exports ~ pdq(2,1,0)),
+        arima013 = ARIMA(Exports ~ pdq(0,1,3)),
+        stepwise = ARIMA(Exports),
+        search = ARIMA(Exports, stepwise=FALSE))
+
+caf_fit
+
+glance(caf_fit) %>% arrange(AICc) %>% select(.model:BIC)
+
+caf_fit %>%
+  select(search) %>%
+  gg_tsresiduals()
+
+caf_fit %>%
+  select(search) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 10, dof = 3)
+
+caf_fit %>%
+  forecast(h=50) %>%
+  filter(.model=='search') %>%
+  autoplot(global_economy)
 
 
-## MINKS --------------------------------------------------------------------------
-
-mink <- as_tsibble(fma::mink)
-mink %>% autoplot(value) +
-  xlab("Year") +
-  ylab("Minks trapped (thousands)") +
-  ggtitle("Annual number of minks trapped")
-
-mink %>% ACF(value) %>% autoplot()
-mink %>% PACF(value) %>% autoplot()
-mink %>% gg_tsdisplay(value)
-
+library(fpp3)
 
 ## WWW usage -----------------------------------------------------------------------
 
 web_usage <- as_tsibble(WWWusage)
 web_usage %>% gg_tsdisplay(value, plot_type = 'partial')
-
 web_usage %>% gg_tsdisplay(difference(value), plot_type = 'partial')
 
 fit <- web_usage %>%
@@ -140,7 +187,7 @@ web_usage %>%
 
 web_usage %>%
   model(auto2 = ARIMA(value ~ pdq(d=1),
-       stepwise = FALSE, approximation = FALSE)) %>%
+                      stepwise = FALSE, approximation = FALSE)) %>%
   report()
 
 gg_tsresiduals(fit)
@@ -151,44 +198,18 @@ augment(fit) %>%
 fit %>% forecast(h = 10) %>% autoplot(web_usage)
 
 
-## Electrical Equipment --------------------------------------------------------
-
-elecequip <- as_tsibble(fpp2::elecequip)
-dcmp <- elecequip %>%
-  model(STL(value ~ season(window = "periodic"))) %>%
-  components() %>%
-  select(-.model)
-dcmp %>% as_tsibble %>%
-  autoplot(season_adjust) + xlab("Year") +
-  ylab("Seasonally adjusted new orders index")
-
-dcmp %>% gg_tsdisplay(difference(season_adjust), plot_type = 'partial')
-
-fit <- dcmp %>%
-  model(
-    arima = ARIMA(season_adjust ~ pdq(d=1, p=0:11) + PDQ(0,0,0),
-                  stepwise=FALSE, approximation=FALSE,
-                  order_constraint = p + q + P + Q <= 11)
-  )
-report(fit)
-
-gg_tsresiduals(fit)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 24, dof = 4)
-
-fit %>% forecast %>% autoplot(dcmp)
-
 ## GDP --------------------------------------------------------------------------
 
 global_economy %>%
-  filter(Country=="United States") %>%
+  filter(Country=="Australia") %>%
   autoplot(log(GDP))
 
 fit <- global_economy %>%
   model(
     ARIMA(log(GDP))
   )
+
+fit
 
 fit %>%
   filter(Country == "Australia") %>%
@@ -207,58 +228,52 @@ fit %>%
   scale_y_log10()
 
 
+## US leisure employment
 
-### US Monthly Electricity -----------------------------------------------------
+leisure <- us_employment %>%
+  filter(Title == "Leisure and Hospitality",
+         year(Month) > 2000) %>%
+  mutate(Employed = Employed/1000) %>%
+  select(Month, Employed)
+autoplot(leisure, Employed) +
+  labs(title = "US employment: leisure and hospitality",
+       y="Number of people (millions)")
 
-usmelec %>% autoplot(
-  Generation
-)
+leisure %>%
+  gg_tsdisplay(difference(Employed, 12),
+               plot_type='partial', lag=36) +
+  labs(title="Seasonally differenced", y="")
 
+leisure %>%
+  gg_tsdisplay(difference(Employed, 12) %>% difference(),
+               plot_type='partial', lag=36) +
+  labs(title = "Double differenced", y="")
 
-usmelec %>% autoplot(
-  log(Generation)
-)
+fit <- leisure %>%
+  model(
+    arima012011 = ARIMA(Employed ~ pdq(0,1,2) + PDQ(0,1,1)),
+    arima210011 = ARIMA(Employed ~ pdq(2,1,0) + PDQ(0,1,1)),
+    auto = ARIMA(Employed, stepwise = FALSE, approx = FALSE)
+  )
+fit %>% pivot_longer(everything(), names_to = "Model name",
+                     values_to = "Orders")
 
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12)
-)
+glance(fit) %>% arrange(AICc) %>% select(.model:BIC)
 
-usmelec %>% autoplot(
-  log(Generation) %>% difference(12) %>% difference()
-)
+fit %>% select(auto) %>% gg_tsresiduals(lag=36)
 
-usmelec %>% gg_tsdisplay(
-  log(Generation) %>% difference(12) %>% difference(),
-  plot_type = "partial")
+augment(fit) %>% features(.innov, ljung_box, lag=24, dof=4)
 
-usmelec %>%
-  model(arima = ARIMA(log(Generation) ~ pdq(0,1,3) + PDQ(0,1,1))) %>%
-  report()
+forecast(fit, h=36) %>%
+  filter(.model=='auto') %>%
+  autoplot(leisure) +
+  labs(title = "US employment: leisure and hospitality",
+       y="Number of people (millions)")
 
-usmelec %>%
-  model(arima = ARIMA(log(Generation), stepwise=FALSE, approximation=FALSE)) %>%
-  report()
-
-fit <- usmelec %>%
-  model(arima = ARIMA(log(Generation)))
-gg_tsresiduals(fit)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 24, dof = 5)
-
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  forecast(h = "3 years") %>%
-  autoplot(usmelec)
-
-usmelec %>%
-  model(arima = ARIMA(log(Generation))) %>%
-  forecast(h = "3 years") %>%
-  autoplot(filter(usmelec, year(Month) >= 2005))
 
 ## h02 drugs ----------------------------------------------------------------------
 
-h02 <- tsibbledata::PBS %>%
+h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost))
 
@@ -287,8 +302,8 @@ augment(fit) %>%
 # Letting R work hard to choose
 fit <- h02 %>%
   model(best = ARIMA(log(Cost), stepwise = FALSE,
-                 approximation = FALSE,
-                 order_constraint = p + q + P + Q <= 9))
+                     approximation = FALSE,
+                     order_constraint = p + q + P + Q <= 9 & (constant + d + D <= 2)))
 report(fit)
 gg_tsresiduals(fit, lag_max=36)
 augment(fit) %>%
@@ -296,40 +311,74 @@ augment(fit) %>%
 
 # The forecasts
 fit %>% forecast %>% autoplot(h02) +
-  ylab("H02 Expenditure ($AUD)") + xlab("Year")
+  labs(y="H02 Expenditure ($AUD)")
 
 
-## Models without using logs
+## AUS ECONOMY ETS vs ARIMA
+aus_economy <- global_economy %>% 
+  filter(Code == "AUS") %>%
+  mutate(Population = Population/1e6)
+aus_economy %>%
+  slice(-n()) %>%
+  stretch_tsibble(.init = 10) %>%
+  model(eta = ETS(Population),
+        arima = ARIMA(Population)
+  ) %>%
+  forecast(h = 1) %>%
+  accuracy(aus_economy) %>%
+  select(.model, ME:RMSSE)
 
-h02 %>% gg_tsdisplay(difference(Cost,12), lag_max = 36, plot_type='partial')
+aus_economy %>%
+  model(ETS(Population)) %>%
+  forecast(h = "5 years") %>%
+  autoplot(aus_economy) +
+  labs(title = "Australian population",
+       y = "People (millions)")
 
-# My best guess
-fit <- h02 %>%
-  model(best = ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
-report(fit)
-gg_tsresiduals(fit, lag_max=36)
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 6)
 
-# Letting R choose
-fit <- h02 %>% model(auto = ARIMA(Cost, stepwise = FALSE))
-report(fit)
-gg_tsresiduals(fit, lag_max=36)
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 7)
+# QUARTERLY CEMENT ETS vs ARIMA
 
-# Letting R work hard to choose
-fit <- h02 %>%
-  model(best = ARIMA(Cost, stepwise = FALSE,
-                     approximation = FALSE,
-                     order_constraint = p + q + P + Q <= 9))
-report(fit)
-gg_tsresiduals(fit, lag_max=36)
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 8)
+cement <- aus_production %>%
+  select(Cement) %>%
+  filter_index("1988 Q1" ~ .)
+train <- cement %>% filter_index(. ~ "2007 Q4")
+fit <- train %>%
+  model(
+    arima = ARIMA(Cement),
+    ets = ETS(Cement)
+  )
 
-# The forecasts
-fit %>% forecast %>% autoplot(h02) +
-  ylab("H02 Expenditure ($AUD)") + xlab("Year")
+fit %>%
+  select(arima) %>%
+  report()
 
+fit %>%
+  select(ets) %>%
+  report()
+
+gg_tsresiduals(fit %>% select(arima), lag_max = 16)
+
+gg_tsresiduals(fit %>% select(ets), lag_max = 16)
+
+fit %>%
+  select(arima) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 16, dof = 6)
+
+fit %>%
+  select(ets) %>%
+  augment() %>%
+  features(.innov, ljung_box, lag = 16, dof = 6)
+
+fit %>%
+  forecast(h = "2 years 6 months") %>%
+  accuracy(cement) %>%
+  select(-ME, -MPE, -ACF1)
+
+fit %>%
+  select(arima) %>%
+  forecast(h="3 years") %>%
+  autoplot(cement) +
+  labs(title = "Cement production in Australia",
+       y="Tonnes ('000)")
 

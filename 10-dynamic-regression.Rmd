@@ -12,13 +12,25 @@ output:
       in_header: header.tex
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
   dev.args = list(pointsize = 11)
 )
-options(digits = 3, width = 60)
+options(
+  digits = 3,
+  width = 60,
+  ggplot2.continuous.colour="viridis",
+  ggplot2.continuous.fill = "viridis",
+  ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
+  ggplot2.discrete.fill = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442")
+)
 library(fpp3)
+library(readr)
 
 vic_elec_daily <- vic_elec %>%
   filter(year(Time) == 2014) %>%
@@ -130,13 +142,12 @@ variables with the same differencing operator as in the ARIMA model.\pause
 ## Regression with ARIMA errors
 \fontsize{13}{15}\sf
 
-  * Fit regression model with automatically selected ARIMA errors. (R will take care of differencing before estimation.)
+  * All variables in the model must be stationary before estimation.
+  * If we estimate the model while any of these are non-stationary, the estimated coefficients can be incorrect.
+  * Difference variables until all stationary.
+  * If necessary, apply same differencing to all variables.
+  * In R, we can specify an ARIMA($p,d,q$) for the errors, and $d$ levels of differencing will be applied to all variables ($y, x_{1,t},\dots,x_{k,t}$).
   * Check that $\varepsilon_t$ series looks like white noise.
-
-\pause\vspace*{0.5cm}
-
-### Selecting predictors
-
   * AICc can be calculated for final model.
   * Repeat procedure for all subsets of predictors to be considered, and select model with lowest AICc value.
 
@@ -220,7 +231,7 @@ Model daily electricity demand as a function of temperature using quadratic regr
 
 ```{r, echo=TRUE, fig.height=3}
 vic_elec_daily %>%
-  ggplot(aes(x=Temperature, y=Demand, colour=Day_Type)) +
+  ggplot(aes(x = Temperature, y = Demand, colour = Day_Type)) +
   geom_point() +
   labs(x = "Maximum temperature", y = "Electricity demand (GW)")
 ```
@@ -230,9 +241,9 @@ vic_elec_daily %>%
 
 ```{r, echo=TRUE, fig.height=3.6}
 vic_elec_daily %>%
-  gather("var", "value", Demand, Temperature) %>%
+  pivot_longer(c(Demand, Temperature)) %>%
   ggplot(aes(x = Date, y = value)) + geom_line() +
-  facet_grid(vars(var), scales = "free_y")
+  facet_grid(name ~ ., scales = "free_y") + ylab("")
 ```
 
 ## Daily electricity demand
@@ -288,8 +299,8 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
 ## Daily electricity demand
 \fontsize{10}{13}\sf
 ```{r, echo = TRUE}
-forecast(fit, new_data=vic_elec_future) %>%
-  autoplot(vic_elec_daily) + labs(y="Electricity demand (GW)")
+forecast(fit, new_data = vic_elec_future) %>%
+  autoplot(vic_elec_daily) + labs(y="GW")
 ```
 
 # Stochastic and deterministic trends
@@ -310,93 +321,87 @@ Difference both sides until $\eta_t$ is stationary:
 where $\eta'_t$ is ARMA process.
 \end{block}
 
-## International visitors
+## Air transport passengers Australia
+\fontsize{10}{10}\sf
 
 ```{r}
-aus_visitors <- as_tsibble(fpp2::austa)
-aus_visitors %>%
-  autoplot(value) +
-  labs(x = "Year", y = "millions of people",
-       title = "Total annual international visitors to Australia")
+aus_airpassengers %>%
+  autoplot(Passengers) +
+  labs(y = "Passengers (millions)",
+       title = "Total air passengers")
 ```
 
-## International visitors
+## Air transport passengers Australia
 \fontsize{10}{10}\sf
 
 **Deterministic trend**
 
+\vspace*{-0.1cm}
+
 ```{r, echo=TRUE}
-fit_deterministic <- aus_visitors %>%
-  model(Deterministic = ARIMA(value ~ trend() + pdq(d = 0)))
+fit_deterministic <- aus_airpassengers %>%
+  model(ARIMA(Passengers ~ 1 + trend() + pdq(d = 0)))
 report(fit_deterministic)
 ```
 \pause\vspace*{-0.3cm}
 
-```{r austaparams, echo=FALSE}
-coef <- purrr::set_names(tidy(fit_deterministic)$estimate, tidy(fit_deterministic)$term)
-phi1 <- coef['ar1']
-phi2 <- coef['ar2']
-intercept <- coef['intercept']
-slope <- coef['trend()']
+```{r austaparams, echo=FALSE, dependson='deterministictrend'}
+coef <- rlang::set_names(tidy(fit_deterministic)$estimate, tidy(fit_deterministic)$term)
+phi1 <- coef["ar1"]
+intercept <- coef["intercept"]
+slope <- coef["trend()"]
 sigma2 <- glance(fit_deterministic)$sigma2
 ```
 
 ###
 \vspace*{-.2cm}
 \begin{align*}
-  y_t &= `r format(intercept,digits=2)` + `r format(slope, digits=2)` t + \eta_t \\
-  \eta_t &= `r format(phi1, digits=3)` \eta_{t-1} `r format(phi2, digits=2)` \eta_{t-2} + \varepsilon_t\\
-  \varepsilon_t &\sim \text{NID}(0,`r format(sigma2, digits=3)`).
-\end{align*}
+  y_t &= `r sprintf("%.3f", intercept)` + `r sprintf("%.3f", slope)` t + \eta_t \\
+  \eta_t &= `r sprintf("%.3f", phi1)` \eta_{t-1}  + \varepsilon_t\\
+  \varepsilon_t &\sim \text{NID}(0,`r sprintf("%.3f", sigma2)`).
+\end{align*}\vspace*{10cm}
 
-## International visitors
+## Air transport passengers Australia
 \fontsize{10}{10}\sf
 
 **Stochastic trend**
 
+\vspace*{-0.1cm}
+
 ```{r, echo=TRUE}
-fit_stochastic <- aus_visitors %>%
-  model(Stochastic = ARIMA(value ~ pdq(d=1)))
+fit_stochastic <- aus_airpassengers %>%
+  model(ARIMA(Passengers ~ pdq(d = 1)))
 report(fit_stochastic)
 ```
 \pause\vspace*{-0.3cm}
 
-```{r austaparams2, cache=TRUE, echo=FALSE}
-coef <- purrr::set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
-drift <- coef['constant']
-theta1 <- coef['ma1']
+
+```{r austaparams2, echo=FALSE, dependson='stochastictrend'}
+coef <- rlang::set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
+drift <- coef["constant"]
 sigma2 <- glance(fit_stochastic)$sigma2
 ```
 
 ###
 \vspace*{-.2cm}
 \begin{align*}
-y_t-y_{t-1} &= `r sprintf("%.3f",drift)` + \varepsilon_t + `r sprintf("%.3f",theta1)` \varepsilon_{t-1} \\
-  y_t &= y_0 + `r sprintf("%.3f",drift)` t + \eta_t \\
-  \eta_t &= \eta_{t-1} + `r sprintf("%.3f",theta1)` \varepsilon_{t-1} + \varepsilon_{t}\\
-  \varepsilon_t &\sim \text{NID}(0,`r sprintf("%.3f",sigma2)`).
+  y_t-y_{t-1} &= `r sprintf("%.3f", drift)` + \varepsilon_t,\\
+  y_t &= y_0 + `r sprintf("%.3f", drift)` t + \eta_t \\
+  \eta_t &= \eta_{t-1} + \varepsilon_{t}\\
+  \varepsilon_t &\sim \text{NID}(0,`r sprintf("%.3f", sigma2)`).
 \end{align*}
 
-## International visitors
+## Air transport passengers Australia
+\fontsize{9}{9}\sf
 
-```{r}
-fc_deterministic <- forecast(fit_deterministic, h = 10)
-fc_stochastic <- forecast(fit_stochastic, h = 10)
-rbind(fc_deterministic, fc_stochastic) %>%
-  autoplot(aus_visitors) +
-  facet_grid(vars(.model)) +
-  labs(x = "Year", y = "Visitors to Australia (millions)",
-       title = "Forecasts from trend models") +
-  guides(colour = FALSE)
-```
-
-## International visitors
-
-```{r echo=FALSE, fig.height=5.5, fig.width=8.5}
-rbind(fc_deterministic, fc_stochastic) %>%
-  autoplot(aus_visitors, alpha = 0.5) +
-  guides(colour=guide_legend(title="Forecast")) +
-  labs(x = "Year", y = "Visitors to Australia (millions)",
+```{r, fig.height=3.}
+aus_airpassengers %>%
+  autoplot(Passengers) +
+  autolayer(fit_stochastic %>% forecast(h = 20),
+    colour = "#0072B2", level = 95) +
+  autolayer(fit_deterministic %>% forecast(h = 20),
+    colour = "#D55E00", alpha = 0.65, level = 95) +
+  labs(y = "Air passengers (millions)",
        title = "Forecasts from trend models")
 ```
 
@@ -457,7 +462,7 @@ glance(fit) %>%
 
 ## Eating-out expenditure
 
-```{r}
+```{r, echo=FALSE}
 cafe_plot <- function(...){
   fit %>%
     select(...) %>%
@@ -607,7 +612,7 @@ fit %>% forecast(h = 1690) %>%
 
 ## Lagged predictors
 
-\structure{Sometimes a change in $x_t$ does not affect $y_t$ instantaneously}\pause
+Sometimes a change in $x_t$ does not affect $y_t$ instantaneously\pause
 \begin{block}{}
 \begin{itemize}
   \item $y_t=$ sales, $x_t=$ advertising.
@@ -643,30 +648,28 @@ change in $x_t$ is transferred to $y_t$.
   * $x$ can influence $y$, but $y$ is not allowed to influence $x$.
 
 ## Example: Insurance quotes and TV adverts
+\fontsize{10}{10}\sf
 
 ```{r tvadvert}
-insurance <- as_tsibble(fpp2::insurance, pivot_longer = FALSE) %>%
-  rename(Month = index)
-
 insurance %>%
-  pivot_longer(c(Quotes, TV.advert)) %>%
+  pivot_longer(Quotes:TVadverts) %>%
   ggplot(aes(x = Month, y = value)) + geom_line() +
   facet_grid(vars(name), scales = "free_y") +
-  labs(x = "Year", y = NULL, title = "Insurance advertising and quotations")
+  labs(y = NULL, title = "Insurance advertising and quotations")
 ```
 
 
 ## Example: Insurance quotes and TV adverts
 
-```{r tvadvertpairs, dependson='tvadvertdata'}
+```{r tvadvertpairs, dependson='tvadvertdata', echo=FALSE}
 insurance %>%
   mutate(
-    lag1 = lag(TV.advert),
+    lag1 = lag(TVadverts),
     lag2 = lag(lag1)
   ) %>%
   as_tibble() %>%
   select(-Month) %>%
-  rename(lag0 = TV.advert) %>%
+  rename(lag0 = TVadverts) %>%
   pivot_longer(-Quotes, names_to="Lag", values_to="TV_advert") %>%
   ggplot(aes(x = TV_advert, y = Quotes)) + geom_point() +
   facet_grid(. ~ Lag) +
@@ -682,12 +685,12 @@ fit <- insurance %>%
   mutate(Quotes = c(NA,NA,NA,Quotes[4:40])) %>%
   # Estimate models
   model(
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert)),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) +
-            lag(TV.advert, 2)),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) +
-            lag(TV.advert, 2) + lag(TV.advert, 3))
+    ARIMA(Quotes ~ pdq(d = 0) + TVadvert),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadvert + lag(TVadverts)),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadvert + lag(TVadverts) +
+            lag(TVadvert, 2)),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
+            lag(TVadvert, 2) + lag(TVadverts, 3))
   )
 ```
 
@@ -708,34 +711,35 @@ glance(fit) %>%
 \fontsize{8}{9}\sf
 
 ```{r tvadvertagain, echo=TRUE}
-fit <- insurance %>%
-  model(ARIMA(Quotes ~ pdq(3, 0, 0) + TV.advert + lag(TV.advert)))
-report(fit)
+fit_best <- insurance %>%
+  model(ARIMA(Quotes ~ pdq(d=0) + TVadverts + lag(TVadverts)))
+report(fit_best)
 ```
 
 \pause
 \vspace{-1em}
 
-```{r tvadvertparam, echo=FALSE}
+```{r tvadvertparam, echo=FALSE, dependson="tvadvertagain"}
 # Store coefficients
-coef <- purrr::set_names(tidy(fit)$estimate, tidy(fit)$term)
-phi1 <- coef['ar1']
-phi2 <- coef['ar2']
-phi3 <- coef['ar3']
-intercept <- coef['intercept']
-gamma0 <- coef['TV.advert']
-gamma1 <- coef['lag(TV.advert)']
+tidy_fit <- tidy(fit_best)
+coef <- rlang::set_names(tidy_fit$estimate, tidy_fit$term)
+phi1 <- coef["ar1"]
+ma1 <- coef["ma1"]
+ma2 <- coef["ma2"]
+intercept <- coef["intercept"]
+gamma0 <- coef["TVadverts"]
+gamma1 <- coef["lag(TVadverts)"]
 ```
 
 ###
 \begin{align*}
-  y_t &= `r format(intercept, digits=3)` +
-         `r format(gamma0, digits=3)` x_t +
-         `r format(gamma1, digits=2)` x_{t-1} + \eta_t,\\
-  \eta_t &= `r format(phi1, digits=3)` \eta_{t-1}
-            `r format(phi2, digits=3)` \eta_{t-2} +
-            `r format(phi3, digits=3)` \eta_{t-3} +
-            \varepsilon_t
+  y_t &= `r sprintf("%.3f", intercept)` +
+         `r sprintf("%.3f", gamma0)` x_t +
+         `r sprintf("%.3f", gamma1)` x_{t-1} + \eta_t,\\
+  \eta_t &= `r sprintf("%.3f", phi1)` \eta_{t-1} +
+                                     \varepsilon_t +
+            `r sprintf("%.3f", ma1)` \varepsilon_{t-1} +
+            `r sprintf("%.3f", ma2)` \varepsilon_{t-2},
 \end{align*}
 
 ## Example: Insurance quotes and TV adverts
@@ -743,7 +747,7 @@ gamma1 <- coef['lag(TV.advert)']
 
 ```{r, echo=TRUE, fig.height=3.3}
 advert_a <- new_data(insurance, 20) %>%
-  mutate(TV.advert = 10)
+  mutate(TVadverts = 10)
 forecast(fit, advert_a) %>% autoplot(insurance)
 ```
 
@@ -752,7 +756,7 @@ forecast(fit, advert_a) %>% autoplot(insurance)
 
 ```{r, echo=TRUE, fig.height=3.3}
 advert_b <- new_data(insurance, 20) %>%
-  mutate(TV.advert = 8)
+  mutate(TVadverts = 8)
 forecast(fit, advert_b) %>% autoplot(insurance)
 ```
 
@@ -761,6 +765,6 @@ forecast(fit, advert_b) %>% autoplot(insurance)
 
 ```{r, echo=TRUE, fig.height=3.3}
 advert_c <- new_data(insurance, 20) %>%
-  mutate(TV.advert = 6)
+  mutate(TVadverts = 6)
 forecast(fit, advert_c) %>% autoplot(insurance)
 ```
