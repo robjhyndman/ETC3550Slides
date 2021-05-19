@@ -1,26 +1,27 @@
 library(fpp3)
-library(lubridate)
-
 
 ## US CHANGE -------------------------------------------------------------------
 
 us_change %>%
-  gather(key='variable', value='value') %>%
-  ggplot(aes(y=value, x=Quarter, group=variable, colour=variable)) +
-  geom_line() + facet_grid(variable ~ ., scales='free_y') +
-  xlab("Year") + ylab("") +
-  ggtitle("Quarterly changes in US consumption and personal income") +
+  pivot_longer(Consumption:Unemployment,
+               names_to = "var", values_to = "value") %>%
+  ggplot(aes(x = Quarter, y = value, colour=var)) +
+  geom_line() +
+  facet_grid(vars(var), scales = "free_y") +
+  labs(title = "US consumption and personal income",
+       y = "Quarterly % change") +
   guides(colour="none")
 
 # Regression
-fit <- us_change %>% model(TSLM(Consumption ~ Income + Production + Savings + Unemployment))
+fit <- us_change %>%
+  model(TSLM(Consumption ~ Income))
+report(fit)
 gg_tsresiduals(fit)
 
 # Dynamic regression
 fit <- us_change %>%
   model(
-    ARIMA(Consumption ~ Income + Savings + Unemployment + pdq(d=0) + PDQ(0,0,0),
-          stepwise=FALSE, approximation=FALSE, order_constraint = p+q <= 10)
+    ARIMA(Consumption ~ Income)
   )
 report(fit)
 gg_tsresiduals(fit)
@@ -34,11 +35,11 @@ residuals(fit, type='innovation') %>%
   ggtitle("ARIMA errors")
 
 augment(fit) %>%
-  features(.resid, ljung_box, dof = 5, lag = 12)
+  features(.innov, ljung_box, dof = 5, lag = 12)
 
 us_change_future <- new_data(us_change, 11) %>%
   mutate(
-    Income = mean(us_change$Income),
+    Income = max(us_change$Income),
     Savings = mean(us_change$Savings),
     Unemployment = mean(us_change$Unemployment)
   )
@@ -77,7 +78,7 @@ vic_elec_daily %>%
 
 fit <- vic_elec_daily %>%
   model(ARIMA(Demand ~ Temperature + I(Temperature^2) +
-                (Day_Type=="Weekday") + PDQ(Q=0:3)))
+                (Day_Type=="Weekday")))
 report(fit)
 
 gg_tsresiduals(fit)
@@ -102,51 +103,51 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
   )
 
 forecast(fit, new_data=vic_elec_future) %>%
-  autoplot(vic_elec_daily) + ylab("Electricity demand (GW)")
+  autoplot(vic_elec_daily) +
+  labs(y = "Electricity demand (GW)")
 
 
 ## AUSTRALIAN VISITORS -------------------------------------------------
 
-aus_visitors <- as_tsibble(fpp2::austa)
-aus_visitors %>%
-  autoplot(value) +
-  labs(x = "Year", y = "millions of people",
-       title = "Total annual international visitors to Australia")
+aus_airpassengers %>%
+  autoplot(Passengers) +
+  labs(y = "Passengers (millions)",
+       title = "Total annual air passengers")
 
-fit_deterministic <- aus_visitors %>%
-  model(Deterministic = ARIMA(value ~ trend() + pdq(d = 0)))
+fit_deterministic <- aus_airpassengers %>%
+  model(deterministic = ARIMA(Passengers ~ 1 + trend() + pdq(d = 0)))
 report(fit_deterministic)
 
-fit_stochastic <- aus_visitors %>%
-  model(Stochastic = ARIMA(value ~ pdq(d = 1)))
+fit_stochastic <- aus_airpassengers %>%
+  model(stochastic = ARIMA(Passengers ~ 1 + pdq(d = 1)))
 report(fit_stochastic)
 
-fc_deterministic <- forecast(fit_deterministic, h = 10)
-fc_stochastic <- forecast(fit_stochastic, h = 10)
+fc_deterministic <- forecast(fit_deterministic, h = 20)
+fc_stochastic <- forecast(fit_stochastic, h = 20)
 
-rbind(fc_deterministic, fc_stochastic) %>%
-  autoplot(aus_visitors, alpha = 0.5) +
-  guides(colour=guide_legend(title="Forecast")) +
-  labs(x = "Year", y = "Visitors to Australia (millions)",
+aus_airpassengers %>%
+  autoplot(Passengers) +
+  autolayer(fc_stochastic, colour = "#0072B2", level = 95) +
+  autolayer(fc_deterministic, colour = "#D55E00", alpha = 0.65, level = 95) +
+  labs(y = "Air passengers (millions)",
        title = "Forecasts from trend models")
-
 
 ## AUSTRALIAN CAFE DATA --------------------------------------------------
 
 aus_cafe <- aus_retail %>% filter(
-    Industry == "Cafes, restaurants and takeaway food services",
-    year(Month) %in% 2004:2018
-  ) %>% summarise(Turnover = sum(Turnover))
+  Industry == "Cafes, restaurants and takeaway food services",
+  year(Month) %in% 2004:2018
+) %>% summarise(Turnover = sum(Turnover))
 aus_cafe %>% autoplot(Turnover)
 
 
 fit <- aus_cafe %>% model(
-    `K = 1` = ARIMA(log(Turnover) ~ fourier(K = 1) + PDQ(0,0,0)),
-    `K = 2` = ARIMA(log(Turnover) ~ fourier(K = 2) + PDQ(0,0,0)),
-    `K = 3` = ARIMA(log(Turnover) ~ fourier(K = 3) + PDQ(0,0,0)),
-    `K = 4` = ARIMA(log(Turnover) ~ fourier(K = 4) + PDQ(0,0,0)),
-    `K = 5` = ARIMA(log(Turnover) ~ fourier(K = 5) + PDQ(0,0,0)),
-    `K = 6` = ARIMA(log(Turnover) ~ fourier(K = 6) + PDQ(0,0,0)))
+  `K = 1` = ARIMA(log(Turnover) ~ fourier(K = 1) + PDQ(0,0,0)),
+  `K = 2` = ARIMA(log(Turnover) ~ fourier(K = 2) + PDQ(0,0,0)),
+  `K = 3` = ARIMA(log(Turnover) ~ fourier(K = 3) + PDQ(0,0,0)),
+  `K = 4` = ARIMA(log(Turnover) ~ fourier(K = 4) + PDQ(0,0,0)),
+  `K = 5` = ARIMA(log(Turnover) ~ fourier(K = 5) + PDQ(0,0,0)),
+  `K = 6` = ARIMA(log(Turnover) ~ fourier(K = 6) + PDQ(0,0,0)))
 
 glance(fit) %>%
   select(.model, sigma2, log_lik, AIC, AICc, BIC)
@@ -191,18 +192,18 @@ fit %>% select(!!best) %>% report(fit)
 fit %>%
   select(!!best) %>%
   forecast(h = "3 years") %>%
-    autoplot(us_gasoline)
+  autoplot(us_gasoline)
 
 ## 5-minute CALL CENTRE DATA ------------------------------------------------
 
 (calls <- readr::read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
-    rename(time = X1) %>%
-    pivot_longer(-time, names_to = "date", values_to = "volume") %>%
-    mutate(
-      date = as.Date(date, format = "%d/%m/%Y"),
-      datetime = as_datetime(date) + time
-    ) %>%
-    as_tsibble(index = datetime))
+   rename(time = X1) %>%
+   pivot_longer(-time, names_to = "date", values_to = "volume") %>%
+   mutate(
+     date = as.Date(date, format = "%d/%m/%Y"),
+     datetime = as_datetime(date) + time
+   ) %>%
+   as_tsibble(index = datetime))
 
 calls %>% fill_gaps() %>% autoplot(volume)
 
@@ -229,23 +230,22 @@ fit %>% forecast(h = 1690) %>%
 
 ## TV ADVERTISING ----------------------------------------------------------
 
-insurance <- as_tsibble(fpp2::insurance, pivot_longer = FALSE) %>%
-  rename(Month = index)
+insurance
 
 insurance %>%
-  pivot_longer(c(Quotes, TV.advert)) %>%
+  pivot_longer(c(Quotes,TVadverts)) %>%
   ggplot(aes(x = Month, y = value)) + geom_line() +
   facet_grid(vars(name), scales = "free_y") +
-  labs(x = "Year", y = NULL, title = "Insurance advertising and quotations")
+  labs(y = NULL, title = "Insurance advertising and quotations")
 
 insurance %>%
   mutate(
-    lag1 = lag(TV.advert),
+    lag1 = lag(TVadverts),
     lag2 = lag(lag1)
   ) %>%
   as_tibble() %>%
   select(-Month) %>%
-  rename(lag0 = TV.advert) %>%
+  rename(lag0 = TVadverts) %>%
   pivot_longer(-Quotes, names_to="Lag", values_to="TV_advert") %>%
   ggplot(aes(x = TV_advert, y = Quotes)) + geom_point() +
   facet_grid(. ~ Lag) +
@@ -256,12 +256,12 @@ fit <- insurance %>%
   mutate(Quotes = c(NA,NA,NA,Quotes[4:40])) %>%
   # Estimate models
   model(
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert)),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) +
-            lag(TV.advert, 2)),
-    ARIMA(Quotes ~ pdq(d = 0) + TV.advert + lag(TV.advert) +
-            lag(TV.advert, 2) + lag(TV.advert, 3))
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts)),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
+            lag(TVadverts, 2)),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
+            lag(TVadverts, 2) + lag(TVadverts, 3))
   )
 
 glance(fit)
@@ -271,19 +271,11 @@ glance(fit) %>%
 
 fit %>% select(2) %>% report()
 
-fit <- insurance %>%
-  model(ARIMA(Quotes ~ pdq(d=0) + TV.advert + lag(TV.advert)))
-report(fit)
+fit_best <- insurance %>%
+  model(ARIMA(Quotes ~ pdq(d=0) + TVadverts + lag(TVadverts)))
+report(fit_best)
 
 advert_a <- new_data(insurance, 20) %>%
-  mutate(TV.advert = 10)
-forecast(fit, advert_a) %>% autoplot(insurance)
-
-advert_b <- new_data(insurance, 20) %>%
-  mutate(TV.advert = 8)
-forecast(fit, advert_b) %>% autoplot(insurance)
-
-advert_c <- new_data(insurance, 20) %>%
-  mutate(TV.advert = 6)
-forecast(fit, advert_c) %>% autoplot(insurance)
+  mutate(TVadverts = 10)
+forecast(fit_best, advert_a) %>% autoplot(insurance)
 
