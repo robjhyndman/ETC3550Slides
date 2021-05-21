@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.0.5",
+    "Version": "4.1.0",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -367,14 +367,9 @@
     "forecast": {
       "Package": "forecast",
       "Version": "8.14",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteUsername": "robjhyndman",
-      "RemoteRepo": "forecast",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "f0965d594a23fa90b3b56152f52f3a5fbc5240e9",
-      "RemoteHost": "api.github.com",
-      "Hash": "e7371d154d6d6fe1a50f7269cabd66ce"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "63db896e027c5d81b56791d65c2a6a91"
     },
     "fpp2": {
       "Package": "fpp2",
