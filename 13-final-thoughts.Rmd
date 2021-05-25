@@ -1,0 +1,383 @@
+---
+title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
+author: "Some final thoughts"
+date: "OTexts.org/fpp3/"
+toc: true
+colortheme: monashwhite
+output:
+  binb::monash:
+    fig_width: 7
+    fig_height: 3.5
+    includes:
+      in_header: header.tex
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  dev.args = list(pointsize = 11)
+)
+options(
+  digits = 3,
+  width = 60,
+  ggplot2.continuous.colour="viridis",
+  ggplot2.continuous.fill = "viridis",
+  ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
+  ggplot2.discrete.fill = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442")
+)
+library(fpp3)
+```
+
+
+# Assignment 1
+
+## Assignment 1
+
+**Stock price forecasting** (Q1 and Q5)
+
+* Hard to beat naive forecast
+* Random walk model says forecast variance = $h\sigma^2$.
+
+\pause
+
+**Maximum temperature at Melbourne airport on 12 April 2021.** (Q2)
+
+* Weather is relatively stationary over similar time of year and recent years.
+* So take mean and var of max temp in April over last 10 years.
+
+## Assignment 1
+
+**Difference in points in AFL match** (Q3)
+
+* Teams vary in strength from year to year.
+* Could look at distribution of for-against points from 2020 across all games for each team. Assume distributions independent.
+
+\pause
+
+**Seasonally adjusted estimate of total employment** (Q4)
+
+* Probably locally trended.
+* Perhaps use drift method based on average monthly change in last 2 years.
+
+
+# Some case studies
+
+## CASE STUDY 1: Paperware company
+
+
+\fontsize{11.5}{13}\sf
+
+\begin{textblock}{7.6}(0.2,1.5)
+\textbf{Problem:} Want forecasts of each of hundreds of
+items. Series can be stationary, trended or seasonal. They currently
+have a large forecasting program written in-house but it doesn't seem
+to produce sensible forecasts. They want me to tell them what is
+wrong and fix it.
+
+\vspace*{0.cm}
+
+\textbf{Additional information}\vspace*{-0.2cm}\fontsize{11.5}{13}\sf
+\begin{itemize}\itemsep=0cm\parskip=0cm
+\item  Program  written in COBOL making numerical calculations limited. It is not possible to do any optimisation.
+\item Their programmer has little experience in numerical computing.
+\item They employ no statisticians and want the program to produce forecasts \rlap{automatically.}
+\end{itemize}
+\end{textblock}
+
+\placefig{8}{1.4}{width=4.8cm}{tableware2}
+
+
+## CASE STUDY 1: Paperware company
+
+### Methods currently used
+A
+: 12 month average
+
+C
+: 6 month average
+
+E
+: straight line regression over last 12 months
+
+G
+: straight line regression over last 6 months
+
+H
+: average slope between last year's and this year's values.
+  (Equivalent to differencing at lag 12 and taking mean.)
+
+I
+: Same as H except over 6 months.
+
+K
+: I couldn't understand the explanation.
+
+
+## CASE STUDY 2: PBS
+
+\fontsize{13.5}{15.5}\sf
+
+  * In 2001: \$4.5 billion budget, under-forecasted by \$800 million.
+  * Thousands of products. Seasonal demand.
+  * Subject to covert marketing, volatile products, uncontrollable expenditure.
+  * Although monthly data available for 10 years, data are aggregated to annual values, and only the first three years are used in estimating the forecasts.
+  * All forecasts being done with the \texttt{FORECAST} function in MS-Excel!
+
+
+\begin{alertblock}<2>{}
+\textbf{Problem:} How to do the forecasting better?
+\end{alertblock}
+\vspace{5cm}
+
+
+## CASE STUDY 3: Car fleet company
+
+**Client:** One of Australia's largest car fleet companies
+
+**Problem:** how to forecast resale value of vehicles? How
+should this affect leasing and sales policies?
+
+\pause
+
+### Additional information
+ - They can provide a large amount of data on previous vehicles and their eventual resale values.
+ - The resale values are currently estimated by a group of specialists. They see me as a threat and do not cooperate.
+
+## CASE STUDY 4: Airline
+
+**Problem:** how to forecast passenger traffic on major routes?
+
+```{r, fig.height=3.5, echo=FALSE}
+ansett %>%
+  filter(Airports == "MEL-SYD") %>%
+  autoplot(Passengers) +
+  labs(title="Economy class passengers: Melbourne-Sydney",
+       y="Thousands")
+```
+
+\vspace*{10cm}
+
+## CASE STUDY 4: Airline
+
+**Problem:** how to forecast passenger traffic on major routes?
+
+### Additional information
+
+  * They can provide a large amount of data on previous routes.
+  * Traffic is affected by school holidays, special events such as
+the Grand Prix, advertising campaigns, competition behaviour, etc.
+  * They have a highly capable team of people who are able to do
+most of the computing.
+
+
+# Neural network models
+
+## Neural network models
+\fontsize{12}{13}\sf
+\alert{Simplest version: linear regression}
+
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=2.5cm]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,4}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron, pin=left:Input \#\y] (I-\name) at (0,-\y) {};
+    % Draw the output layer node
+    \node[output neuron,pin={[pin edge={->}]right:Output}, right of=I-2, yshift=-0.5cm] (O) {};
+    % Connect every node in the  layer with the output layer
+    \foreach \source in {1,...,4}
+        \path (I-\source) edge (O);
+    % Annotate the layers
+    \node[annot] (input) {Input layer};
+    \node[annot,right of=input] {Output layer};
+\end{tikzpicture}\pause\fontsize{12}{14}\sf\vspace*{-0.2cm}
+
+* Coefficients attached to predictors are called "weights".
+* Forecasts are obtained by a linear combination of inputs.
+* Weights selected using a "learning algorithm" that minimises a "cost function".
+
+## Neural network models
+\fontsize{12}{13}\sf
+
+\alert{Nonlinear model with one hidden layer}
+
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=2.5cm]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,4}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron, pin=left:Input \#\y] (I-\name) at (0,-\y) {};
+    % Draw the hidden layer nodes
+    \foreach \name / \y in {1,...,3}
+        \path[yshift=-.5cm]
+            node[hidden neuron] (H-\name) at (2.5cm,-\y cm) {};
+    % Draw the output layer node
+    \node[output neuron,pin={[pin edge={->}]right:Output}, right of=H-2] (O) {};
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,4}
+        \foreach \dest in {1,...,3}
+            \path (I-\source) edge (H-\dest);
+    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,3}
+        \path (H-\source) edge (O);
+    % Annotate the layers
+    \node[annot,above of=H-2, node distance=2.5cm] (hl) {Hidden layer};
+    \node[annot,left of=hl] {Input layer};
+    \node[annot,right of=hl] {Output layer};
+\end{tikzpicture}
+\pause\vspace*{-0.1cm}\fontsize{13}{13}\sf
+* A **multilayer feed-forward network** where each layer of nodes receives inputs from the previous layers.
+* Inputs to each node combined using linear combination.
+* Result modified by nonlinear function before being output.
+
+<!--
+## Neural network models
+
+Inputs to hidden neuron $j$ linearly combined:
+\[
+z_j = b_j + \sum_{i=1}^4 w_{i,j} x_i.
+\]
+Modified using nonlinear function such as a sigmoid:
+\[
+s(z) = \frac{1}{1+e^{-z}},
+\]
+This tends to reduce the effect of extreme input values, thus making the network somewhat robust to outliers.
+
+## Neural network models
+
+* Weights take random  values to begin with, which are then updated using the observed data.
+* There is an element of randomness in the predictions. So the network is usually trained several times using different random starting points, and the results are averaged.
+* Number of hidden layers, and the number of nodes in each hidden layer, must be specified in advance.
+ -->
+
+## NNAR models
+\fontsize{14}{15}\sf
+
+* Lagged values of the time series can be used as inputs to a neural network.
+* NNAR($p,k$): $p$ lagged inputs and $k$ nodes in the single hidden layer.
+* NNAR($p,0$) model is equivalent to an ARIMA($p,0,0$) model but without stationarity restrictions.
+* Seasonal NNAR($p,P,k$): inputs $(y_{t-1},y_{t-2},\dots,y_{t-p},y_{t-m},y_{t-2m},y_{t-Pm})$ and $k$ neurons in the hidden layer.
+* NNAR($p,P,0$)$_m$ model is equivalent to an ARIMA($p,0,0$)($P$,0,0)$_m$ model but without stationarity restrictions.
+
+## NNAR models in R
+\fontsize{14}{16}\sf
+
+* The `NNETAR()` function fits an NNAR($p,P,k$)$_m$ model.
+* If $p$ and $P$ are not specified, they are automatically selected.
+* For non-seasonal time series, default $p=$ optimal number of lags (according to the AIC) for a linear AR($p$) model.
+* For seasonal time series, defaults are $P=1$ and $p$ is chosen from the optimal linear model fitted to the seasonally adjusted data.
+* Default $k=(p+P+1)/2$ (rounded to the nearest integer).
+
+## Sunspots
+
+* Surface of the sun contains magnetic regions that appear as dark spots.
+* These affect the propagation of radio waves and so telecommunication companies like to predict sunspot activity in order to plan for any future difficulties.
+* Sunspots follow a cycle of length between 9 and 14 years.
+
+## NNAR(9,5) model for sunspots
+\fontsize{11}{11}\sf
+
+```{r sunspot-nnetar, echo=TRUE, fig.height=4}
+sunspots <- as_tsibble(fpp2::sunspotarea)
+fit <- sunspots %>% model(NNETAR(value))
+fit %>% forecast(h=20, times = 1) %>%
+  autoplot(sunspots, level = NULL)
+```
+
+## Prediction intervals by simulation
+\fontsize{11}{11}\sf
+
+```{r sunspot-nnetar-pi, echo=TRUE, fig.height=4}
+fit %>% forecast(h=20) %>%
+  autoplot(sunspots)
+```
+
+
+# Exam
+
+## Exam: 9.00am (AEST) 7 June
+
+Five questions, all to be attempted.
+
+A
+: Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required.
+
+B
+: Describing a time series, choosing a forecasting method
+
+C
+: ETS models
+
+D
+: ARIMA models
+
+E
+: (Dynamic) regression models
+
+\vspace*{0.3cm}
+
+###
+  $\bullet$ Moodle Quiz\qquad $\bullet$ Open book\qquad $\bullet$ 2 hr 40 min
+
+## Exam and R
+
+ * Parts \alert{B}, \alert{C} and \alert{E} require interpretation of R output, but no coding.
+ * Part \alert{D} requires some coding (part of the code will be provided) and interpretation of R output.
+ * All R coding will be very similar to examples you have done before.
+ * Submitted answers will be automatically checked for close matches.
+ * Enter answers on Moodle as you go, to avoid internet issues at the end.
+
+## Preparing for the exam
+
+  - Exams from 2018--2020 on Moodle. Solutions to follow by Monday.
+  - Exercises.  Make sure you have done them all!
+  - Identify your weak points and practice them.
+  - Write your own summary of the material.
+  - Practice explaining the material to a class-mate.
+
+\pause
+
+### Help available
+ * Ask on Moodle forum
+ * See a tutor during the consultation times.
+
+## Useful resources for forecasters
+\fontsize{13}{12}\sf
+
+**Organization:**
+
+ * International Institute of Forecasters.
+
+**Annual Conference:**
+
+ * International Symposium on Forecasting
+
+**Journals:**
+
+ * International Journal of Forecasting
+ * Foresight
+
+\begin{block}{}
+Links to all of the above at \textbf{forecasters.org}
+\end{block}\pause
+\begin{block}{}
+Good forecasters are not smarter than everyone else, they merely have their ignorance better organised.
+\end{block}\pause
+\begin{alertblock}{}\centering
+Please fill in your SETU
+\end{alertblock}
