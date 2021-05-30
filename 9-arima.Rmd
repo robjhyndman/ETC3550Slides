@@ -1686,7 +1686,7 @@ gg_tsresiduals(fit)
 
 ```{r h02resb, echo = TRUE, fig.height=4, dependson='arimah02'}
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 6)
+  features(.innov, ljung_box, lag = 36, dof = 6)
 ```
 
 ## Cortecosteroid drug sales
