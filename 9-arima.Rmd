@@ -734,7 +734,7 @@ gg_tsresiduals(fit)
 
 ```{r, echo = TRUE}
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 4)
+  features(.innov, ljung_box, lag = 10, dof = 4)
 ```
 
 ## Egyptian exports
@@ -1709,7 +1709,7 @@ gg_tsresiduals(fit)
 
 ```{r, echo = TRUE, dependson='h02auto'}
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 3)
+  features(.innov, ljung_box, lag = 36, dof = 3)
 ```
 
 ## Cortecosteroid drug sales
@@ -1735,7 +1735,7 @@ gg_tsresiduals(fit)
 
 ```{r, echo = TRUE, dependson='h02tryharder'}
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 9)
+  features(.innov, ljung_box, lag = 36, dof = 9)
 ```
 
 ## Cortecosteroid drug sales
