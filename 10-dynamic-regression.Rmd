@@ -131,12 +131,12 @@ variables with the same differencing operator as in the ARIMA model.\pause
 \end{align*}
 \end{block}\pause\vspace*{-0.1cm}
 \begin{block}{After differencing all variables}\vspace*{-0.2cm}
-\begin{align*}
-  y'_t & = \beta_1 x'_{1,t} + \dots + \beta_k x'_{k,t} + \eta'_t.\\
-  \mbox{where}\quad
-       & \phi(B)\eta_t = \theta(B)\varepsilon_t \\
-\text{and}\quad & y_t' = (1-B)^dy_t
-\end{align*}
+$$
+  y'_t  = \beta_1 x'_{1,t} + \dots + \beta_k x'_{k,t} + \eta'_t.
+$$
+where $\phi(B)\eta'_t = \theta(B)\varepsilon_t$,
+
+$y_t' = (1-B)^dy_t$, $x_{i,t}' = (1-B)^dx_{i,t}$, and $\eta_t' = (1-B)^d \eta_t$
 \end{block}
 
 ## Regression with ARIMA errors
