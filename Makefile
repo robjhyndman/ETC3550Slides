@@ -1,4 +1,3 @@
-SOURCES=$(shell find . -name *.Rmd)
 SOURCES := $(wildcard *.Rmd)
 TARGETS=$(SOURCES:%.Rmd=%.pdf)
 
