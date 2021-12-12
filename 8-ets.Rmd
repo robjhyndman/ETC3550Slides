@@ -1052,14 +1052,14 @@ where $L$ is the likelihood and $k$ is the number of parameters initial states e
 
 \begin{block}{Corrected AIC}
 \[
-\text{AIC}_{\text{c}} = \text{AIC} + \frac{2(k+1)(k+2)}{T-k}
+\text{AIC}_{\text{c}} = \text{AIC} + \frac{2k(k+1)}{T-k-1}
 \]
 \end{block}
 which is the AIC corrected (for small sample bias).
 \pause
 \begin{block}{Bayesian Information Criterion}
 \[
-\text{BIC} = \text{AIC} + k(\log(T)-2).
+\text{BIC} = \text{AIC} + k[\log(T)-2].
 \]
 \end{block}
 
