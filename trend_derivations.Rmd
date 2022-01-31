@@ -3,7 +3,7 @@ title: Deriving models for ETS trend models
 author: Rob J Hyndman
 branding: true
 fontfamily: mathpazo
-output: MonashEBSTemplates::memo
+output: monash::memo
 ---
 
 ## ETS(A,A,N) {-}
