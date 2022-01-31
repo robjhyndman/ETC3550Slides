@@ -2,12 +2,16 @@
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "&nbsp;"
 date: "&nbsp;"
+classoption: aspectratio=169
+titlepage: title16x9.png
+titlecolor: burntorange
 toc: false
-colortheme: monashwhite
 output:
   binb::monash:
-    fig_width: 7
-    fig_height: 3.5
+    colortheme: monashwhite
+    fig_width: 8
+    fig_height: 3.3
+    keep_tex: yes
     includes:
       in_header: header.tex
 ---
@@ -40,8 +44,6 @@ library(fpp3)
 
 \href{https://twitter.com/robjhyndman}{\faicon{twitter} @robjhyndman}
 
-\href{https://github.com/robjhyndman}{\faicon{github}  @robjhyndman}
-
 \href{https://robjhyndman.com}{\faicon{university} Room E762, Menzies Building}
 \end{alertblock}
 
@@ -69,6 +71,7 @@ library(fpp3)
    - Electricity demand
    - Australian tourism demand
    - Ageing population
+   - COVID-19 cases
    - $>3$ million downloads per year
 
 ## Unit objectives
@@ -79,17 +82,18 @@ library(fpp3)
 
 ### Teaching and learning approach
 
-Two 50 minute classes and a one 80 minute computer lab session each week for 12 weeks.
+Two 50 minute lectures and one 80 minute tutorial each week for 12 weeks.
 
 ## R
+\fontsize{14}{15}\sf
 
 ![](figs/Rlogo.png){height=1.5cm}
 
 Available for download from CRAN:
 
-https://cran.csiro.au/
+https://cran.r-project.org
 
-\noindent\rule{\textwidth}{1pt}
+\vspace*{-0.3cm}\noindent\rule{\textwidth}{1pt}
 
 ![](figs/RStudio-Logo-Flat.png){height=1.5cm}
 
@@ -100,12 +104,6 @@ https://www.rstudio.com/products/rstudio/download/
 <!-- \placefig{.4}{1.2}{width=6cm}{figs/Rlogo} -->
 
 <!-- \placefig{7}{3.5}{width=5.5cm}{figs/RStudio-Ball} -->
-
-## How familiar are you with R?
-
-\begin{alertblock}{}\Large\bfseries\sffamily
-https://pollev.com/robjhyndman
-\end{alertblock}
 
 ## Key reference
 
@@ -126,14 +124,14 @@ https://pollev.com/robjhyndman
 
 ## Main packages
 
-\placefig{2.4}{1.4}{width=4cm}{tsibble.png}
-\placefig{6.4}{1.4}{width=4cm}{tsibbledata.png}
-\placefig{0.4}{4.85}{width=4cm}{tidyverse.png}
-\placefig{4.4}{4.85}{width=4cm}{feasts.png}
-\placefig{8.4}{4.85}{width=4cm}{fable.png}
+\placefig{4.2}{1.4}{width=3.8cm}{tsibble.png}
+\placefig{8.0}{1.4}{width=3.8cm}{tsibbledata.png}
+\placefig{2.3}{4.65}{width=3.8cm}{tidyverse.png}
+\placefig{6.1}{4.65}{width=3.8cm}{feasts.png}
+\placefig{9.9}{4.65}{width=3.8cm}{fable.png}
 
 ## Main packages
-\fontsize{13}{14}\sf
+\fontsize{12}{13}\sf
 
 ```r
 # Data manipulation and plotting functions
@@ -183,9 +181,10 @@ install.packages(c(
 \end{tabular}}
 
 ## Assessment
+\vspace*{-0.2cm}
 
   - 8 or 9 short assignments, worth a total of 20%.
-  - One project due at the end of the semester, worth 20%.
+  - One project due towards the end of the semester, worth 20%.
   - Exam (2 hours): 60%.
 
 \pause
@@ -194,8 +193,8 @@ install.packages(c(
 \begin{tabular}{lll}
 	  \textbf{Task}  & \textbf{Due Date}     & \textbf{Value} \\
   \midrule
-    Assignments    & Sun 11:59pm each week & 2 or 4\% each\\
-	  Project        & Fri 28 May            & 20\%           \\
+    Assignments    & Sun 11:55pm each week & 2 or 4\% each\\
+	  Project        & Fri 20 May            & 20\%           \\
 	  Final exam     & Official exam period  & 60\%
 \end{tabular}
 \end{block}
@@ -204,9 +203,9 @@ install.packages(c(
 
   - Need at least 45\% for exam, and 50\% for total.
 
-<!-- \pause\begin{alertblock}{} -->
-<!-- \textbf{ETC5550 students:} Additional assignment instead of exam -->
-<!-- \end{alertblock} -->
+\pause\begin{alertblock}{} 
+\textbf{ETC5550 students:}\\ One assignment different, and extra exam question.
+\end{alertblock}
 
 
 ## Moodle site
@@ -231,9 +230,9 @@ install.packages(c(
 
 ## International Institute of Forecasters
 
-\placefig{1}{2}{width=4cm}{iifLOGO2}
+\placefig{1}{3}{width=4cm}{iifLOGO2}
 
-\begin{textblock}{8}(4,6)
+\begin{textblock}{8}(7,3)
   \begin{block}{}
   \begin{itemize}
   \item The IIF provides a prize to the top student in this subject each year.

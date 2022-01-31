@@ -2,16 +2,19 @@
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch1. Getting started"
 date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: title16x9.png
+titlecolor: burntorange
 toc: true
-colortheme: monashwhite
 output:
   binb::monash:
-    fig_width: 7
-    fig_height: 3.5
+    colortheme: monashwhite
+    fig_width: 8
+    fig_height: 3.3
+    keep_tex: yes
     includes:
       in_header: header.tex
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -41,69 +44,113 @@ melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
 
+
+# The dark history of forecasting
+
+## Forecasting by maggots
+
+\placefig{0.8}{1.5}{width=8cm}{sheepliverbm}
+
+\begin{textblock}{7}(8.5,1.7)
+\raggedright\large\color{black}
+\textbf{Clay model of sheep's liver}\\[0.4cm]
+Used by Bab\-ylon\-ian forecasters approximately 600 B.C.\\[0.7cm]
+Now in \rlap{British Museum.}
+\end{textblock}
+
+## Forecasting by hallucination
+
+\only<1->{\placefig{0}{1.35}{height=8.25cm, width=20cm}{delphitemple}}
+\only<2>{\placefig{7}{1.35}{height=7.77cm, width=20cm}{1106}}
+
+## Forecasting and the law
+
+\placefig{10.1}{1.35}{width=6cm, height=20cm}{250px-Constance_II_Colosseo_Rome_Italy}
+
+\begin{textblock}{8}(1,1.8)\raggedright
+\begin{block}{}
+\color{black}
+Anyone who consults a soothsayer on account of curiosity of the future will suffer capital punishment.
+
+\mbox{}\hfill\emph{Codex Theodosianus 9.16.4}
+\end{block}
+\end{textblock}
+
+## Reputations can be made and lost
+
+\begin{block}{}
+``I think there is a world market for maybe five computers.'' \newline{\null\hfill\small (Chairman of IBM, 1943)}
+\end{block}
+  \pause
+\begin{alertblock}{}
+``There is no reason anyone would want a computer in their home.'' \newline\null\hfill{\small (President, DEC, 1977)}
+\end{alertblock}
+  \pause
+\begin{block}{}
+“There’s no chance that the iPhone is going to get any significant market share. No chance.”\hfill{\small (Steve Ballmer, CEO Microsoft, April 2007)}
+\end{block}
+  \pause
+\begin{alertblock}{}
+``We're going to be opening relatively soon \dots The virus \dots\ will go away in April.''\hfill{\small (Donald Trump, February 2020)}
+\end{alertblock}
+
+
 # What can we forecast?
 
-## Forecasting is difficult
+## Forecasts that aren't forecasts
 
 \fullheight{hopecasts2}
 
-## Forecasting is difficult
-
-\fullwidth{bad_forecasts}
-
 ## What can we forecast?
 
-\fullwidth{nasdaq-stock-market}
-
-## What can we forecast?
-
-\fullwidth{Forex2}
-
-## What can we forecast?
-
-\fullwidth{pills}
-
-## What can we forecast?
-
-\fullwidth{elecwires2}
-
-## What can we forecast?
-
-\fullheight{AusBOM}
-
-
-## What can we forecast?
-
-\fullwidth{ts22015}
-
-## What can we forecast?
-
-\fullheight{comet}
-
+\only<1>{\fullheight{AusBOM}}
+\only<2>{\placefig{0}{1.35}{height=10.8cm, width=20cm}{nasdaq-stock-market}}
+\only<3>{\placefig{0}{1.35}{height=10.2cm, width=20cm}{Forex2}}
+\only<4>{\placefig{0}{1.35}{height=12.2cm, width=20cm, trim=0 0 0 100, clip=true}{ts22015}}
+\only<5>{\placefig{0}{1.35}{height=10.2cm, width=20cm}{comet}}
+\only<6>{\placefig{0}{1.35}{height=11.2cm, width=20cm}{pills}}
+\only<7>{\placefig{0}{1.35}{height=9.2cm, width=20cm}{elecwires}
+\begin{textblock}{12}(0.2,8.8)\tiny\textcolor{gray}{\texttt{Varistor60, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=59368531}}
+\end{textblock}}
+\only<8>{\placefig{0}{1.35}{height=9.2cm, width=20cm}{covid}}
+\only<9>{\placefig{0}{1.35}{height=10.2cm, width=20cm}{12apostles}}
 
 ## Which is easiest to forecast?
 
- 1. daily electricity demand in 3 days time
- 2. timing of next Halley's comet appearance
- 3. time of sunrise this day next year
- 4. Google stock price tomorrow
- 5. Google stock price in 6 months time
- 6. maximum temperature tomorrow
- 7. exchange rate of \$US/AUS next week
- 8. total sales of drugs in Australian pharmacies next month
+ * daily electricity demand in 3 days time
+ * timing of next Halley's comet appearance
+ * time of sunrise this day next year
+ * Google stock price tomorrow
+ * Google stock price in 6 months time
+ * maximum temperature tomorrow
+ * exchange rate of \$US/AUS next week
+ * total sales of drugs in Australian pharmacies next month
 
 \only<2>{\begin{alertblock}{}\Large\bfseries\sffamily
 https://pollev.com/robjhyndman
 \end{alertblock}}
 
-\only<3>{\begin{block}{}\begin{itemize}\tightlist
+ \vspace*{10cm}
+
+## Which is easiest to forecast?
+
+ 1. time of sunrise this day next year
+ 2. timing of next Halley's comet appearance
+ 3. maximum temperature tomorrow
+ 4. daily electricity demand in 3 days time
+ 5. total sales of drugs in Australian pharmacies next month
+ 6. Google stock price tomorrow
+ 7. exchange rate of \$US/AUS next week
+ 8. Google stock price in 6 months time
+
+\only<2>{\begin{block}{}\begin{itemize}\tightlist
  \item how do we measure ``easiest''?
  \item what makes something easy/difficult to forecast?
  \end{itemize}\end{block}}
 
- \vspace*{10cm}
+\vspace*{10cm}
 
-## Factors affecting forecastability
+## Forecastability factors
 
 Something is easier to forecast if:
 
@@ -116,7 +163,7 @@ Something is easier to forecast if:
 
 \fullheight{ncep-skill}
 
-# Time series data
+# Time series data and random futures
 
 ## Time series data
 
@@ -130,40 +177,217 @@ Something is easier to forecast if:
   - 5-minute freeway traffic counts
   - Time-stamped stock transaction data
 
-## Australian quarterly beer production
 
-```{r, echo=FALSE, fig.height=5.5, fig.width=8}
-aus_production %>% autoplot(Beer)
+
+## Random futures
+
+```{r austa, echo=FALSE}
+# Grab ABS data
+austa <- readxl::read_excel("data/340101.xlsx", sheet="Data1", skip=9) %>%
+  rename(date = `Series ID`, value = A85375847A) %>%
+  select(date, value) %>%
+  transmute(
+    Month = yearmonth(date),
+    Visitors = value / 1e3
+  ) %>%
+  bind_rows(tibble(
+    Month = yearmonth(seq(as.Date("2021-11-01"), by = "1 month", length = 2)),
+    Visitors = NA_real_
+  )) %>%
+  as_tsibble(index = Month) %>%
+  filter(Month >= yearmonth("2000 Jan"))
+# Fit ETS model
+fit <- austa %>%
+  filter(Month < yearmonth("2018 Jan")) %>%
+  model(ETS(Visitors))
+# Product forecasts
+fc <- forecast(fit, h = 48) %>%
+  mutate(Month = as.Date(Month))
+# Simulate 100 future sample paths
+set.seed(1967)
+sim <- fit %>%
+  generate(h = 48, times = 100) %>%
+  mutate(
+    replicate = factor(.rep, levels = 1:100, labels = paste("Future", 1:100)),
+    .rep = as.numeric(.rep)
+  ) %>%
+  as_tibble() %>%
+  mutate(Month = as.Date(Month))
+# Nice colors
+cols <- scale_colour_manual(
+  values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", sample(rainbow(93))),
+  breaks = paste("Future", 1:100),
+  name = " "
+)
+# Now build up some plots with alignment
+p1 <- austa %>%
+  mutate(Visitors = if_else(Month >= yearmonth("2018 Jan"), NA_real_, Visitors)) %>%
+  as_tibble() %>%
+  mutate(Month = as.Date(Month)) %>%
+  ggplot(aes(x = Month, y = Visitors)) +
+  geom_line() +
+  labs(
+    x = "Month",
+    y = "Thousands of visitors",
+    title = "Total short-term visitors to Australia"
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2000-01-01"), by = "5 years", l = 5),
+    labels = paste("Jan", seq(2000, 2020, by = 5)),
+    minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
+  ) +
+  ylim(min(austa$Visitors, sim$.sim, na.rm = TRUE), max(austa$Visitors, sim$.sim, na.rm = TRUE))
+p2 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim %>% filter(.rep <= 1)
+  )
+p3 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim %>% filter(.rep <= 2)
+  )
+p4 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim %>% filter(.rep <= 3)
+  )
+p5 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim %>% filter(.rep <= 10)
+  )
+p6 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, data = sim) +
+  guides(colour = "none")
+p7 <- p1 +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, col = "gray", data = sim) +
+  guides(colour = "none")
+p8 <- p7 + autolayer(fc, level = c(50, 90))
+p9 <- p8 + coord_cartesian(xlim=as.Date(c("2014-01-01","2021-08-01"))) +
+  scale_x_date(
+    breaks = seq(as.Date("2000-01-01"), by = "2 years", l = 11),
+    labels = paste("Jan", seq(2000, 2020, by = 2)),
+    minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
+  ) 
+aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8,p9)
 ```
 
-\only<2>{\begin{textblock}{6}(6.4,5.1)
-\begin{alertblock}{}
-Forecasting is estimating how the sequence of observations will continue into the future.
-\end{alertblock}
-\end{textblock}}
+\forecast\pause
 
-\vspace*{10cm}
-
-## Australian quarterly beer production
-
-```{r, eval=TRUE, include=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', cache=TRUE}
-fc <- aus_production %>%
-  model(ETS(Beer)) %>%
-  forecast()
-p <- autoplot(fc, aus_production)
-# More automatic approach to identifying plot limits
-p_built <- ggplot_build(p)
-ylim <- p_built$layout$panel_scales_y[[1]]$range$range
-xlim <- p_built$layout$panel_scales_x[[1]]$range$range
-p +
-  view_step_manual(
-    xmin = c(xlim[1],0.1*xlim[1]+0.9*xlim[2]),
-    xmax = rep(xlim[2], 2),
-    ymin = rep(ylim[1], 2),
-    ymax = rep(ylim[2], 2), wrap=FALSE)
+```{r austa1, dependson="austa", echo=FALSE}
+aligned_plots[[1]]
 ```
 
-\vspace*{10cm}
+## Random futures
+
+\forecast
+
+```{r austa2, dependson='austa', echo=FALSE}
+aligned_plots[[2]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa3, dependson='austa', echo=FALSE}
+aligned_plots[[3]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa4, dependson='austa', echo=FALSE}
+aligned_plots[[4]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa5, dependson='austa', echo=FALSE}
+aligned_plots[[5]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa6, dependson='austa', echo=FALSE}
+aligned_plots[[6]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa7, dependson='austa', echo=FALSE}
+aligned_plots[[7]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa8, dependson='austa', echo=FALSE}
+aligned_plots[[8]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa9, dependson='austa', echo=FALSE}
+aligned_plots[[9]]
+```
+
+\simfutures
+
+
+## Random futures
+
+\forecast
+
+```{r austa9b, dependson='austa', echo=FALSE}
+aligned_plots[[9]] +
+  geom_line(
+    colour = "black",
+    data = austa %>% filter(Month >= yearmonth("2018 Jan")) %>% mutate(Month = as.Date(Month))
+  )
+```
+
+\simfutures
+
+\only<2>{\begin{textblock}{8.5}(.3,6.5)\begin{alertblock}{}
+``He who sees the past as surprise-free is bound to have a future full of surprises.''\\\mbox{}\hfill{\small (Amos Tversky)}
+\end{alertblock}\end{textblock}
+}
+
+
+## Statistical forecasting
+
+\fontsize{14}{16}\sf
+
+- Thing to be forecast: a random variable, $y_t$.
+- Forecast distribution: If ${\cal I}$ is all observations, then $y_{t} |{\cal I}$ means "the random variable $y_{t}$ given what we know in ${\cal I}$.
+- The "point forecast" is the mean (or median) of $y_{t} |{\cal I}$
+- The "forecast variance" is $\text{var}[y_{t} |{\cal I}]$
+- A prediction interval or "interval forecast" is a range of values of $y_t$ with high probability.
+- With time series, ${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$.
+- $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).
+
 
 # Some case studies
 
@@ -312,72 +536,16 @@ the Grand Prix, advertising campaigns, competition behaviour, etc.
 most of the computing.
 
 
-# The statistical forecasting perspective
-
-## Sample futures
-
-```{r austa1, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.width=9, fig.height=6}
-fit <- austa %>% model(ETS(Visitors))
-```
-
-```{r austa1a, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.width=9, fig.height=6}
-sim <- fit %>% generate(h = 10, times = 10) %>%
-  mutate(
-    replicate = factor(.rep, levels = 1:10, labels = paste("Future", 1:10))
-  )
-p1 <- ggplot(austa, aes(x = Year)) +
-  geom_line(aes(y = Visitors, colour = "Data")) +
-  geom_line(aes(y = .sim, colour = replicate), data = sim) +
-  labs(
-    y = "Millions of visitors",
-    title = "Total international visitors to Australia"
-  ) +
-  scale_colour_manual(values = c("#000000", rainbow(10)),
-                      breaks = c("Data", paste("Future", 1:10)),
-                      name = " ") +
-  ylim(0.8,10)
-p2 <- fit %>%
-  forecast(h = 10) %>%
-  autoplot(austa) +
-  labs(
-    y = "Millions of visitors",
-    title = "Forecasts of total international visitors to Australia"
-  ) +
-  ylim(0.8,10)
-aligned_plots <- align_patches(p1,p2)
-aligned_plots[[1]]
-```
-
-## Forecast intervals
-
-```{r austa2, dependson='austa1a', echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.width=9, fig.height=6}
-aligned_plots[[2]]
-```
-
-
-## Statistical forecasting
-
-\fontsize{14}{16}\sf
-
-- Thing to be forecast: a random variable, $y_t$.
-- Forecast distribution: If ${\cal I}$ is all observations, then $y_{t} |{\cal I}$ means "the random variable $y_{t}$ given what we know in ${\cal I}$.
-- The "point forecast" is the mean (or median) of $y_{t} |{\cal I}$
-- The "forecast variance" is $\text{var}[y_{t} |{\cal I}]$
-- A prediction interval or "interval forecast" is a range of values of $y_t$ with high probability.
-- With time series, ${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$.
-- $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).
-
-
 # Assignment 1
 
 ## Assignment 1: forecast the following series
 \small
 
-  1. Google closing stock price on 22 March 2021.
-  2. Maximum temperature at Melbourne airport on 12 April 2021.
-  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2021.
-  4. The trend estimate of total employment for April 2021. ABS CAT 6202, to be released around mid May 2021.
-  5. Google closing stock price on 24 May 2021.
+  1. Google closing stock price on 21 March 2022.
+  2. Maximum temperature at Melbourne airport on 12 April 2022.
+  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2022.
+  4. The seasonally adjusted estimate of total employment for April 2022. ABS CAT 6202, to be released around mid May 2022.
+  5. Google closing stock price on 23 May 2022.
 
 \begin{block}{}
 For each of these, give a point forecast and an 80\% prediction interval.

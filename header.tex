@@ -15,6 +15,8 @@
 
 % Colors
 \setbeamercolor{description item}{fg=Orange}
+\definecolor{MonashBlue}{RGB}{69,88,94}
+\definecolor{burntorange}{rgb}{0.8, 0.33, 0.0}
 
 % tikz diagrams
 \usepackage{tikz}
@@ -43,6 +45,16 @@
 \def\h+{h_{m}^{+}}
 \def\str#1{\rlap{#1}\textcolor{red}{\rule{1cm}{0.1cm}}}
 
-\def\fullwidth#1{\vspace*{-0.0cm}\par\centerline{\includegraphics[width=12.8cm]{#1}}}
-\def\fullheight#1{\vspace*{0.02cm}\par\centerline{\includegraphics[height=8.4cm]{#1}}}
+\def\forecast{\begin{alertblock}{}\fontsize{10}{11}\sf
+A forecast is an estimate of the probabilities of possible futures.
+\end{alertblock}}
+
+\def\simfutures{\begin{textblock}{2.7}(13,7.7)
+\begin{block}{}\fontsize{10}{11}\sf
+Simulated futures from an ETS model
+\end{block}\end{textblock}}
+
+\def\fullwidth#1{\centerline{\includegraphics[height=27.1cm,width=16cm,keepaspectratio=true]{#1}}}
+\def\fullheight#1{\centerline{\includegraphics[height=7.65cm,width=25cm,keepaspectratio=true]{#1}}}
+\def\full#1{\centerline{\includegraphics[height=7.7cm,width=15cm,keepaspectratio=true]{#1}}}
 
