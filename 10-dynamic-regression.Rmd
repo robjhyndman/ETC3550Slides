@@ -537,7 +537,7 @@ forecast(fit, h = "3 years") %>%
 
 ```{r calls, echo=TRUE, fig.height=4}
 (calls <- readr::read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
-  rename(time = X1) %>%
+  rename(time = `...1`) %>%
   pivot_longer(-time, names_to = "date", values_to = "volume") %>%
   mutate(
     date = as.Date(date, format = "%d/%m/%Y"),

@@ -41,8 +41,7 @@ library(readr)
 ## Examples
 
 ```{r gasolinedata}
-gasoline <- as_tsibble(fpp2::gasoline)
-gasoline %>% autoplot(value) +
+us_gasoline %>% autoplot(Barrels) +
   labs(x = "Year", y = "Thousands of barrels per day",
        title = "Weekly US finished motor gasoline products")
 ```
@@ -51,9 +50,12 @@ gasoline %>% autoplot(value) +
 
 ```{r callsdata, message=FALSE, warning=FALSE}
 calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
-  gather("date", "volume", -X1) %>% transmute(
-    time = X1, date = as.Date(date, format = "%d/%m/%Y"),
-    datetime = as_datetime(date) + time, volume) %>%
+  rename(time = `...1`) %>%
+  pivot_longer(-time, names_to="date", values_to="volume") %>%
+  mutate(
+    date = as.Date(date, format = "%d/%m/%Y"),
+    datetime = as_datetime(date) + time
+  ) %>%
   as_tsibble(index = datetime)
 calls %>%
   fill_gaps() %>%
@@ -285,11 +287,19 @@ This tends to reduce the effect of extreme input values, thus making the network
 * These affect the propagation of radio waves and so telecommunication companies like to predict sunspot activity in order to plan for any future difficulties.
 * Sunspots follow a cycle of length between 9 and 14 years.
 
+## Sunspots
+\fontsize{11}{11}\sf
+
+```{r sunspots, echo=TRUE}
+sunspots <- sunspot.year %>% as_tsibble()
+sunspots %>% autoplot(value)
+```
+
 ## NNAR(9,5) model for sunspots
 \fontsize{11}{11}\sf
 
-```{r sunspot-nnetar, echo=TRUE, fig.height=4}
-sunspots <- as_tsibble(fpp2::sunspotarea)
+```{r sunspot-nnetar, echo=TRUE}
+sunspots <- sunspot.year %>% as_tsibble()
 fit <- sunspots %>% model(NNETAR(value))
 fit %>% forecast(h=20, times = 1) %>%
   autoplot(sunspots, level = NULL)
@@ -298,7 +308,7 @@ fit %>% forecast(h=20, times = 1) %>%
 ## Prediction intervals by simulation
 \fontsize{11}{11}\sf
 
-```{r sunspot-nnetar-pi, echo=TRUE, fig.height=4}
+```{r sunspot-nnetar-pi, echo=TRUE}
 fit %>% forecast(h=20) %>%
   autoplot(sunspots)
 ```

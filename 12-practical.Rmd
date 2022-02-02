@@ -72,11 +72,11 @@ library(fpp3)
 \fontsize{9}{9}\sf
 
 ```{r, fig.height=3.8}
-eggs <- as_tsibble(fma::eggs)
-eggs %>%
-  model(ETS(log(value) ~ error("A") + trend("A") + season("N"))) %>%
+recent_prices <- prices %>% filter(!is.na(eggs))
+recent_prices %>%
+  model(ETS(log(eggs) ~ error("A") + trend("A") + season("N"))) %>%
   forecast(h=50) %>%
-  autoplot(eggs)
+  autoplot(recent_prices)
 ```
 
 
