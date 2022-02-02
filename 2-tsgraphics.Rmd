@@ -2,16 +2,19 @@
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch2. Time series graphics"
 date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: title16x9.png
+titlecolor: burntorange
 toc: true
-colortheme: monashwhite
 output:
   binb::monash:
-    fig_width: 7
-    fig_height: 3.5
+    colortheme: monashwhite
+    fig_width: 8.0
+    fig_height: 3.3
+    keep_tex: no
     includes:
       in_header: header.tex
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -23,7 +26,7 @@ knitr::opts_chunk$set(
 )
 options(
   digits = 3,
-  width = 60,
+  width = 80,
   ggplot2.continuous.colour="viridis",
   ggplot2.continuous.fill = "viridis",
   ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
@@ -340,20 +343,12 @@ a10
 options(width = 60)
 ```
 
-## Your turn
-\fontsize{14}{15}\sf
-
- 1. Download [`tourism.xlsx`](http://robjhyndman.com/data/tourism.xlsx) from [`http://robjhyndman.com/data/tourism.xlsx`](http://robjhyndman.com/data/tourism.xlsx), and read it into R using `read_excel()` from the `readxl` package.
- 2. Create a tsibble which is identical to the `tourism` tsibble from the `tsibble` package.
- 3. Find what combination of `Region` and `Purpose` had the maximum number of overnight trips on average.
- 4. Create a new tsibble which combines the Purposes and Regions, and just has total trips by State.
-
 # Time plots
 
 ## Time plots
 \fontsize{11}{12}\sf
 
-```{r, echo=TRUE, fig.height=4}
+```{r, echo=TRUE}
 a10 %>%
   autoplot(total_cost)
 ```
@@ -361,7 +356,7 @@ a10 %>%
 ## Ansett airlines
 \fontsize{11}{12}\sf
 
-```{r, echo=TRUE, fig.height=3.8}
+```{r, echo=TRUE}
 ansett %>%
   autoplot(Passengers)
 ```
@@ -369,7 +364,7 @@ ansett %>%
 ## Ansett airlines
 \fontsize{11}{12}\sf
 
-```{r, echo=TRUE, fig.height=3.8}
+```{r, echo=TRUE}
 ansett %>%
   filter(Class == "Economy") %>%
   autoplot(Passengers)
@@ -378,19 +373,11 @@ ansett %>%
 ## Ansett airlines
 \fontsize{11}{12}\sf
 
-```{r, echo=TRUE, fig.height=3.8}
+```{r, echo=TRUE}
 ansett %>%
   filter(Airports == "MEL-SYD") %>%
   autoplot(Passengers)
 ```
-
-## Your turn
-
-- Create plots of the following time series: Bricks from `aus_production`, Lynx from `pelt`, Close from `gafa_stock`, Demand from `vic_elec`.
-- Use `help()` to find out about the data in each series.
-- For the last plot, modify the axis labels and title.
-
-# Time series patterns
 
 ## Time series patterns
 

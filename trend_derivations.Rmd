@@ -28,7 +28,6 @@ b_t &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*) b_{t-1}\\
    &= b_{t-1} + \beta \varepsilon_t \qquad\text{where $\beta = \alpha\beta^*$.}
 \end{align*}
 
-
 ## ETS(A,Ad,N) {-}
 
 Component form:\vspace*{-0.8cm}

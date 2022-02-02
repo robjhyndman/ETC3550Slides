@@ -2,12 +2,16 @@
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch8. Exponential smoothing"
 date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: title16x9.png
+titlecolor: burntorange
 toc: true
-colortheme: monashwhite
 output:
   binb::monash:
-    fig_width: 7
-    fig_height: 3.5
+    colortheme: monashwhite
+    fig_width: 8.0
+    fig_height: 3.3
+    keep_tex: no
     includes:
       in_header: header.tex
 ---
@@ -23,7 +27,7 @@ knitr::opts_chunk$set(
 )
 options(
   digits = 3,
-  width = 60,
+  width = 80,
   ggplot2.continuous.colour="viridis",
   ggplot2.continuous.fill = "viridis",
   ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),

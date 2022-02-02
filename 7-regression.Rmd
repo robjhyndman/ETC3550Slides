@@ -2,12 +2,16 @@
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch7. Regression models"
 date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: title16x9.png
+titlecolor: burntorange
 toc: true
-colortheme: monashwhite
 output:
   binb::monash:
-    fig_width: 7
-    fig_height: 3.5
+    colortheme: monashwhite
+    fig_width: 8.0
+    fig_height: 3.3
+    keep_tex: no
     includes:
       in_header: header.tex
 ---
@@ -22,7 +26,7 @@ knitr::opts_chunk$set(
 )
 options(
   digits = 3,
-  width = 60,
+  width = 80,
   ggplot2.continuous.colour="viridis",
   ggplot2.continuous.fill = "viridis",
   ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
@@ -400,7 +404,7 @@ cafe_plot(K = 6)
 
 * Variables take values 0 before the intervention and values $\{1,2,3,\dots\}$ afterwards.
 
-##  Holidays
+## Holidays
 
 **For monthly data**
 
@@ -517,7 +521,7 @@ fit_trends %>% select(piecewise) %>%
 
 # Residual diagnostics
 
-##  Multiple regression and forecasting
+## Multiple regression and forecasting
 For forecasting purposes, we require the following assumptions:
 
 * $\varepsilon_t$ are uncorrelated and zero mean
