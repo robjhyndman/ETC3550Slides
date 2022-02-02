@@ -9,8 +9,8 @@ toc: true
 output:
   binb::monash:
     colortheme: monashwhite
-    fig_width: 8.0
-    fig_height: 3.3
+    fig_width: 7.5
+    fig_height: 3.5
     keep_tex: no
     includes:
       in_header: header.tex
