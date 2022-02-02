@@ -346,34 +346,34 @@ options(width = 60)
 # Time plots
 
 ## Time plots
-\fontsize{11}{12}\sf
+\fontsize{10}{10}\sf
 
-```{r, echo=TRUE}
+```{r, echo=TRUE,fig.height=3}
 a10 %>%
   autoplot(total_cost)
 ```
 
 ## Ansett airlines
-\fontsize{11}{12}\sf
+\fontsize{10}{10}\sf
 
-```{r, echo=TRUE}
+```{r, echo=TRUE,fig.height=3}
 ansett %>%
   autoplot(Passengers)
 ```
 
 ## Ansett airlines
-\fontsize{11}{12}\sf
+\fontsize{10}{10}\sf
 
-```{r, echo=TRUE}
+```{r, echo=TRUE,fig.height=3}
 ansett %>%
   filter(Class == "Economy") %>%
   autoplot(Passengers)
 ```
 
 ## Ansett airlines
-\fontsize{11}{12}\sf
+\fontsize{10}{10}\sf
 
-```{r, echo=TRUE}
+```{r, echo=TRUE,fig.height=3}
 ansett %>%
   filter(Airports == "MEL-SYD") %>%
   autoplot(Passengers)
@@ -400,56 +400,51 @@ Cyclic
 
 
 ## Time series patterns
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, fig.height=3}
 aus_production %>%
   filter(year(Quarter) >= 1980) %>%
   autoplot(Electricity) +
-  labs(y = "GWh",
-       title = "Australian electricity production")
+  labs(y = "GWh", title = "Australian electricity production")
 ```
 
 ## Time series patterns
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, warning=FALSE, fig.height=3}
 aus_production %>%
   autoplot(Bricks) +
-  labs(y = "million units",
-       title = "Australian clay brick production")
+  labs(y = "million units", title = "Australian clay brick production")
 ```
 
 ## Time series patterns
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, fig.height=3}
 us_employment %>%
   filter(Title == "Retail Trade", year(Month) >= 1980) %>%
   autoplot(Employed / 1e3) +
-  labs(y = "Million people",
-       title = "Retail employment, USA")
+  labs(y = "Million people", title = "Retail employment, USA")
 ```
 
 ## Time series patterns
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, fig.height=3}
 gafa_stock %>%
   filter(Symbol == "AMZN", year(Date) >= 2018) %>%
   autoplot(Close) +
-  labs(y = "$US",
-       title = "Amazon closing stock price")
+  labs(y = "$US", title = "Amazon closing stock price")
 ```
 
 ## Time series patterns
-\fontsize{10}{10}\sf
+\fontsize{9}{9}\sf
 
 ```{r, fig.height=3}
 pelt %>%
   autoplot(Lynx) +
-  labs(y="Number trapped",
-       title = "Annual Canadian Lynx Trappings")
+  labs(y="Number trapped", title = "Annual Canadian Lynx Trappings")
 ```
 
 ## Seasonal or cyclic?
@@ -469,13 +464,11 @@ The timing of peaks and troughs is predictable with seasonal data, but unpredict
 # Seasonal and subseries plots
 
 ## Seasonal plots
+\fontsize{10}{10}\sf
 
-\footnotesize
-
-```{r, echo=TRUE, dependson="a10"}
+```{r, echo=TRUE, dependson="a10", fig.height=3.3}
 a10 %>% gg_season(total_cost, labels = "both") +
-  labs(y = "$ million",
-       title = "Seasonal plot: antidiabetic drug sales")
+  labs(y = "$ million", title = "Seasonal plot: antidiabetic drug sales")
 ```
 
 ## Seasonal plots
@@ -486,14 +479,12 @@ a10 %>% gg_season(total_cost, labels = "both") +
   * In R: `gg_season()`
 
 ## Seasonal subseries plots
+\fontsize{10}{10}\sf
 
-\fontsize{10}{11}\sf
-
-```{r, echo=TRUE, dependson="a10"}
+```{r, echo=TRUE, dependson="a10", fig.height=3}
 a10 %>%
   gg_subseries(total_cost) +
-  labs(y = "$ million",
-       title = "Subseries plot: antidiabetic drug sales")
+  labs(y = "$ million", title = "Subseries plot: antidiabetic drug sales")
 ```
 
 ## Seasonal subseries plots
@@ -503,7 +494,7 @@ a10 %>%
   * In R: `gg_subseries()`
 
 ## Quarterly Australian Beer Production
-\fontsize{13}{15}\sf
+\fontsize{9}{9}\sf
 
 ```{r, fig.height=3}
 beer <- aus_production %>%
@@ -513,58 +504,46 @@ beer %>% autoplot(Beer)
 ```
 
 ## Quarterly Australian Beer Production
+\fontsize{9}{9}\sf
 
 ```{r}
 beer %>% gg_season(Beer, labels="right")
 ```
 
 ## Quarterly Australian Beer Production
+\fontsize{9}{9}\sf
 
 ```{r}
 beer %>% gg_subseries(Beer)
 ```
 
-## Your turn
-
-Look at the quarterly tourism data for the Snowy Mountains
-
-```r
-snowy <- tourism %>%
-  filter(Region == "Snowy Mountains")
-```
-
-  - Use `autoplot()`, `gg_season()` and `gg_subseries()` to explore the data.
-  - What do you learn?
-
-
 ## Multiple seasonal periods
-\fontsize{10}{11}\sf
+\fontsize{9}{9}\sf
 
 ```{r}
 vic_elec
 ```
 
 ## Multiple seasonal periods
-\fontsize{12}{13}\sf
+\fontsize{9}{9}\sf
 
 ```{r, dev = "png", dpi = 180}
 vic_elec %>% gg_season(Demand)
 ```
 
 ## Multiple seasonal periods
-\fontsize{12}{13}\sf
+\fontsize{9}{9}\sf
 
 ```{r, dev = "png", dpi = 180}
 vic_elec %>% gg_season(Demand, period = "week")
 ```
 
 ## Multiple seasonal periods
-\fontsize{12}{13}\sf
+\fontsize{9}{9}\sf
 
 ```{r, dev = "png", dpi = 180}
 vic_elec %>% gg_season(Demand, period = "day")
 ```
-
 
 ## Australian holidays
 \fontsize{9}{10}\sf
@@ -583,35 +562,32 @@ holidays
 ## Australian holidays
 \fontsize{9}{10}\sf
 
-```{r holidays-plot, echo=TRUE, dependson="holidays", fig.height=3.9}
+```{r holidays-plot, echo=TRUE, dependson="holidays", fig.height=3}
 holidays %>% autoplot(Trips) +
-  labs(y = "thousands of trips",
-       title = "Australian domestic holiday nights")
+  labs(y = "thousands of trips", title = "Australian domestic holiday nights")
 ```
 
 ## Seasonal plots
 \fontsize{9}{10}\sf
 
-```{r graphics1, fig.width=4, fig.height=5, out.width="45%"}
+```{r graphics1, fig.width=4, fig.height=4, out.width="45%"}
 holidays %>% gg_season(Trips) +
-  labs(y = "thousands of trips",
-       title = "Australian domestic holiday nights")
+  labs(y = "thousands of trips", title = "Australian domestic holiday nights")
 ```
 
 ## Seasonal subseries plots
 \fontsize{9}{10}\sf
 
-```{r graphics2, fig.height=4.1}
+```{r graphics2, fig.height=3.1}
 holidays %>%
   gg_subseries(Trips) +
-    labs(y = "thousands of trips",
-       title = "Australian domestic holiday nights")
+  labs(y = "thousands of trips", title = "Australian domestic holiday nights")
 ```
 
 # Lag plots and autocorrelation
 
 ## Example: Beer production
-\fontsize{11}{13}\sf
+\fontsize{10}{10}\sf
 
 ```{r}
 new_production <- aus_production %>%
@@ -620,19 +596,18 @@ new_production
 ```
 
 ## Example: Beer production
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
 new_production %>% gg_lag(Beer)
 ```
 
 ## Example: Beer production
-\fontsize{13}{15}\sf
+\fontsize{10}{10}\sf
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
 new_production %>% gg_lag(Beer, geom='point')
 ```
-
 
 ## Lagged scatterplots
 
@@ -691,7 +666,7 @@ Results for first 9 lags for beer data:
 
 \fontsize{11}{13}\sf
 
-```{r beeracf, fig.height=2.5}
+```{r beeracf, fig.height=2}
 new_production %>% ACF(Beer, lag_max = 9) %>% autoplot()
 ```
 
@@ -705,7 +680,7 @@ new_production %>% ACF(Beer, lag_max = 9) %>% autoplot()
 
 \fontsize{11}{13}\sf
 
-```{r beeracf2, fig.height=2.5}
+```{r beeracf2, fig.height=2}
 new_production %>% ACF(Beer) %>% autoplot()
 ```
 
@@ -721,44 +696,44 @@ new_production %>% ACF(Beer) %>% autoplot()
 
 ## Autocorrelation functions
 
-\only<1>{\centering\includegraphics[width=17cm]{acf_1}}
-\only<2>{\centering\includegraphics[width=17cm]{acf_2}}
-\only<3>{\centering\includegraphics[width=17cm]{acf_3}}
-\only<4>{\centering\includegraphics[width=17cm]{acf_4}}
-\only<5>{\centering\includegraphics[width=17cm]{acf_5}}
-\only<6>{\centering\includegraphics[width=17cm]{acf_6}}
-\only<7>{\centering\includegraphics[width=17cm]{acf_7}}
-\only<8>{\centering\includegraphics[width=17cm]{acf_8}}
-\only<9>{\centering\includegraphics[width=17cm]{acf_9}}
+\only<1>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_1}}
+\only<2>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_2}}
+\only<3>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_3}}
+\only<4>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_4}}
+\only<5>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_5}}
+\only<6>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_6}}
+\only<7>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_7}}
+\only<8>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_8}}
+\only<9>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_9}}
 
 \vspace*{10cm}
 
-\begin{textblock}{9}(6,9.2)\fontsize{7}{9}\sf
+\begin{textblock}{3}(0.3,8.7)\fontsize{7}{9}\sf
 Artwork by @allison\_horst
 \end{textblock}
 
 ## US retail trade employment
-\fontsize{11}{12}\sf
+\fontsize{10}{10}\sf
 
-```{r}
+```{r, fig.height=3}
 retail <- us_employment %>%
   filter(Title == "Retail Trade", year(Month) >= 1980)
 retail %>% autoplot(Employed)
 ```
 
 ## US retail trade employment
-\fontsize{11}{12}\sf
+\fontsize{10}{10}\sf
 
-```{r}
+```{r, fig.height=3}
 retail %>%
   ACF(Employed, lag_max = 48) %>%
   autoplot()
 ```
 
 ## Google stock price
-\fontsize{12}{14}\sf
+\fontsize{10}{10}\sf
 
-```{r google-2015}
+```{r, fig.height=3}
 google_2015 <- gafa_stock %>%
   filter(Symbol == "GOOG", year(Date) == 2015) %>%
   select(Date, Close)
@@ -766,15 +741,16 @@ google_2015
 ```
 
 ## Google stock price
+\fontsize{10}{10}\sf
 
-```{r}
+```{r, fig.height=3}
 google_2015 %>% autoplot(Close)
 ```
 
 ## Google stock price
-\fontsize{12}{16}\sf
+\fontsize{10}{10}\sf
 
-```r
+```{r}
 google_2015 %>%
   ACF(Close, lag_max=100)
 # Error: Can't handle tsibble of irregular interval.
@@ -787,9 +763,9 @@ google_2015
 ```
 
 ## Google stock price
-\fontsize{11}{13}\sf
+\fontsize{10}{10}\sf
 
-```{r}
+```{r, fig.height=3}
 google_2015 <- google_2015 %>%
   mutate(trading_day = row_number()) %>%
   update_tsibble(index = trading_day, regular = TRUE)
@@ -797,31 +773,17 @@ google_2015
 ```
 
 ## Google stock price
+\fontsize{10}{10}\sf
 
-```{r}
+```{r, fig.height=3}
 google_2015 %>%
   ACF(Close, lag_max = 100) %>%
   autoplot()
 ```
 
-## Your turn
-
-We have introduced the following functions:
-
-  - `gg_lag`
-  - `ACF`
-
-Use these functions to explore the following time series:
-
-  - Bricks from `aus_production`
-  - Lynx from `pelt`
-  - Victorian Electricity Demand from `aus_elec`
-
-Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
-
 ## Which is which?
 
-```{r, fig.height=6, fig.width=12, echo=FALSE, warning=FALSE, out.width="11.5cm"}
+```{r, fig.height=6, fig.width=12, echo=FALSE, warning=FALSE, out.width="15cm"}
 cowtemp <- as_tsibble(fma::cowtemp)
 USAccDeaths <- as_tsibble(USAccDeaths)
 AirPassengers <- as_tsibble(AirPassengers)
@@ -848,16 +810,16 @@ acfc <- ACF(mink, value) %>% autoplot() +
 # White noise
 
 ## Example: White noise
-\fontsize{11}{13}\sf
+\fontsize{10}{10}\sf
 
-```{r wn, fig.height=3.3}
+```{r wn, fig.height=3}
 set.seed(30)
 wn <- tsibble(t = 1:50, y = rnorm(50), index = t)
 wn %>% autoplot(y)
 ```
 
 \only<2>{
-\begin{textblock}{10}(1.4,7.2)\fontsize{13}{15}\sf
+\begin{textblock}{10}(.4,6.6)\fontsize{12}{13}\sf
 \begin{alertblock}{}
 White noise data is uncorrelated across time with zero mean and constant variance.
 
@@ -869,13 +831,13 @@ White noise data is uncorrelated across time with zero mean and constant varianc
 
 
 ## Example: White noise
-\fontsize{11}{11}\sf
+\fontsize{10}{10}\sf
 
 ```r
 wn %>% ACF(y)
 ```
 
-\fontsize{10}{11}\sf\tabcolsep=0.1cm
+\fontsize{10}{10}\sf\tabcolsep=0.1cm
 
 ```{r wnacf, echo=FALSE, dependson="wn"}
 wn %>%
@@ -893,13 +855,13 @@ wn %>%
   )
 ```
 
-```{r, echo=FALSE, fig.height=2}
+```{r, echo=FALSE, fig.height=1.5}
 wn %>%
   ACF(y) %>%
   autoplot()
 ```
 
-\pause\fontsize{11}{12}\sf
+\pause
 
  * Sample autocorrelations for white noise series.
  * Expect each autocorrelation to be close to zero.
@@ -917,21 +879,19 @@ Sampling distribution of $r_k$ for white noise data is asymptotically N(0,$1/T$)
 These are the \alert{critical values}.
 
 ## Example: Pigs slaughtered
+\fontsize{10}{10}\sf
 
-\fontsize{10}{12}\sf
-
-```{r, fig.height=3}
+```{r, fig.height=2.7}
 pigs <- aus_livestock %>%
-  filter(State == "Victoria", Animal == "Pigs",
-         year(Month) >= 2014)
+  filter(State == "Victoria", Animal == "Pigs", year(Month) >= 2014)
 pigs %>% autoplot(Count/1e3) +
-  labs(y = "Thousands",
-       title = "Number of pigs slaughtered in Victoria")
+  labs(y = "Thousands", title = "Number of pigs slaughtered in Victoria")
 ```
 
 ## Example: Pigs slaughtered
+\fontsize{10}{10}\sf
 
-```{r}
+```{r, fig.height=3}
 pigs %>% ACF(Count) %>% autoplot()
 ```
 
