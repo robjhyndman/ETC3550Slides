@@ -9,8 +9,8 @@ toc: true
 output:
   binb::monash:
     colortheme: monashwhite
-    fig_width: 8
-    fig_height: 3.3
+    fig_width: 7.5
+    fig_height: 3.5
     keep_tex: yes
     includes:
       in_header: header.tex
@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 )
 options(
   digits = 3,
-  width = 60,
+  width = 80,
   ggplot2.continuous.colour="viridis",
   ggplot2.continuous.fill = "viridis",
   ggplot2.discrete.colour = c("#D55E00", "#0072B2","#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"),
@@ -43,7 +43,6 @@ austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") %>%
 melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
-
 
 # The dark history of forecasting
 
@@ -94,7 +93,6 @@ Anyone who consults a soothsayer on account of curiosity of the future will suff
 ``We're going to be opening relatively soon \dots The virus \dots\ will go away in April.''\hfill{\small (Donald Trump, February 2020)}
 \end{alertblock}
 
-
 # What can we forecast?
 
 ## Forecasts that aren't forecasts
@@ -126,11 +124,7 @@ Anyone who consults a soothsayer on account of curiosity of the future will suff
  * exchange rate of \$US/AUS next week
  * total sales of drugs in Australian pharmacies next month
 
-\only<2>{\begin{alertblock}{}\Large\bfseries\sffamily
-https://pollev.com/robjhyndman
-\end{alertblock}}
-
- \vspace*{10cm}
+\vspace*{10cm}
 
 ## Which is easiest to forecast?
 
@@ -159,10 +153,6 @@ Something is easier to forecast if:
  3. the future is somewhat similar to the past
  4. the forecasts cannot affect the thing we are trying to forecast.
 
-## Improving forecasts
-
-\fullheight{ncep-skill}
-
 # Time series data and random futures
 
 ## Time series data
@@ -176,8 +166,6 @@ Something is easier to forecast if:
   - Hourly electricity demand
   - 5-minute freeway traffic counts
   - Time-stamped stock transaction data
-
-
 
 ## Random futures
 
@@ -355,7 +343,6 @@ aligned_plots[[9]]
 
 \simfutures
 
-
 ## Random futures
 
 \forecast
@@ -375,7 +362,6 @@ aligned_plots[[9]] +
 \end{alertblock}\end{textblock}
 }
 
-
 ## Statistical forecasting
 
 \fontsize{14}{16}\sf
@@ -387,7 +373,6 @@ aligned_plots[[9]] +
 - A prediction interval or "interval forecast" is a range of values of $y_t$ with high probability.
 - With time series, ${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$.
 - $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).
-
 
 # Some case studies
 
@@ -413,7 +398,6 @@ wrong and fix it.
 \end{textblock}
 
 \placefig{8}{1.4}{width=4.8cm}{tableware2}
-
 
 ## CASE STUDY 1: Paperware company
 
@@ -445,7 +429,6 @@ K
 
 \fullwidth{pills}
 
-
 ## CASE STUDY 2: PBS
 
 ### The Pharmaceutical Benefits Scheme (PBS) is the Australian government drugs subsidy scheme.
@@ -466,7 +449,6 @@ K
   * Although monthly data available for 10 years, data are aggregated to annual values, and only the first three years are used in estimating the forecasts.
   * All forecasts being done with the \texttt{FORECAST} function in MS-Excel!
 
-
 ## CASE STUDY 3: Car fleet company
 
 **Client:** One of Australia's largest car fleet companies
@@ -480,16 +462,13 @@ should this affect leasing and sales policies?
  - They can provide a large amount of data on previous vehicles and their eventual resale values.
  - The resale values are currently estimated by a group of specialists. They see me as a threat and do not cooperate.
 
+## CASE STUDY 4: Airline
 
+\fullheight{ansettlogo}
 
 ## CASE STUDY 4: Airline
 
-\fullwidth{ansettlogo}
-
-
-## CASE STUDY 4: Airline
-
-```{r, echo=FALSE, fig.height=5}
+```{r, echo=FALSE}
 melsyd %>%
   filter(Class == "Economy") %>%
   autoplot(Passengers) +
@@ -501,27 +480,11 @@ melsyd %>%
   )
 ```
 
-
-## CASE STUDY 4: Airline
-
-```{r, echo=FALSE, fig.height=5}
-melsyd %>%
-  filter(Class == "Economy") %>%
-  autoplot(Passengers) +
-  labs(
-    title = "Economy class passengers",
-    subtitle = "Melbourne-Sydney",
-    y = "Thousands"
-  )
-```
-
-\begin{textblock}{4.2}(7,6.3)
+\only<2>{\begin{textblock}{4.2}(11,5.5)
 \begin{alertblock}{}
 Not the real data! Or is it?
 \end{alertblock}
-\end{textblock}
-
-
+\end{textblock}}
 
 ## CASE STUDY 4: Airline
 
@@ -535,19 +498,18 @@ the Grand Prix, advertising campaigns, competition behaviour, etc.
   * They have a highly capable team of people who are able to do
 most of the computing.
 
-
 # Assignment 1
 
 ## Assignment 1: forecast the following series
 \small
 
   1. Google closing stock price on 21 March 2022.
-  2. Maximum temperature at Melbourne airport on 12 April 2022.
+  2. Maximum temperature at Melbourne airport on 5 April 2022.
   3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2022.
   4. The seasonally adjusted estimate of total employment for April 2022. ABS CAT 6202, to be released around mid May 2022.
   5. Google closing stock price on 23 May 2022.
 
-\begin{block}{}
+\begin{block}{Due Sunday 13 March}
 For each of these, give a point forecast and an 80\% prediction interval.
 \end{block}\pause
 \begin{alertblock}{}
