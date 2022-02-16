@@ -1,7 +1,7 @@
 ---
 title: Deriving models for ETS trend models
 author: Rob J Hyndman
-branding: true
+branding: false
 fontfamily: mathpazo
 output: monash::memo
 ---
