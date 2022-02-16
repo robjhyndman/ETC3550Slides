@@ -35,9 +35,10 @@ source("setup.R")
 \begin{block}{Tutors}\fontsize{13}{14}\sf
 \begin{itemize}\itemsep=0cm\parskip=0cm
 \item Mitchell O'Hara-Wild
+\item Yashpal Ramakrishnaiah
 \item Elena Sanina
-\item Fin Yang
 \item Ryan Thompson
+\item Fin Yang
 \end{itemize}
 \end{block}
 
