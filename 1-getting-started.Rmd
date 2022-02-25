@@ -20,63 +20,12 @@ output:
 source("setup.R")
 library(patchwork)
 library(gganimate)
-```
-
-```{r datasets, include=FALSE}
 austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") %>%
   as_tsibble(index = Year)
 melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
 
-# The dark history of forecasting
-
-## Forecasting by maggots
-
-\placefig{0.8}{1.5}{width=8cm}{sheepliverbm}
-
-\begin{textblock}{7}(8.5,1.7)
-\raggedright\large\color{black}
-\textbf{Clay model of sheep's liver}\\[0.4cm]
-Used by Bab\-ylon\-ian forecasters approximately 600 B.C.\\[0.7cm]
-Now in \rlap{British Museum.}
-\end{textblock}
-
-## Forecasting by hallucination
-
-\only<1->{\placefig{0}{1.35}{height=8.25cm, width=20cm}{delphitemple}}
-\only<2>{\placefig{7}{1.35}{height=7.77cm, width=20cm}{1106}}
-
-## Forecasting and the law
-
-\placefig{10.1}{1.35}{width=6cm, height=20cm}{250px-Constance_II_Colosseo_Rome_Italy}
-
-\begin{textblock}{8}(1,1.8)\raggedright
-\begin{block}{}
-\color{black}
-Anyone who consults a soothsayer on account of curiosity of the future will suffer capital punishment.
-
-\mbox{}\hfill\emph{Codex Theodosianus 9.16.4}
-\end{block}
-\end{textblock}
-
-## Reputations can be made and lost
-
-\begin{block}{}
-``I think there is a world market for maybe five computers.'' \newline{\null\hfill\small (Chairman of IBM, 1943)}
-\end{block}
-  \pause
-\begin{alertblock}{}
-``There is no reason anyone would want a computer in their home.'' \newline\null\hfill{\small (President, DEC, 1977)}
-\end{alertblock}
-  \pause
-\begin{block}{}
-“There’s no chance that the iPhone is going to get any significant market share. No chance.”\hfill{\small (Steve Ballmer, CEO Microsoft, April 2007)}
-\end{block}
-  \pause
-\begin{alertblock}{}
-``We're going to be opening relatively soon \dots The virus \dots\ will go away in April.''\hfill{\small (Donald Trump, February 2020)}
-\end{alertblock}
 
 # What can we forecast?
 
@@ -101,13 +50,17 @@ Anyone who consults a soothsayer on account of curiosity of the future will suff
 ## Which is easiest to forecast?
 
  * daily electricity demand in 3 days time
- * timing of next Halley's comet appearance
  * time of sunrise this day next year
  * Google stock price tomorrow
  * Google stock price in 6 months time
  * maximum temperature tomorrow
  * exchange rate of \$US/AUS next week
  * total sales of drugs in Australian pharmacies next month
+ * timing of next Halley's comet appearance
+
+\pause\begin{alertblock}{}\Large
+\centerline{\textbf{pollev.com/robjhyndman}}
+\end{alertblock}
 
 \vspace*{10cm}
 

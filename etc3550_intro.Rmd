@@ -22,19 +22,19 @@ source("setup.R")
 
 ## Contact details
 
-\begin{alertblock}{Lecturer:  Professor Rob Hyndman}\fontsize{13}{14}\sf
+\begin{alertblock}{Lecturer:  Professor Rob Hyndman}
 \href{mailto:rob.hyndman@monash.edu}{\faicon{envelope}  rob.hyndman@monash.edu}
 
 \href{https://robjhyndman.com}{\faicon{home} robjhyndman.com}
 
 \href{https://twitter.com/robjhyndman}{\faicon{twitter} @robjhyndman}
 
-\href{https://robjhyndman.com}{\faicon{university} Room E762, Menzies Building}
+%\href{https://robjhyndman.com}{\faicon{university} Room E762, Menzies Building}
 \end{alertblock}
 
-\begin{block}{Tutors}\fontsize{13}{14}\sf
+\begin{block}{Tutors}
 \begin{itemize}\itemsep=0cm\parskip=0cm
-\item Mitchell O'Hara-Wild
+\item \textbf{Mitchell O'Hara-Wild}
 \item Yashpal Ramakrishnaiah
 \item Elena Sanina
 \item Ryan Thompson
@@ -207,10 +207,8 @@ install.packages(c(
 \fontsize{18}{24}\sf
 
  * Make sure you are familiar with R, RStudio and the tidyverse packages.
- * If you've done ETC1010 or ETC5010, then you have nothing to do.
- * Otherwise:
-   * Read the first four chapters of "ModernDive": [`moderndive.netlify.com`](https://moderndive.netlify.com/)
-   * Work through the "RYouWithMe" course: [`rladiessydney.org/courses/ryouwithme/`](https://rladiessydney.org/courses/ryouwithme/)
+ * Do first five chapters of `learnr.numbat.space`.
+ * Assignment 1
 
 ## International Institute of Forecasters
 
