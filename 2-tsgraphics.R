@@ -34,7 +34,7 @@ a10 %>% gg_season(total_cost, labels = "both") +
   )
 
 a10 %>%
-  gg_subseries(total_cost) + 
+  gg_subseries(total_cost) +
   labs(
     y = "$ million",
     title = "Subseries plot: antidiabetic drug sales"
@@ -67,7 +67,7 @@ maxtemp %>%
 
 aus_production %>%
   filter(year(Quarter) >= 1980) %>%
-  autoplot(Electricity) + 
+  autoplot(Electricity) +
   labs(
     y = "GWh",
     title = "Australian electricity production"
@@ -148,21 +148,21 @@ holidays <- tourism %>%
 
 holidays
 
-holidays %>% 
+holidays %>%
   autoplot(Trips) +
   labs(
     y = "thousands of trips",
     title = "Australian domestic holiday nights"
   )
 
-holidays %>% 
+holidays %>%
   gg_season(Trips) +
   labs(
     y = "thousands of trips",
     title = "Australian domestic holiday nights"
   )
 
-holidays %>% 
+holidays %>%
   gg_subseries(Trips) +
   labs(
     y = "thousands of trips",
@@ -189,11 +189,6 @@ google_2015
 google_2015 %>% autoplot(Close)
 
 google_2015 %>% ACF(Close)
-      
-google_2015 <- google_2015 %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
-google_2015
 
 google_2015 %>%
   ACF(Close, lag_max = 100) %>%

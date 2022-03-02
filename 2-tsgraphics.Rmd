@@ -738,23 +738,6 @@ google_2015 %>% autoplot(Close)
 ```{r}
 google_2015 %>%
   ACF(Close, lag_max=100)
-# Error: Can't handle tsibble of irregular interval.
-```
-
-\pause
-
-```{r}
-google_2015
-```
-
-## Google stock price
-\fontsize{10}{10}\sf
-
-```{r, fig.height=3}
-google_2015 <- google_2015 %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
-google_2015
 ```
 
 ## Google stock price
