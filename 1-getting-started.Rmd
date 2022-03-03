@@ -318,24 +318,21 @@ aligned_plots[[9]] +
 
 \fontsize{11.5}{13}\sf
 
-\begin{textblock}{7.6}(0.2,1.5)
+\begin{textblock}{9.2}(0.2,1.5)
 \textbf{Problem:} Want forecasts of each of hundreds of
 items. Series can be stationary, trended or seasonal. They currently
 have a large forecasting program written in-house but it doesn't seem
-to produce sensible forecasts. They want me to tell them what is
-wrong and fix it.
-
-\vspace*{0.cm}
+to produce sensible forecasts. They want me to fix it.
 
 \textbf{Additional information}\vspace*{-0.2cm}\fontsize{11.5}{13}\sf
 \begin{itemize}\itemsep=0cm\parskip=0cm
 \item  Program  written in COBOL making numerical calculations limited. It is not possible to do any optimisation.
 \item Their programmer has little experience in numerical computing.
-\item They employ no statisticians and want the program to produce forecasts \rlap{automatically.}
+\item They employ no statisticians and want the program to produce forecasts automatically.
 \end{itemize}
 \end{textblock}
 
-\placefig{8}{1.4}{width=4.8cm}{tableware2}
+\placefig{10.2}{1.4}{width=5.8cm}{tableware2}
 
 ## CASE STUDY 1: Paperware company
 
