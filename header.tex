@@ -12,6 +12,10 @@
 \usepackage[scale=0.85]{sourcecodepro}
 \DisableLigatures{encoding = T1, family = tt*}
 \setbeamerfont{title}{series=\bfseries,parent=structure,size=\fontsize{18}{20}}
+\ifcsname Shaded\endcsname
+  \definecolor{shadecolor}{RGB}{225,225,225}
+  \renewenvironment{Shaded}{\color{black}\fontsize{10}{10}\sf\begin{snugshade}\color{black}}{\end{snugshade}}
+\fi
 
 % Colors
 \setbeamercolor{description item}{fg=Orange}
