@@ -115,36 +115,17 @@ https://www.rstudio.com/products/rstudio/download/
 \placefig{9.9}{4.65}{width=3.8cm}{fable.png}
 
 ## Main packages
-\fontsize{12}{13}\sf
 
 ```r
-# Data manipulation and plotting functions
-library(tidyverse)
-# Time series manipulation
-library(tsibble)
-# Tidy time series data
-library(tsibbledata)
-# Time series graphics and statistics
-library(feasts)
-# Forecasting functions
-library(fable)
+# Install required packages (do once)
+install.packages(c("tidyverse", "fpp3"))
 ```
 
 \pause
 
 ```r
-# All of the above
+# At the start of each session
 library(fpp3)
-```
-
-## Install required packages
-\Large
-
-```r
-install.packages(c(
-  "tidyverse",
-  "fpp3"
-))
 ```
 
 ## Outline
