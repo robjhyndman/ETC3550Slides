@@ -27,6 +27,8 @@ a10
 a10 %>%
   autoplot(total_cost)
 
+a10 %>% gg_season(total_cost, labels="right")
+
 a10 %>% gg_season(total_cost, labels = "both") +
   labs(
     y = "$ million",
@@ -51,7 +53,8 @@ ansett %>%
 
 ansett %>%
   filter(Airports == "MEL-SYD") %>%
-  autoplot(Passengers)
+  autoplot(Passengers) +
+  labs(title = "Melbourne-Sydney traffic")
 
 ## MAX TEMP ------------------------------------------------------------
 
@@ -114,9 +117,9 @@ beer %>% gg_season(Beer, labels="right")
 beer %>% gg_subseries(Beer)
 
 beer %>% gg_lag(Beer)
-beer %>% gg_lag(Beer, geom='point')
-beer %>% ACF(Beer, lag_max = 9)
-beer %>% ACF(Beer, lag_max = 9) %>% autoplot()
+beer %>% gg_lag(Beer, geom='point', lags=1:16)
+beer %>% ACF(Beer, lag_max = 16)
+beer %>% ACF(Beer, lag_max = 20) %>% autoplot()
 beer %>% ACF(Beer) %>% autoplot()
 
 ## ELECTRICITY DEMAND ---------------------------------------------------------
@@ -196,8 +199,8 @@ google_2015 %>%
 
 ## WHITE NOISE --------------------------------------------------------------------
 
-set.seed(1)
-wn <- tsibble(t = seq(36), y = rnorm(36), index = t)
+set.seed(30)
+wn <- tsibble(t = seq(50), y = rnorm(50), index = t)
 wn %>% autoplot(y)
 
 wn %>% ACF(y, lag_max = 10)
@@ -215,9 +218,21 @@ pigs %>% autoplot(Count/1e3) +
     title = "Number of pigs slaughtered in Victoria"
   )
 
-pigs %>% ACF(Count) %>% autoplot()
+pigs %>%
+  mutate(diff = difference(Count, lag =12)) %>%
+  autoplot(diff)
+
+pigs %>% ACF(Count, lag_max=36) %>% autoplot()
 
 ## GOOGLE change in closing price ACF ---------------------------------------------
+
+google_2015  %>%
+  ACF(Close) %>%
+  autoplot()
+
+google_2015  %>%
+  mutate(diff = difference(Close)) %>%
+  autoplot(diff)
 
 google_2015  %>%
   mutate(diff = difference(Close)) %>%
