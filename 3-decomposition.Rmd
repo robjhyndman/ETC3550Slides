@@ -10,8 +10,8 @@ output:
   binb::monash:
     colortheme: monashwhite
     fig_width: 7.5
-    fig_height: 3.5
-    keep_tex: no
+    fig_height: 3
+    keep_tex: yes
     includes:
       in_header: header.tex
 ---
@@ -27,7 +27,6 @@ library(latex2exp)
 # Transformations and adjustments
 
 ## Per capita adjustments
-\fontsize{13}{14}\sf
 
 ```{r gdp-per-capita}
 global_economy %>%
@@ -36,7 +35,6 @@ global_economy %>%
 ```
 
 ## Per capita adjustments
-\fontsize{13}{14}\sf
 
 ```{r gdp-per-capita2}
 global_economy %>%
@@ -50,7 +48,6 @@ global_economy %>%
 Consider the GDP information in `global_economy`. Plot the GDP per capita for each country over time. Which country has the highest GDP per capita? How has this changed over time? -->
 
 ## Inflation adjustments
-\fontsize{10}{10}\sf
 
 ```{r retail_cpi, message=FALSE, warning=FALSE, fig.show='hide'}
 print_retail <- aus_retail %>%
@@ -63,21 +60,17 @@ aus_economy <- global_economy %>%
 print_retail %>%
   left_join(aus_economy, by = "Year") %>%
   mutate(Adjusted_turnover = Turnover / CPI * 100) %>%
-  pivot_longer(c(Turnover, Adjusted_turnover),
-               values_to = "Turnover") %>%
-  mutate(name = factor(name,
-         levels=c("Turnover","Adjusted_turnover"))) %>%
+  pivot_longer(c(Turnover, Adjusted_turnover), values_to = "Turnover") %>%
+  mutate(name = factor(name, levels=c("Turnover","Adjusted_turnover"))) %>%
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
   facet_grid(name ~ ., scales = "free_y") +
-  labs(title = "Turnover: Australian print media industry",
-       y = "$AU")
+  labs(title = "Turnover: Australian print media industry", y = "$AU")
 ```
 
 ## Inflation adjustments
-\fontsize{10}{10}\sf
 
-```{r ref.label = 'retail_cpi', message=FALSE, warning=FALSE, echo=FALSE, fig.height=5}
+```{r ref.label = 'retail_cpi', message=FALSE, warning=FALSE, echo=FALSE, fig.height=4, fig.width=8}
 ```
 
 ## Mathematical transformations
@@ -103,47 +96,42 @@ Logarithm & $w_t = \log(y_t)$  & strength
 Logarithms, in particular, are useful because they are more interpretable: changes in a log value are **relative (percent) changes on the original scale**.
 
 ## Mathematical transformations
-\fontsize{12}{14}\sf
 
-```{r food, echo=TRUE}
+```{r food}
 food <- aus_retail %>%
   filter(Industry == "Food retailing") %>%
   summarise(Turnover = sum(Turnover))
 ```
 
-```{r food-plot, echo = FALSE, fig.height=3.4}
+```{r food-plot, echo = FALSE}
 food %>% autoplot(Turnover) +
   labs(y = "Turnover ($AUD)")
 ```
 
 ## Mathematical transformations
-\fontsize{12}{14}\sf
 
-```{r food-sqrt1, echo=TRUE, fig.height=4}
+```{r food-sqrt1}
 food %>% autoplot(sqrt(Turnover)) +
   labs(y = "Square root turnover")
 ```
 
 ## Mathematical transformations
-\fontsize{12}{14}\sf
 
-```{r food-cbrt, echo=TRUE, fig.height=4}
+```{r food-cbrt}
 food %>% autoplot(Turnover^(1/3)) +
   labs(y = "Cube root turnover")
 ```
 
 ## Mathematical transformations
-\fontsize{12}{14}\sf
 
-```{r food-log, echo=TRUE, fig.height=4}
+```{r food-log}
 food %>% autoplot(log(Turnover)) +
   labs(y = "Log turnover")
 ```
 
 ## Mathematical transformations
-\fontsize{12}{14}\sf
 
-```{r food-inverse, echo=TRUE, fig.height=4}
+```{r food-inverse}
 food %>% autoplot(-1/Turnover) +
   labs(y = "Inverse turnover")
 ```
@@ -165,7 +153,7 @@ $$\pause
 
 ## Box-Cox transformations
 
-```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=4.5, fig.width=9, aniopts='controls,buttonsize=0.3cm,width=13.5cm'}
 food %>%
   mutate(!!!set_names(map(seq(0, 1, 0.01), ~ expr(fabletools::box_cox(Turnover, !!.x))), seq(0, 1, 0.01))) %>%
   select(-Turnover) %>%
@@ -179,10 +167,8 @@ food %>%
 ```
 
 ## Box-Cox transformations
-\fontsize{12}{14}\sf
 
-
-```{r food-lambda, echo=TRUE}
+```{r food-lambda}
 food %>%
   features(Turnover, features = guerrero)
 ```
@@ -194,9 +180,8 @@ food %>%
 * A low value of $\lambda$ can give extremely large prediction intervals.
 
 ## Box-Cox transformations
-\fontsize{13}{14}\sf
 
-```{r food-bc, echo=TRUE,fig.height=4}
+```{r food-bc}
 food %>% autoplot(box_cox(Turnover, 0.0524)) +
   labs(y = "Box-Cox transformed turnover")
 ```
@@ -272,7 +257,7 @@ $$y_t = S_t \times T_t \times R_t \quad\Rightarrow\quad
 $$
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
+\fontsize{11}{11}\sf
 
 ```{r usretail}
 us_retail_employment <- us_employment %>%
@@ -284,19 +269,17 @@ us_retail_employment
 \vspace*{10cm}
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
 
 ```{r dable1}
 us_retail_employment %>%
   autoplot(Employed) +
-  labs(y = "Persons (thousands)",
-       title = "Total employment in US retail")
+  labs(y="Persons (thousands)", title="Total employment in US retail")
 ```
 
 \vspace*{10cm}
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
+\fontsize{11}{11}\sf
 
 ```{r dable2}
 us_retail_employment %>%
@@ -306,7 +289,7 @@ us_retail_employment %>%
 \vspace*{10cm}
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
+\fontsize{11}{11}\sf
 
 ```{r dable3}
 dcmp <- us_retail_employment %>%
@@ -317,27 +300,23 @@ components(dcmp)
 \vspace*{10cm}
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
 
 ```{r dable4}
 us_retail_employment %>%
   autoplot(Employed, color='gray') +
   autolayer(components(dcmp), trend, color='#D55E00') +
-  labs(y = "Persons (thousands)",
-       title = "Total employment in US retail")
+  labs(y="Persons (thousands)", title="Total employment in US retail")
 ```
 
 \vspace*{10cm}
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
 
 ```{r usretail-stl, fig.width=8, fig.height=5}
 components(dcmp) %>% autoplot()
 ```
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
 
 ```{r usretail3}
 components(dcmp) %>% gg_subseries(season_year)
@@ -352,14 +331,12 @@ $$y_t - S_t = T_t + R_t$$
 $$y_t / S_t = T_t \times R_t$$
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
 
 ```{r usretail-sa}
 us_retail_employment %>%
   autoplot(Employed, color='gray') +
   autolayer(components(dcmp), season_adjust, color='#0072B2') +
-  labs(y = "Persons (thousands)",
-       title = "Total employment in US retail")
+  labs(y="Persons (thousands)", title="Total employment in US retail")
 ```
 
 ## Seasonal adjustment
@@ -446,9 +423,8 @@ us_retail_employment %>%
   *  Use Box-Cox transformations to get other decompositions.
 
 ## STL decomposition
-\fontsize{10}{11}\sf
 
-```{r stlwindow9, echo=TRUE, warning=FALSE, fig.width=8, fig.height=4}
+```{r stlwindow9, warning=FALSE, fig.width=8.5, fig.height=3.4}
 us_retail_employment %>%
   model(STL(Employed ~ season(window=9), robust=TRUE)) %>%
   components() %>% autoplot() +
@@ -456,7 +432,6 @@ us_retail_employment %>%
 ```
 
 ## STL decomposition
-\fontsize{10}{11}\sf
 
 ```{r stlwindowanim, echo=FALSE, warning=FALSE, message=FALSE, fig.show='animate', interval=1/10,  fig.height=5.35, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', eval=TRUE}
 s_windows <- seq(5,55,by=2)
@@ -483,7 +458,6 @@ us_retail_employment %>%
 \vspace*{10cm}
 
 ## STL decomposition
-\fontsize{10}{11}\sf
 
 ```{r echo = TRUE, results = 'hide'}
 us_retail_employment %>%
@@ -504,17 +478,21 @@ us_retail_employment %>%
   *  `season(window = 'periodic')` is equivalent to an infinite window.
 
 ## STL decomposition
-\fontsize{10}{11}\sf
 
-```{r mstl, fig.width=8, fig.height=4}
+```{r mstl, fig.width=8.5, fig.height=3.4}
 us_retail_employment %>%
   model(STL(Employed)) %>%
-  components() %>%
-  autoplot()
+  components() %>% autoplot()
 ```
 
-* `STL()` chooses `season(window=13)` by default
-* Can include transformations.
+\only<2>{\begin{textblock}{7}(8,0.2)\fontsize{11}{11}\sf
+\begin{alertblock}{}
+\begin{itemize}\tightlist
+\item \texttt{STL()} chooses \texttt{season(window=13)} by default
+\item Can include transformations.
+\end{itemize}
+\end{alertblock}
+\end{textblock}}
 
 ## STL decomposition
 \fontsize{13}{14.5}\sf
@@ -543,8 +521,6 @@ us_retail_employment %>%
 \fullheight{abs3}
 
 ## The ABS stuff-up
-
-\fontsize{10}{12}\sf
 
 ```{r abs1, echo=FALSE}
 employed <- tsibble(
@@ -598,15 +574,15 @@ employed <- tsibble(
   select(Time, Month, Year, Employed)
 ```
 
+\fontsize{11}{11}\sf
+
 ```{r abs2}
 employed
 ```
 
 ## The ABS stuff-up
 
-\fontsize{9}{10}\sf
-
-```{r abs3, fig.height=4}
+```{r abs3}
 employed %>%
   autoplot(Employed) +
   labs(title = "Total employed", y = "Thousands")
@@ -614,9 +590,7 @@ employed %>%
 
 ## The ABS stuff-up
 
-\fontsize{9}{10}\sf
-
-```{r abs4, fig.height=4}
+```{r abs4}
 employed %>%
   filter(Year >= 2005) %>%
   autoplot(Employed) +
@@ -625,9 +599,7 @@ employed %>%
 
 ## The ABS stuff-up
 
-\fontsize{9}{10}\sf
-
-```{r abs5, fig.height=4}
+```{r abs5}
 employed %>%
   filter(Year >= 2005) %>%
   gg_season(Employed, label = "right") +
@@ -635,8 +607,6 @@ employed %>%
 ```
 
 ## The ABS stuff-up
-
-\fontsize{9}{10}\sf
 
 ```{r abs6, fig.height=2}
 employed %>%
@@ -650,9 +620,7 @@ employed %>%
 
 ## The ABS stuff-up
 
-\fontsize{9}{10}\sf
-
-```{r abs7, fig.height=3.85}
+```{r abs7}
 dcmp <- employed %>%
   filter(Year >= 2005) %>%
   model(stl = STL(Employed ~ season(window = 11), robust = TRUE))
@@ -661,19 +629,14 @@ components(dcmp) %>% autoplot()
 
 ## The ABS stuff-up
 
-\fontsize{9}{10}\sf
-
-```{r abs8, fig.height=3.5}
+```{r abs8}
 components(dcmp) %>%
   filter(year(Time) == 2013) %>%
   gg_season(season_year) +
-  labs(title = "Seasonal component") +
-  guides(colour = "none")
+  labs(title = "Seasonal component") + guides(colour = "none")
 ```
 
 ## The ABS stuff-up
-
-\fontsize{9}{10}\sf
 
 ```{r abs9}
 components(dcmp) %>%
