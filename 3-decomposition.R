@@ -18,6 +18,8 @@ print_retail <- aus_retail %>%
   index_by(Year = year(Month)) %>%
   summarise(Turnover = sum(Turnover))
 
+print_retail %>% autoplot(Turnover)
+
 aus_economy <- global_economy %>%
   filter(Code == "AUS")
 
@@ -36,7 +38,7 @@ print_retail %>%
 
 # Use faceting
 print_retail %>%
-  mutate(name = factor(Type,
+  mutate(Type = factor(Type,
          levels=c("Turnover","Adj_turnover"))) %>%
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
@@ -75,7 +77,7 @@ us_retail_employment <- us_employment %>%
 
 us_retail_employment %>%
   autoplot(Employed) +
-  labs(y = "Persons (thousands)", 
+  labs(y = "Persons (thousands)",
        title = "Total employment in US retail")
 
 dcmp <- us_retail_employment %>%
