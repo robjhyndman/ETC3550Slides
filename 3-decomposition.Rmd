@@ -142,10 +142,11 @@ Each of these transformations is close to a member of the
 family of \textbf{Box-Cox transformations}:
 $$w_t = \left\{\begin{array}{ll}
         \log(y_t),      & \quad \lambda = 0; \\
-        (y_t^\lambda-1)/\lambda ,         & \quad \lambda \ne 0.
+        (sign(y_t)|y_t|^\lambda-1)/\lambda ,         & \quad \lambda \ne 0.
 \end{array}\right.
 $$\pause
 
+* Actually the Bickel-Doksum transformation (allowing for $y_t<0$)
 * $\lambda=1$: (No substantive transformation)
 * $\lambda=\frac12$: (Square root plus linear transformation)
 * $\lambda=0$: (Natural logarithm)
