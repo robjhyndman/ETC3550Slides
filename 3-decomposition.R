@@ -101,7 +101,7 @@ us_retail_employment %>%
        title = "Total employment in US retail")
 
 us_retail_employment %>%
-  model(STL(Employed ~ season(window=9) + trend(window=15), robust=TRUE)) %>%
+  model(STL(Employed ~ season(window=13) + trend(window=7), robust=TRUE)) %>%
   components() %>%
   autoplot() +
     labs(title = "STL decomposition: US retail employment")
