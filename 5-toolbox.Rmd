@@ -10,8 +10,8 @@ output:
   binb::monash:
     colortheme: monashwhite
     fig_width: 7.5
-    fig_height: 3.5
-    keep_tex: no
+    fig_height: 3
+    keep_tex: yes
     includes:
       in_header: header.tex
 ---
@@ -89,9 +89,8 @@ gdppc
 
 
 ## Data visualisation
-\fontsize{10}{13}\sf
 
-```{r GDP-plot, fig.height = 3.2}
+```{r GDP-plot, fig.height = 2.9}
 gdppc %>%
   filter(Country=="Sweden") %>%
   autoplot(GDP_per_capita) +
@@ -110,7 +109,7 @@ fit <- gdppc %>%
 fit
 ```
 
-\only<2>{\begin{textblock}{9.5}(1,8.6)
+\only<2>{\begin{textblock}{5}(9,4)
 \begin{alertblock}{}
 A \texttt{mable} is a model table, each cell corresponds to a fitted model.
 \end{alertblock}
@@ -125,7 +124,7 @@ fit %>% forecast(h = "3 years")
 ```
 
 
-\only<2>{\begin{textblock}{9.5}(1,8.6)
+\only<2>{\begin{textblock}{5}(9,2)
 \begin{alertblock}{}
 A \texttt{fable} is a forecast table with point forecasts and distributions.
 \end{alertblock}
@@ -153,7 +152,7 @@ fit %>% forecast(h = "3 years") %>%
   * Forecast of all future values is equal to mean of historical data $\{y_1,\dots,y_T\}$.
   * Forecasts: $\hat{y}_{T+h|T} = \bar{y} = (y_1+\dots+y_T)/T$
 
-```{r mean-method-explained, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.3}
+```{r mean-method-explained, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 2.7}
 bricks <- aus_production %>%
   filter(!is.na(Bricks)) %>%
   mutate(average = mean(Bricks))
@@ -181,7 +180,7 @@ bricks %>%
   * Forecasts: $\hat{y}_{T+h|T} =y_T$.
   * Consequence of efficient market hypothesis.
 
-```{r naive-method-explained, echo = FALSE, warning = FALSE, fig.height = 3.1}
+```{r naive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.75}
 bricks %>%
   filter(!is.na(Bricks)) %>%
   model(NAIVE(Bricks)) %>%
@@ -201,7 +200,7 @@ bricks %>%
   * Forecasts equal to last value from same season.
   * Forecasts: $\hat{y}_{T+h|T} =y_{T+h-m(k+1)}$, where $m=$ seasonal period and $k$ is the integer part of $(h-1)/m$.
 
-```{r snaive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.8}
+```{r snaive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.75}
 bricks %>%
   model(SNAIVE(Bricks ~ lag("year"))) %>%
   forecast(h = "5 years") %>%
@@ -283,7 +282,7 @@ print(brick_fc, n = 4)
 
 \footnotesize
 
-```{r brick-fc-plot, warning=FALSE, message=FALSE, fig.height=3, dependson='brick-fc'}
+```{r brick-fc-plot, warning=FALSE, message=FALSE, fig.height=2.6, dependson='brick-fc'}
 brick_fc %>%
   autoplot(aus_production, level = NULL) +
   labs(title = "Clay brick production in Australia",
@@ -317,7 +316,7 @@ fb_stock %>%
 
 ## Facebook closing stock price
 
-```{r ref.label='fbf2', echo=FALSE, fig.height=4.6}
+```{r ref.label='fbf2', echo=FALSE, fig.height=4}
 ```
 
 <!--
@@ -361,13 +360,8 @@ fb_stock %>%
   4. $\{e_t\}$ are normally distributed.
 
 ## Facebook closing stock price
-\fontsize{9}{10}\sf
 
-```{r fbf, fig.height=3.5}
-fb_stock <- gafa_stock %>%
-  filter(Symbol == "FB") %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
+```{r fbf}
 fb_stock %>% autoplot(Close)
 ```
 
@@ -379,7 +373,7 @@ fit <- fb_stock %>% model(NAIVE(Close))
 augment(fit)
 ```
 
-\only<2>{\begin{textblock}{6}(.5,6.9)\fontsize{14}{16}\sf
+\only<2>{\begin{textblock}{6}(.5,6.2)\fontsize{14}{16}\sf
 \begin{alertblock}{Na\"{\i}ve forecasts:}\vspace*{-0.4cm}
 \begin{align*}
 \hat{y}_{t|t-1} & = y_{t-1}\\
@@ -393,9 +387,8 @@ e_t & = y_t - \hat{y}_{t|t-1} = y_t-y_{t-1}
 \begin{alertblock}{}\centerline{$\phantom{\hat{y}_{|}}{e}_{t}\phantom{\hat{y}_{|}}$}\end{alertblock}\end{textblock}}
 
 ## Facebook closing stock price
-\fontsize{10}{10}\sf
 
-```{r dj4, echo=TRUE, warning=FALSE, fig.height=3.7}
+```{r dj4, echo=TRUE, warning=FALSE, fig.height=2.8}
 augment(fit) %>%
   ggplot(aes(x = trading_day)) +
   geom_line(aes(y = Close, colour = "Data")) +
@@ -403,9 +396,8 @@ augment(fit) %>%
 ```
 
 ## Facebook closing stock price
-\fontsize{10}{10}\sf
 
-```{r dj4a, echo=TRUE, warning=FALSE, fig.height=3.7}
+```{r dj4a, echo=TRUE, warning=FALSE, fig.height=2.6}
 augment(fit) %>%
   filter(trading_day > 1100) %>%
   ggplot(aes(x = trading_day)) +
@@ -414,9 +406,8 @@ augment(fit) %>%
 ```
 
 ## Facebook closing stock price
-\fontsize{10}{10}\sf
 
-```{r dj5, echo=TRUE, warning = FALSE}
+```{r dj5, echo=TRUE, warning = FALSE, fig.height=2.8}
 augment(fit) %>%
   autoplot(.resid) +
   labs(y = "$US",
@@ -424,9 +415,8 @@ augment(fit) %>%
 ```
 
 ## Facebook closing stock price
-\fontsize{11}{11}\sf
 
-```{r dj6, warning=FALSE}
+```{r dj6, warning=FALSE, fig.height=2.8}
 augment(fit) %>%
   ggplot(aes(x = .resid)) +
   geom_histogram(bins = 150) +
@@ -434,21 +424,18 @@ augment(fit) %>%
 ```
 
 ## Facebook closing stock price
-\fontsize{11}{11}\sf
 
-```{r dj7}
+```{r dj7, fig.height=2.8}
 augment(fit) %>%
   ACF(.resid) %>%
   autoplot() + labs(title = "ACF of residuals")
 ```
 
 ## `gg_tsresiduals()` function
-\fontsize{11}{12}\sf
 
-```{r dj10, echo=TRUE, fig.height=4, warning = FALSE}
+```{r dj10, echo=TRUE, warning = FALSE}
 gg_tsresiduals(fit)
 ```
-
 
 ## ACF of residuals
 
@@ -471,6 +458,8 @@ where $\ell$  is max lag being considered and $T$ is number of observations.
   * If each $r_k$ close to zero, $Q$ will be **small**.
   * If some $r_k$ values large (positive or negative), $Q$ will be **large**.
 
+\vspace*{10cm}
+
 ## Portmanteau tests
 
 Consider a *whole set* of $r_{k}$  values, and develop a test to see whether the set is significantly different from a zero set.
@@ -487,7 +476,6 @@ where $\ell$  is max lag being considered and $T$ is number of observations.
 \vspace*{10cm}
 
 ## Portmanteau tests
-\fontsize{13}{15}\sf
 
   * If data are WN, $Q^*$ has $\chi^2$ distribution with  $(\ell - K)$ degrees of freedom where $K=$ no.\ parameters in model.
   * When applied to raw data, set $K=0$.
@@ -537,8 +525,6 @@ What do you conclude? -->
 
 ## Forecast distributions
 
-\fontsize{14}{18}\sf
-
 Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
 
 \begin{block}{}
@@ -587,9 +573,7 @@ brick_fc %>% hilo(level = 95)
 
 ## Modelling with transformations
 
-\fontsize{12}{13}\sf
-
-```{r food, echo=TRUE, fig.height=3}
+```{r food, echo=TRUE, fig.height=2.65}
 eggs <- prices %>%
   filter(!is.na(eggs)) %>% select(eggs)
 eggs %>% autoplot() +
@@ -621,9 +605,8 @@ fc
 ```
 
 ## Forecasting with transformations
-\fontsize{12}{13}\sf
 
-```{r elec9,echo=TRUE,fig.height=3.5, dependson='food-bt-fc'}
+```{r elec9,echo=TRUE,fig.height=3, dependson='food-bt-fc'}
 fc %>% autoplot(eggs) +
   labs(title="Annual egg prices",
        y="US$ (adjusted for inflation)")
@@ -643,7 +626,7 @@ Let $X$ be have mean $\mu$ and variance $\sigma^2$.
 Let $f(x)$ be back-transformation function, and $Y=f(X)$.
 
 Taylor series expansion about $\mu$:
-$$f(X) = f(\mu) + (X-\mu)f'(\mu) + \frac{1}{2}(X-\mu)^2f''(\mu).$$\pause
+$$f(X) = f(\mu) + (X-\mu)f'(\mu) + \frac{1}{2}(X-\mu)^2f''(\mu).$$\pause\vspace*{-0.4cm}
 
 \begin{alertblock}{}
 \centerline{$\E[Y] = \E[f(X)] = f(\mu) + \frac12 \sigma^2 f''(\mu)$}
@@ -676,9 +659,8 @@ f''(x) &= \begin{cases}
 \end{alertblock}
 
 ## Bias adjustment
-\fontsize{9}{9}\sf
 
-```{r biasadj, fig.height=3.4, message=FALSE}
+```{r biasadj, fig.height=2.8, message=FALSE}
 fc %>%
   autoplot(eggs, level = 80, point_forecast = lst(mean, median)) +
   labs(title="Annual egg prices",
@@ -726,9 +708,8 @@ dcmp
 \vspace*{10cm}
 
 ## US Retail Employment
-\fontsize{10}{11}\sf
 
-```{r usretail2, echo=TRUE, fig.height=3.2}
+```{r usretail2, echo=TRUE, fig.height=2.6}
 dcmp %>%
   model(NAIVE(season_adjust)) %>%
   forecast() %>%
@@ -741,7 +722,7 @@ dcmp %>%
 ## US Retail Employment
 \fontsize{10}{11}\sf
 
-```{r usretail3, echo=TRUE, fig.height=2.8}
+```{r usretail3, echo=TRUE, fig.height=2.4}
 us_retail_employment %>%
   model(stlf = decomposition_model(
     STL(Employed ~ trend(window = 7), robust = TRUE),
@@ -825,12 +806,13 @@ $\pred{y}{T+h}{T}=$ & its forecast based on data up to time $T$. \\
 $e_{T+h} =$  & $y_{T+h} - \pred{y}{T+h}{T}$
 \end{tabular}
 
+\begin{block}{}\vspace*{-0.2cm}
 \begin{align*}
 \text{MAE} &= \text{mean}(|e_{T+h}|) \\[-0.2cm]
 \text{MSE} &= \text{mean}(e_{T+h}^2) \qquad
 &&\text{RMSE} &= \sqrt{\text{mean}(e_{T+h}^2)} \\[-0.1cm]
 \text{MAPE} &= 100\text{mean}(|e_{T+h}|/ |y_{T+h}|)
-\end{align*}\pause
+\end{align*}\end{block}\pause\vspace*{-0.2cm}
 
   * MAE, MSE, RMSE are all scale dependent.
   * MAPE is scale independent but is only sensible if $y_t\gg 0$ for all $t$, and $y$ has a natural zero.
@@ -898,13 +880,13 @@ beer_fc <- beer_fit %>%
 ```
 
 ## Measures of forecast accuracy
-\fontsize{11}{11}\sf
+\fontsize{9}{9}\sf
 
 ```{r beer-train-accuracy, eval=FALSE}
 accuracy(beer_fit)
 ```
 
-\fontsize{9}{9}\sf
+\vspace*{-0.3cm}
 
 ```{r beer-train-table, echo=FALSE}
 accuracy(beer_fit) %>%
@@ -912,13 +894,11 @@ accuracy(beer_fit) %>%
   select(.model, .type, RMSE, MAE, MAPE, MASE)
 ```
 
-\fontsize{11}{11}\sf
-
 ```{r beer-test-accuracy, eval=FALSE}
 accuracy(beer_fc, recent_production)
 ```
 
-\fontsize{9}{9}\sf
+\vspace*{-0.3cm}
 
 ```{r beer-test-table, echo=FALSE}
 accuracy(beer_fc, recent_production) %>%
@@ -936,7 +916,6 @@ https://pollev.com/robjhyndman
 \end{alertblock}
  -->
 
-# Time series cross-validation
 
 
 ```{r tscvplots, echo=FALSE}
@@ -1037,7 +1016,7 @@ tscv_plot(.init = 3, .step = 1, h = 4) +
   geom_text(aes(x=21,y=0,label="h = 4"), color = "#D55E00")
 ```
 
-\only<2>{\begin{textblock}{9}(2,7)\begin{block}{}\fontsize{12}{13}\sf
+\only<2>{\begin{textblock}{8}(.5,6.5)\begin{block}{}\fontsize{12}{13}\sf
 \begin{itemize}\tightlist
 \item Forecast accuracy averaged over test sets.
 \item Also known as "evaluation on a rolling forecasting origin"
