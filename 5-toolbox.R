@@ -13,13 +13,13 @@ gdppc %>%
   labs(title = "GDP per capita for Sweden", y = "$US")
 
 fit <- gdppc %>%
-  model(trend_model = TSLM(GDP ~ trend()))
+  model(trend_model = TSLM(GDP_per_capita ~ trend()))
 
 fc <- fit %>% forecast(h = "3 years")
 
 fc %>%
   filter(Country == "Sweden") %>%
-  autoplot(global_economy) +
+  autoplot(gdppc) +
   labs(title = "GDP per capita for Sweden", y = "$US")
 
 ## ---- Bricks ------------------------------------------------------------
