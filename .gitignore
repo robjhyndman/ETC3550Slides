@@ -6,3 +6,4 @@ elecBC*.pdf
 .Rproj.user
 *.Rproj
 *.log
+.vscode/*
