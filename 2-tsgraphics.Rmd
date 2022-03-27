@@ -383,7 +383,6 @@ Cyclic
 * average length of cycle longer than length of seasonal pattern
 * magnitude of cycle more variable than magnitude of seasonal pattern
 
-
 ## Time series patterns
 \fontsize{9}{9}\sf
 
@@ -658,7 +657,6 @@ new_production %>% ACF(Beer, lag_max = 9) %>% autoplot()
   * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
   * The plot is known as a **correlogram**
 
-
 \vspace*{10cm}
 
 ## Autocorrelation
@@ -671,7 +669,6 @@ new_production %>% ACF(Beer) %>% autoplot()
 
   * $r_{4}$  higher than for the other lags. This is due to **the seasonal pattern in the data**: the peaks tend to be **4 quarters** apart and the troughs tend to be **2 quarters** apart.
   * $r_2$ is more negative than for the other lags because troughs tend to be 2 quarters behind peaks.
-
 
 ## Trend and seasonality in ACF plots
 
@@ -797,7 +794,6 @@ White noise data is uncorrelated across time with zero mean and constant varianc
 
 \vspace*{10cm}
 
-
 ## Example: White noise
 \fontsize{10}{10}\sf
 
@@ -882,7 +878,6 @@ These show the series is **not a white noise series**.
 You can compute the daily changes in the Google stock price in 2018 using
 
 \fontsize{11.5}{15}\sf
-
 
 ```{r, eval = FALSE}
 dgoog <- gafa_stock %>%

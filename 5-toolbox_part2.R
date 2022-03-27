@@ -11,7 +11,7 @@ us_retail_employment %>%
 
 dcmp <- us_retail_employment %>%
   model(STL(Employed)) %>%
-  components() 
+  components()
 
 autoplot(dcmp)
 

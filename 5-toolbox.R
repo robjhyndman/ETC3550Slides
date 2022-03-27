@@ -37,13 +37,21 @@ brick_fc <- brick_fit %>%
   forecast(h = "5 years")
 
 brick_fc %>%
+  filter(.model == "Seasonal_naive") %>%
+  autoplot(aus_production)
+
+z <- brick_fc %>%
+  hilo(level = 95) %>%
+  pull(`95%`)
+z$lower
+
+brick_fc %>%
   autoplot(aus_production, level = NULL) +
   labs(
     title = "Clay brick production for Australia",
     y = "Millions of bricks"
   ) +
   guides(colour = guide_legend(title = "Forecast"))
-
 
 ## ---- Facebook -------------------------------------------------------------------
 
@@ -112,14 +120,13 @@ fc <- fb_stock %>%
   ) %>%
   forecast(h = 42)
 
-
 ## EGG PRICES
 
 eggs <- prices %>%
   filter(!is.na(eggs)) %>%
   select(eggs)
 eggs %>%
-  autoplot(eggs) +
+  autoplot(log(eggs)) +
   labs(
     title = "Annual egg prices",
     y = "$US (adjusted for inflation)"
@@ -144,4 +151,3 @@ fc %>%
     title = "Annual egg prices",
     y = "US$ (adjusted for inflation)"
   )
-

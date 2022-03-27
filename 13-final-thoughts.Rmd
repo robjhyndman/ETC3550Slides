@@ -50,11 +50,9 @@ source("setup.R")
 * Probably locally trended.
 * Perhaps use drift method based on average monthly change in last 2 years.
 
-
 # Some case studies
 
 ## CASE STUDY 1: Paperware company
-
 
 \fontsize{11.5}{13}\sf
 
@@ -76,7 +74,6 @@ wrong and fix it.
 \end{textblock}
 
 \placefig{8}{1.4}{width=4.8cm}{tableware2}
-
 
 ## CASE STUDY 1: Paperware company
 
@@ -103,7 +100,6 @@ I
 K
 : I couldn't understand the explanation.
 
-
 ## CASE STUDY 2: PBS
 
 \fontsize{13.5}{15.5}\sf
@@ -114,12 +110,10 @@ K
   * Although monthly data available for 10 years, data are aggregated to annual values, and only the first three years are used in estimating the forecasts.
   * All forecasts being done with the \texttt{FORECAST} function in MS-Excel!
 
-
 \begin{alertblock}<2>{}
 \textbf{Problem:} How to do the forecasting better?
 \end{alertblock}
 \vspace{5cm}
-
 
 ## CASE STUDY 3: Car fleet company
 

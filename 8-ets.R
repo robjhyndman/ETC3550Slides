@@ -24,7 +24,6 @@ fit %>%
 tidy(fit)
 glance(fit)
 
-
 components(fit) %>% autoplot()
 
 components(fit) %>%
@@ -35,12 +34,11 @@ fit %>%
   autoplot(algeria_economy) +
   ylab("Exports (% of GDP)") + xlab("Year")
 
-
 # Australian population
 
 aus_economy <- global_economy %>%
   filter(Code == "AUS") %>%
-  mutate(Pop = Population/1e6)
+  mutate(Pop = Population / 1e6)
 aus_economy %>% autoplot(Pop)
 aus_economy %>%
   model(auto = ETS(Pop)) %>%
@@ -89,8 +87,7 @@ fit <- global_economy %>%
     ets = ETS(Population)
   )
 fc <- fit %>%
-  forecast(h=10)
-
+  forecast(h = 10)
 
 # egg prices
 
@@ -105,8 +102,8 @@ fit <- egg_prices %>%
     damped = ETS(log(eggs) ~ trend("Ad"))
   )
 fit %>%
-  forecast(h=100) %>%
-  autoplot(egg_prices, level=NULL)
+  forecast(h = 100) %>%
+  autoplot(egg_prices, level = NULL)
 
 fit %>% glance()
 
@@ -120,9 +117,8 @@ fit %>%
 
 fit %>%
   augment() %>%
-  filter(.model=="holt") %>%
-  features(.resid, ljung_box, dof=4, lag=10)
-
+  filter(.model == "holt") %>%
+  features(.resid, ljung_box, dof = 4, lag = 10)
 
 # J07
 
@@ -133,13 +129,13 @@ j07 %>% autoplot(Cost)
 
 j07 %>%
   model(ETS(Cost ~ error("A") + trend("N") + season("A"))) %>%
-  forecast(h=36) %>%
-  autoplot(j07, level=NULL)
+  forecast(h = 36) %>%
+  autoplot(j07, level = NULL)
 
 j07 %>%
   model(ETS(Cost ~ error("M") + trend("N") + season("M"))) %>%
-  forecast(h=36) %>%
-  autoplot(j07, level=NULL)
+  forecast(h = 36) %>%
+  autoplot(j07, level = NULL)
 
 ## Aus holidays
 
@@ -163,8 +159,10 @@ fc %>%
 
 components(fit) %>% autoplot()
 
-fit %>% select(multiplicative) %>% components() %>% autoplot()
-
+fit %>%
+  select(multiplicative) %>%
+  components() %>%
+  autoplot()
 
 # Gas production
 
@@ -188,14 +186,13 @@ fit %>%
 
 fit %>%
   augment() %>%
-  filter(.model=="hw") %>%
-  features(.resid, ljung_box, dof=8, lag=16)
+  filter(.model == "hw") %>%
+  features(.resid, ljung_box, dof = 8, lag = 16)
 
 fit %>%
-  forecast(h=36) %>%
+  forecast(h = 36) %>%
   filter(.model == "hw") %>%
   autoplot(aus_production)
-
 
 ## National populations
 
@@ -223,7 +220,6 @@ fit %>%
   autoplot(holidays, show_gap = FALSE) +
   xlab("Year") + ylab("Overnight trips (thousands)")
 
-
 # Sum over regions
 
 aus_holidays <- tourism %>%
@@ -247,7 +243,6 @@ fit %>%
   gg_tsresiduals()
 
 
-
 ## H02
 
 h02 <- PBS %>%
@@ -256,12 +251,18 @@ h02 <- PBS %>%
 h02 %>%
   autoplot(Cost)
 
-h02 %>% model(ETS(Cost)) %>% report()
-
-h02 %>% model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
+h02 %>%
+  model(ETS(Cost)) %>%
   report()
 
-h02 %>% model(ETS(Cost)) %>% forecast() %>% autoplot(h02)
+h02 %>%
+  model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
+  report()
+
+h02 %>%
+  model(ETS(Cost)) %>%
+  forecast() %>%
+  autoplot(h02)
 
 fit <- h02 %>%
   model(
@@ -274,4 +275,3 @@ fit <- h02 %>%
 fit %>% accuracy()
 fit %>% glance()
 fit %>% tidy()
-

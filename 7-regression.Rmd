@@ -44,7 +44,6 @@ That is, the coefficients measure the **marginal effects**.
 * $\varepsilon_t$ is a white noise error term
 
 
-
 ## Example: US consumption expenditure
 \fontsize{10}{11}\sf
 
@@ -139,7 +138,6 @@ augment(fit_consMR) %>%
 fit_consMR %>% gg_tsresiduals()
 ```
 
-
 # Some useful predictors for linear models
 
 ## Trend
@@ -204,7 +202,6 @@ number of categories).
 **Public holidays**
 
 * For daily data: if it is a public holiday, dummy=1, otherwise dummy=0.
-
 
 ## Beer production revisited
 
@@ -408,7 +405,6 @@ z_2 &= \text{\# Tuesdays in month;} \\
 z_7 &= \text{\# Sundays in month.}
 \end{align*}
 
-
 ## Distributed lags
 
 Lagged values of a predictor.
@@ -421,7 +417,6 @@ Example: $x$ is advertising which has a delayed effect
         & \vdots \\
   x_{m} &= \text{advertising for $m$ months previously.}
 \end{align*}
-
 
 ## Nonlinear trend
 
@@ -442,7 +437,6 @@ x_{2,t} &= \left\{ \begin{array}{ll}
 \pause\vspace*{-0.5cm}
 
 \centerline{\textcolor{orange}{\textbf{NOT RECOMMENDED!}}}
-
 
 ## Example: Boston marathon winning times
 
@@ -539,7 +533,6 @@ increasing spread.
 
 # Selecting predictors and forecast evaluation
 
-
 ## Comparing regression models
 
 Computer output for regression will always give the $R^2$ value. This is a
@@ -623,7 +616,6 @@ For regression, leave-one-out cross-validation is faster and more efficient than
 * Select one observation for test set, and use *remaining* observations in training set. Compute error on test observation.
 * Repeat using each possible observation as the test set.
 * Compute accuracy measure over all errors.
-
 
 ```{r tscvplots, echo=FALSE}
 tscv_plot <- function(.init, .step, h = 1) {
@@ -762,7 +754,6 @@ has lower CV or AICc.
 * Stepwise regression is not guaranteed to lead to the best possible
 model.
 * Inference on coefficients of final model will be wrong.
-
 
 # Forecasting with regression
 
@@ -947,4 +938,3 @@ If multicollinearity exists\dots
 * there is no problem with model *predictions* provided the predictors used for forecasting are within the range used for fitting.
 * omitting variables can help.
 * combining variables can help.
-

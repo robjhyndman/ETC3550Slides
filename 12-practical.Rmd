@@ -49,7 +49,6 @@ source("setup.R")
 
  * ARIMA/SARIMA, Dynamic regression, Dynamic harmonic regression, STL+ETS, STL+ARIMA, TBATS
 
-
 # Ensuring forecasts stay within limits
 
 ## Positive forecasts
@@ -62,7 +61,6 @@ recent_prices %>%
   forecast(h=50) %>%
   autoplot(recent_prices)
 ```
-
 
 # Forecast combinations
 
@@ -89,7 +87,6 @@ fc <- aus_cafe %>%
   ) %>%
   forecast(h = "5 years")
 ```
-
 
 ## Forecast combinations
 \fontsize{10}{10}\sf\vspace*{-0.2cm}

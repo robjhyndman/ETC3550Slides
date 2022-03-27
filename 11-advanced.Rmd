@@ -62,7 +62,6 @@ calls %>%
        title = "5 minute call volume at North American bank")
 ```
 
-
 ## Examples
 
 ```{r turk}
@@ -139,7 +138,6 @@ calls %>% tbats() %>% forecast() %>% autoplot()
 telec %>% tbats() %>% forecast() %>% autoplot()
 ```
 
-
 ## TBATS model
 
 \begin{alertblock}{\Large TBATS}\fontsize{13.5}{19}\sf
@@ -154,7 +152,6 @@ telec %>% tbats() %>% forecast() %>% autoplot()
 * Entirely automated
 * Prediction intervals often too wide
 * Very slow on long series
-
 
 \vspace*{10cm}
 

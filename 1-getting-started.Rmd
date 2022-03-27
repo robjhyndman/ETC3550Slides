@@ -26,7 +26,6 @@ melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
 
-
 # What can we forecast?
 
 ## Forecasts that aren't forecasts

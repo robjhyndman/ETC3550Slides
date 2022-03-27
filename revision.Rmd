@@ -215,7 +215,6 @@ most of the computing.
   - Effect of a constant on forecasts.
   - ARIMA vs ETS
 
-
 ## 6: Multiple regression
 
   - Dummy variables, seasonal dummies, piecewise linear trends, interventions
@@ -301,7 +300,6 @@ E
 
 ###
 Links to all of the above at **forecasters.org**
-
 
 ## Happy forecasting
 

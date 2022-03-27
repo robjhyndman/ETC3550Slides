@@ -27,7 +27,7 @@ a10
 a10 %>%
   autoplot(total_cost)
 
-a10 %>% gg_season(total_cost, labels="right")
+a10 %>% gg_season(total_cost, labels = "right")
 
 a10 %>% gg_season(total_cost, labels = "both") +
   labs(
@@ -64,7 +64,6 @@ maxtemp <- vic_elec %>%
 maxtemp %>%
   autoplot(Temperature) +
   labs(y = "Max temperature")
-
 
 ## LOTS OF EXAMPLES -------------------------------------------------------------
 
@@ -113,14 +112,18 @@ beer <- aus_production %>%
   filter(year(Quarter) >= 1992)
 beer %>% autoplot(Beer)
 
-beer %>% gg_season(Beer, labels="right")
+beer %>% gg_season(Beer, labels = "right")
 beer %>% gg_subseries(Beer)
 
 beer %>% gg_lag(Beer)
-beer %>% gg_lag(Beer, geom='point', lags=1:16)
+beer %>% gg_lag(Beer, geom = "point", lags = 1:16)
 beer %>% ACF(Beer, lag_max = 16)
-beer %>% ACF(Beer, lag_max = 20) %>% autoplot()
-beer %>% ACF(Beer) %>% autoplot()
+beer %>%
+  ACF(Beer, lag_max = 20) %>%
+  autoplot()
+beer %>%
+  ACF(Beer) %>%
+  autoplot()
 
 ## ELECTRICITY DEMAND ---------------------------------------------------------
 
@@ -135,14 +138,14 @@ vic_elec %>% gg_season(Demand, period = "day")
 holidays <- tourism %>%
   mutate(
     State = recode(State,
-                   "Australian Capital Territory" = "ACT",
-                   "New South Wales" = "NSW",
-                   "Northern Territory" = "NT",
-                   "Queensland" = "QLD",
-                   "South Australia" = "SA",
-                   "Tasmania" = "TAS",
-                   "Victoria" = "VIC",
-                   "Western Australia" = "WA"
+      "Australian Capital Territory" = "ACT",
+      "New South Wales" = "NSW",
+      "Northern Territory" = "NT",
+      "Queensland" = "QLD",
+      "South Australia" = "SA",
+      "Tasmania" = "TAS",
+      "Victoria" = "VIC",
+      "Western Australia" = "WA"
     )
   ) %>%
   filter(Purpose == "Holiday") %>%
@@ -205,37 +208,42 @@ wn %>% autoplot(y)
 
 wn %>% ACF(y, lag_max = 10)
 
-wn %>% ACF(y) %>% autoplot()
+wn %>%
+  ACF(y) %>%
+  autoplot()
 
 ## PIGS ---------------------------------------------------------------------------
 
 pigs <- aus_livestock %>%
-  filter(State == "Victoria", Animal == "Pigs",
-         year(Month) >= 2014)
-pigs %>% autoplot(Count/1e3) +
+  filter(
+    State == "Victoria", Animal == "Pigs",
+    year(Month) >= 2014
+  )
+pigs %>% autoplot(Count / 1e3) +
   labs(
     y = "Thousands",
     title = "Number of pigs slaughtered in Victoria"
   )
 
 pigs %>%
-  mutate(diff = difference(Count, lag =12)) %>%
+  mutate(diff = difference(Count, lag = 12)) %>%
   autoplot(diff)
 
-pigs %>% ACF(Count, lag_max=36) %>% autoplot()
+pigs %>%
+  ACF(Count, lag_max = 36) %>%
+  autoplot()
 
 ## GOOGLE change in closing price ACF ---------------------------------------------
 
-google_2015  %>%
+google_2015 %>%
   ACF(Close) %>%
   autoplot()
 
-google_2015  %>%
+google_2015 %>%
   mutate(diff = difference(Close)) %>%
   autoplot(diff)
 
-google_2015  %>%
+google_2015 %>%
   mutate(diff = difference(Close)) %>%
   ACF(diff) %>%
   autoplot()
-

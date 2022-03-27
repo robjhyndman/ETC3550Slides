@@ -52,7 +52,6 @@ $\gamma$ controls the flexibility of the **seasonality**
 * If $\gamma = 0$, the seasonality is fixed (seasonal means)
 * If $\gamma = 1$, the seasonality updates completely (seasonal naive)
 
-
 ## A model for levels, trends, and seasonalities
 
 We want a model that captures the level ($\ell_t$), trend ($b_t$) and seasonality ($s_t$).
@@ -78,7 +77,6 @@ How do the level, trend and seasonal components evolve over time?
 \end{textblock}}
 
 \vspace*{10cm}
-
 
 ## ETS models
 
@@ -406,7 +404,6 @@ beta_anim %>%
   labs(y = "Millions",
        title = "Australian population: trend (beta = {format(as.numeric(as.character(current_frame)), nsmall=2)})")
 ```
-
 
 ## ETS(M,A,N)
 
@@ -752,7 +749,6 @@ sth_cross_ped %>%
 
 ## Holt-Winters with daily data
 
-
 ```{r hwdaily, echo=FALSE, eval=TRUE}
 ```
 
@@ -1063,7 +1059,6 @@ fit %>%
 
 \only<2>{\begin{textblock}{8}(7,2)\begin{alertblock}{}Innovation residuals (\texttt{.innov}) are given by $\hat{\varepsilon}_t$ while regular residuals (\texttt{.resid}) are $y_t - \hat{y}_{t-1}$. They are different when the model has multiplicative errors.
 \end{alertblock}\end{textblock}}
-
 
 ```{r normal, include=FALSE}
 options(fred)

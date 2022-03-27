@@ -8,12 +8,16 @@ google_2018 <- gafa_stock %>%
   update_tsibble(index = trading_day, regular = TRUE)
 
 google_2018 %>% autoplot(Close)
-google_2018 %>% ACF(Close) %>% autoplot()
+google_2018 %>%
+  ACF(Close) %>%
+  autoplot()
 
 google_2018 %>% autoplot(difference(Close)) +
   ylab("Google closing stock price") + xlab("Day")
 
-google_2018 %>% ACF(difference(Close)) %>% autoplot()
+google_2018 %>%
+  ACF(difference(Close)) %>%
+  autoplot()
 
 google_2018 %>%
   features(Close, unitroot_kpss)
@@ -27,7 +31,7 @@ google_2018 %>%
 wwwusage <- as_tsibble(WWWusage)
 wwwusage %>% autoplot(value)
 wwwusage %>% autoplot(difference(value))
-wwwusage %>% autoplot(difference(value, differences=2))
+wwwusage %>% autoplot(difference(value, differences = 2))
 wwwusage %>% features(value, unitroot_kpss)
 wwwusage %>% features(difference(value), unitroot_pp)
 
@@ -37,7 +41,7 @@ wwwusage %>% features(difference(value), unitroot_ndiffs)
 
 a10 <- PBS %>%
   filter(ATC2 == "A10") %>%
-  summarise(Cost = sum(Cost)/1e6)
+  summarise(Cost = sum(Cost) / 1e6)
 
 a10 %>% autoplot(Cost)
 
@@ -51,7 +55,7 @@ a10 %>% autoplot(
 
 h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
-  summarise(Cost = sum(Cost)/1e6)
+  summarise(Cost = sum(Cost) / 1e6)
 
 h02 %>% autoplot(Cost)
 
@@ -65,11 +69,13 @@ h02 %>% autoplot(
   log(Cost) %>% difference(12) %>% difference(1)
 )
 
-h02 %>% mutate(log_sales = log(Cost)) %>%
+h02 %>%
+  mutate(log_sales = log(Cost)) %>%
   features(log_sales, list(unitroot_nsdiffs, feat_stl))
 
-h02 %>% mutate(log_sales = log(Cost)) %>%
+h02 %>%
+  mutate(log_sales = log(Cost)) %>%
   features(log_sales, unitroot_nsdiffs)
-h02 %>% mutate(d_log_sales = difference(log(Cost), 12)) %>%
+h02 %>%
+  mutate(d_log_sales = difference(log(Cost), 12)) %>%
   features(d_log_sales, unitroot_ndiffs)
-

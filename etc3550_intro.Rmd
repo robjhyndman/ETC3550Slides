@@ -105,7 +105,6 @@ https://www.rstudio.com/products/rstudio/download/
   * Data sets in associated R packages
   * R code for examples
 
-
 ## Main packages
 
 \placefig{4.2}{1.4}{width=3.8cm}{tsibble.png}
@@ -172,7 +171,6 @@ library(fpp3)
 \textbf{ETC5550 students:}\\ One assignment different, and extra exam question.
 \end{alertblock}
 
-
 ## Moodle site
 \fontsize{18}{24}\sf
 
@@ -182,7 +180,6 @@ library(fpp3)
 
 ###
 **Please don't send emails. Use the forum.**
-
 
 ## Exercises Week 1
 \fontsize{18}{24}\sf
@@ -203,5 +200,3 @@ library(fpp3)
   \end{itemize}
   \end{block}
 \end{textblock}
-
-

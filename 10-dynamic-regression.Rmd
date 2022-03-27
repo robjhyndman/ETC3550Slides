@@ -359,7 +359,6 @@ report(fit_stochastic)
 ```
 \pause\vspace*{-0.3cm}
 
-
 ```{r austaparams2, echo=FALSE, dependson='stochastictrend'}
 coef <- rlang::set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
 drift <- coef["constant"]
@@ -591,7 +590,6 @@ fit %>% forecast(h = 1690) %>%
   autoplot(filter(calls_mdl, idx > 25000))
 ```
 
-
 # Lagged predictors
 
 ## Lagged predictors
@@ -641,7 +639,6 @@ insurance %>%
   facet_grid(vars(name), scales = "free_y") +
   labs(y = NULL, title = "Insurance advertising and quotations")
 ```
-
 
 ## Example: Insurance quotes and TV adverts
 

@@ -1854,7 +1854,6 @@ tibble(
 | ETS(A,A,A)    | ARIMA(0,1,$m+1$)(0,1,0)$_m$ |                                      |
 | ETS(A,A\damped,A)    | ARIMA(1,0,$m+1$)(0,1,0)$_m$ |                                      |
 
-
 ## Example: Australian population
 \fontsize{10}{11}\sf
 
