@@ -79,8 +79,8 @@ print_retail %>%
 If the data show different variation at different levels of the series, then a transformation can be useful.
 \pause
 
-Denote original observations as $y_1,\dots,y_n$ and transformed
-observations as $w_1, \dots, w_n$.
+Denote original observations as $y_1,\dots,y_T$ and transformed
+observations as $w_1, \dots, w_T$.
 \pause
 
 \begin{block}{\footnotesize Mathematical transformations for stabilizing
