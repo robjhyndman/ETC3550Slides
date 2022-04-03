@@ -31,6 +31,7 @@ components(fit) %>%
 
 fit %>%
   forecast(h = 5) %>%
+  filter(.model == "MNN") %>%
   autoplot(algeria_economy) +
   ylab("Exports (% of GDP)") + xlab("Year")
 
