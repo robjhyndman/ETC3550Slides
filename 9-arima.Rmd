@@ -10,7 +10,7 @@ output:
   binb::monash:
     colortheme: monashwhite
     fig_width: 7.5
-    fig_height: 3.5
+    fig_height: 3
     keep_tex: no
     includes:
       in_header: header.tex
@@ -50,9 +50,8 @@ A **stationary series** is:
 * no patterns predictable in the long-term
 
 ## Stationary?
-\fontsize{11}{13}\sf
 
-```{r}
+```{r, fig.height=2.7}
 gafa_stock %>%
   filter(Symbol == "GOOG", year(Date) == 2018) %>%
   autoplot(Close) +
@@ -60,9 +59,8 @@ gafa_stock %>%
 ```
 
 ## Stationary?
-\fontsize{11}{13}\sf
 
-```{r}
+```{r, fig.height=2.7}
 gafa_stock %>%
   filter(Symbol == "GOOG", year(Date) == 2018) %>%
   autoplot(difference(Close)) +
@@ -70,9 +68,8 @@ gafa_stock %>%
 ```
 
 ## Stationary?
-\fontsize{11}{13}\sf
 
-```{r}
+```{r, fig.height=2.7}
 global_economy %>%
   filter(Country == "Algeria") %>%
   autoplot(Exports) +
@@ -80,18 +77,16 @@ global_economy %>%
 ```
 
 ## Stationary?
-\fontsize{11}{13}\sf
 
-```{r}
+```{r, fig.height=2.7}
 aus_production %>%
   autoplot(Bricks) +
   labs(title = "Clay brick production in Australia")
 ```
 
 ## Stationary?
-\fontsize{11}{13}\sf
 
-```{r}
+```{r, fig.height=2.7}
 prices %>%
   filter(year >= 1900) %>%
   autoplot(eggs) +
@@ -99,50 +94,38 @@ prices %>%
 ```
 
 ## Stationary?
-\fontsize{9}{10}\sf
 
-```{r}
+```{r, fig.height=2.7}
 aus_livestock %>%
-  filter(
-    Animal == "Pigs", State == "Victoria",
-  ) %>%
-  autoplot(Count/1e3) +
-  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
-```
-
-## Stationary?
-\fontsize{9}{10}\sf
-
-```{r}
-aus_livestock %>%
-  filter(
-    Animal == "Pigs", State == "Victoria", year(Month) >= 2010
-  ) %>%
-  autoplot(Count/1e3) +
-  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
-```
-
-## Stationary?
-\fontsize{9}{10}\sf
-
-```{r}
-aus_livestock %>%
-  filter(
-    Animal == "Pigs", State == "Victoria", year(Month) >= 2015
-  ) %>%
+  filter(Animal == "Pigs", State == "Victoria") %>%
   autoplot(Count/1e3) +
   labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
 ```
 
 ## Stationary?
 
-\fontsize{11}{13}\sf
+```{r, fig.height=2.7}
+aus_livestock %>%
+  filter(Animal == "Pigs", State == "Victoria", year(Month) >= 2010) %>%
+  autoplot(Count/1e3) +
+  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
+```
 
-```{r}
+## Stationary?
+
+```{r, fig.height=2.7}
+aus_livestock %>%
+  filter(Animal == "Pigs", State == "Victoria", year(Month) >= 2015) %>%
+  autoplot(Count/1e3) +
+  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
+```
+
+## Stationary?
+
+```{r, fig.height=2.7}
 pelt %>%
   autoplot(Lynx) +
-  labs(y = "Number trapped",
-       title = "Annual Canadian Lynx Trappings")
+  labs(y = "Number trapped", title = "Annual Canadian Lynx Trappings")
 ```
 
 ## Stationarity
@@ -164,17 +147,13 @@ For ARIMA modelling, we also need to **stabilize the mean**.
 * For non-stationary data, the value of $r_1$ is often large and positive.
 
 ## Example: Google stock price
-\fontsize{10}{12}\sf
 
 ```{r}
 google_2018 <- gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) == 2018) %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
+  filter(Symbol == "GOOG", year(Date) == 2018)
 ```
 
 ## Example: Google stock price
-\fontsize{10}{12}\sf
 
 ```{r}
 google_2018 %>%
@@ -183,14 +162,12 @@ google_2018 %>%
 ```
 
 ## Example: Google stock price
-\fontsize{10}{12}\sf
 
 ```{r, fig.height=3.5}
 google_2018 %>% ACF(Close) %>% autoplot()
 ```
 
 ## Example: Google stock price
-\fontsize{10}{12}\sf
 
 ```{r}
 google_2018 %>%
@@ -199,7 +176,6 @@ google_2018 %>%
 ```
 
 ## Example: Google stock price
-\fontsize{10}{12}\sf
 
 ```{r}
 google_2018 %>% ACF(difference(Close)) %>% autoplot()
@@ -235,81 +211,72 @@ where $m=$ number of seasons.\pause
 * For quarterly data $m=4$.
 
 ## Antidiabetic drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 a10 <- PBS %>%
   filter(ATC2 == "A10") %>%
   summarise(Cost = sum(Cost)/1e6)
 ```
 
 ## Antidiabetic drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 a10 %>% autoplot(
   Cost
 )
 ```
 
 ## Antidiabetic drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 a10 %>% autoplot(
   log(Cost)
 )
 ```
 
 ## Antidiabetic drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 a10 %>% autoplot(
   log(Cost) %>% difference(12)
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost)/1e6)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 h02 %>% autoplot(
   Cost
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 h02 %>% autoplot(
   log(Cost)
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 h02 %>% autoplot(
   log(Cost) %>% difference(12)
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r, echo=TRUE}
 h02 %>% autoplot(
   log(Cost) %>% difference(12) %>% difference(1)
 )
@@ -460,7 +427,7 @@ $$
 where $\varepsilon_t$ is white noise. This is a multiple regression with \textbf{lagged values} of $y_t$ as predictors.
 \end{block}
 
-```{r arp, echo=FALSE, fig.height=3}
+```{r arp, echo=FALSE, fig.height=2.4}
 set.seed(1)
 p1 <- tsibble(idx = seq_len(100), sim = 10 + arima.sim(list(ar = -0.8), n = 100), index = idx) %>%
   autoplot(sim) + labs(y="", title  = "AR(1)")
@@ -503,7 +470,6 @@ p2
 ```
 
 ## Stationarity conditions
-\fontsize{14}{15}\sf
 
 We normally restrict autoregressive models to stationary data, and then some constraints on the values of the parameters are required.
 
@@ -526,7 +492,7 @@ where $\varepsilon_t$ is white noise.
 This is a multiple regression with \textbf{past \emph{errors}} as predictors. \emph{Don't confuse this with moving average smoothing!}
 \end{block}
 
-```{r maq, fig.height=2.5, echo=FALSE}
+```{r maq, fig.height=2.4, echo=FALSE}
 set.seed(2)
 p1 <- tsibble(idx = seq_len(100), sim = 20 + arima.sim(list(ma = 0.8), n = 100), index = idx) %>%
   autoplot(sim) + labs(y="", title = "MA(1)")
@@ -570,10 +536,7 @@ y_t &= \phi_1y_{t-1} + \varepsilon_t\\
 &= \phi_1^3y_{t-3} + \phi_1^2\varepsilon_{t-2} + \phi_1 \varepsilon_{t-1} + \varepsilon_t\\
 &\dots
 \end{align*}\pause
-Provided $-1 < \phi_1 < 1$:
-\[
-  y_t = \varepsilon_t + \phi_1 \varepsilon_{t-1} + \phi_1^2 \varepsilon_{t-2} + \phi_1^3 \varepsilon_{t-3} + \cdots
-\]
+provided $-1<\phi_1<1$.
 
 ## Invertibility
 
@@ -612,7 +575,7 @@ Provided $-1 < \phi_1 < 1$:
 * $(1-B)^d y_t$ follows an ARMA model.
 
 ## ARIMA models
-
+\fontsize{13}{15}\sf
 \alert{Autoregressive Integrated Moving Average models}
 \begin{block}{ARIMA($p, d, q$) model}
 \begin{tabular}{rl}
@@ -649,14 +612,11 @@ y_{t} &= c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
 & {\hbox to 0cm{\hss\text{difference}\hss}}\\
 \end{array}
 \]\pause
-Written out:
-$$
+$$\text{Expand:}\qquad
   y_t = c + y_{t-1} + \phi_1 y_{t-1}- \phi_1 y_{t-2} + \theta_1\varepsilon_{t-1} + \varepsilon_t
 $$
 
 ## R model
-
-\fontsize{13}{16}\sf
 
 \begin{block}{Intercept form}
   \centerline{$(1-\phi_1B - \cdots - \phi_p B^p) y_t' = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
@@ -673,8 +633,6 @@ $$
 
 ## Egyptian exports
 
-\fontsize{10}{10}\sf
-
 ```{r egyptexportsauto, echo=TRUE}
 global_economy %>%
   filter(Code == "EGY") %>%
@@ -683,7 +641,7 @@ global_economy %>%
 ```
 
 ## Egyptian exports
-\fontsize{9}{10}\sf
+\fontsize{10}{10}\sf
 
 ```{r, echo=TRUE, dependson="egyptexportsauto"}
 fit <- global_economy %>% filter(Code == "EGY") %>%
@@ -691,7 +649,7 @@ fit <- global_economy %>% filter(Code == "EGY") %>%
 report(fit)
 ```
 
-\pause\vfill
+\pause\vspace*{-0.6cm}
 
 ```{r egyptexportsmodel, include=FALSE, warning=FALSE, dependson="egyptexportsauto"}
 stopifnot(identical(
@@ -712,7 +670,7 @@ $$
 where $\varepsilon_t$ is white noise with a standard deviation of $`r sprintf("%.3f", sqrt(glance(fit)$sigma2))` = \sqrt{`r sprintf("%.3f", glance(fit)$sigma2)`}$.
 
 ## Egyptian exports
-\fontsize{10}{12}\sf
+
 ```{r, echo=TRUE, fig.height=4}
 gg_tsresiduals(fit)
 ```
@@ -726,9 +684,8 @@ augment(fit) %>%
 ```
 
 ## Egyptian exports
-\fontsize{12}{13}\sf
 
-```{r egyptexportsf, fig.cap="Forecasts of Egyptian exports.", fig.asp=0.55, dependson="egyptexportsauto"}
+```{r egyptexportsf, dependson="egyptexportsauto"}
 fit %>% forecast(h=10) %>%
   autoplot(global_economy) +
   labs(y = "% of GDP", title = "Egyptian Exports")
@@ -746,7 +703,7 @@ fit %>% forecast(h=10) %>%
 * If $c\ne0$ and $d=2$, the long-term forecasts will follow a quadratic trend.
 
 ## Understanding ARIMA models
-\fontsize{14}{15.5}\sf
+\fontsize{14}{16}\sf
 
 ### Forecast variance and $d$
   * The higher the value of $d$, the more rapidly the prediction intervals increase in size.
@@ -792,7 +749,6 @@ $$
 * Last significant $\alpha_k$ indicates the order of an AR model.
 
 ## Egyptian exports
-\fontsize{10}{11}\sf
 
 ```{r, eval=FALSE}
 egypt <- global_economy %>% filter(Code == "EGY")
@@ -807,7 +763,6 @@ p1 | p2
 ```
 
 ## Egyptian exports
-\fontsize{12}{13}\sf
 
 ```{r, echo=TRUE}
 global_economy %>% filter(Code == "EGY") %>%
@@ -869,11 +824,10 @@ So we have an MA($q$) model when
 
 \alert{Akaike's Information Criterion (AIC):}
 \centerline{$\text{AIC} = -2 \log(L) + 2(p+q+k+1),$}
-where $L$ is the likelihood of the data,\newline
-$k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause\vspace*{0.cm}
+where $L$ is the likelihood of the data, $k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause
 
 \alert{Corrected AIC:}
-\centerline{$\text{AICc} = \text{AIC} + \displaystyle\frac{2(p+q+k+1)(p+q+k+2)}{T-p-q-k-2}.$}\pause\vspace*{0.cm}
+\centerline{$\text{AICc} = \text{AIC} + \displaystyle\frac{2(p+q+k+1)(p+q+k+2)}{T-p-q-k-2}.$}\pause
 
 \alert{Bayesian Information Criterion:}
 \centerline{$\text{BIC} = \text{AIC} + [\log(T)-2](p+q+k+1).$}
@@ -898,7 +852,7 @@ Need to select appropriate orders: \alert{$p,q, d$}
   * Use stepwise search to traverse model space.
 
 ## How does ARIMA() work?
-\fontsize{12}{12}\sf
+\fontsize{12}{14}\sf
 
 \begin{block}{}
 \centerline{$\text{AICc} = -2 \log(L) + 2(p+q+k+1)\left[1 +
@@ -909,9 +863,9 @@ $k=1$ if $c\neq 0$ and $k=0$ otherwise.
 
 Step1:
 : Select current model (with smallest AICc) from:\newline
-ARIMA$(2,d,2)$\newline
-ARIMA$(0,d,0)$\newline
-ARIMA$(1,d,0)$\newline
+ARIMA$(2,d,2)$,\quad
+ARIMA$(0,d,0)$,\quad
+ARIMA$(1,d,0)$,\quad
 ARIMA$(0,d,1)$
 \pause\vspace*{-0.1cm}
 
@@ -1087,7 +1041,6 @@ griddf %>%
 ```
 
 ## Egyptian exports
-\fontsize{10}{12}\sf
 
 ```{r, echo=TRUE}
 global_economy %>% filter(Code == "EGY") %>%
@@ -1115,18 +1068,15 @@ report(fit2)
 ```
 
 ## Central African Republic exports
-\fontsize{10}{12}\sf
 
 ```{r}
 global_economy %>%
   filter(Code == "CAF") %>%
   autoplot(Exports) +
-  labs(title="Central African Republic exports",
-       y="% of GDP")
+  labs(title="Central African Republic exports", y="% of GDP")
 ```
 
 ## Central African Republic exports
-\fontsize{10}{12}\sf
 
 ```{r caf2, warning=FALSE}
 global_economy %>%
@@ -1135,7 +1085,6 @@ global_economy %>%
 ```
 
 ## Central African Republic exports
-\fontsize{10}{12}\sf
 
 ```{r caf_fit}
 caf_fit <- global_economy %>%
@@ -1190,7 +1139,7 @@ caf_fit %>%
 ```
 
 ## Modelling procedure with `ARIMA()`
-\fontsize{12}{13}\sf
+\fontsize{13}{15}\sf
 
 1. Plot the data. Identify any unusual observations.
 2. If necessary, transform the data (using a Box-Cox transformation) to stabilize the variance.
@@ -1201,16 +1150,16 @@ caf_fit %>%
 7. Once the residuals look like white noise, calculate forecasts.
 
 ## Automatic modelling procedure with `ARIMA()`
-\fontsize{12}{13}\sf
+\fontsize{13}{15}\sf
 
 1. Plot the data. Identify any unusual observations.
 2. If necessary, transform the data (using a Box-Cox transformation) to stabilize the variance.
 
-\vspace*{1.15cm}
+\vspace*{1.0cm}
 
 3. Use `ARIMA` to automatically select a model.
 
-\vspace*{1.15cm}
+\vspace*{1.0cm}
 
 6. Check the residuals from your chosen model by plotting the ACF of the residuals, and doing a portmanteau test of the residuals. If they do not look like white noise, try a modified model.
 7. Once the residuals look like white noise, calculate forecasts.
@@ -1497,41 +1446,35 @@ the PACF and ACF.
   * a single significant spike at lag 12 in the PACF.
 
 ## US leisure employment
-\fontsize{9}{10}\sf
 
-```{r, fig.height=3}
+```{r, fig.height=2.5}
 leisure <- us_employment %>%
-  filter(Title == "Leisure and Hospitality",
-         year(Month) > 2000) %>%
+  filter(Title == "Leisure and Hospitality", year(Month) > 2000) %>%
   mutate(Employed = Employed/1000) %>%
   select(Month, Employed)
 autoplot(leisure, Employed) +
-  labs(title = "US employment: leisure and hospitality",
-       y="Number of people (millions)")
+  labs(title = "US employment: leisure and hospitality", y="No. people (millions)")
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
 
 ```{r}
 leisure %>%
-  gg_tsdisplay(difference(Employed, 12),
-               plot_type='partial', lag=36) +
+  gg_tsdisplay(difference(Employed, 12), plot_type='partial', lag=36) +
   labs(title="Seasonally differenced", y="")
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
 
 ```{r}
 leisure %>%
-  gg_tsdisplay(difference(Employed, 12) %>% difference(),
-               plot_type='partial', lag=36) +
+  gg_tsdisplay(difference(Employed, 12) %>% difference(), 
+    plot_type='partial', lag=36) +
   labs(title = "Double differenced", y="")
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
+\fontsize{10}{11}\sf
 
 ```{r}
 fit <- leisure %>%
@@ -1545,75 +1488,67 @@ fit %>% pivot_longer(everything(), names_to = "Model name",
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
+\fontsize{10}{11}\sf
 
 ```{r}
 glance(fit) %>% arrange(AICc) %>% select(.model:BIC)
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
 
 ```{r}
 fit %>% select(auto) %>% gg_tsresiduals(lag=36)
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
+\fontsize{10}{11}\sf
 
 ```{r}
 augment(fit) %>% features(.innov, ljung_box, lag=24, dof=4)
 ```
 
 ## US leisure employment
-\fontsize{9}{10}\sf
 
 ```{r}
 forecast(fit, h=36) %>%
   filter(.model=='auto') %>%
   autoplot(leisure) +
-  labs(title = "US employment: leisure and hospitality",
-       y="Number of people (millions)")
+  labs(title = "US employment: leisure and hospitality", y="Number of people (millions)")
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r}
 h02 <- PBS %>%
   filter(ATC2 == "H02") %>%
   summarise(Cost = sum(Cost)/1e6)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r}
 h02 %>% autoplot(
   Cost
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r}
 h02 %>% autoplot(
   log(Cost)
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
 
-```{r, echo=TRUE, fig.height=3.5}
+```{r}
 h02 %>% autoplot(
   log(Cost) %>% difference(12)
 )
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{9}{10}\sf
 
 ```{r h02b}
 h02 %>% gg_tsdisplay(difference(log(Cost),12),
@@ -1663,14 +1598,13 @@ report(fit)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{10}{12}\sf
 
 ```{r h02res, echo=TRUE, fig.height=4, dependson='arimah02'}
 gg_tsresiduals(fit)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{15}\sf
+\fontsize{10}{13}\sf
 
 ```{r h02resb, echo = TRUE, fig.height=4, dependson='arimah02'}
 augment(fit) %>%
@@ -1678,7 +1612,7 @@ augment(fit) %>%
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{13}\sf
+\fontsize{10}{13}\sf
 
 ```{r h02auto, echo=TRUE, fig.height=3.6}
 fit <- h02 %>% model(auto = ARIMA(log(Cost)))
@@ -1686,14 +1620,13 @@ report(fit)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02auto'}
 gg_tsresiduals(fit)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{15}\sf
+\fontsize{10}{13}\sf
 
 ```{r, echo = TRUE, dependson='h02auto'}
 augment(fit) %>%
@@ -1701,7 +1634,7 @@ augment(fit) %>%
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{9}{9}\sf
+\fontsize{10}{10}\sf
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
 fit <- h02 %>%
@@ -1712,14 +1645,13 @@ report(fit)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, fig.height=4, dependson='h02tryharder'}
 gg_tsresiduals(fit)
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{11}{15}\sf
+\fontsize{10}{12}\sf
 
 ```{r, echo = TRUE, dependson='h02tryharder'}
 augment(fit) %>%
@@ -1750,7 +1682,7 @@ fit %>%
 ```
 
 ## Cortecosteroid drug sales
-\fontsize{12}{14}\sf
+\fontsize{13}{15}\sf
 
 ```{r h02-rmse, cache=TRUE, echo=FALSE}
 models <- list(
@@ -1787,7 +1719,6 @@ fit %>%
   * Use the best model available, even if it does not pass all tests.
 
 ## Cortecosteroid drug sales
-\fontsize{11}{14}\sf
 
 ```{r h02f, echo=TRUE, fig.height=3}
 fit <- h02 %>%
@@ -1799,15 +1730,12 @@ fit %>% forecast %>% autoplot(h02) +
 # ARIMA vs ETS
 
 ## ARIMA vs ETS
+\fontsize{14}{16}\sf
 
   * Myth that ARIMA models are more general than exponential smoothing.
-
   * Linear exponential smoothing models all special cases of ARIMA models.
-
   * Non-linear exponential smoothing models have no equivalent ARIMA counterparts.
-
   * Many ARIMA models have no exponential smoothing counterparts.
-
   * ETS models all non-stationary. Models with seasonality or non-damped trend (or both) have two unit roots; all other models have one unit \rlap{root.}
 
 \vspace*{10cm}
@@ -1827,20 +1755,20 @@ tibble(
   scale_color_manual(values=cols) + scale_fill_manual(values=cols) +
   coord_fixed() + guides(fill = FALSE) +
   geom_text(aes(label = "ETS models", x = -1.5, y = 1.15), col = cols["ets"], fontface = "bold", size=6) +
-  geom_text(aes(label = "Combination\n of components", x = -1.5, y = 0.3), col = cols["ets"]) +
-  geom_text(aes(label = "9 non-additive\n ETS models", x = -1.5, y = -0.6), col = cols["ets"]) +
-  geom_text(aes(label = "All ETS models\n with M components", x = -.95, y = -1.6), col = cols["ets"]) +
+  geom_text(aes(label = "Combination\n of components", x = -1.5, y = 0.3), col = cols["ets"], size=3) +
+  geom_text(aes(label = "9 non-additive\n ETS models", x = -1.5, y = -0.6), col = cols["ets"], size=3) +
+  geom_text(aes(label = "All ETS models\n with M components", x = -.95, y = -1.6), col = cols["ets"], size=3) +
   geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.15), col = cols["arima"], fontface = "bold", size=6) +
-  geom_text(aes(label = "Modelling\n autocorrelations", x = 1.5, y = 0.3), col = cols["arima"]) +
-  annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.5, y = -0.6, col = cols["arima"]) +
-  geom_text(aes(label = "All stationary models\n Many large models", x = 1.01, y = -1.6), col = cols["arima"]) +
-  geom_text(aes(label = "6 additive\n ETS models", x = 0, y = -0.6), col = "#6b6859") +
+  geom_text(aes(label = "Modelling\n autocorrelations", x = 1.5, y = 0.3), col = cols["arima"], size=3) +
+  annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.5, y = -0.6, col = cols["arima"], size=3) +
+  geom_text(aes(label = "All stationary models\n Many large models", x = 1.01, y = -1.6), col = cols["arima"], size=3) +
+  geom_text(aes(label = "6 additive\n ETS models", x = 0, y = -0.6), col = "#6b6859", size=3) +
   guides(col=FALSE, fill=FALSE) +  theme_void()
 ```
 
 ## Equivalences
 
-\fontsize{12}{14}\sf
+\fontsize{13}{15}\sf
 
 |**ETS model**  | **ARIMA model**             | **Parameters**                       |
 | :------------ | :-------------------------- | :----------------------------------- |
@@ -1872,19 +1800,16 @@ aus_economy %>%
 ```
 
 ## Example: Australian population
-\fontsize{10}{11}\sf
 
-```{r popetsplot, echo=TRUE, fig.height=3.1}
+```{r popetsplot, echo=TRUE, fig.height=2.6}
 aus_economy %>%
   model(ETS(Population)) %>%
   forecast(h = "5 years") %>%
   autoplot(aus_economy) +
-  labs(title = "Australian population",
-       y = "People (millions)")
+  labs(title = "Australian population",  y = "People (millions)")
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
 
 ```{r qcement1, echo=TRUE}
 cement <- aus_production %>%
@@ -1908,7 +1833,7 @@ fit %>%
 ```
 
 ## Example: Cement production
-\fontsize{10}{10.5}\sf
+\fontsize{10}{10}\sf
 
 ```{r qcement3, dependson="qcement1"}
 fit %>%
@@ -1917,21 +1842,19 @@ fit %>%
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
 
 ```{r qcement4, dependson="qcement1"}
 gg_tsresiduals(fit %>% select(arima), lag_max = 16)
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
 
 ```{r qcement5, dependson="qcement1"}
 gg_tsresiduals(fit %>% select(ets), lag_max = 16)
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
+\fontsize{10}{12}\sf
 
 ```{r qcement6, dependson="qcement1"}
 fit %>%
@@ -1941,7 +1864,7 @@ fit %>%
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
+\fontsize{10}{12}\sf
 
 ```{r qcement7, dependson="qcement1"}
 fit %>%
@@ -1951,7 +1874,7 @@ fit %>%
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
+\fontsize{10}{12}\sf
 
 ```{r qcement8, dependson=c("qcement2","qcement3")}
 fit %>%
@@ -1961,13 +1884,11 @@ fit %>%
 ```
 
 ## Example: Cement production
-\fontsize{10}{11}\sf
 
-```{r qcement9, echo=TRUE, dependson="qcement1", fig.height=3}
+```{r qcement9, echo=TRUE, dependson="qcement1", fig.height=2.7}
 fit %>%
   select(arima) %>%
   forecast(h="3 years") %>%
   autoplot(cement) +
-  labs(title = "Cement production in Australia",
-       y="Tonnes ('000)")
+  labs(title = "Cement production in Australia", y="Tonnes ('000)")
 ```
