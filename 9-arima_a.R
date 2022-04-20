@@ -3,9 +3,7 @@ library(fpp3)
 #### GOOGLE STOCK PRICE 2018 ----------------
 
 google_2018 <- gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) == 2018) %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
+  filter(Symbol == "GOOG", year(Date) == 2018)
 
 google_2018 %>% autoplot(Close)
 google_2018 %>%
@@ -48,7 +46,7 @@ a10 %>% autoplot(Cost)
 a10 %>% autoplot(log(Cost))
 
 a10 %>% autoplot(
-  log(Cost) %>% difference(12)
+  log(Cost) %>% difference(lag = 12)
 )
 
 ## H02 drugs
@@ -71,7 +69,7 @@ h02 %>% autoplot(
 
 h02 %>%
   mutate(log_sales = log(Cost)) %>%
-  features(log_sales, list(unitroot_nsdiffs, feat_stl))
+  features(log_sales, feat_stl)
 
 h02 %>%
   mutate(log_sales = log(Cost)) %>%
@@ -79,3 +77,4 @@ h02 %>%
 h02 %>%
   mutate(d_log_sales = difference(log(Cost), 12)) %>%
   features(d_log_sales, unitroot_ndiffs)
+
