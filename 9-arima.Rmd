@@ -206,7 +206,7 @@ where $\varepsilon_t \sim NID(0,\sigma^2)$.
 
 ## Random walk with drift model
 
-If differenced series is white noise with non-zero mean: 
+If differenced series is white noise with non-zero mean:
 
 \begin{block}{}
 \centerline{$y_t-y_{t-1}=c+\varepsilon_t$ \hspace{0.4cm} or \hspace{0.4cm} $y_t=c+y_{t-1}+\varepsilon_t$}
@@ -1053,8 +1053,10 @@ griddf %>%
                data = griddf %>% filter(step %in% "4"),
                arrow = arrow(length = unit(0.15, "inches"), type='open'),
                size = 1, lineend = "butt") +
-  geom_point(aes(col = step), size = 5, shape = 19) +
-  geom_point(data = filter(griddf, chosen), size = 12, shape = 21, stroke = 1.4) +
+  geom_point(aes(col = step), size = 5, shape = 19,
+             data = griddf %>% filter(step %in% c("1","2","3","4"))) +
+  geom_point(data = griddf %>% filter(step %in% c("1","2","3","4"), chosen),
+             size = 12, shape = 21, stroke = 1.4) +
   scale_y_reverse(breaks = 0:6) +
   scale_x_continuous(position = "top", breaks = 0:6) +
   theme_minimal() +
@@ -1500,7 +1502,7 @@ leisure %>%
 
 ```{r, fig.height=2.8}
 leisure %>%
-  gg_tsdisplay(difference(Employed, 12) %>% difference(), 
+  gg_tsdisplay(difference(Employed, 12) %>% difference(),
     plot_type='partial', lag=36) +
   labs(title = "Double differenced", y="")
 ```
@@ -1916,8 +1918,8 @@ fit %>%
 ## Example: Cement production
 
 ```{r qcement9, echo=TRUE, dependson="qcement1", fig.height=2.6}
-fit %>% 
-  select(arima) %>% 
+fit %>%
+  select(arima) %>%
   forecast(h="3 years") %>%
   autoplot(cement) +
   labs(title = "Cement production in Australia", y="Tonnes ('000)")
