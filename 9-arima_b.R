@@ -45,7 +45,6 @@ report(fit)
 gg_tsresiduals(fit)
 
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 4)
 
 fit %>%
   forecast(h = 10) %>%
@@ -70,7 +69,23 @@ fit1 <- global_economy %>%
   model(ARIMA(Exports ~ pdq(4, 0, 0)))
 report(fit1)
 
-fit2 <- global_economy %>%
-  filter(Code == "EGY") %>%
-  model(ARIMA(Exports))
-report(fit2)
+## CAF EXPORTS
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  autoplot(Exports) +
+  labs(
+    title = "Central African Republic exports",
+    y = "% of GDP"
+  )
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  model(ARIMA(Exports)) %>%
+  report()
+
+global_economy %>%
+  filter(Code == "CAF") %>%
+  model(ARIMA(Exports)) %>%
+  forecast(h=20) %>%
+  autoplot(global_economy)
