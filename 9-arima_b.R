@@ -1,5 +1,35 @@
 library(fpp3)
 
+## H02 drugs
+
+h02 <- PBS %>%
+  filter(ATC2 == "H02") %>%
+  summarise(Cost = sum(Cost) / 1e6)
+
+h02 %>% autoplot(Cost)
+
+h02 %>% autoplot(log(Cost))
+
+h02 %>% autoplot(
+  log(Cost) %>% difference(12)
+)
+
+h02 %>% autoplot(
+  log(Cost) %>% difference(12) %>% difference(1)
+)
+
+h02 %>%
+  mutate(log_sales = log(Cost)) %>%
+  features(log_sales, feat_stl)
+
+h02 %>%
+  mutate(log_sales = log(Cost)) %>%
+  features(log_sales, unitroot_nsdiffs)
+h02 %>%
+  mutate(d_log_sales = difference(log(Cost), 12)) %>%
+  features(d_log_sales, unitroot_ndiffs)
+
+
 ## EGYPTIAN EXPORTS
 
 global_economy %>%
@@ -44,46 +74,3 @@ fit2 <- global_economy %>%
   filter(Code == "EGY") %>%
   model(ARIMA(Exports))
 report(fit2)
-
-## CAF EXPORTS
-
-global_economy %>%
-  filter(Code == "CAF") %>%
-  autoplot(Exports) +
-  labs(
-    title = "Central African Republic exports",
-    y = "% of GDP"
-  )
-
-global_economy %>%
-  filter(Code == "CAF") %>%
-  gg_tsdisplay(difference(Exports), plot_type = "partial")
-
-caf_fit <- global_economy %>%
-  filter(Code == "CAF") %>%
-  model(
-    arima210 = ARIMA(Exports ~ pdq(2, 1, 0)),
-    arima013 = ARIMA(Exports ~ pdq(0, 1, 3)),
-    stepwise = ARIMA(Exports),
-    search = ARIMA(Exports, stepwise = FALSE)
-  )
-
-caf_fit
-
-glance(caf_fit) %>%
-  arrange(AICc) %>%
-  select(.model:BIC)
-
-caf_fit %>%
-  select(search) %>%
-  gg_tsresiduals()
-
-caf_fit %>%
-  select(search) %>%
-  augment() %>%
-  features(.innov, ljung_box, lag = 10, dof = 3)
-
-caf_fit %>%
-  forecast(h = 50) %>%
-  filter(.model == "search") %>%
-  autoplot(global_economy)

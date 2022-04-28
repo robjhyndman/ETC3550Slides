@@ -24,17 +24,6 @@ google_2018 %>%
 google_2018 %>%
   features(Close, unitroot_ndiffs)
 
-### WWW usage
-
-wwwusage <- as_tsibble(WWWusage)
-wwwusage %>% autoplot(value)
-wwwusage %>% autoplot(difference(value))
-wwwusage %>% autoplot(difference(value, differences = 2))
-wwwusage %>% features(value, unitroot_kpss)
-wwwusage %>% features(difference(value), unitroot_pp)
-
-wwwusage %>% features(difference(value), unitroot_ndiffs)
-
 ## A10 drugs
 
 a10 <- PBS %>%
@@ -77,4 +66,3 @@ h02 %>%
 h02 %>%
   mutate(d_log_sales = difference(log(Cost), 12)) %>%
   features(d_log_sales, unitroot_ndiffs)
-
