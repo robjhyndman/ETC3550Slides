@@ -1,14 +1,28 @@
 library(fpp3)
 
+
+## EGYPTIAN EXPORTS
+
+global_economy %>%
+  filter(Code == "EGY") %>%
+  gg_tsdisplay(Exports, plot_type="partial")
+
+fit1 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports ~ pdq(4, 0, 0)))
+report(fit1)
+
+fit2 <- global_economy %>%
+  filter(Code == "EGY") %>%
+  model(ARIMA(Exports))
+report(fit2)
+
 ## CAF EXPORTS
 
 global_economy %>%
   filter(Code == "CAF") %>%
   autoplot(Exports) +
-  labs(
-    title = "Central African Republic exports",
-    y = "% of GDP"
-  )
+  labs(title = "Central African Republic exports", y = "% of GDP")
 
 global_economy %>%
   filter(Code == "CAF") %>%
@@ -20,7 +34,7 @@ caf_fit <- global_economy %>%
     arima210 = ARIMA(Exports ~ pdq(2, 1, 0)),
     arima013 = ARIMA(Exports ~ pdq(0, 1, 3)),
     stepwise = ARIMA(Exports),
-    search = ARIMA(Exports, stepwise = FALSE)
+    search = ARIMA(Exports, stepwise = FALSE, approximation=FALSE, order_constraint = (p+q <= 10))
   )
 
 caf_fit
@@ -39,71 +53,25 @@ caf_fit %>%
   features(.innov, ljung_box, lag = 10, dof = 3)
 
 caf_fit %>%
-  forecast(h = 50) %>%
+  forecast(h = 5) %>%
   filter(.model == "search") %>%
   autoplot(global_economy)
 
-
-## WWW usage -----------------------------------------------------------------------
-
-web_usage <- as_tsibble(WWWusage)
-
-web_usage %>% gg_tsdisplay(value, plot_type = "partial")
-web_usage %>% gg_tsdisplay(difference(value), plot_type = "partial")
-
-fit <- web_usage %>%
-  model(arima = ARIMA(value ~ pdq(3, 1, 0)))
-fit %>%
-  report()
-
-web_usage %>%
-  model(auto = ARIMA(value ~ pdq(d = 1))) %>%
-  report()
-
-web_usage %>%
-  model(auto2 = ARIMA(value ~ pdq(d = 1),
-    stepwise = FALSE, approximation = FALSE,
-    order_constraint = p + q <= 10
-  )) %>%
-  report()
-
-gg_tsresiduals(fit)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 3)
-
-fit %>%
-  forecast(h = 10) %>%
-  autoplot(web_usage)
-
-## GDP --------------------------------------------------------------------------
-
-global_economy %>%
-  filter(Country == "Australia") %>%
-  autoplot(log(GDP))
+# Fit models to GDP for all countries
 
 fit <- global_economy %>%
-  model(
-    ARIMA(log(GDP))
-  )
-
-fit
+  model(arima = ARIMA(log(GDP)))
 
 fit %>%
-  filter(Country == "Australia") %>%
-  report()
-fit %>%
-  filter(Country == "Australia") %>%
+  filter(Country=="Australia")  %>%
   gg_tsresiduals()
-fit %>%
-  filter(Country == "Australia") %>%
-  augment() %>%
-  features(.resid, ljung_box, dof = 2, lag = 15)
-fit %>%
-  filter(Country == "Australia") %>%
-  forecast(h = 10) %>%
-  autoplot(global_economy) +
-  scale_y_log10()
+
+fc <- fit %>%
+  forecast(h=5)
+
+fc %>%
+  filter(Country=="Australia") %>%
+  autoplot(global_economy)
 
 ## US leisure employment
 
@@ -155,11 +123,8 @@ fit %>%
 
 report(fit %>% select(best))
 augment(fit) %>%
-  filter(.model %in% c("best", "auto")) %>%
+  filter(.model == "best") %>%
   features(.innov, ljung_box, lag = 24, dof = 4)
-augment(fit) %>%
-  filter(!(.model %in% c("best", "auto"))) %>%
-  features(.innov, ljung_box, lag = 24, dof = 3)
 
 forecast(fit, h = 36) %>%
   filter(.model == "best") %>%
@@ -188,14 +153,14 @@ fit <- h02 %>%
 report(fit)
 gg_tsresiduals(fit, lag_max = 36)
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 6)
+  features(.innov, ljung_box, lag = 36, dof = 6)
 
 # Letting R choose
 fit <- h02 %>% model(auto = ARIMA(log(Cost), stepwise = FALSE))
 report(fit)
 gg_tsresiduals(fit, lag_max = 36)
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 6)
+  features(.innov, ljung_box, lag = 36, dof = 6)
 
 # Letting R work hard to choose
 fit <- h02 %>%
@@ -207,7 +172,7 @@ fit <- h02 %>%
 report(fit)
 gg_tsresiduals(fit, lag_max = 36)
 augment(fit) %>%
-  features(.resid, ljung_box, lag = 36, dof = 9)
+  features(.innov, ljung_box, lag = 36, dof = 9)
 
 # The forecasts
 fit %>%
@@ -216,6 +181,7 @@ fit %>%
   labs(y = "H02 Expenditure ($AUD)")
 
 ## AUS ECONOMY ETS vs ARIMA
+
 aus_economy <- global_economy %>%
   filter(Code == "AUS") %>%
   mutate(Population = Population / 1e6)
