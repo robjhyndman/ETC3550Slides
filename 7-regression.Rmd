@@ -10,7 +10,7 @@ output:
   binb::monash:
     colortheme: monashwhite
     fig_width: 7.5
-    fig_height: 3.5
+    fig_height: 2.7
     keep_tex: no
     includes:
       in_header: header.tex
@@ -23,8 +23,6 @@ source("setup.R")
 # The linear model with time series
 
 ## Multiple regression and forecasting
-
-\fontsize{13}{15}\sf
 
 \begin{block}{}\vspace*{-0.3cm}
 \[
@@ -43,41 +41,9 @@ That is, the coefficients measure the **marginal effects**.
 
 * $\varepsilon_t$ is a white noise error term
 
-
-## Example: US consumption expenditure
-\fontsize{10}{11}\sf
-
-```{r ConsInc, echo=TRUE, fig.height=3.5}
-us_change %>%
-  pivot_longer(c(Consumption, Income), names_to="Series") %>%
-  autoplot(value) +
-  labs(y="% change")
-```
-
-## Example: US consumption expenditure
-\fontsize{9}{10}\sf
-
-```{r ConsInc2, echo=TRUE}
-us_change %>%
-  ggplot(aes(x = Income, y = Consumption)) +
-    labs(y = "Consumption (quarterly % change)",
-         x = "Income (quarterly % change)") +
-    geom_point() + geom_smooth(method = "lm", se = FALSE)
-```
-
 ## Example: US consumption expenditure
 
-\fontsize{9}{9}\sf
-
-```{r, echo=TRUE}
-fit_cons <- us_change %>%
-  model(lm = TSLM(Consumption ~ Income))
-report(fit_cons)
-```
-
-## Example: US consumption expenditure
-
-```{r MultiPredictors, echo=FALSE, fig.height=5}
+```{r MultiPredictors, echo=FALSE, fig.height=4}
 us_change %>%
   gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) %>%
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
@@ -89,7 +55,7 @@ us_change %>%
 
 ## Example: US consumption expenditure
 
-```{r ScatterMatrix, echo=FALSE, fig.height=5, fig.width=8}
+```{r ScatterMatrix, echo=FALSE, fig.height=4, fig.width=8}
 us_change %>%
   as_tibble() %>%
   select(-Quarter) %>%
@@ -98,7 +64,7 @@ us_change %>%
 
 ## Example: US consumption expenditure
 
-\fontsize{7.4}{7.4}\sf
+\fontsize{7}{7}\sf
 
 ```{r usestim, echo=TRUE}
 fit_consMR <- us_change %>%
@@ -113,9 +79,7 @@ augment(fit_consMR) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
-  labs(y = NULL,
-    title = "Percent change in US consumption expenditure"
-  ) +
+  labs(y = NULL, title = "Percent change in US consumption expenditure") +
   scale_colour_manual(values=c(Data="black",Fitted="#D55E00")) +
   guides(colour = guide_legend(title = NULL))
 ```
@@ -150,6 +114,26 @@ fit_consMR %>% gg_tsresiduals()
 * $t=1,2,\dots,T$
 * Strong assumption that trend will continue.
 
+## Nonlinear trend
+
+**Piecewise linear trend with bend at $\tau$**
+\begin{align*}
+x_{1,t} &= t \\
+x_{2,t} &= \left\{ \begin{array}{ll}
+  0 & t <\tau\\
+  (t-\tau) & t \ge \tau
+\end{array}\right.
+\end{align*}
+\pause\vspace*{1cm}
+
+**Quadratic or higher order trend**
+\[
+  x_{1,t} =t,\quad x_{2,t}=t^2,\quad \dots
+\]
+\pause\vspace*{-0.5cm}
+
+\centerline{\textcolor{orange}{\textbf{NOT RECOMMENDED!}}}
+
 ## Dummy variables
 
 \begin{textblock}{6}(0.4,1.5)
@@ -158,18 +142,18 @@ or `No'), then an equivalent numerical variable can be constructed
 taking value 1 if yes and 0 if no. This is called a \textbf{dummy variable}.
 \end{textblock}
 
-\placefig{7.7}{1.}{width=5cm}{dummy2}
+\placefig{7.7}{1.5}{width=5cm}{dummy2}
 
 ## Dummy variables
 
-\begin{textblock}{5}(0.4,1.5)
+\begin{textblock}{6}(0.4,1.5)
 If there are more than two categories, then the variable can
 be coded using several dummy variables (one fewer than the total
 number of categories).
 
 \end{textblock}
 
-\placefig{5.5}{1.5}{width=7.3cm}{dummy3}
+\placefig{7.7}{1.5}{width=7.3cm}{dummy3}
 
 ## Beware of the dummy variable trap!
 * Using one dummy for each category gives too many dummy variables!
@@ -181,7 +165,6 @@ number of categories).
 * The coefficients of the dummies are relative to the omitted category.
 
 ## Uses of dummy variables
-
 \fontsize{13}{15}\sf
 
 **Seasonal dummies**
@@ -216,7 +199,7 @@ recent_production %>% autoplot(Beer) +
 \begin{block}{Regression model}
 \centering
 $y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} + \varepsilon_t$
-\end{block}
+\end{block}\vspace*{-0.3cm}
 
 * $d_{i,t} = 1$ if $t$ is quarter $i$ and 0 otherwise.
 
@@ -229,9 +212,8 @@ report(fit_beer)
 ```
 
 ## Beer production revisited
-\fontsize{8.5}{9}\sf
 
-```{r, fig.height=3.3}
+```{r, fig.height=2.4}
 augment(fit_beer) %>%
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Beer, colour = "Data")) +
@@ -242,25 +224,22 @@ augment(fit_beer) %>%
 
 ## Beer production revisited
 
-```{r, echo=FALSE}
+```{r, fig.height=2.4}
 augment(fit_beer) %>%
   ggplot(aes(x=Beer, y=.fitted, colour=factor(quarter(Quarter)))) +
     geom_point() +
-    labs(y="Fitted", x="Actual values",
-         title = "Quarterly beer production") +
+    labs(y="Fitted", x="Actual values", title = "Quarterly beer production") +
     scale_colour_brewer(palette="Dark2", name="Quarter") +
     geom_abline(intercept=0, slope=1)
 ```
 
 ## Beer production revisited
-\fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
 fit_beer %>% gg_tsresiduals()
 ```
 
 ## Beer production revisited
-\fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
 fit_beer %>% forecast %>% autoplot(recent_production)
@@ -294,9 +273,7 @@ report(fourier_beer)
 
 ## Harmonic regression: eating-out expenditure
 
-\fontsize{9}{10}\sf
-
-```{r cafe, echo=TRUE, fig.height=3.8, fig.width=8}
+```{r cafe, echo=TRUE}
 aus_cafe <- aus_retail %>% filter(
     Industry == "Cafes, restaurants and takeaway food services",
     year(Month) %in% 2004:2018
@@ -306,10 +283,10 @@ aus_cafe %>% autoplot(Turnover)
 
 ## Harmonic regression: eating-out expenditure
 
-\fontsize{9}{10}\sf
+\fontsize{8}{9}\sf
 
 ```{r cafefit, dependson='cafe', fig.height=5, echo=TRUE}
-fit <- aus_cafe %>% 
+fit <- aus_cafe %>%
   model(K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
         K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
         K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
@@ -394,16 +371,6 @@ cafe_plot(K = 6)
 * Easter: use a dummy variable $v_t=1$ if any part of Easter is in that month, $v_t=0$ otherwise.
 * Ramadan and Chinese new year similar.
 
-## Trading days
-
-With monthly data, if the observations vary depending on how many different types of days in the month, then trading day predictors can be useful.
-
-\begin{align*}
-z_1 &= \text{\# Mondays in month;} \\
-z_2 &= \text{\# Tuesdays in month;} \\
-&\vdots \\
-z_7 &= \text{\# Sundays in month.}
-\end{align*}
 
 ## Distributed lags
 
@@ -418,37 +385,14 @@ Example: $x$ is advertising which has a delayed effect
   x_{m} &= \text{advertising for $m$ months previously.}
 \end{align*}
 
-## Nonlinear trend
-
-**Piecewise linear trend with bend at $\tau$**
-\begin{align*}
-x_{1,t} &= t \\
-x_{2,t} &= \left\{ \begin{array}{ll}
-  0 & t <\tau\\
-  (t-\tau) & t \ge \tau
-\end{array}\right.
-\end{align*}
-\pause\vspace*{1cm}
-
-**Quadratic or higher order trend**
-\[
-  x_{1,t} =t,\quad x_{2,t}=t^2,\quad \dots
-\]
-\pause\vspace*{-0.5cm}
-
-\centerline{\textcolor{orange}{\textbf{NOT RECOMMENDED!}}}
-
 ## Example: Boston marathon winning times
 
-\fontsize{9}{9}\sf
-
-```{r, fig.height=3.5, echo=TRUE}
+```{r, fig.height=2.6, echo=TRUE}
 marathon <- boston_marathon %>%
   filter(Event == "Men's open division") %>%
   select(-Event) %>%
   mutate(Minutes = as.numeric(Time)/60)
-marathon %>% autoplot(Minutes) +
-  labs(y="Winning times in minutes")
+marathon %>% autoplot(Minutes) + labs(y="Winning times in minutes")
 ```
 
 ## Example: Boston marathon winning times
@@ -473,13 +417,11 @@ fit_trends
 
 ## Example: Boston marathon winning times
 
-\fontsize{10}{10}\sf
-
 ```{r, echo=TRUE, eval=FALSE}
 fit_trends %>% forecast(h=10) %>% autoplot(marathon)
 ```
 
-```{r, echo=FALSE, message=TRUE, warning=FALSE}
+```{r, echo=FALSE, message=TRUE, warning=FALSE, fig.height=3.3}
 fc_trends <- fit_trends %>% forecast(h = 10)
 marathon %>%
   autoplot(Minutes) +
@@ -491,10 +433,10 @@ marathon %>%
 ```
 
 ## Example: Boston marathon winning times
-\fontsize{9}{9}\sf
 
 ```{r residPiecewise, message=FALSE, warning=FALSE}
-fit_trends %>% select(piecewise) %>%
+fit_trends %>%
+  select(piecewise) %>%
   gg_tsresiduals()
 ```
 
@@ -546,7 +488,7 @@ $$
 * It is the proportion of variance accounted for (explained) by the predictors.
 
 ## Comparing regression models
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 However \dots
 
@@ -779,7 +721,6 @@ $$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
  * A different model for each forecast horizon $h$.
 
 ## US Consumption
-\fontsize{10}{11}\sf
 
 ```{r usconsumptionf, echo=TRUE}
 fit_consBest <- us_change %>%
@@ -798,9 +739,8 @@ fc <- forecast(fit_consBest, new_data = future_scenarios)
 ```
 
 ## US Consumption
-\fontsize{10}{10}\sf
 
-```{r usconsumptionf2, echo=TRUE, fig.height=3.5}
+```{r usconsumptionf2, echo=TRUE}
 us_change %>% autoplot(Consumption) +
   labs(y="% change in US consumption") +
   autolayer(fc) +
