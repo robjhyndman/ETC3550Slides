@@ -187,6 +187,12 @@ aus_economy <- global_economy %>%
   mutate(Population = Population / 1e6)
 aus_economy %>% autoplot(Population)
 aus_economy %>%
+  model(
+    ets = ETS(Population),
+    arima = ARIMA(Population)
+  ) %>%
+  glance()
+aus_economy %>%
   slice(-n()) %>%
   stretch_tsibble(.init = 10) %>%
   model(

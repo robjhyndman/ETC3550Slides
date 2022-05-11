@@ -29,7 +29,7 @@ augment(fit_consMR) %>%
   guides(colour = guide_legend(title = NULL))
 
 augment(fit_consMR) %>%
-  ggplot(aes(x = .fitted, y = Consumption)) +
+  ggplot(aes(y = .fitted, x = Consumption)) +
   geom_point() +
   labs(
     y = "Fitted (predicted values)",
