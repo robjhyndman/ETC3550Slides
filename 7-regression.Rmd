@@ -654,18 +654,6 @@ loocv_plot() +
 \only<2>{\begin{textblock}{4}(6,6)\begin{block}{}\fontsize{13}{15}\sf
 CV = MSE on \textcolor[HTML]{D55E00}{test sets}\end{block}\end{textblock}}
 
-## Comparing regression models
-\fontsize{11}{14}\sf
-
-```{r, echo=TRUE}
-glance(fit_trends) %>%
-  select(.model, r_squared, adj_r_squared, AICc, CV)
-```
-
-\fontsize{13}{14}\sf
-
- * Be careful making comparisons when transformations are used.
-
 ## Choosing regression variables
 
 **Best subsets regression**

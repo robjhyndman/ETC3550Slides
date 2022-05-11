@@ -3,24 +3,6 @@ library(fpp3)
 # US consumption quarterly changes
 
 us_change %>%
-  pivot_longer(c(Consumption, Income), names_to = "Series") %>%
-  autoplot(value) +
-  labs(y = "% change")
-
-us_change %>%
-  ggplot(aes(x = Income, y = Consumption)) +
-  labs(
-    y = "Consumption (quarterly % change)",
-    x = "Income (quarterly % change)"
-  ) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE)
-
-fit_cons <- us_change %>%
-  model(lm = TSLM(Consumption ~ Income))
-report(fit_cons)
-
-us_change %>%
   pivot_longer(-Quarter, names_to = "Measure", values_to = "Change") %>%
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
   geom_line() +
@@ -104,6 +86,39 @@ recent_production %>%
   ) %>%
   glance()
 
+
+# Fourier terms for cafe data
+
+aus_cafe <- aus_retail %>%
+  filter(
+    Industry == "Cafes, restaurants and takeaway food services",
+    year(Month) %in% 2004:2018
+  ) %>%
+  summarise(Turnover = sum(Turnover))
+aus_cafe %>%
+  autoplot(Turnover)
+aus_cafe %>%
+  autoplot(log(Turnover))
+
+fit <- aus_cafe %>%
+  model(
+    K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
+    K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
+    K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
+    K4 = TSLM(log(Turnover) ~ trend() + fourier(K = 4)),
+    K5 = TSLM(log(Turnover) ~ trend() + fourier(K = 5)),
+    K6 = TSLM(log(Turnover) ~ trend() + fourier(K = 6))
+  )
+
+augment(fit) %>%
+  filter(.model %in% c("K1", "K2", "K3")) %>%
+  ggplot(aes(x = Month, y = Turnover)) +
+  geom_line() +
+  geom_line(aes(y = .fitted, col = .model)) +
+  facet_grid(.model ~ .)
+
+glance(fit) %>%
+  select(.model, sigma2, log_lik, AIC, AICc, BIC)
 ## Boston Marathon
 
 marathon <- boston_marathon %>%
@@ -146,39 +161,6 @@ fit_trends %>%
 
 glance(fit_trends) %>%
   select(.model, r_squared, adj_r_squared, AICc, CV)
-
-# Fourier terms for cafe data
-
-aus_cafe <- aus_retail %>%
-  filter(
-    Industry == "Cafes, restaurants and takeaway food services",
-    year(Month) %in% 2004:2018
-  ) %>%
-  summarise(Turnover = sum(Turnover))
-aus_cafe %>%
-  autoplot(Turnover)
-aus_cafe %>%
-  autoplot(log(Turnover))
-
-fit <- aus_cafe %>%
-  model(
-    K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
-    K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
-    K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
-    K4 = TSLM(log(Turnover) ~ trend() + fourier(K = 4)),
-    K5 = TSLM(log(Turnover) ~ trend() + fourier(K = 5)),
-    K6 = TSLM(log(Turnover) ~ trend() + fourier(K = 6))
-  )
-
-augment(fit) %>%
-  filter(.model %in% c("K1", "K2", "K3")) %>%
-  ggplot(aes(x = Month, y = Turnover)) +
-  geom_line() +
-  geom_line(aes(y = .fitted, col = .model)) +
-  facet_grid(.model ~ .)
-
-glance(fit) %>%
-  select(.model, sigma2, log_lik, AIC, AICc, BIC)
 
 # US consumption quarterly changes
 
