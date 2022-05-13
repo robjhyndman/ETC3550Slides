@@ -416,8 +416,7 @@ For monthly data, if we wish to shift attention to "the same month last year", t
 ## Backshift notation
 
 The backward shift operator is convenient for describing the process of *differencing*. \pause
-
-A first difference can be written as
+A \orange{first(-order)} difference can be written as
 $$
   y'_{t} = y_{t} - y_{t-1} = y_t - By_{t} = (1 - B)y_{t}
 $$\pause
@@ -600,8 +599,8 @@ $$y_t = \varepsilon_t + \phi_1\varepsilon_{t-1}+ \phi_1^2\varepsilon_{t-2}+ \phi
 \end{block}\pause
 
 * Predictors include both **lagged values of $y_t$ and lagged errors.**
-* Conditions on coefficients ensure stationarity.
-* Conditions on coefficients ensure invertibility.
+* Conditions on AR coefficients ensure stationarity.
+* Conditions on MA coefficients ensure invertibility.
 \pause
 
 ### Autoregressive Integrated Moving Average models
