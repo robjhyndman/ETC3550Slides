@@ -85,13 +85,35 @@ vic_elec_daily %>%
 
 fit <- vic_elec_daily %>%
   model(ARIMA(Demand ~ Temperature + I(Temperature^2) +
-    (Day_Type == "Weekday")))
+                (Day_Type == "Weekday")))
 report(fit)
 
 gg_tsresiduals(fit)
 
 augment(fit) %>%
   features(.resid, ljung_box, dof = 9, lag = 21)
+
+augment(fit) %>%
+  ggplot(aes(x=Date, y=Demand)) +
+  geom_line() +
+  geom_line(aes(y=.fitted), col="red")
+
+# Let's try harder to find a good model
+
+fit <- vic_elec_daily %>%
+  model(ARIMA(log(Demand) ~ Temperature + I(Temperature^2) +
+    (Day_Type == "Weekday"), stepwise=FALSE, order_constraint = (p+q <= 8 & P+Q <= 5)))
+report(fit)
+
+gg_tsresiduals(fit)
+
+augment(fit) %>%
+  features(.resid, ljung_box, dof = 13, lag = 21)
+
+augment(fit) %>%
+  ggplot(aes(x=Date, y=Demand)) +
+  geom_line() +
+  geom_line(aes(y=.fitted), col="red")
 
 # Forecast one day ahead
 vic_next_day <- new_data(vic_elec_daily, 1) %>%
@@ -100,7 +122,7 @@ forecast(fit, new_data = vic_next_day)
 
 vic_elec_future <- new_data(vic_elec_daily, 14) %>%
   mutate(
-    Temperature = c(rep(36, 7), rep(25, 7)),
+    Temperature = c(rep(35, 7), rep(25, 7)),
     Holiday = c(TRUE, rep(FALSE, 13)),
     Day_Type = case_when(
       Holiday ~ "Holiday",
@@ -112,6 +134,7 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
 forecast(fit, new_data = vic_elec_future) %>%
   autoplot(vic_elec_daily) +
   labs(y = "Electricity demand (GW)")
+
 
 ## AUSTRALIAN VISITORS -------------------------------------------------
 
@@ -168,7 +191,7 @@ glance(fit) %>%
 
 us_gasoline %>% autoplot(Barrels)
 
-fit <- us_gasoline %>%
+gasfit <- us_gasoline %>%
   model(
     fourier1 = ARIMA(Barrels ~ fourier(K = 1) + PDQ(0, 0, 0)),
     fourier2 = ARIMA(Barrels ~ fourier(K = 2) + PDQ(0, 0, 0)),
@@ -186,23 +209,17 @@ fit <- us_gasoline %>%
     fourier14 = ARIMA(Barrels ~ fourier(K = 14) + PDQ(0, 0, 0)),
   )
 
-library(purrr)
-models <- as.list(seq(26))
-model_defs <- models %>%
-  map(~ ARIMA(Barrels ~ fourier(K = !!.[1]) + PDQ(0, 0, 0)))
-model_defs <- model_defs %>%
-  set_names(map_chr(models, ~ sprintf("fourier%i", .[1])))
-fit <- us_gasoline %>%
-  model(!!!model_defs)
-
-best <- glance(fit) %>%
+best <- glance(gasfit) %>%
   filter(AICc == min(AICc)) %>%
   pull(.model)
-fit %>%
+gasfit %>%
   select(!!best) %>%
-  report(fit)
+  report()
+gasfit %>%
+  select(!!best) %>%
+  gg_tsresiduals()
 
-fit %>%
+gasfit %>%
   select(!!best) %>%
   forecast(h = "3 years") %>%
   autoplot(us_gasoline)
@@ -210,7 +227,7 @@ fit %>%
 ## 5-minute CALL CENTRE DATA ------------------------------------------------
 
 (calls <- readr::read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
-  rename(time = X1) %>%
+  rename(time = `...1`) %>%
   pivot_longer(-time, names_to = "date", values_to = "volume") %>%
   mutate(
     date = as.Date(date, format = "%d/%m/%Y"),
@@ -224,15 +241,8 @@ calls %>%
 
 calls %>%
   fill_gaps() %>%
-  gg_season(volume, period = "day", alpha = 0.1) +
-  guides(colour = FALSE)
-
-library(sugrrants)
-calls %>%
-  filter(month(date, label = TRUE) == "Apr") %>%
-  ggplot(aes(x = time, y = volume)) +
-  geom_line() +
-  facet_calendar(date)
+  gg_season(volume, period = "day", alpha = 0.4) +
+  guides(colour = "none")
 
 calls_mdl <- calls %>%
   mutate(idx = row_number()) %>%
@@ -246,58 +256,3 @@ gg_tsresiduals(fit, lag = 338)
 fit %>%
   forecast(h = 1690) %>%
   autoplot(calls_mdl)
-
-## TV ADVERTISING ----------------------------------------------------------
-
-insurance
-
-insurance %>%
-  pivot_longer(c(Quotes, TVadverts)) %>%
-  ggplot(aes(x = Month, y = value)) +
-  geom_line() +
-  facet_grid(vars(name), scales = "free_y") +
-  labs(y = NULL, title = "Insurance advertising and quotations")
-
-insurance %>%
-  mutate(
-    lag1 = lag(TVadverts),
-    lag2 = lag(lag1)
-  ) %>%
-  as_tibble() %>%
-  select(-Month) %>%
-  rename(lag0 = TVadverts) %>%
-  pivot_longer(-Quotes, names_to = "Lag", values_to = "TV_advert") %>%
-  ggplot(aes(x = TV_advert, y = Quotes)) +
-  geom_point() +
-  facet_grid(. ~ Lag) +
-  labs(title = "Insurance advertising and quotations")
-
-fit <- insurance %>%
-  # Restrict data so models use same fitting period
-  mutate(Quotes = c(NA, NA, NA, Quotes[4:40])) %>%
-  # Estimate models
-  model(
-    ARIMA(Quotes ~ pdq(d = 0) + TVadverts),
-    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts)),
-    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
-      lag(TVadverts, 2)),
-    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
-      lag(TVadverts, 2) + lag(TVadverts, 3))
-  )
-
-glance(fit)
-
-glance(fit) %>%
-  transmute(`Lag order` = 0:3, sigma2, log_lik, AIC, AICc, BIC)
-
-fit %>%
-  select(2) %>%
-  report()
-
-fit_best <- insurance %>%
-  model(ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts)))
-report(fit_best)
-
-advert_a <- new_data(insurance, 20) %>%
-  mutate(TVadverts = 10)
-forecast(fit_best, advert_a) %>% autoplot(insurance)
