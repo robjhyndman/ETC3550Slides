@@ -125,12 +125,6 @@ melsyd %>%
   )
 ```
 
-\only<2>{\begin{textblock}{4.2}(11,5.5)
-\begin{alertblock}{}
-Not the real data! Or is it?
-\end{alertblock}
-\end{textblock}}
-
 ## CASE STUDY 4: Airline
 
 **Problem:** how to forecast passenger traffic on major routes?
@@ -147,22 +141,17 @@ most of the computing.
 
 ## 1. Introduction to forecasting and R
 
- - Time series data and `tsibble` objects.
- - What makes things hard/easy to forecast. \pause
-
-### Exam preparation 
-
-- Reading and writing simple R code. 
-- Interpreting R output.
+  - Time series data and `tsibble` objects.
+  - What makes things hard/easy to forecast. \pause
 
 ## 2. Time series graphics
 
- - Time plots
- - Seasonal plots
- - Seasonal subseries plots
- - Lag plots
- - ACF
- - White noise
+  - Time plots
+  - Seasonal plots
+  - Seasonal subseries plots
+  - Lag plots
+  - ACF
+  - White noise
 
 ## 3: Time series decomposition
 
@@ -174,17 +163,15 @@ most of the computing.
   - Forecasting and decomposition.
 
 ## 5. The forecasters' toolbox
-\fontsize{14}{15}\sf
 
-  - Four benchmark methods: naïve, seasonal naïve, drift, mean. \pause
+  - Four benchmark methods: naÃ¯ve, seasonal naÃ¯ve, drift, mean.
   - Forecasting involves distributions of future observations.
-  - Residual diagnostics: white noise, ACF, LB test. \pause
+  - Residual diagnostics: white noise, ACF, LB test.
   - Problem of over-fitting.
   - Out-of-sample accuracy. Training/test sets.
   - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE.
-  - Time series cross-validation.\pause
+  - Time series cross-validation.
   - One-step prediction intervals based on RMSE from residuals.
-  
 
 ## 8: Exponential smoothing
 
@@ -192,23 +179,20 @@ most of the computing.
   - Holt's local trend method.
   - Damped trend methods.
   - Holt-Winters seasonal method (additive and multiplicative versions).
-  - ETS state space formulation.\pause
+  - ETS state space formulation.
   - Interpretation of output in R.
   - Computing forecasts by setting future $\varepsilon_t$ to 0.
   - Assumptions for prediction intervals.
   - You have access to formula in the textbook.
 
 ## 9: ARIMA models
-\fontsize{14}{16}\sf
 
   - Stationarity.
-
-    - Transformations
-    - Differencing (first- and seasonal-differences). What to use when. \pause
-
-- White noise, random walk, random walk with drift, AR($p$), MA($q$), ARMA($p$,$q$), ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_m$.
+  - Transformations
+  - Differencing (first- and seasonal-differences). What to use when.
+  - White noise, random walk, random walk with drift, AR($p$), MA($q$), ARMA($p$,$q$), ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_m$.
   - ACF, PACF.  Model identification.
-- ARIMA models, Seasonal ARIMA models \pause
+  - ARIMA models, Seasonal ARIMA models
   - Order selection and goodness of fit (AICc)
   - Interpretation of output in R.
 
@@ -216,45 +200,37 @@ most of the computing.
 
   - Backshift operator notation.
   - Expanding out an ARIMA model for forecasting.
-  - Finding point forecasts for given ARIMA process. \pause
+  - Finding point forecasts for given ARIMA process.
   - Assumptions for prediction intervals.
   - One-step prediction intervals based on RMSE.
   - Effect of differencing on forecasts.
   - Effect of a constant on forecasts.
   - ARIMA vs ETS.
 
-
 ## 7: Multiple regression
 
-  - Interpretation of coefficients and R output and residual diagnostics.\pause
+  - Interpretation of coefficients and R output and residual diagnostics.
   - Dummy variables, seasonal dummies, piecewise linear trends, interventions.
-  - Harmonic regression.\pause
+  - Harmonic regression.
   - Variable selection.
-  - AIC, AICc, BIC, $R^2$, adjusted $R^2$.\pause
-
+  - AIC, AICc, BIC, $R^2$, adjusted $R^2$.
   - Ex ante vs ex post forecasts.
-  - Scenario forecasting. \pause
-  
+  - Scenario forecasting.
   - (Matrix formulation.)
 
 ## 10: Dynamic regression models
-\fontsize{14}{16}\sf
 
   - Problems with OLS and autocorrelated errors.
-  - Regression with ARIMA errors. 
-  - Difference between (regression) residuals and ARIMA (innovation) residuals.\pause
-  
-  - Dynamic harmonic regression (and other specifications). Review the last lecture examples. 
+  - Regression with ARIMA errors.
+  - Difference between regression residuals and ARIMA (innovation) residuals.
+  - Dynamic harmonic regression (and other specifications). Review the last lecture examples.
   - Stochastic vs deterministic trends.
-  - Using lagged predictors \pause
-
+  - Using lagged predictors
   - Forecasting for dynamic regression models with ARIMA errors
-
 
 # Exam
 
 ## Exam: 9.00am (AEST) 15 June
-
 \fontsize{13}{15}\sf
 
 Five Sections, all to be attempted.
@@ -271,45 +247,38 @@ C, D, E
 Sections \alert{B}, \alert{C}, \alert{D} and \alert{E} require interpretation of R output, but no coding. \pause
 
 ###
-  $\bullet$ [\ble{E-Assessment}](https://www.monash.edu/students/admin/exams/electronic-exams)\qquad\qquad\qquad $\bullet$ Open access\qquad\qquad\qquad $\bullet$ Invigilated\newline 
+  $\bullet$ [\alert{E-Assessment}](https://www.monash.edu/students/admin/exams/electronic-exams)\qquad\qquad\qquad $\bullet$ Open access\qquad\qquad\qquad $\bullet$ Invigilated\newline
   $\bullet$ 2 hours 10 minutes + (30 minutes to upload images).
-  
 
 ## Preparing for the exam
 
-  - Exams from 2019--2021 on Moodle already. 
-  - Solutions to follow soon. \pause
-  - Exercises. Make sure you have done them all (especially the last two topics - revise the lecture examples)!\pause
+  - Exams from 2019--2021 on Moodle already.
+  - Solutions to follow soon.
+  - Exercises. Make sure you have done them all (especially the last two topics - revise the lecture examples)!
   - Identify your weak points and practice them.
   - Write your own summary of the material.
   - Practice explaining the material to a class-mate.
 
-
 ## Help available
 
-\fontsize{14}{16}\sf
-
-  * See us during the consultation times (for details refer to the [\ble{moodle page}](https://lms.monash.edu/course/view.php?id=116388#section-4)).
-
-\fontsize{14}{16}\sf
-  * Discuss on the moodle forum. I/we will monitor but will not answer every post. This is mostly for you to use between yourselves.
+  * See us during the consultation times (for details refer to the moodle page.
+  * Discuss on the moodle forum.
 
 ## Useful resources for forecasters
+\fontsize{14}{15}\sf
 
-\fontsize{13}{14}\sf
-
-\ble{Organization:}
+\alert{Organization:}
 
  * International Institute of Forecasters.
 
-\ble{Annual Conference:}
+\alert{Annual Conference:}
 
  * International Symposium on Forecasting
-    
+
     *   Oxford, UK, July 4-7, 2022.
     *   Free to our student members ($25).
 
-\ble{Journals:}
+\alert{Journals:}
 
  * International Journal of Forecasting
  * Foresight (the practitioner's journal)
@@ -318,20 +287,18 @@ Sections \alert{B}, \alert{C}, \alert{D} and \alert{E} require interpretation of
 Links to all of the above at **www.forecasters.org**
 
 ## IIF Best Student Award
+\fontsize{14}{16}\sf
 
-\fontsize{13}{13}\sf
+  - https://forecasters.org/programs/research-awards/students/
+  - US$100
+  - A certificate of achievement from the IIF
+  - One year free membership of the Institute with all attendant benefits. Subscriptions to:
 
-- https://forecasters.org/programs/research-awards/students/
-- US$100
-- A certificate of achievement from the IIF
-- One year free membership of the Institute with all attendant benefits. Subscriptions to:  
-
-    -   the International Journal of Forecasting 
+    -   the International Journal of Forecasting
     -   the practitioner journal: Foresight
     -   The Oracle newsletter
-    
-Discounts on conference and workshop fees, and links to a worldwide community of forecasters in many disciplines.
 
+Discounts on conference and workshop fees, and links to a worldwide community of forecasters in many disciplines.
 
 ## Happy forecasting
 
