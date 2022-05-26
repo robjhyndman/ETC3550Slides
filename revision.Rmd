@@ -22,6 +22,36 @@ melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
 
+# Assignment 1
+
+## Assignment 1
+
+**Stock price forecasting** (Q1 and Q5)
+
+* Hard to beat naive forecast
+* Random walk model says forecast variance = $h\sigma^2$.
+
+\pause
+
+**Maximum temperature at Melbourne airport on 12 April 2021.** (Q2)
+
+* Weather is relatively stationary over similar time of year and recent years.
+* So take mean and var of max temp in April over last 10 years.
+
+## Assignment 1
+
+**Difference in points in AFL match** (Q3)
+
+* Teams vary in strength from year to year.
+* Could look at distribution of for-against points from 2020 across all games for each team. Assume distributions independent.
+
+\pause
+
+**Seasonally adjusted estimate of total employment** (Q4)
+
+* Probably locally trended.
+* Perhaps use drift method based on average monthly change in last 2 years.
+
 # Some case studies
 
 ## CASE STUDY 1: Paperware company
