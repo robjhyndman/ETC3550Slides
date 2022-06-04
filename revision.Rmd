@@ -22,6 +22,36 @@ melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
 
+# Assignment 1
+
+## Assignment 1
+
+**Stock price forecasting** (Q1 and Q5)
+
+* Hard to beat naive forecast
+* Random walk model says forecast variance = $h\sigma^2$.
+
+\pause
+
+**Maximum temperature at Melbourne airport on 12 April 2021.** (Q2)
+
+* Weather is relatively stationary over similar time of year and recent years.
+* So take mean and var of max temp in April over last 10 years.
+
+## Assignment 1
+
+**Difference in points in AFL match** (Q3)
+
+* Teams vary in strength from year to year.
+* Could look at distribution of for-against points from 2020 across all games for each team. Assume distributions independent.
+
+\pause
+
+**Seasonally adjusted estimate of total employment** (Q4)
+
+* Probably locally trended.
+* Perhaps use drift method based on average monthly change in last 2 years.
+
 # Some case studies
 
 ## CASE STUDY 1: Paperware company
@@ -125,12 +155,6 @@ melsyd %>%
   )
 ```
 
-\only<2>{\begin{textblock}{4.2}(11,5.5)
-\begin{alertblock}{}
-Not the real data! Or is it?
-\end{alertblock}
-\end{textblock}}
-
 ## CASE STUDY 4: Airline
 
 **Problem:** how to forecast passenger traffic on major routes?
@@ -147,59 +171,56 @@ most of the computing.
 
 ## 1. Introduction to forecasting and R
 
- - time series data and `tsibble` objects.
- - what makes things hard/easy to forecast.
- - Reading and writing simple R code. Interpreting R output.
+  - Time series data and `tsibble` objects.
+  - What makes things hard/easy to forecast. \pause
 
 ## 2. Time series graphics
 
- - time plot.
- - season plot.
- - subseries plot.
- - lag plot.
- - ACF.
- - white noise.
+  - Time plots
+  - Seasonal plots
+  - Seasonal subseries plots
+  - Lag plots
+  - ACF
+  - White noise
 
 ## 3: Time series decomposition
 
   - Describing a time series: seasonality, trend, cycles, changing variance, unusual features.
+  - Transformations (and adjustments)
   - Difference between seasonality and cyclicity.
   - Interpreting a decomposition.
   - Seasonal adjustment.
   - Forecasting and decomposition.
 
 ## 5. The forecasters' toolbox
-\fontsize{14}{15}\sf
 
-  - Four benchmark methods: naive, seasonal naive, drift, mean.
-  - Transformations to stabilize changing variance.
+  - Four benchmark methods: naïve, seasonal naïve, drift, mean.
   - Forecasting involves distributions of future observations.
-  - Residual diagnostics: ACF, white noise, LB test.
-  - Training/test sets. Out-of-sample accuracy.
+  - Residual diagnostics: white noise, ACF, LB test.
   - Problem of over-fitting.
+  - Out-of-sample accuracy. Training/test sets.
   - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE.
-  - One-step prediction intervals based on RMSE from residuals.
   - Time series cross-validation.
+  - One-step prediction intervals based on RMSE from residuals.
 
 ## 8: Exponential smoothing
 
   - Simple exponential smoothing.
-  - Holt's local trend method
-  - Damped trend methods
-  - Holt-Winters seasonal method (additive and multiplicative versions)
-  - ETS state space formulation
+  - Holt's local trend method.
+  - Damped trend methods.
+  - Holt-Winters seasonal method (additive and multiplicative versions).
+  - ETS state space formulation.
   - Interpretation of output in R.
   - Computing forecasts by setting future $\varepsilon_t$ to 0.
-  - Assumptions for prediction intervals
+  - Assumptions for prediction intervals.
+  - You have access to formula in the textbook.
 
 ## 9: ARIMA models
-\fontsize{14}{16}\sf
 
   - Stationarity.
-  - Differencing: first-differences and seasonal-differences. What to use when.
-  - White noise, random walk, AR($p$), MA($q$), ARMA($p$,$q$),
-        ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_s$.
-  - Backshift operator notation
+  - Transformations
+  - Differencing (first- and seasonal-differences). What to use when.
+  - White noise, random walk, random walk with drift, AR($p$), MA($q$), ARMA($p$,$q$), ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_m$.
   - ACF, PACF.  Model identification.
   - ARIMA models, Seasonal ARIMA models
   - Order selection and goodness of fit (AICc)
@@ -207,99 +228,107 @@ most of the computing.
 
 ## 9: ARIMA models (cont'd)
 
-  - Expanding out an ARIMA model for forecasting
-  - Finding point forecasts for given ARIMA process
-  - Assumptions for prediction intervals
-  - One-step prediction intervals based on RMSE
+  - Backshift operator notation.
+  - Expanding out an ARIMA model for forecasting.
+  - Finding point forecasts for given ARIMA process.
+  - Assumptions for prediction intervals.
+  - One-step prediction intervals based on RMSE.
   - Effect of differencing on forecasts.
   - Effect of a constant on forecasts.
-  - ARIMA vs ETS
+  - ARIMA vs ETS.
 
-## 6: Multiple regression
+## 7: Multiple regression
 
-  - Dummy variables, seasonal dummies, piecewise linear trends, interventions
-  - Harmonic regression
-  - AIC, AICc, BIC, $R^2$, adjusted $R^2$
-  - variable selection
-  - Interpretation of R output.
-  - ex ante vs ex post forecasts
-  - scenario forecasting
+  - Interpretation of coefficients and R output and residual diagnostics.
+  - Dummy variables, seasonal dummies, piecewise linear trends, interventions.
+  - Harmonic regression.
+  - Variable selection.
+  - AIC, AICc, BIC, $R^2$, adjusted $R^2$.
+  - Ex ante vs ex post forecasts.
+  - Scenario forecasting.
+  - (Matrix formulation.)
 
 ## 10: Dynamic regression models
-\fontsize{14}{16}\sf
 
-  - Regression with ARMA errors
+  - Problems with OLS and autocorrelated errors.
+  - Regression with ARIMA errors.
+  - Difference between regression residuals and ARIMA (innovation) residuals.
+  - Dynamic harmonic regression (and other specifications). Review the last lecture examples.
+  - Stochastic vs deterministic trends.
   - Using lagged predictors
-  - Difference between regression residuals and ARIMA residuals.
-  - Problems with OLS and autocorrelated errors
-  - Forecasting for regression models with ARMA errors
-  - Stochastic vs deterministic trends
-  - Dynamic harmonic regression
+  - Forecasting for dynamic regression models with ARIMA errors
 
 # Exam
 
-## Exam: 9.30am (AEST) 2 July
+## Exam: 9.00am (AEST) 15 June
+\fontsize{13}{15}\sf
 
-Five questions, all to be attempted.
+Five Sections, all to be attempted.
 
 A
-: Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required.
+: Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required. \pause
 
 B
-: Describing a time series, choosing a forecasting method
+: Describing a time series, decomposition, choosing a forecasting method. \pause
 
-C
-: ETS models
+C, D, E
+: Benchmarks, ETS models, ARIMA models, Dynamic regression models, forecast evaluation.\pause
 
-D
-: ARIMA models
-
-E
-: (Dynamic) regression models\newline (with extra part for PG students)
+Sections \alert{B}, \alert{C}, \alert{D} and \alert{E} require interpretation of R output, but no coding. \pause
 
 ###
-  $\bullet$ Moodle Quiz\qquad $\bullet$ Open book\qquad $\bullet$ 3.5 hours
-
-## Exam and R
-
- * Parts \alert{B}--\alert{C} require interpretation of R output, but no coding.
- * Parts \alert{D}--\alert{E} require some coding (part of the code will be provided) and interpretation of R output.
- * All R coding will be very similar to examples you have done before.
- * Every student will have different data sets.
- * Submitted answers will be automatically checked for close matches.
- * Enter answers on Moodle as you go, to avoid internet issues at the end.
+  $\bullet$ [\alert{E-Assessment}](https://www.monash.edu/students/admin/exams/electronic-exams)\qquad\qquad\qquad $\bullet$ Open access\qquad\qquad\qquad $\bullet$ Invigilated\newline
+  $\bullet$ 2 hours 10 minutes + (30 minutes to upload images).
 
 ## Preparing for the exam
 
-  - Exams from 2015--2019 on Moodle. Solutions to follow soon.
-  - Exercises.  Make sure you have done them all!
+  - Exams from 2019--2021 on Moodle already.
+  - Solutions to follow soon.
+  - Exercises. Make sure you have done them all (especially the last two topics - revise the lecture examples)!
   - Identify your weak points and practice them.
   - Write your own summary of the material.
   - Practice explaining the material to a class-mate.
 
-\pause
+## Help available
 
-### Help available
- * Ask on Moodle forum
- * See your tutor during the consultation times.
+  * See us during the consultation times (for details refer to the moodle page.
+  * Discuss on the moodle forum.
 
 ## Useful resources for forecasters
+\fontsize{14}{15}\sf
 
-**Organization:**
+\alert{Organization:}
 
  * International Institute of Forecasters.
 
-**Annual Conference:**
+\alert{Annual Conference:}
 
- * 2020 International Symposium on Forecasting,\newline \st{Rio de Janeiro, Brazil}. \alert{Online}
+ * International Symposium on Forecasting
 
-**Journals:**
+    *   Oxford, UK, July 4-7, 2022.
+    *   Free to our student members ($25).
+
+\alert{Journals:}
 
  * International Journal of Forecasting
- * Foresight
+ * Foresight (the practitioner's journal)
 
 ###
-Links to all of the above at **forecasters.org**
+Links to all of the above at **www.forecasters.org**
+
+## IIF Best Student Award
+\fontsize{14}{16}\sf
+
+  - https://forecasters.org/programs/research-awards/students/
+  - US$100
+  - A certificate of achievement from the IIF
+  - One year free membership of the Institute with all attendant benefits. Subscriptions to:
+
+    -   the International Journal of Forecasting
+    -   the practitioner journal: Foresight
+    -   The Oracle newsletter
+
+Discounts on conference and workshop fees, and links to a worldwide community of forecasters in many disciplines.
 
 ## Happy forecasting
 

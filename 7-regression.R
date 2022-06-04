@@ -3,24 +3,6 @@ library(fpp3)
 # US consumption quarterly changes
 
 us_change %>%
-  pivot_longer(c(Consumption, Income), names_to = "Series") %>%
-  autoplot(value) +
-  labs(y = "% change")
-
-us_change %>%
-  ggplot(aes(x = Income, y = Consumption)) +
-  labs(
-    y = "Consumption (quarterly % change)",
-    x = "Income (quarterly % change)"
-  ) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE)
-
-fit_cons <- us_change %>%
-  model(lm = TSLM(Consumption ~ Income))
-report(fit_cons)
-
-us_change %>%
   pivot_longer(-Quarter, names_to = "Measure", values_to = "Change") %>%
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
   geom_line() +
@@ -47,7 +29,7 @@ augment(fit_consMR) %>%
   guides(colour = guide_legend(title = NULL))
 
 augment(fit_consMR) %>%
-  ggplot(aes(x = .fitted, y = Consumption)) +
+  ggplot(aes(y = .fitted, x = Consumption)) +
   geom_point() +
   labs(
     y = "Fitted (predicted values)",
@@ -104,48 +86,6 @@ recent_production %>%
   ) %>%
   glance()
 
-## Boston Marathon
-
-marathon <- boston_marathon %>%
-  filter(Event == "Men's open division") %>%
-  select(-Event) %>%
-  mutate(Minutes = as.numeric(Time) / 60)
-marathon %>%
-  autoplot(Minutes) +
-  labs(y = "Winning times in minutes")
-
-fit_trends <- marathon %>%
-  model(
-    # Linear trend
-    linear = TSLM(Minutes ~ trend()),
-    # Exponential trend
-    exponential = TSLM(log(Minutes) ~ trend()),
-    # Piecewise linear trend
-    piecewise = TSLM(log(Minutes) ~ trend(knots = c(1940, 1980)))
-  )
-
-fit_trends
-
-fc_trends <- fit_trends %>%
-  forecast(h = 10)
-marathon %>%
-  autoplot(Minutes) +
-  geom_line(
-    data = fitted(fit_trends),
-    aes(y = .fitted, colour = .model)
-  ) +
-  autolayer(fc_trends, alpha = 0.5, level = 95) +
-  labs(
-    y = "Minutes",
-    title = "Boston marathon winning times"
-  )
-
-fit_trends %>%
-  select(piecewise) %>%
-  gg_tsresiduals()
-
-glance(fit_trends) %>%
-  select(.model, r_squared, adj_r_squared, AICc, CV)
 
 # Fourier terms for cafe data
 
@@ -180,6 +120,56 @@ augment(fit) %>%
 glance(fit) %>%
   select(.model, sigma2, log_lik, AIC, AICc, BIC)
 
+
+# Boston Marathon
+
+marathon <- boston_marathon %>%
+  filter(Event == "Men's open division") %>%
+  select(-Event) %>%
+  mutate(Minutes = as.numeric(Time) / 60)
+marathon %>%
+  autoplot(Minutes) +
+  labs(y = "Winning times in minutes")
+
+fit_trends <- marathon %>%
+  model(
+    # Linear trend
+    linear = TSLM(Minutes ~ trend()),
+    # Exponential trend
+    exponential = TSLM(log(Minutes) ~ trend()),
+    # Piecewise linear trend
+    piecewise = TSLM(log(Minutes) ~ trend(knots = c(1940, 1980)))
+  )
+
+fit_trends
+
+
+fit_trends %>%
+  select(piecewise) %>%
+  report()
+
+fc_trends <- fit_trends %>%
+  forecast(h = 10)
+marathon %>%
+  autoplot(Minutes) +
+  geom_line(
+    data = fitted(fit_trends),
+    aes(y = .fitted, colour = .model)
+  ) +
+  autolayer(fc_trends, alpha = 0.5, level = 95) +
+  labs(
+    y = "Minutes",
+    title = "Boston marathon winning times"
+  )
+
+fit_trends %>%
+  select(piecewise) %>%
+  gg_tsresiduals()
+
+glance(fit_trends) %>%
+  select(.model, r_squared, adj_r_squared, AICc, CV)
+
+
 # US consumption quarterly changes
 
 fit_all <- us_change %>%
@@ -201,6 +191,11 @@ fit_all <- us_change %>%
     TSLM(Consumption ~ Savings),
     TSLM(Consumption ~ 1),
   )
+
+glance(fit_all) %>%
+  select(.model, AICc, CV) %>%
+  arrange(AICc)
+
 
 us_change %>%
   model(
