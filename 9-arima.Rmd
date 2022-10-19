@@ -688,7 +688,7 @@ report(fit)
 ```{r egyptexportsmodel, include=FALSE, warning=FALSE, dependson="egyptexportsauto"}
 stopifnot(identical(
   unlist(fit[1,2][[1]][[1]]$fit$spec),
-  c(p=2L, d=0L, q=1L, P=0, D=0, Q=0, constant=TRUE, period.year=1)
+  c(p=2L, d=0L, q=1L, P=0, D=0, Q=0, constant=TRUE, period=1)
 ))
 coef <- rlang::set_names(tidy(fit)$estimate, tidy(fit)$term)
 ```
