@@ -603,7 +603,7 @@ employed %>%
 ```{r abs5}
 employed %>%
   filter(Year >= 2005) %>%
-  gg_season(Employed, label = "right") +
+  gg_season(Employed, labels = "right") +
   labs(title = "Total employed", y = "Thousands")
 ```
 
@@ -654,4 +654,3 @@ components(dcmp) %>%
   *  Supplementary survey not run in 2014, so no motivation to lie about employment.
   *  In previous years, seasonal adjustment fixed the problem.
   *  The ABS has now adopted a new method to avoid the bias.
-
