@@ -1,0 +1,172 @@
+---
+title: "Ch2. Time series graphics"
+author: "2.8 Autocorrelation"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(patchwork)
+new_production <- aus_production |>
+  filter(year(Quarter) >= 1992)
+```
+
+## Example: Beer production
+
+```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
+new_production |> gg_lag(Beer, geom='point')
+```
+
+\only<2>{\begin{textblock}{5.8}(9,2.5)\fontsize{12}{14}\sf
+\begin{block}{}
+\begin{itemize}\tightlist
+\item Each graph shows $y_t$ plotted against $y_{t-k}$ for
+different values of $k$.
+\item The autocorrelations are the correlations associated
+with these scatterplots.
+\item $r_1=\text{Correlation}(y_{t}, y_{t-1})$
+\item $r_2=\text{Correlation}(y_{t}, y_{t-2})$
+\item $r_3=\text{Correlation}(y_{t}, y_{t-3})$ \\ \hspace*{0.5cm} $\vdots$
+\end{itemize}
+\end{block}
+\end{textblock}}
+
+## Autocorrelation
+
+We denote the sample autocovariance at lag $k$ by $c_k$ and the sample autocorrelation at lag $k$ by $r_k$.  Then define
+
+\begin{block}{}
+\begin{align*}
+c_k &= \frac{1}{T}\sum_{t=k+1}^T (y_t-\bar{y})(y_{t-k}-\bar{y}) \\[0.cm]
+\text{and}\qquad
+r_{k} &= c_k/c_0
+\end{align*}
+\end{block}\pause
+
+  * $r_1$ indicates how successive values of $y$ relate to each other
+  * $r_2$ indicates how $y$ values two periods apart relate to each other
+  * $r_k$ is \textit{almost} the same as the sample correlation between $y_t$ and $y_{t-k}$.
+
+## Autocorrelation
+
+Results for first 9 lags for beer data:
+
+\fontsize{11}{13}\sf
+
+```{r, echo=TRUE}
+new_production |> ACF(Beer, lag_max = 9)
+```
+
+## Autocorrelation
+
+Results for first 9 lags for beer data:
+
+```{r beeracf, fig.height=1.8}
+new_production |> ACF(Beer, lag_max = 9) |> autoplot()
+```
+
+\vspace*{-0.2cm}
+
+  * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
+  * The plot is known as a **correlogram**
+
+\vspace*{10cm}
+
+## Autocorrelation
+
+\fontsize{14}{14}\sf
+
+```{r beeracf2, fig.height=1.8}
+new_production |> ACF(Beer) |> autoplot()
+```
+
+  * $r_{4}$  higher than for the other lags due to **the seasonal pattern in the data**: peaks tend to be **4 quarters** apart and troughs tend to be **4 quarters** apart.
+  * $r_2$ is more negative than for the other lags because troughs tend to be 2 quarters behind peaks.
+
+## Autocorrelation functions
+
+\only<1>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_1}}
+\only<2>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_2}}
+\only<3>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_3}}
+\only<4>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_4}}
+\only<5>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_5}}
+\only<6>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_6}}
+\only<7>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_7}}
+\only<8>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_8}}
+\only<9>{\centering\includegraphics[width=19cm, height=7.4cm]{acf_9}}
+
+\vspace*{10cm}
+
+\begin{textblock}{3}(0.3,8.7)\fontsize{7}{9}\sf
+Artwork by @allison\_horst
+\end{textblock}
+
+## Trend and seasonality in ACF plots
+
+- When data have a trend, the autocorrelations for small lags tend to be large and positive.
+- When data are seasonal, the autocorrelations will be larger at the seasonal lags (i.e., at multiples of the seasonal frequency)
+- When data are trended and seasonal, you see a combination of these effects.
+
+## US retail trade employment
+\fontsize{10}{10}\sf
+
+```{r}
+retail <- us_employment |>
+  filter(Title == "Retail Trade", year(Month) >= 1980)
+retail |> autoplot(Employed)
+```
+
+## US retail trade employment
+\fontsize{10}{10}\sf
+
+```{r}
+retail |>
+  ACF(Employed, lag_max = 48) |>
+  autoplot()
+```
+
+## Google stock price
+\fontsize{10}{10}\sf
+
+```{r}
+google_2015 <- gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |>
+  select(Date, Close)
+google_2015
+```
+
+## Google stock price
+\fontsize{10}{10}\sf
+
+```{r}
+google_2015 |> autoplot(Close)
+```
+
+## Google stock price
+\fontsize{10}{10}\sf
+
+```{r}
+google_2015 |>
+  ACF(Close, lag_max=100)
+```
+
+## Google stock price
+\fontsize{10}{10}\sf
+
+```{r}
+google_2015 |>
+  ACF(Close, lag_max = 100) |>
+  autoplot()
+```

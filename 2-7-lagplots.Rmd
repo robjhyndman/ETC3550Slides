@@ -1,0 +1,50 @@
+---
+title: "Ch2. Time series graphics"
+author: "2.7 Lag plots"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+
+## Example: Beer production
+\fontsize{10}{10}\sf
+
+```{r}
+new_production <- aus_production |>
+  filter(year(Quarter) >= 1992)
+new_production
+```
+
+## Example: Beer production
+
+```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
+new_production |> gg_lag(Beer)
+```
+
+## Example: Beer production
+
+```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
+new_production |> gg_lag(Beer, geom='point')
+```
+
+\only<2>{\begin{textblock}{5}(9,4)
+\begin{block}{}
+Each graph shows $y_t$ plotted against $y_{t-k}$ for
+different values of $k$.
+\end{block}
+\end{textblock}}
