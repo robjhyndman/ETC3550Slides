@@ -1,7 +1,7 @@
 ---
-title: "Forecasting: principles and practice"
-subtitle: "1 Getting Started"
-author: "1.1 What can be forecast?"
+title: "1 Getting Started"
+subtitle: "1.1 What can be forecast?"
+pagetitle: "FPP3: 1.1 What can be forecast?"
 footer: "OTexts.org/fpp3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  1.1: What can be forecast?"
 format:
   revealjs:

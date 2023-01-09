@@ -10,13 +10,13 @@ $presentation-heading-color: #8f0000 !default;
 
 // Blockquotes white on orange with rounded corners
 .reveal .slide blockquote, .blockquote {
-  background-color: #8f0000;
+  background-color: #906767;
   color: #fff;
-  border-left: 0px;
-  padding: 20px;
+  padding: 10px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
+  font-size: 25px !important;
 }
 
 // Callout backgrounds
@@ -79,9 +79,22 @@ p.author {
 }
 
 // Class for tighter itemized lists
-.tightlist ul li, ol li {
+.tightlist ul li, ol li, dl dd dt {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
+}
+
+.reveal dl {
+  display:grid;
+  grid-template-columns: max-content auto;
+}
+
+.reveal dt {
+  grid-column-start: 1;
+}
+
+.reveal dd {
+  grid-column-start: 2;
 }
 
 // Class for tight tables
@@ -147,7 +160,17 @@ p.author {
   height: 80%;
 }
 
-
 .reveal .footer {
   color: #8f0000;
+}
+
+.wrapping {
+  float: right;
+  shape-margin: 50px;
+  width: 80%;
+}
+
+#fig-structure > figure > figcaption {
+  float: left;
+  clear: both;
 }
