@@ -74,9 +74,7 @@ new_production |> ACF(Beer, lag_max = 9)
 Results for first 9 lags for beer data:
 
 ```{r beeracf, fig.height=1.8}
-new_production |>
-  ACF(Beer, lag_max = 9) |>
-  autoplot()
+new_production |> ACF(Beer, lag_max = 9) |> autoplot()
 ```
 
 \vspace*{-0.2cm}
@@ -91,9 +89,7 @@ new_production |>
 \fontsize{14}{14}\sf
 
 ```{r beeracf2, fig.height=1.8}
-new_production |>
-  ACF(Beer) |>
-  autoplot()
+new_production |> ACF(Beer) |> autoplot()
 ```
 
   * $r_{4}$  higher than for the other lags due to **the seasonal pattern in the data**: peaks tend to be **4 quarters** apart and troughs tend to be **4 quarters** apart.

@@ -1,6 +1,5 @@
 library(fpp3)
 
-
 ## National populations
 
 fit <- global_economy %>%
@@ -37,7 +36,6 @@ aus_holidays %>% autoplot()
 fit <- aus_holidays %>% model(ETS(Trips))
 report(fit)
 
-
 components(fit) %>%
   autoplot() +
   ggtitle("ETS(M,N,M) components")
@@ -49,7 +47,6 @@ residuals(fit, type = "response")
 
 fit %>%
   gg_tsresiduals()
-
 
 ## H02
 

@@ -135,7 +135,6 @@ forecast(fit, new_data = vic_elec_future) %>%
   autoplot(vic_elec_daily) +
   labs(y = "Electricity demand (GW)")
 
-
 ## AUSTRALIAN VISITORS -------------------------------------------------
 
 aus_airpassengers %>%

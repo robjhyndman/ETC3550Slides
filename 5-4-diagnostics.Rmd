@@ -22,7 +22,6 @@ source("setup.R")
 
 ## Facebook closing stock price
 
-
 ```{r fbf2, include=FALSE}
 # Extract training data
 fb_stock <- gafa_stock |>

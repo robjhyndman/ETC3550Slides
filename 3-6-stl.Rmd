@@ -21,7 +21,6 @@ source("setup.R")
 library(gganimate)
 ```
 
-
 ## STL decomposition
 
 \fontsize{13}{14}\sf
@@ -50,8 +49,7 @@ us_retail_employment
 us_retail_employment |>
   model(STL(Employed ~ season(window = 9), robust = TRUE)) |>
   components() |>
-  autoplot() +
-  labs(title = "STL decomposition: US retail employment")
+  autoplot() + labs(title = "STL decomposition: US retail employment")
 ```
 
 ## STL decomposition

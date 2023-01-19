@@ -36,7 +36,6 @@ melsyd <- tsibbledata::ansett %>%
   filter(Airports == "MEL-SYD")
 ```
 
-
 ## Random futures
 
 ```{r austa, echo=FALSE}

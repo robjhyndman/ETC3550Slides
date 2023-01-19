@@ -16,7 +16,6 @@ output:
       in_header: header.tex
 ---
 
-
 ```{r setup, include=FALSE}
 source("setup.R")
 ```

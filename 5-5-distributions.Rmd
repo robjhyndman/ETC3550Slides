@@ -20,7 +20,6 @@ output:
 source("setup.R")
 ```
 
-
 ```{r brick-model}
 brick_fit <- aus_production |>
   filter(!is.na(Bricks)) |>

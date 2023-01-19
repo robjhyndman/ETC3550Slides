@@ -87,7 +87,6 @@ elec_fit %>%
   geom_line() +
   geom_line(aes(y = .fitted), col = "red")
 
-
 # Forecast one day ahead
 vic_next_day <- new_data(vic_elec_daily, 1) %>%
   mutate(Temperature = 26, Day_Type = "Holiday")
@@ -130,7 +129,6 @@ forecast(elec_fit, new_data = vic_elec_future) %>%
   filter(.model == "dhr") %>%
   autoplot(vic_elec_daily %>% tail(365), level = 80) +
   labs(y = "Electricity demand (GW)")
-
 
 ## TV ADVERTISING ----------------------------------------------------------
 

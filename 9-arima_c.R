@@ -1,6 +1,5 @@
 library(fpp3)
 
-
 ## EGYPTIAN EXPORTS
 
 global_economy %>%

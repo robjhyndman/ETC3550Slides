@@ -29,7 +29,6 @@ h02 %>%
   mutate(d_log_sales = difference(log(Cost), 12)) %>%
   features(d_log_sales, unitroot_ndiffs)
 
-
 ## EGYPTIAN EXPORTS
 
 global_economy %>%

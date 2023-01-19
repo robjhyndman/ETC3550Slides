@@ -936,7 +936,6 @@ https://pollev.com/robjhyndman
 \end{alertblock}
  -->
 
-
 ```{r tscvplots, echo=FALSE}
 tscv_plot <- function(.init, .step, h = 1) {
   expand.grid(

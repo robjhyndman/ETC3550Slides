@@ -380,7 +380,6 @@ cafe_plot(K = 6)
 * Easter: use a dummy variable $v_t=1$ if any part of Easter is in that month, $v_t=0$ otherwise.
 * Ramadan and Chinese new year similar.
 
-
 ## Distributed lags
 
 Lagged values of a predictor.

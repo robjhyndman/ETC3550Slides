@@ -355,7 +355,6 @@ drift <- coef["constant"]
 sigma2 <- glance(fit_stochastic)$sigma2
 ```
 
-
 \only<2>{\begin{textblock}{5}(9,4.5)
 \begin{block}{}\vspace*{-0.2cm}\fontsize{12}{13}\sf
 \begin{align*}
