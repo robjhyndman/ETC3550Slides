@@ -28,7 +28,7 @@ source("setup.R")
 fb_stock <- gafa_stock |>
   filter(Symbol == "FB") |>
   mutate(trading_day = row_number()) |>
-  update_tsibble(index=trading_day, regular=TRUE)
+  update_tsibble(index = trading_day, regular = TRUE)
 ```
 
 ```{r fbf}
@@ -80,8 +80,10 @@ augment(fit) |>
 ```{r dj5, echo=TRUE, warning = FALSE, fig.height=2.8}
 augment(fit) |>
   autoplot(.resid) +
-  labs(y = "$US",
-       title = "Residuals from naïve method")
+  labs(
+    y = "$US",
+    title = "Residuals from naïve method"
+  )
 ```
 
 ## Facebook closing stock price
@@ -161,7 +163,7 @@ where $\ell$  is max lag being considered and $T$ is number of observations.
 
 ```{r dj9, echo=TRUE}
 augment(fit) |>
-  features(.resid, ljung_box, lag=10, dof=0)
+  features(.resid, ljung_box, lag = 10, dof = 0)
 ```
 
 <!-- ## Your turn
@@ -173,7 +175,9 @@ Compute seasonal naïve forecasts for quarterly Australian beer production from 
 ```{r, results = 'hide', fig.show='hide'}
 recent <- aus_production |> filter(year(Quarter) >= 1992)
 fit <- recent |> model(SNAIVE(Beer))
-fit |> forecast() |> autoplot(recent)
+fit |>
+  forecast() |>
+  autoplot(recent)
 ```
 
 \fontsize{14}{15}\sf
@@ -183,7 +187,7 @@ Test if the residuals are white noise.
 \fontsize{10}{12}\sf
 
 ```{r, results = 'hide', fig.show='hide', warning = FALSE}
-augment(fit) |> features(.resid, ljung_box, lag=10, dof=0)
+augment(fit) |> features(.resid, ljung_box, lag = 10, dof = 0)
 gg_tsresiduals(fit)
 ```
 

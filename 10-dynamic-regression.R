@@ -85,7 +85,7 @@ vic_elec_daily %>%
 
 fit <- vic_elec_daily %>%
   model(ARIMA(Demand ~ Temperature + I(Temperature^2) +
-                (Day_Type == "Weekday")))
+    (Day_Type == "Weekday")))
 report(fit)
 
 gg_tsresiduals(fit)
@@ -94,15 +94,15 @@ augment(fit) %>%
   features(.resid, ljung_box, dof = 9, lag = 21)
 
 augment(fit) %>%
-  ggplot(aes(x=Date, y=Demand)) +
+  ggplot(aes(x = Date, y = Demand)) +
   geom_line() +
-  geom_line(aes(y=.fitted), col="red")
+  geom_line(aes(y = .fitted), col = "red")
 
 # Let's try harder to find a good model
 
 fit <- vic_elec_daily %>%
   model(ARIMA(log(Demand) ~ Temperature + I(Temperature^2) +
-    (Day_Type == "Weekday"), stepwise=FALSE, order_constraint = (p+q <= 8 & P+Q <= 5)))
+    (Day_Type == "Weekday"), stepwise = FALSE, order_constraint = (p + q <= 8 & P + Q <= 5)))
 report(fit)
 
 gg_tsresiduals(fit)
@@ -111,9 +111,9 @@ augment(fit) %>%
   features(.resid, ljung_box, dof = 13, lag = 21)
 
 augment(fit) %>%
-  ggplot(aes(x=Date, y=Demand)) +
+  ggplot(aes(x = Date, y = Demand)) +
   geom_line() +
-  geom_line(aes(y=.fitted), col="red")
+  geom_line(aes(y = .fitted), col = "red")
 
 # Forecast one day ahead
 vic_next_day <- new_data(vic_elec_daily, 1) %>%

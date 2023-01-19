@@ -52,7 +52,8 @@ us_retail_employment
 ```{r usretail1, echo=TRUE, fig.height=3.2}
 dcmp <- us_retail_employment |>
   model(STL(Employed)) |>
-  components() |> select(-.model)
+  components() |>
+  select(-.model)
 dcmp
 ```
 

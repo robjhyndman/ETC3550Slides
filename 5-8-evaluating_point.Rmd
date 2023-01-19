@@ -66,11 +66,13 @@ beer_fc_plot <- train |>
     Seasonal_naive = SNAIVE(Beer),
     Drift = RW(Beer ~ drift())
   ) |>
-  forecast(h=11) |>
+  forecast(h = 11) |>
   autoplot(beer, level = NULL) +
-    labs(title = "Forecasts for quarterly beer production",
-         y = "Megalitres") +
-    guides(colour=guide_legend(title="Forecast"))
+  labs(
+    title = "Forecasts for quarterly beer production",
+    y = "Megalitres"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
 beer_fc_plot
 ```
 

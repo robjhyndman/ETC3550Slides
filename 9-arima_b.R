@@ -45,8 +45,7 @@ report(fit)
 gg_tsresiduals(fit)
 
 augment(fit) %>%
-
-fit %>%
+  fit() %>%
   forecast(h = 10) %>%
   autoplot(global_economy) +
   labs(y = "% of GDP", title = "Egyptian Exports")
@@ -87,5 +86,5 @@ global_economy %>%
 global_economy %>%
   filter(Code == "CAF") %>%
   model(ARIMA(Exports)) %>%
-  forecast(h=20) %>%
+  forecast(h = 20) %>%
   autoplot(global_economy)

@@ -94,7 +94,7 @@ These are the \alert{critical values}.
 ```{r, fig.height=2.7}
 pigs <- aus_livestock |>
   filter(State == "Victoria", Animal == "Pigs", year(Month) >= 2014)
-pigs |> autoplot(Count/1e3) +
+pigs |> autoplot(Count / 1e3) +
   labs(y = "Thousands", title = "Number of pigs slaughtered in Victoria")
 ```
 
@@ -102,7 +102,9 @@ pigs |> autoplot(Count/1e3) +
 \fontsize{10}{10}\sf
 
 ```{r}
-pigs |> ACF(Count) |> autoplot()
+pigs |>
+  ACF(Count) |>
+  autoplot()
 ```
 
 ## Example: Pigs slaughtered

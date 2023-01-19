@@ -84,7 +84,7 @@ gafa_stock |>
 ```{r}
 pelt |>
   autoplot(Lynx) +
-  labs(y="Number trapped", title = "Annual Canadian Lynx Trappings")
+  labs(y = "Number trapped", title = "Annual Canadian Lynx Trappings")
 ```
 
 ## Seasonal or cyclic?

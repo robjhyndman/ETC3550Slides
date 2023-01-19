@@ -41,7 +41,7 @@ melsyd <- tsibbledata::ansett %>%
 
 ```{r austa, echo=FALSE}
 # Grab ABS data
-austa <- readxl::read_excel("data/340101.xlsx", sheet="Data1", skip=9) %>%
+austa <- readxl::read_excel("data/340101.xlsx", sheet = "Data1", skip = 9) %>%
   rename(date = `Series ID`, value = A85375847A) %>%
   select(date, value) %>%
   transmute(
@@ -99,9 +99,10 @@ p2 <- p1 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate),
     data = sim %>% filter(.rep <= 1)
   ) +
-  geom_label(aes(x=as.Date("2018-11-01"), y=200,
-    label = "Simulated futures\n from an ETS model")
-  )
+  geom_label(aes(
+    x = as.Date("2018-11-01"), y = 200,
+    label = "Simulated futures\n from an ETS model"
+  ))
 p3 <- p2 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate),
     data = sim %>% filter(.rep <= 2)
@@ -121,13 +122,13 @@ p7 <- p2 +
   geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, col = "gray", data = sim) +
   guides(colour = "none")
 p8 <- p7 + autolayer(fc, level = c(50, 90))
-p9 <- p8 + coord_cartesian(xlim=as.Date(c("2014-01-01","2021-08-01"))) +
+p9 <- p8 + coord_cartesian(xlim = as.Date(c("2014-01-01", "2021-08-01"))) +
   scale_x_date(
     breaks = seq(as.Date("2000-01-01"), by = "2 years", l = 11),
     labels = paste("Jan", seq(2000, 2020, by = 2)),
     minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
   )
-aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8,p9)
+aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 ```
 
 #### A forecast is an estimate of the probabilities of possible futures.

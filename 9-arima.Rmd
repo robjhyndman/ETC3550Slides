@@ -90,7 +90,7 @@ aus_production |>
 prices |>
   filter(year >= 1900) |>
   autoplot(eggs) +
-  labs(y="$US (1993)", title="Price of a dozen eggs")
+  labs(y = "$US (1993)", title = "Price of a dozen eggs")
 ```
 
 ## Stationary?
@@ -98,7 +98,7 @@ prices |>
 ```{r}
 aus_livestock |>
   filter(Animal == "Pigs", State == "Victoria") |>
-  autoplot(Count/1e3) +
+  autoplot(Count / 1e3) +
   labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
 ```
 
@@ -107,7 +107,7 @@ aus_livestock |>
 ```{r}
 aus_livestock |>
   filter(Animal == "Pigs", State == "Victoria", year(Month) >= 2010) |>
-  autoplot(Count/1e3) +
+  autoplot(Count / 1e3) +
   labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
 ```
 
@@ -116,7 +116,7 @@ aus_livestock |>
 ```{r}
 aus_livestock |>
   filter(Animal == "Pigs", State == "Victoria", year(Month) >= 2015) |>
-  autoplot(Count/1e3) +
+  autoplot(Count / 1e3) +
   labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
 ```
 
@@ -164,7 +164,9 @@ google_2018 |>
 ## Example: Google stock price
 
 ```{r, fig.height=3.5}
-google_2018 |> ACF(Close) |> autoplot()
+google_2018 |>
+  ACF(Close) |>
+  autoplot()
 ```
 
 ## Example: Google stock price
@@ -178,7 +180,9 @@ google_2018 |>
 ## Example: Google stock price
 
 ```{r}
-google_2018 |> ACF(difference(Close)) |> autoplot()
+google_2018 |>
+  ACF(difference(Close)) |>
+  autoplot()
 ```
 
 ## Differencing
@@ -247,7 +251,7 @@ where $m=$ number of seasons.\pause
 ```{r, echo=TRUE}
 a10 <- PBS |>
   filter(ATC2 == "A10") |>
-  summarise(Cost = sum(Cost)/1e6)
+  summarise(Cost = sum(Cost) / 1e6)
 ```
 
 ## Antidiabetic drug sales
@@ -279,7 +283,7 @@ a10 |> autoplot(
 ```{r, echo=TRUE}
 h02 <- PBS |>
   filter(ATC2 == "H02") |>
-  summarise(Cost = sum(Cost)/1e6)
+  summarise(Cost = sum(Cost) / 1e6)
 ```
 
 ## Cortecosteroid drug sales
@@ -380,7 +384,8 @@ If $F_s > 0.64$, do one seasonal difference.
 \fontsize{10}{11}\sf
 
 ```{r, echo=TRUE}
-h02 |> mutate(log_sales = log(Cost)) |>
+h02 |>
+  mutate(log_sales = log(Cost)) |>
   features(log_sales, list(unitroot_nsdiffs, feat_stl))
 ```
 
@@ -388,9 +393,11 @@ h02 |> mutate(log_sales = log(Cost)) |>
 \fontsize{10}{11}\sf
 
 ```{r, echo=TRUE}
-h02 |> mutate(log_sales = log(Cost)) |>
+h02 |>
+  mutate(log_sales = log(Cost)) |>
   features(log_sales, unitroot_nsdiffs)
-h02 |> mutate(d_log_sales = difference(log(Cost), 12)) |>
+h02 |>
+  mutate(d_log_sales = difference(log(Cost), 12)) |>
   features(d_log_sales, unitroot_ndiffs)
 ```
 
@@ -462,9 +469,9 @@ where $\varepsilon_t$ is white noise. This is a multiple regression with \textbf
 ```{r arp, echo=FALSE, fig.height=2.35}
 set.seed(1)
 p1 <- tsibble(idx = seq_len(100), sim = 10 + arima.sim(list(ar = -0.8), n = 100), index = idx) |>
-  autoplot(sim) + labs(y="", title  = "AR(1)")
+  autoplot(sim) + labs(y = "", title = "AR(1)")
 p2 <- tsibble(idx = seq_len(100), sim = 20 + arima.sim(list(ar = c(1.3, -0.7)), n = 100), index = idx) |>
-  autoplot(sim) + labs(y="", title ="AR(2)")
+  autoplot(sim) + labs(y = "", title = "AR(2)")
 p1 | p2
 ```
 
@@ -527,9 +534,9 @@ This is a multiple regression with \textbf{past \emph{errors}} as predictors. \e
 ```{r maq, fig.height=2.35, echo=FALSE}
 set.seed(2)
 p1 <- tsibble(idx = seq_len(100), sim = 20 + arima.sim(list(ma = 0.8), n = 100), index = idx) |>
-  autoplot(sim) + labs(y="", title = "MA(1)")
+  autoplot(sim) + labs(y = "", title = "MA(1)")
 p2 <- tsibble(idx = seq_len(100), sim = arima.sim(list(ma = c(-1, +0.8)), n = 100), index = idx) |>
-  autoplot(sim) + labs(y="",title="MA(2)")
+  autoplot(sim) + labs(y = "", title = "MA(2)")
 
 p1 | p2
 ```
@@ -678,7 +685,8 @@ global_economy |>
 \fontsize{10}{10}\sf
 
 ```{r, echo=TRUE, dependson="egyptexportsauto"}
-fit <- global_economy |> filter(Code == "EGY") |>
+fit <- global_economy |>
+  filter(Code == "EGY") |>
   model(ARIMA(Exports))
 report(fit)
 ```
@@ -687,8 +695,8 @@ report(fit)
 
 ```{r egyptexportsmodel, include=FALSE, warning=FALSE, dependson="egyptexportsauto"}
 stopifnot(identical(
-  unlist(fit[1,2][[1]][[1]]$fit$spec),
-  c(p=2L, d=0L, q=1L, P=0, D=0, Q=0, constant=TRUE, period=1)
+  unlist(fit[1, 2][[1]][[1]]$fit$spec),
+  c(p = 2L, d = 0L, q = 1L, P = 0, D = 0, Q = 0, constant = TRUE, period = 1)
 ))
 coef <- rlang::set_names(tidy(fit)$estimate, tidy(fit)$term)
 ```
@@ -720,7 +728,8 @@ augment(fit) |>
 ## Egyptian exports
 
 ```{r egyptexportsf, dependson="egyptexportsauto"}
-fit |> forecast(h=10) |>
+fit |>
+  forecast(h = 10) |>
   autoplot(global_economy) +
   labs(y = "% of GDP", title = "Egyptian Exports")
 ```
@@ -786,21 +795,32 @@ $$
 
 ```{r, eval=FALSE}
 egypt <- global_economy |> filter(Code == "EGY")
-egypt |> ACF(Exports) |> autoplot()
-egypt |> PACF(Exports) |> autoplot()
+egypt |>
+  ACF(Exports) |>
+  autoplot()
+egypt |>
+  PACF(Exports) |>
+  autoplot()
 ```
 
 ```{r, echo=FALSE}
-p1 <- global_economy |> filter(Code == "EGY") |> ACF(Exports) |> autoplot()
-p2 <- global_economy |> filter(Code == "EGY") |> PACF(Exports) |> autoplot()
+p1 <- global_economy |>
+  filter(Code == "EGY") |>
+  ACF(Exports) |>
+  autoplot()
+p2 <- global_economy |>
+  filter(Code == "EGY") |>
+  PACF(Exports) |>
+  autoplot()
 p1 | p2
 ```
 
 ## Egyptian exports
 
 ```{r, echo=TRUE, fig.height=3.25}
-global_economy |> filter(Code == "EGY") |>
-  gg_tsdisplay(Exports, plot_type='partial')
+global_economy |>
+  filter(Code == "EGY") |>
+  gg_tsdisplay(Exports, plot_type = "partial")
 ```
 
 ## ACF and PACF interpretation
@@ -945,20 +965,22 @@ griddf <- expand.grid(p = 0:6, q = 0:6) |>
     )
   ) |>
   left_join(selected |>
-              mutate(step = row_number() + 1) |>
-              rename(fromp = p, fromq = q)
-  ) |>
+    mutate(step = row_number() + 1) |>
+    rename(fromp = p, fromq = q)) |>
   mutate(step = as.character(step))
 griddf |>
   ggplot(aes(x = q, y = p)) +
   geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
-  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
-               data = griddf |> filter(step %in% "1"),
-               arrow = arrow(length = unit(0.15, "inches"), type='open'),
-               size = 1, lineend = "butt") +
-  geom_point(aes(col = step), size = 5, shape = 19,
-             data = griddf |> filter(step=="1")) +
-  geom_point(data = filter(griddf |> filter(step=="1"), chosen), size = 12, shape = 21, stroke = 1.4) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col = step),
+    data = griddf |> filter(step %in% "1"),
+    arrow = arrow(length = unit(0.15, "inches"), type = "open"),
+    size = 1, lineend = "butt"
+  ) +
+  geom_point(aes(col = step),
+    size = 5, shape = 19,
+    data = griddf |> filter(step == "1")
+  ) +
+  geom_point(data = filter(griddf |> filter(step == "1"), chosen), size = 12, shape = 21, stroke = 1.4) +
   scale_y_reverse(breaks = 0:6) +
   scale_x_continuous(position = "top", breaks = 0:6) +
   theme_minimal() +
@@ -973,7 +995,7 @@ griddf |>
   ) +
   scale_colour_manual(
     breaks = paste(1:4),
-    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+    values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7")
   ) +
   guides(alpha = FALSE)
 ```
@@ -984,13 +1006,16 @@ griddf |>
 griddf |>
   ggplot(aes(x = q, y = p)) +
   geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
-  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
-               data = griddf |> filter(step=="2"),
-               arrow = arrow(length = unit(0.15, "inches"), type='open'),
-               size = 1, lineend = "butt") +
-  geom_point(aes(col = step), size = 5, shape = 19,
-             data = griddf |> filter(step %in% c("1","2"))) +
-  geom_point(data = filter(griddf |> filter(step %in% c("1","2")), chosen), size = 12, shape = 21, stroke = 1.4) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col = step),
+    data = griddf |> filter(step == "2"),
+    arrow = arrow(length = unit(0.15, "inches"), type = "open"),
+    size = 1, lineend = "butt"
+  ) +
+  geom_point(aes(col = step),
+    size = 5, shape = 19,
+    data = griddf |> filter(step %in% c("1", "2"))
+  ) +
+  geom_point(data = filter(griddf |> filter(step %in% c("1", "2")), chosen), size = 12, shape = 21, stroke = 1.4) +
   scale_y_reverse(breaks = 0:6) +
   scale_x_continuous(position = "top", breaks = 0:6) +
   theme_minimal() +
@@ -1005,7 +1030,7 @@ griddf |>
   ) +
   scale_colour_manual(
     breaks = paste(1:4),
-    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+    values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7")
   ) +
   guides(alpha = FALSE)
 ```
@@ -1016,14 +1041,19 @@ griddf |>
 griddf |>
   ggplot(aes(x = q, y = p)) +
   geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
-  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
-               data = griddf |> filter(step %in% "3"),
-               arrow = arrow(length = unit(0.15, "inches"), type='open'),
-               size = 1, lineend = "butt") +
-  geom_point(aes(col = step), size = 5, shape = 19,
-             data = griddf |> filter(step %in% c("1","2","3"))) +
-  geom_point(data = griddf |> filter(step %in% c("1","2","3"), chosen),
-             size = 12, shape = 21, stroke = 1.4) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col = step),
+    data = griddf |> filter(step %in% "3"),
+    arrow = arrow(length = unit(0.15, "inches"), type = "open"),
+    size = 1, lineend = "butt"
+  ) +
+  geom_point(aes(col = step),
+    size = 5, shape = 19,
+    data = griddf |> filter(step %in% c("1", "2", "3"))
+  ) +
+  geom_point(
+    data = griddf |> filter(step %in% c("1", "2", "3"), chosen),
+    size = 12, shape = 21, stroke = 1.4
+  ) +
   scale_y_reverse(breaks = 0:6) +
   scale_x_continuous(position = "top", breaks = 0:6) +
   theme_minimal() +
@@ -1038,7 +1068,7 @@ griddf |>
   ) +
   scale_colour_manual(
     breaks = paste(1:4),
-    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+    values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7")
   ) +
   guides(alpha = FALSE)
 ```
@@ -1049,14 +1079,19 @@ griddf |>
 griddf |>
   ggplot(aes(x = q, y = p)) +
   geom_point(aes(alpha = 0.2), colour = "gray", size = 5, shape = 19) +
-  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col=step),
-               data = griddf |> filter(step %in% "4"),
-               arrow = arrow(length = unit(0.15, "inches"), type='open'),
-               size = 1, lineend = "butt") +
-  geom_point(aes(col = step), size = 5, shape = 19,
-             data = griddf |> filter(step %in% c("1","2","3","4"))) +
-  geom_point(data = griddf |> filter(step %in% c("1","2","3","4"), chosen),
-             size = 12, shape = 21, stroke = 1.4) +
+  geom_segment(aes(x = fromq, y = fromp, xend = q, yend = p, col = step),
+    data = griddf |> filter(step %in% "4"),
+    arrow = arrow(length = unit(0.15, "inches"), type = "open"),
+    size = 1, lineend = "butt"
+  ) +
+  geom_point(aes(col = step),
+    size = 5, shape = 19,
+    data = griddf |> filter(step %in% c("1", "2", "3", "4"))
+  ) +
+  geom_point(
+    data = griddf |> filter(step %in% c("1", "2", "3", "4"), chosen),
+    size = 12, shape = 21, stroke = 1.4
+  ) +
   scale_y_reverse(breaks = 0:6) +
   scale_x_continuous(position = "top", breaks = 0:6) +
   theme_minimal() +
@@ -1071,7 +1106,7 @@ griddf |>
   ) +
   scale_colour_manual(
     breaks = paste(1:4),
-    values = c("#D55E00", "#0072B2","#009E73", "#CC79A7")
+    values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7")
   ) +
   guides(alpha = FALSE)
 ```
@@ -1079,8 +1114,9 @@ griddf |>
 ## Egyptian exports
 
 ```{r, echo=TRUE, fig.height=3.25}
-global_economy |> filter(Code == "EGY") |>
-  gg_tsdisplay(Exports, plot_type='partial')
+global_economy |>
+  filter(Code == "EGY") |>
+  gg_tsdisplay(Exports, plot_type = "partial")
 ```
 
 ## Egyptian exports
@@ -1089,7 +1125,7 @@ global_economy |> filter(Code == "EGY") |>
 ```{r, echo=TRUE, fig.height=4}
 fit1 <- global_economy |>
   filter(Code == "EGY") |>
-  model(ARIMA(Exports ~ pdq(4,0,0)))
+  model(ARIMA(Exports ~ pdq(4, 0, 0)))
 report(fit1)
 ```
 
@@ -1109,7 +1145,7 @@ report(fit2)
 global_economy |>
   filter(Code == "CAF") |>
   autoplot(Exports) +
-  labs(title="Central African Republic exports", y="% of GDP")
+  labs(title = "Central African Republic exports", y = "% of GDP")
 ```
 
 ## Central African Republic exports
@@ -1117,7 +1153,7 @@ global_economy |>
 ```{r caf2, warning=FALSE, fig.height=3}
 global_economy |>
   filter(Code == "CAF") |>
-  gg_tsdisplay(difference(Exports), plot_type='partial')
+  gg_tsdisplay(difference(Exports), plot_type = "partial")
 ```
 
 ## Central African Republic exports
@@ -1125,32 +1161,40 @@ global_economy |>
 ```{r caf_fit}
 caf_fit <- global_economy |>
   filter(Code == "CAF") |>
-  model(arima210 = ARIMA(Exports ~ pdq(2,1,0)),
-        arima013 = ARIMA(Exports ~ pdq(0,1,3)),
-        stepwise = ARIMA(Exports),
-        search = ARIMA(Exports, stepwise=FALSE))
+  model(
+    arima210 = ARIMA(Exports ~ pdq(2, 1, 0)),
+    arima013 = ARIMA(Exports ~ pdq(0, 1, 3)),
+    stepwise = ARIMA(Exports),
+    search = ARIMA(Exports, stepwise = FALSE)
+  )
 ```
 
 ## Central African Republic exports
 \fontsize{10}{12}\sf
 
 ```{r caf_fit2}
-caf_fit |> pivot_longer(!Country, names_to = "Model name",
-                         values_to = "Orders")
+caf_fit |> pivot_longer(!Country,
+  names_to = "Model name",
+  values_to = "Orders"
+)
 ```
 
 ## Central African Republic exports
 \fontsize{10}{12}\sf
 
 ```{r caf_fit3, dependson=c("digits","caf_fit2")}
-glance(caf_fit) |> arrange(AICc) |> select(.model:BIC)
+glance(caf_fit) |>
+  arrange(AICc) |>
+  select(.model:BIC)
 ```
 
 ## Central African Republic exports
 \fontsize{10}{12}\sf
 
 ```{r cafres, dependson='caf_fit', fig.height=4}
-caf_fit |> select(search) |> gg_tsresiduals()
+caf_fit |>
+  select(search) |>
+  gg_tsresiduals()
 ```
 
 ## Central African Republic exports
@@ -1158,7 +1202,7 @@ caf_fit |> select(search) |> gg_tsresiduals()
 
 ```{r caf_lb, dependson='caf_fit',}
 augment(caf_fit) |>
-  filter(.model=='search') |>
+  filter(.model == "search") |>
   features(.innov, ljung_box, lag = 10, dof = 3)
 ```
 
@@ -1167,8 +1211,8 @@ augment(caf_fit) |>
 
 ```{r caffc, dependson="caf_fit"}
 caf_fit |>
-  forecast(h=5) |>
-  filter(.model=='search') |>
+  forecast(h = 5) |>
+  filter(.model == "search") |>
   autoplot(global_economy)
 ```
 
@@ -1484,18 +1528,18 @@ the PACF and ACF.
 ```{r, fig.height=2.45}
 leisure <- us_employment |>
   filter(Title == "Leisure and Hospitality", year(Month) > 2000) |>
-  mutate(Employed = Employed/1000) |>
+  mutate(Employed = Employed / 1000) |>
   select(Month, Employed)
 autoplot(leisure, Employed) +
-  labs(title = "US employment: leisure & hospitality", y="People (millions)")
+  labs(title = "US employment: leisure & hospitality", y = "People (millions)")
 ```
 
 ## US leisure employment
 
 ```{r, fig.height=3}
 leisure |>
-  gg_tsdisplay(difference(Employed, 12), plot_type='partial', lag=36) +
-  labs(title="Seasonally differenced", y="")
+  gg_tsdisplay(difference(Employed, 12), plot_type = "partial", lag = 36) +
+  labs(title = "Seasonally differenced", y = "")
 ```
 
 ## US leisure employment
@@ -1503,8 +1547,9 @@ leisure |>
 ```{r, fig.height=2.8}
 leisure |>
   gg_tsdisplay(difference(Employed, 12) |> difference(),
-    plot_type='partial', lag=36) +
-  labs(title = "Double differenced", y="")
+    plot_type = "partial", lag = 36
+  ) +
+  labs(title = "Double differenced", y = "")
 ```
 
 ## US leisure employment
@@ -1513,41 +1558,47 @@ leisure |>
 ```{r}
 fit <- leisure |>
   model(
-    arima012011 = ARIMA(Employed ~ pdq(0,1,2) + PDQ(0,1,1)),
-    arima210011 = ARIMA(Employed ~ pdq(2,1,0) + PDQ(0,1,1)),
+    arima012011 = ARIMA(Employed ~ pdq(0, 1, 2) + PDQ(0, 1, 1)),
+    arima210011 = ARIMA(Employed ~ pdq(2, 1, 0) + PDQ(0, 1, 1)),
     auto = ARIMA(Employed, stepwise = FALSE, approx = FALSE)
   )
-fit |> pivot_longer(everything(), names_to = "Model name",
-                     values_to = "Orders")
+fit |> pivot_longer(everything(),
+  names_to = "Model name",
+  values_to = "Orders"
+)
 ```
 
 ## US leisure employment
 \fontsize{10}{11}\sf
 
 ```{r}
-glance(fit) |> arrange(AICc) |> select(.model:BIC)
+glance(fit) |>
+  arrange(AICc) |>
+  select(.model:BIC)
 ```
 
 ## US leisure employment
 
 ```{r, fig.height=4}
-fit |> select(auto) |> gg_tsresiduals(lag=36)
+fit |>
+  select(auto) |>
+  gg_tsresiduals(lag = 36)
 ```
 
 ## US leisure employment
 \fontsize{10}{11}\sf
 
 ```{r}
-augment(fit) |> features(.innov, ljung_box, lag=24, dof=4)
+augment(fit) |> features(.innov, ljung_box, lag = 24, dof = 4)
 ```
 
 ## US leisure employment
 
 ```{r}
-forecast(fit, h=36) |>
-  filter(.model=='auto') |>
+forecast(fit, h = 36) |>
+  filter(.model == "auto") |>
   autoplot(leisure) +
-  labs(title = "US employment: leisure and hospitality", y="Number of people (millions)")
+  labs(title = "US employment: leisure and hospitality", y = "Number of people (millions)")
 ```
 
 ## Cortecosteroid drug sales
@@ -1555,7 +1606,7 @@ forecast(fit, h=36) |>
 ```{r}
 h02 <- PBS |>
   filter(ATC2 == "H02") |>
-  summarise(Cost = sum(Cost)/1e6)
+  summarise(Cost = sum(Cost) / 1e6)
 ```
 
 ## Cortecosteroid drug sales
@@ -1585,8 +1636,9 @@ h02 |> autoplot(
 ## Cortecosteroid drug sales
 
 ```{r h02b, fig.height=3.2}
-h02 |> gg_tsdisplay(difference(log(Cost),12),
-                 lag_max = 36, plot_type = 'partial')
+h02 |> gg_tsdisplay(difference(log(Cost), 12),
+  lag_max = 36, plot_type = "partial"
+)
 ```
 
 ## Cortecosteroid drug sales
@@ -1600,26 +1652,28 @@ h02 |> gg_tsdisplay(difference(log(Cost),12),
 
 ```{r h02aicc, echo=FALSE}
 models <- list(
-  c(3,0,0,2,1,0),
-  c(3,0,1,2,1,0),
-  c(3,0,2,2,1,0),
-  c(3,0,1,1,1,0),
-  c(3,0,1,0,1,1),
-  c(3,0,1,0,1,2),
-  c(3,0,1,1,1,1)
+  c(3, 0, 0, 2, 1, 0),
+  c(3, 0, 1, 2, 1, 0),
+  c(3, 0, 2, 2, 1, 0),
+  c(3, 0, 1, 1, 1, 0),
+  c(3, 0, 1, 0, 1, 1),
+  c(3, 0, 1, 0, 1, 2),
+  c(3, 0, 1, 1, 1, 1)
 )
 model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
-model_defs <- set_names(model_defs, map_chr(models,
-  ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])))
+model_defs <- set_names(model_defs, map_chr(
+  models,
+  ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])
+))
 
 fit <- h02 |>
   model(!!!model_defs)
 
 fit |>
-  glance |>
+  glance() |>
   arrange(AICc) |>
   select(.model, AICc) |>
-  knitr::kable(digits=2, row.names=FALSE, align='cc', booktabs=TRUE)
+  knitr::kable(digits = 2, row.names = FALSE, align = "cc", booktabs = TRUE)
 ```
 
 ## Cortecosteroid drug sales
@@ -1627,7 +1681,7 @@ fit |>
 
 ```{r arimah02, echo=TRUE}
 fit <- h02 |>
-  model(best = ARIMA(log(Cost) ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
+  model(best = ARIMA(log(Cost) ~ 0 + pdq(3, 0, 1) + PDQ(0, 1, 2)))
 report(fit)
 ```
 
@@ -1672,9 +1726,11 @@ augment(fit) |>
 
 ```{r h02tryharder, echo=TRUE, fig.height=3.6}
 fit <- h02 |>
-  model(best = ARIMA(log(Cost), stepwise = FALSE,
-                 approximation = FALSE,
-                 order_constraint = p + q + P + Q <= 9))
+  model(best = ARIMA(log(Cost),
+    stepwise = FALSE,
+    approximation = FALSE,
+    order_constraint = p + q + P + Q <= 9
+  ))
 report(fit)
 ```
 
@@ -1720,22 +1776,25 @@ fit |>
 
 ```{r h02-rmse, cache=TRUE, echo=FALSE}
 models <- list(
-  c(3,0,1,0,1,2),
-  c(3,0,1,1,1,1),
-  c(3,0,1,0,1,1),
-  c(3,0,1,2,1,0),
-  c(3,0,0,2,1,0),
-  c(3,0,2,2,1,0),
-  c(3,0,1,1,1,0),
-  c(2,1,0,0,1,1),
-  c(4,1,1,2,1,2))
+  c(3, 0, 1, 0, 1, 2),
+  c(3, 0, 1, 1, 1, 1),
+  c(3, 0, 1, 0, 1, 1),
+  c(3, 0, 1, 2, 1, 0),
+  c(3, 0, 0, 2, 1, 0),
+  c(3, 0, 2, 2, 1, 0),
+  c(3, 0, 1, 1, 1, 0),
+  c(2, 1, 0, 0, 1, 1),
+  c(4, 1, 1, 2, 1, 2)
+)
 
 model_defs <- map(models, ~ ARIMA(log(Cost) ~ 0 + pdq(!!.[1], !!.[2], !!.[3]) + PDQ(!!.[4], !!.[5], !!.[6])))
-model_defs <- set_names(model_defs, map_chr(models,
-  ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])))
+model_defs <- set_names(model_defs, map_chr(
+  models,
+  ~ sprintf("ARIMA(%i,%i,%i)(%i,%i,%i)[12]", .[1], .[2], .[3], .[4], .[5], .[6])
+))
 
 fit <- h02 |>
-  filter_index(~ "2006 Jun") |>
+  filter_index(~"2006 Jun") |>
   model(!!!model_defs)
 
 fit |>
@@ -1743,7 +1802,7 @@ fit |>
   accuracy(h02) |>
   arrange(RMSE) |>
   select(.model, RMSE) |>
-  knitr::kable(digits=4)
+  knitr::kable(digits = 4)
 ```
 
 ## Cortecosteroid drug sales
@@ -1756,8 +1815,10 @@ fit |>
 
 ```{r h02f, echo=TRUE}
 fit <- h02 |>
-  model(ARIMA(Cost ~ 0 + pdq(3,0,1) + PDQ(0,1,2)))
-fit |> forecast |> autoplot(h02) +
+  model(ARIMA(Cost ~ 0 + pdq(3, 0, 1) + PDQ(0, 1, 2)))
+fit |>
+  forecast() |>
+  autoplot(h02) +
   labs(y = "H02 Expenditure ($AUD)")
 ```
 
@@ -1778,26 +1839,29 @@ fit |> forecast |> autoplot(h02) +
 
 ```{r venn, echo=FALSE}
 library(latex2exp)
-cols = c(ets = "#D55E00", arima = "#0072b2")
+cols <- c(ets = "#D55E00", arima = "#0072b2")
 tibble(
-    x = c(-1, 1),
-    y = c(-0.5, -0.5),
-    labels = c("ets", "arima"),
-  ) |>
-  ggplot(aes(colour = labels, fill=labels)) +
+  x = c(-1, 1),
+  y = c(-0.5, -0.5),
+  labels = c("ets", "arima"),
+) |>
+  ggplot(aes(colour = labels, fill = labels)) +
   ggforce::geom_circle(aes(x0 = x, y0 = y, r = 1.6), alpha = 0.3, size = 1) +
-  scale_colour_manual(values=cols) + scale_fill_manual(values=cols) +
-  coord_fixed() + guides(fill = "none") +
-  geom_text(aes(label = "ETS models", x = -1.5, y = 1.35), col = cols["ets"], fontface = "bold", size=6) +
-  geom_text(aes(label = "Combination\n of components", x = -1.3, y = 0.5), col = cols["ets"], size=2.8, fontface = "bold") +
-  geom_text(aes(label = "9 ETS models with\n multiplicative errors", x = -1.6, y = -0.5), col = cols["ets"], size=2.8) +
-  geom_text(aes(label = "3 ETS models with\n additive errors and\n multiplicative\n seasonality", x = -1.3, y = -1.4), col = cols["ets"], size=2.8) +
-  geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.35), col = cols["arima"], fontface = "bold", size=6) +
-  geom_text(aes(label = "Modelling\n autocorrelations", x = 1.3, y = 0.5), col = cols["arima"], size=2.8, fontface = "bold") +
-  annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.6, y = -0.6, col = cols["arima"], size=2.8) +
-  geom_text(aes(label = "All stationary models\n Many large models", x = 1.25, y = -1.5), col = cols["arima"], size=2.8) +
-  geom_text(aes(label = "6 fully additive\n ETS models", x = 0, y = -0.6), col = "#6b6859", size=2.8) +
-  guides(colour = "none", fill = "none") +  theme_void()
+  scale_colour_manual(values = cols) +
+  scale_fill_manual(values = cols) +
+  coord_fixed() +
+  guides(fill = "none") +
+  geom_text(aes(label = "ETS models", x = -1.5, y = 1.35), col = cols["ets"], fontface = "bold", size = 6) +
+  geom_text(aes(label = "Combination\n of components", x = -1.3, y = 0.5), col = cols["ets"], size = 2.8, fontface = "bold") +
+  geom_text(aes(label = "9 ETS models with\n multiplicative errors", x = -1.6, y = -0.5), col = cols["ets"], size = 2.8) +
+  geom_text(aes(label = "3 ETS models with\n additive errors and\n multiplicative\n seasonality", x = -1.3, y = -1.4), col = cols["ets"], size = 2.8) +
+  geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.35), col = cols["arima"], fontface = "bold", size = 6) +
+  geom_text(aes(label = "Modelling\n autocorrelations", x = 1.3, y = 0.5), col = cols["arima"], size = 2.8, fontface = "bold") +
+  annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.6, y = -0.6, col = cols["arima"], size = 2.8) +
+  geom_text(aes(label = "All stationary models\n Many large models", x = 1.25, y = -1.5), col = cols["arima"], size = 2.8) +
+  geom_text(aes(label = "6 fully additive\n ETS models", x = 0, y = -0.6), col = "#6b6859", size = 2.8) +
+  guides(colour = "none", fill = "none") +
+  theme_void()
 ```
 
 ## Equivalences
@@ -1820,13 +1884,15 @@ tibble(
 \fontsize{10}{11}\sf
 
 ```{r tscvpop, echo=TRUE, warning=FALSE}
-aus_economy <- global_economy |> filter(Code == "AUS") |>
-  mutate(Population = Population/1e6)
+aus_economy <- global_economy |>
+  filter(Code == "AUS") |>
+  mutate(Population = Population / 1e6)
 aus_economy |>
   slice(-n()) |>
   stretch_tsibble(.init = 10) |>
-  model(ets = ETS(Population),
-        arima = ARIMA(Population)
+  model(
+    ets = ETS(Population),
+    arima = ARIMA(Population)
   ) |>
   forecast(h = 1) |>
   accuracy(aus_economy) |>
@@ -1840,7 +1906,7 @@ aus_economy |>
   model(ETS(Population)) |>
   forecast(h = "5 years") |>
   autoplot(aus_economy) +
-  labs(title = "Australian population",  y = "People (millions)")
+  labs(title = "Australian population", y = "People (millions)")
 ```
 
 ## Example: Cement production
@@ -1870,7 +1936,9 @@ fit |>
 \fontsize{10}{10}\sf
 
 ```{r qcement3, dependson="qcement1"}
-fit |> select(ets) |> report()
+fit |>
+  select(ets) |>
+  report()
 ```
 
 ## Example: Cement production
@@ -1920,7 +1988,7 @@ fit |>
 ```{r qcement9, echo=TRUE, dependson="qcement1", fig.height=2.6}
 fit |>
   select(arima) |>
-  forecast(h="3 years") |>
+  forecast(h = "3 years") |>
   autoplot(cement) +
-  labs(title = "Cement production in Australia", y="Tonnes ('000)")
+  labs(title = "Cement production in Australia", y = "Tonnes ('000)")
 ```

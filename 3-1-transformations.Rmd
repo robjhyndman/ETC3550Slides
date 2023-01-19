@@ -58,7 +58,7 @@ print_retail |>
   left_join(aus_economy, by = "Year") |>
   mutate(Adjusted_turnover = Turnover / CPI * 100) |>
   pivot_longer(c(Turnover, Adjusted_turnover), values_to = "Turnover") |>
-  mutate(name = factor(name, levels=c("Turnover","Adjusted_turnover"))) |>
+  mutate(name = factor(name, levels = c("Turnover", "Adjusted_turnover"))) |>
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
   facet_grid(name ~ ., scales = "free_y") +
@@ -115,7 +115,7 @@ food |> autoplot(sqrt(Turnover)) +
 ## Mathematical transformations
 
 ```{r food-cbrt}
-food |> autoplot(Turnover^(1/3)) +
+food |> autoplot(Turnover^(1 / 3)) +
   labs(y = "Cube root turnover")
 ```
 
@@ -129,7 +129,7 @@ food |> autoplot(log(Turnover)) +
 ## Mathematical transformations
 
 ```{r food-inverse}
-food |> autoplot(-1/Turnover) +
+food |> autoplot(-1 / Turnover) +
   labs(y = "Inverse turnover")
 ```
 

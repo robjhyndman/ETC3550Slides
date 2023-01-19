@@ -98,9 +98,9 @@ tourism
 
 ```{r tstable, cache=TRUE}
 mydata <- tsibble(
-    year = 2012:2016,
-    y = c(123, 39, 78, 52, 110),
-    index = year
+  year = 2012:2016,
+  y = c(123, 39, 78, 52, 110),
+  index = year
 )
 mydata
 ```
@@ -112,9 +112,9 @@ mydata
 
 ```{r astsibble, cache=TRUE}
 mydata <- tibble(
-    year = 2012:2016,
-    y = c(123, 39, 78, 52, 110)
-  ) |>
+  year = 2012:2016,
+  y = c(123, 39, 78, 52, 110)
+) |>
   as_tsibble(index = year)
 mydata
 ```
@@ -428,7 +428,7 @@ gafa_stock |>
 ```{r}
 pelt |>
   autoplot(Lynx) +
-  labs(y="Number trapped", title = "Annual Canadian Lynx Trappings")
+  labs(y = "Number trapped", title = "Annual Canadian Lynx Trappings")
 ```
 
 ## Seasonal or cyclic?
@@ -491,7 +491,7 @@ beer |> autoplot(Beer)
 \fontsize{9}{9}\sf
 
 ```{r}
-beer |> gg_season(Beer, labels="right")
+beer |> gg_season(Beer, labels = "right")
 ```
 
 ## Quarterly Australian Beer Production
@@ -590,7 +590,7 @@ new_production |> gg_lag(Beer)
 \fontsize{10}{10}\sf
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
-new_production |> gg_lag(Beer, geom='point')
+new_production |> gg_lag(Beer, geom = "point")
 ```
 
 ## Lagged scatterplots
@@ -651,7 +651,9 @@ Results for first 9 lags for beer data:
 \fontsize{11}{13}\sf
 
 ```{r beeracf, fig.height=2}
-new_production |> ACF(Beer, lag_max = 9) |> autoplot()
+new_production |>
+  ACF(Beer, lag_max = 9) |>
+  autoplot()
 ```
 
   * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
@@ -664,7 +666,9 @@ new_production |> ACF(Beer, lag_max = 9) |> autoplot()
 \fontsize{11}{13}\sf
 
 ```{r beeracf2, fig.height=2}
-new_production |> ACF(Beer) |> autoplot()
+new_production |>
+  ACF(Beer) |>
+  autoplot()
 ```
 
   * $r_{4}$  higher than for the other lags. This is due to **the seasonal pattern in the data**: the peaks tend to be **4 quarters** apart and the troughs tend to be **2 quarters** apart.
@@ -734,7 +738,7 @@ google_2015 |> autoplot(Close)
 
 ```{r}
 google_2015 |>
-  ACF(Close, lag_max=100)
+  ACF(Close, lag_max = 100)
 ```
 
 ## Google stock price
@@ -762,13 +766,13 @@ tp3 <- autoplot(AirPassengers, value) +
 tp4 <- autoplot(mink, value) +
   labs(x = "", y = "thousands", title = "4. Annual mink trappings")
 acfb <- ACF(cowtemp, value) |> autoplot() +
-  labs(x="", title="B") + ylim(-0.4,1)
+  labs(x = "", title = "B") + ylim(-0.4, 1)
 acfa <- ACF(USAccDeaths, value) |> autoplot() +
-  labs(x = "", title = "A") + ylim(-0.4,1)
+  labs(x = "", title = "A") + ylim(-0.4, 1)
 acfd <- ACF(AirPassengers, value) |> autoplot() +
-  labs(x = "", title = "D") + ylim(-0.4,1)
+  labs(x = "", title = "D") + ylim(-0.4, 1)
 acfc <- ACF(mink, value) |> autoplot() +
-  labs(x = "", title ="C") + ylim(-0.4,1)
+  labs(x = "", title = "C") + ylim(-0.4, 1)
 (tp1 | tp2 | tp3 | tp4) / (acfa | acfb | acfc | acfd)
 ```
 
@@ -848,7 +852,7 @@ These are the \alert{critical values}.
 ```{r, fig.height=2.7}
 pigs <- aus_livestock |>
   filter(State == "Victoria", Animal == "Pigs", year(Month) >= 2014)
-pigs |> autoplot(Count/1e3) +
+pigs |> autoplot(Count / 1e3) +
   labs(y = "Thousands", title = "Number of pigs slaughtered in Victoria")
 ```
 
@@ -856,7 +860,9 @@ pigs |> autoplot(Count/1e3) +
 \fontsize{10}{10}\sf
 
 ```{r}
-pigs |> ACF(Count) |> autoplot()
+pigs |>
+  ACF(Count) |>
+  autoplot()
 ```
 
 ## Example: Pigs slaughtered

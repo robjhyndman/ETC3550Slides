@@ -141,23 +141,25 @@ $y_{T-5}$ & $(0.2)(0.8)^5$ & $(0.4)(0.6)^5$ & $(0.6)(0.4)^5$ & $(0.8)(0.2)^5$\\
 ```{r alpha-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/5, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
 algeria_economy <- global_economy |>
   filter(Country == "Algeria")
-alpha_anim <- purrr::map_dfr(set_names(
+alpha_anim <- purrr::map_dfr(
+  set_names(
     seq(0, 0.99, 0.01),
     seq(0, 0.99, 0.01)
   ),
   function(alpha) {
     algeria_economy |>
-      model(ETS(Exports ~
-        error("A") +
-        trend("N", alpha = alpha, alpha_range = c(-1, 1), beta_range = c(-1, 1)) +
-        season("N", gamma_range = c(-1, 1)),
-      bounds = "admissible"
+      model(ETS(
+        Exports ~
+          error("A") +
+          trend("N", alpha = alpha, alpha_range = c(-1, 1), beta_range = c(-1, 1)) +
+          season("N", gamma_range = c(-1, 1)),
+        bounds = "admissible"
       )) |>
       augment() |>
       as_tibble()
   },
   .id = "alpha"
-  ) |>
+) |>
   mutate(alpha = as.numeric(alpha))
 alpha_anim |>
   ggplot(aes(x = Year, y = Exports)) +
@@ -386,25 +388,27 @@ Holt's linear method with additive errors.
 ## Exponential smoothing: trend/slope
 
 ```{r beta-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/5, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', eval=TRUE}
-aus_economy <- global_economy |> 
+aus_economy <- global_economy |>
   filter(Code == "AUS") |>
   mutate(Pop = Population / 1e6)
-beta_anim <- map_dfr(set_names(
-  seq(0, 0.99, by = 0.01),
-  seq(0, 0.99, by = 0.01)
-),
-function(beta) {
-  aus_economy |>
-    model(ETS(Pop ~
-      error("A") +
-      trend("A", alpha = 0.001, alpha_range = c(-1, 1), beta = beta) +
-      season("N"),
-    bounds = "admissible"
-    )) |>
-    augment() |>
-    as_tibble()
-},
-.id = "beta"
+beta_anim <- map_dfr(
+  set_names(
+    seq(0, 0.99, by = 0.01),
+    seq(0, 0.99, by = 0.01)
+  ),
+  function(beta) {
+    aus_economy |>
+      model(ETS(
+        Pop ~
+          error("A") +
+          trend("A", alpha = 0.001, alpha_range = c(-1, 1), beta = beta) +
+          season("N"),
+        bounds = "admissible"
+      )) |>
+      augment() |>
+      as_tibble()
+  },
+  .id = "beta"
 ) |>
   mutate(beta = as.numeric(beta))
 beta_anim |>
@@ -451,7 +455,8 @@ trend("A", beta_range = c(0, 0.1))
 \fontsize{10}{10}\sf
 
 ```{r holt-fit, echo=TRUE}
-aus_economy <- global_economy |> filter(Code == "AUS") |>
+aus_economy <- global_economy |>
+  filter(Code == "AUS") |>
   mutate(Pop = Population / 1e6)
 fit <- aus_economy |>
   model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
@@ -774,7 +779,6 @@ sth_cross_ped |>
 ## Holt-Winters with daily data
 
 ```{r hwdaily_repeat, ref.label="hwdaily", echo=FALSE, eval=TRUE}
-
 ```
 
 # Innovations state space models
@@ -1021,7 +1025,8 @@ fit |> forecast()
 ## Example: Australian holiday tourism
 
 ```{r ausholidays-forecast-plot}
-fit |> forecast() |>
+fit |>
+  forecast() |>
   filter(Region == "Snowy Mountains") |>
   autoplot(holidays) +
   labs(y = "Thousands", title = "Overnight trips")

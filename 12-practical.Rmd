@@ -58,7 +58,7 @@ source("setup.R")
 recent_prices <- prices |> filter(!is.na(eggs))
 recent_prices |>
   model(ETS(log(eggs) ~ error("A") + trend("A") + season("N"))) |>
-  forecast(h=50) |>
+  forecast(h = 50) |>
   autoplot(recent_prices)
 ```
 
@@ -83,7 +83,7 @@ fc <- aus_cafe |>
     ARIMA = ARIMA(Turnover)
   ) |>
   mutate(
-    Combination = (ETS + ARIMA)/2
+    Combination = (ETS + ARIMA) / 2
   ) |>
   forecast(h = "5 years")
 ```
@@ -93,8 +93,10 @@ fc <- aus_cafe |>
 
 ```{r combineplot, echo=TRUE, fig.height=4.2}
 fc |> autoplot(aus_cafe, level = NULL) +
-  labs(x = "Year", y = "$ billion",
-       title = "Australian monthly expenditure on eating out")
+  labs(
+    x = "Year", y = "$ billion",
+    title = "Australian monthly expenditure on eating out"
+  )
 ```
 
 ## Forecast combinations
@@ -155,6 +157,6 @@ gold_complete |>
 fit <- gold |>
   model(ARIMA(value))
 augment(fit) |>
-  mutate(stdres = .resid/sd(.resid, na.rm=TRUE)) |>
+  mutate(stdres = .resid / sd(.resid, na.rm = TRUE)) |>
   filter(abs(stdres) > 10)
 ```

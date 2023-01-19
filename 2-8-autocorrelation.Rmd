@@ -26,7 +26,7 @@ new_production <- aus_production |>
 ## Example: Beer production
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
-new_production |> gg_lag(Beer, geom='point')
+new_production |> gg_lag(Beer, geom = "point")
 ```
 
 \only<2>{\begin{textblock}{5.8}(9,2.5)\fontsize{12}{14}\sf
@@ -74,7 +74,9 @@ new_production |> ACF(Beer, lag_max = 9)
 Results for first 9 lags for beer data:
 
 ```{r beeracf, fig.height=1.8}
-new_production |> ACF(Beer, lag_max = 9) |> autoplot()
+new_production |>
+  ACF(Beer, lag_max = 9) |>
+  autoplot()
 ```
 
 \vspace*{-0.2cm}
@@ -89,7 +91,9 @@ new_production |> ACF(Beer, lag_max = 9) |> autoplot()
 \fontsize{14}{14}\sf
 
 ```{r beeracf2, fig.height=1.8}
-new_production |> ACF(Beer) |> autoplot()
+new_production |>
+  ACF(Beer) |>
+  autoplot()
 ```
 
   * $r_{4}$  higher than for the other lags due to **the seasonal pattern in the data**: peaks tend to be **4 quarters** apart and troughs tend to be **4 quarters** apart.
@@ -159,7 +163,7 @@ google_2015 |> autoplot(Close)
 
 ```{r}
 google_2015 |>
-  ACF(Close, lag_max=100)
+  ACF(Close, lag_max = 100)
 ```
 
 ## Google stock price

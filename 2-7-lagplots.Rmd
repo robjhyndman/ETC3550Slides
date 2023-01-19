@@ -39,7 +39,7 @@ new_production |> gg_lag(Beer)
 ## Example: Beer production
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
-new_production |> gg_lag(Beer, geom='point')
+new_production |> gg_lag(Beer, geom = "point")
 ```
 
 \only<2>{\begin{textblock}{5}(9,4)

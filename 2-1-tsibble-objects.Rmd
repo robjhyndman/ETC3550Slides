@@ -95,9 +95,9 @@ tourism
 
 ```{r tstable, cache=TRUE}
 mydata <- tsibble(
-    year = 2012:2016,
-    y = c(123, 39, 78, 52, 110),
-    index = year
+  year = 2012:2016,
+  y = c(123, 39, 78, 52, 110),
+  index = year
 )
 mydata
 ```
@@ -109,9 +109,9 @@ mydata
 
 ```{r astsibble, cache=TRUE}
 mydata <- tibble(
-    year = 2012:2016,
-    y = c(123, 39, 78, 52, 110)
-  ) |>
+  year = 2012:2016,
+  y = c(123, 39, 78, 52, 110)
+) |>
   as_tsibble(index = year)
 mydata
 ```

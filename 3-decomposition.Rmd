@@ -61,7 +61,7 @@ print_retail |>
   left_join(aus_economy, by = "Year") |>
   mutate(Adjusted_turnover = Turnover / CPI * 100) |>
   pivot_longer(c(Turnover, Adjusted_turnover), values_to = "Turnover") |>
-  mutate(name = factor(name, levels=c("Turnover","Adjusted_turnover"))) |>
+  mutate(name = factor(name, levels = c("Turnover", "Adjusted_turnover"))) |>
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
   facet_grid(name ~ ., scales = "free_y") +
@@ -118,7 +118,7 @@ food |> autoplot(sqrt(Turnover)) +
 ## Mathematical transformations
 
 ```{r food-cbrt}
-food |> autoplot(Turnover^(1/3)) +
+food |> autoplot(Turnover^(1 / 3)) +
   labs(y = "Cube root turnover")
 ```
 
@@ -132,7 +132,7 @@ food |> autoplot(log(Turnover)) +
 ## Mathematical transformations
 
 ```{r food-inverse}
-food |> autoplot(-1/Turnover) +
+food |> autoplot(-1 / Turnover) +
   labs(y = "Inverse turnover")
 ```
 
@@ -274,7 +274,7 @@ us_retail_employment
 ```{r dable1}
 us_retail_employment |>
   autoplot(Employed) +
-  labs(y="Persons (thousands)", title="Total employment in US retail")
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
 ```
 
 \vspace*{10cm}
@@ -304,9 +304,9 @@ components(dcmp)
 
 ```{r dable4}
 us_retail_employment |>
-  autoplot(Employed, color='gray') +
-  autolayer(components(dcmp), trend, color='#D55E00') +
-  labs(y="Persons (thousands)", title="Total employment in US retail")
+  autoplot(Employed, color = "gray") +
+  autolayer(components(dcmp), trend, color = "#D55E00") +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
 ```
 
 \vspace*{10cm}
@@ -335,9 +335,9 @@ $$y_t / S_t = T_t \times R_t$$
 
 ```{r usretail-sa}
 us_retail_employment |>
-  autoplot(Employed, color='gray') +
-  autolayer(components(dcmp), season_adjust, color='#0072B2') +
-  labs(y="Persons (thousands)", title="Total employment in US retail")
+  autoplot(Employed, color = "gray") +
+  autolayer(components(dcmp), season_adjust, color = "#0072B2") +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
 ```
 
 ## Seasonal adjustment
@@ -427,17 +427,18 @@ us_retail_employment |>
 
 ```{r stlwindow9, warning=FALSE, fig.width=8.5, fig.height=3.4}
 us_retail_employment |>
-  model(STL(Employed ~ season(window=9), robust=TRUE)) |>
-  components() |> autoplot() +
-    labs(title = "STL decomposition: US retail employment")
+  model(STL(Employed ~ season(window = 9), robust = TRUE)) |>
+  components() |>
+  autoplot() +
+  labs(title = "STL decomposition: US retail employment")
 ```
 
 ## STL decomposition
 
 ```{r stlwindowanim, echo=FALSE, warning=FALSE, message=FALSE, fig.show='animate', interval=1/10,  fig.height=5.35, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', eval=TRUE}
-s_windows <- seq(5,55,by=2)
-stl_defs <- purrr::map(s_windows, function(s_window){
-  STL(Employed ~ season(window=s_window), robust=TRUE)
+s_windows <- seq(5, 55, by = 2)
+stl_defs <- purrr::map(s_windows, function(s_window) {
+  STL(Employed ~ season(window = s_window), robust = TRUE)
 })
 names(stl_defs) <- sprintf("season(window=%02d)", s_windows)
 
@@ -446,13 +447,16 @@ us_retail_employment |>
   components() |>
   as_tibble() |>
   pivot_longer(Employed:remainder,
-               names_to = "component", names_ptypes = list(component = factor(levels = c("Employed", "trend", "season_year", "remainder"))),
-               values_to = "Employed") |>
+    names_to = "component", names_ptypes = list(component = factor(levels = c("Employed", "trend", "season_year", "remainder"))),
+    values_to = "Employed"
+  ) |>
   ggplot(aes(x = Month, y = Employed)) +
   geom_line() +
   facet_grid(rows = vars(component), scales = "free_y") +
-  labs(title = "STL decomposition of US retail employment",
-       subtitle = "{closest_state}") +
+  labs(
+    title = "STL decomposition of US retail employment",
+    subtitle = "{closest_state}"
+  ) +
   transition_states(.model)
 ```
 
@@ -462,14 +466,16 @@ us_retail_employment |>
 
 ```{r echo = TRUE, results = 'hide'}
 us_retail_employment |>
-  model(STL(Employed ~ season(window=5))) |>
+  model(STL(Employed ~ season(window = 5))) |>
   components()
 
 us_retail_employment |>
-  model(STL(Employed ~ trend(window=15) +
-                       season(window="periodic"),
-            robust = TRUE)
-  ) |> components()
+  model(STL(
+    Employed ~ trend(window = 15) +
+      season(window = "periodic"),
+    robust = TRUE
+  )) |>
+  components()
 ```
 
 \fontsize{12}{13}\sf
@@ -483,7 +489,8 @@ us_retail_employment |>
 ```{r mstl, fig.width=8.5, fig.height=3.4}
 us_retail_employment |>
   model(STL(Employed)) |>
-  components() |> autoplot()
+  components() |>
+  autoplot()
 ```
 
 \only<2>{\begin{textblock}{7}(8,0.2)\fontsize{11}{11}\sf
@@ -614,7 +621,8 @@ employed |>
   mutate(diff = difference(Employed)) |>
   filter(Month == "Sep") |>
   ggplot(aes(y = diff, x = 1)) +
-  geom_boxplot() + coord_flip() +
+  geom_boxplot() +
+  coord_flip() +
   labs(title = "Sep - Aug: total employed", y = "Thousands") +
   scale_x_continuous(breaks = NULL, labels = NULL)
 ```

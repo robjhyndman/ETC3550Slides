@@ -80,7 +80,7 @@ us_retail_employment
 ```{r dable1}
 us_retail_employment |>
   autoplot(Employed) +
-  labs(y="Persons (thousands)", title="Total employment in US retail")
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
 ```
 
 \vspace*{10cm}
@@ -116,9 +116,9 @@ components(dcmp) |> autoplot()
 
 ```{r dable4}
 us_retail_employment |>
-  autoplot(Employed, color='gray') +
-  autolayer(components(dcmp), trend, color='#D55E00') +
-  labs(y="Persons (thousands)", title="Total employment in US retail")
+  autoplot(Employed, color = "gray") +
+  autolayer(components(dcmp), trend, color = "#D55E00") +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
 ```
 
 \vspace*{10cm}
@@ -141,9 +141,9 @@ $$y_t / S_t = T_t \times R_t$$
 
 ```{r usretail-sa}
 us_retail_employment |>
-  autoplot(Employed, color='gray') +
-  autolayer(components(dcmp), season_adjust, color='#0072B2') +
-  labs(y="Persons (thousands)", title="Total employment in US retail")
+  autoplot(Employed, color = "gray") +
+  autolayer(components(dcmp), season_adjust, color = "#0072B2") +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
 ```
 
 ## Seasonal adjustment

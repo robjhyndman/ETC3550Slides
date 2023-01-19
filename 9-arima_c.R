@@ -5,7 +5,7 @@ library(fpp3)
 
 global_economy %>%
   filter(Code == "EGY") %>%
-  gg_tsdisplay(Exports, plot_type="partial")
+  gg_tsdisplay(Exports, plot_type = "partial")
 
 fit1 <- global_economy %>%
   filter(Code == "EGY") %>%
@@ -34,7 +34,7 @@ caf_fit <- global_economy %>%
     arima210 = ARIMA(Exports ~ pdq(2, 1, 0)),
     arima013 = ARIMA(Exports ~ pdq(0, 1, 3)),
     stepwise = ARIMA(Exports),
-    search = ARIMA(Exports, stepwise = FALSE, approximation=FALSE, order_constraint = (p+q <= 10))
+    search = ARIMA(Exports, stepwise = FALSE, approximation = FALSE, order_constraint = (p + q <= 10))
   )
 
 caf_fit
@@ -63,14 +63,14 @@ fit <- global_economy %>%
   model(arima = ARIMA(log(GDP)))
 
 fit %>%
-  filter(Country=="Australia")  %>%
+  filter(Country == "Australia") %>%
   gg_tsresiduals()
 
 fc <- fit %>%
-  forecast(h=5)
+  forecast(h = 5)
 
 fc %>%
-  filter(Country=="Australia") %>%
+  filter(Country == "Australia") %>%
   autoplot(global_economy)
 
 ## US leisure employment

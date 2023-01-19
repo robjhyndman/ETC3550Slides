@@ -91,7 +91,8 @@ h02 %>%
     decomposition_model(
       STL(Cost),
       ETS(season_adjust),
-      SNAIVE(season_year))
+      SNAIVE(season_year)
+    )
   ) %>%
-  forecast(h=24) %>%
+  forecast(h = 24) %>%
   autoplot(h02)

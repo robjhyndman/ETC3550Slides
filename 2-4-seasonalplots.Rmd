@@ -51,7 +51,7 @@ beer |> autoplot(Beer)
 ## Quarterly Australian Beer Production
 
 ```{r}
-beer |> gg_season(Beer, labels="right")
+beer |> gg_season(Beer, labels = "right")
 ```
 
 ## Multiple seasonal periods

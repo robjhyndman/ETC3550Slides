@@ -22,7 +22,7 @@ source("setup.R")
 
 
 ```{r brick-model}
-brick_fit <-  aus_production |>
+brick_fit <- aus_production |>
   filter(!is.na(Bricks)) |>
   model(
     Seasonal_naive = SNAIVE(Bricks),
@@ -72,7 +72,7 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 \fontsize{10}{12}\sf
 
 ```{r brick-fc-interval}
-brick_fit <-  aus_production |>
+brick_fit <- aus_production |>
   filter(!is.na(Bricks)) |>
   model(Seasonal_naive = SNAIVE(Bricks)) |>
   forecast(h = "5 years") |>

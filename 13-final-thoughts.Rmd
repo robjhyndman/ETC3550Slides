@@ -136,8 +136,10 @@ should this affect leasing and sales policies?
 ansett |>
   filter(Airports == "MEL-SYD") |>
   autoplot(Passengers) +
-  labs(title="Economy class passengers: Melbourne-Sydney",
-       y="Thousands")
+  labs(
+    title = "Economy class passengers: Melbourne-Sydney",
+    y = "Thousands"
+  )
 ```
 
 \vspace*{10cm}

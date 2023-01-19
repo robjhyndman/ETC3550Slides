@@ -117,7 +117,7 @@ source("setup.R")
 
 ```{r, echo=FALSE}
 tsibbledata::ansett |>
-  filter(Airports == "MEL-SYD")  |>
+  filter(Airports == "MEL-SYD") |>
   filter(Class == "Economy") |>
   autoplot(Passengers) +
   labs(
@@ -126,7 +126,7 @@ tsibbledata::ansett |>
     x = "Year",
     y = "Thousands"
   ) +
-  geom_label(aes(x=yearweek("1992 W20"), y=5000, label="Not the real data!\n Or is it?"))
+  geom_label(aes(x = yearweek("1992 W20"), y = 5000, label = "Not the real data!\n Or is it?"))
 ```
 
 ## CASE STUDY 4: Airline

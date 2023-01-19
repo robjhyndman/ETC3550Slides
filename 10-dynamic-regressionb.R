@@ -17,8 +17,8 @@ vic_elec_daily <- vic_elec %>%
 
 vic_elec_daily %>%
   pivot_longer(c(Demand, Temperature),
-               names_to = "var",
-               values_to = "value"
+    names_to = "var",
+    values_to = "value"
   ) %>%
   ggplot(aes(x = Date, y = value)) +
   geom_line() +
@@ -28,10 +28,13 @@ elec_fit <- vic_elec_daily %>%
   model(
     ets = ETS(Demand),
     arima = ARIMA(log(Demand),
-                  stepwise=FALSE, order_constraint = (p+q <= 8 & P+Q <= 5)),
-    dhr = ARIMA(log(Demand) ~ Temperature + I(Temperature^2) +
-                (Day_Type == "Weekday") + fourier(period="year",K=4),
-              stepwise=FALSE, order_constraint = (p+q <= 8 & P+Q <= 5))
+      stepwise = FALSE, order_constraint = (p + q <= 8 & P + Q <= 5)
+    ),
+    dhr = ARIMA(
+      log(Demand) ~ Temperature + I(Temperature^2) +
+        (Day_Type == "Weekday") + fourier(period = "year", K = 4),
+      stepwise = FALSE, order_constraint = (p + q <= 8 & P + Q <= 5)
+    )
   )
 
 accuracy(elec_fit)
@@ -48,9 +51,9 @@ elec_fit %>%
   select(ets) %>%
   augment() %>%
   filter(Date <= "2012-03-31") %>%
-  ggplot(aes(x=Date, y=Demand)) +
+  ggplot(aes(x = Date, y = Demand)) +
   geom_line() +
-  geom_line(aes(y=.fitted), col="red")
+  geom_line(aes(y = .fitted), col = "red")
 
 # ARIMA
 elec_fit %>%
@@ -64,9 +67,9 @@ elec_fit %>%
   select(arima) %>%
   augment() %>%
   filter(Date >= "2014-10-01") %>%
-  ggplot(aes(x=Date, y=Demand)) +
+  ggplot(aes(x = Date, y = Demand)) +
   geom_line() +
-  geom_line(aes(y=.fitted), col="red")
+  geom_line(aes(y = .fitted), col = "red")
 
 # DHR
 elec_fit %>%
@@ -80,16 +83,16 @@ elec_fit %>%
   select(dhr) %>%
   augment() %>%
   filter(Date <= "2012-03-31") %>%
-  ggplot(aes(x=Date, y=Demand)) +
+  ggplot(aes(x = Date, y = Demand)) +
   geom_line() +
-  geom_line(aes(y=.fitted), col="red")
+  geom_line(aes(y = .fitted), col = "red")
 
 
 # Forecast one day ahead
 vic_next_day <- new_data(vic_elec_daily, 1) %>%
   mutate(Temperature = 26, Day_Type = "Holiday")
 forecast(elec_fit, new_data = vic_next_day) %>%
-  autoplot(vic_elec_daily %>% tail(14), level=80) +
+  autoplot(vic_elec_daily %>% tail(14), level = 80) +
   labs(y = "Electricity demand (GW)")
 
 # Forecast 14 days ahead
@@ -104,17 +107,19 @@ vic_elec_future <- new_data(vic_elec_daily, 14) %>%
     )
   )
 forecast(elec_fit, new_data = vic_elec_future) %>%
-  autoplot(vic_elec_daily %>% tail(14), level=80) +
+  autoplot(vic_elec_daily %>% tail(14), level = 80) +
   labs(y = "Electricity demand (GW)")
 
 # Forecast a year ahead using last year's temperatures
 vic_elec_future <- new_data(vic_elec_daily, 365) %>%
   mutate(
     Temperature = tail(vic_elec_daily$Temperature, 365),
-    Holiday = Date %in% as.Date(c("2015-01-01","2015-01-26","2015-03-09",
-                                  "2015-04-03","2015-04-06","2015-04-25",
-                                  "2015-06-08","2015-10-02","2015-11-03",
-                                  "2015-12-25")),
+    Holiday = Date %in% as.Date(c(
+      "2015-01-01", "2015-01-26", "2015-03-09",
+      "2015-04-03", "2015-04-06", "2015-04-25",
+      "2015-06-08", "2015-10-02", "2015-11-03",
+      "2015-12-25"
+    )),
     Day_Type = case_when(
       Holiday ~ "Holiday",
       wday(Date) %in% 2:6 ~ "Weekday",
@@ -122,8 +127,8 @@ vic_elec_future <- new_data(vic_elec_daily, 365) %>%
     )
   )
 forecast(elec_fit, new_data = vic_elec_future) %>%
-  filter(.model=='dhr') %>%
-  autoplot(vic_elec_daily %>% tail(365), level=80) +
+  filter(.model == "dhr") %>%
+  autoplot(vic_elec_daily %>% tail(365), level = 80) +
   labs(y = "Electricity demand (GW)")
 
 
@@ -160,9 +165,9 @@ fit <- insurance %>%
     ARIMA(Quotes ~ pdq(d = 0) + TVadverts),
     ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts)),
     ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
-            lag(TVadverts, 2)),
+      lag(TVadverts, 2)),
     ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
-            lag(TVadverts, 2) + lag(TVadverts, 3))
+      lag(TVadverts, 2) + lag(TVadverts, 3))
   )
 
 glance(fit)

@@ -35,8 +35,9 @@ bricks <- aus_production |>
   mutate(average = mean(Bricks))
 
 fc <- bricks |>
-  filter(row_number() == n()) |> as_tibble() |>
-  unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12*5))))
+  filter(row_number() == n()) |>
+  as_tibble() |>
+  unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12 * 5))))
 
 bricks |>
   ggplot(aes(x = Quarter, y = Bricks)) +
@@ -63,7 +64,7 @@ bricks |>
   model(NAIVE(Bricks)) |>
   forecast(h = "5 years") |>
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
-  geom_point(data = slice(bricks, n()), aes(y=Bricks), colour = "#0072B2") +
+  geom_point(data = slice(bricks, n()), aes(y = Bricks), colour = "#0072B2") +
   labs(title = "Clay brick production in Australia")
 ```
 
@@ -82,7 +83,7 @@ bricks |>
   model(SNAIVE(Bricks ~ lag("year"))) |>
   forecast(h = "5 years") |>
   autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
-  geom_point(data = slice(bricks, (n()-3):n()), aes(y=Bricks), colour = "#0072B2") +
+  geom_point(data = slice(bricks, (n() - 3):n()), aes(y = Bricks), colour = "#0072B2") +
   labs(title = "Clay brick production in Australia")
 ```
 
@@ -113,8 +114,10 @@ aus_production |>
   model(RW(Bricks ~ drift())) |>
   forecast(h = "5 years") |>
   autoplot(aus_production, level = NULL) +
-  geom_line(data = slice(aus_production, range(cumsum(!is.na(Bricks)))),
-            aes(y=Bricks), linetype = "dashed", colour = "#0072B2") +
+  geom_line(
+    data = slice(aus_production, range(cumsum(!is.na(Bricks)))),
+    aes(y = Bricks), linetype = "dashed", colour = "#0072B2"
+  ) +
   labs(title = "Clay brick production in Australia")
 ```
 
@@ -127,7 +130,7 @@ The `model()` function trains models to data.
 \fontsize{10}{11}\sf
 
 ```{r brick-model}
-brick_fit <-  aus_production |>
+brick_fit <- aus_production |>
   filter(!is.na(Bricks)) |>
   model(
     Seasonal_naive = SNAIVE(Bricks),
@@ -161,8 +164,10 @@ print(brick_fc, n = 4)
 ```{r brick-fc-plot, warning=FALSE, message=FALSE, fig.height=2.6, dependson='brick-fc'}
 brick_fc |>
   autoplot(aus_production, level = NULL) +
-  labs(title = "Clay brick production in Australia",
-       y = "Millions of bricks") +
+  labs(
+    title = "Clay brick production in Australia",
+    y = "Millions of bricks"
+  ) +
   guides(colour = guide_legend(title = "Forecast"))
 ```
 
@@ -175,7 +180,7 @@ brick_fc |>
 fb_stock <- gafa_stock |>
   filter(Symbol == "FB") |>
   mutate(trading_day = row_number()) |>
-  update_tsibble(index=trading_day, regular=TRUE)
+  update_tsibble(index = trading_day, regular = TRUE)
 
 # Specify, estimate and forecast
 fb_stock |>
@@ -184,10 +189,10 @@ fb_stock |>
     Naive = NAIVE(Close),
     Drift = RW(Close ~ drift())
   ) |>
-  forecast(h=42) |>
+  forecast(h = 42) |>
   autoplot(fb_stock, level = NULL) +
-  labs(title = "Facebook closing stock price", y="$US") +
-  guides(colour=guide_legend(title="Forecast"))
+  labs(title = "Facebook closing stock price", y = "$US") +
+  guides(colour = guide_legend(title = "Forecast"))
 ```
 
 ## Facebook closing stock price
