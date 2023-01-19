@@ -1,5 +1,5 @@
 ---
-title: "Ch2. Time series graphics"
+title: "2. Time series graphics"
 author: "2.9 White noise"
 date: "OTexts.org/fpp3/"
 classoption: aspectratio=169

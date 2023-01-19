@@ -20,9 +20,9 @@ output:
 source("setup.R")
 library(patchwork)
 library(gganimate)
-austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") %>%
+austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") |>
   as_tsibble(index = Year)
-melsyd <- tsibbledata::ansett %>%
+melsyd <- tsibbledata::ansett |>
   filter(Airports == "MEL-SYD")
 ```
 
@@ -116,8 +116,8 @@ should this affect leasing and sales policies?
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE}
-melsyd %>%
-  filter(Class == "Economy") %>%
+melsyd |>
+  filter(Class == "Economy") |>
   autoplot(Passengers) +
   labs(
     title = "Economy class passengers",

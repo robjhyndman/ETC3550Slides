@@ -1,5 +1,5 @@
 ---
-title: "Ch3. Time series decomposition"
+title: "3. Time series decomposition"
 author: "3.5 Methods used in official statistics"
 date: "OTexts.org/fpp3/"
 classoption: aspectratio=169

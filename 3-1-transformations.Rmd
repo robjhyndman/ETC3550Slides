@@ -1,5 +1,5 @@
 ---
-title: "Ch3. Time series decomposition"
+title: "3. Time series decomposition"
 author: "3.1 Transformations and adjustments"
 date: "OTexts.org/fpp3/"
 classoption: aspectratio=169
@@ -26,16 +26,16 @@ library(gganimate)
 ## Per capita adjustments
 
 ```{r gdp-per-capita}
-global_economy %>%
-  filter(Country == "Australia") %>%
+global_economy |>
+  filter(Country == "Australia") |>
   autoplot(GDP)
 ```
 
 ## Per capita adjustments
 
 ```{r gdp-per-capita2}
-global_economy %>%
-  filter(Country == "Australia") %>%
+global_economy |>
+  filter(Country == "Australia") |>
   autoplot(GDP / Population)
 ```
 
@@ -47,18 +47,18 @@ Consider the GDP information in `global_economy`. Plot the GDP per capita for ea
 ## Inflation adjustments
 
 ```{r retail_cpi, message=FALSE, warning=FALSE, fig.show='hide'}
-print_retail <- aus_retail %>%
-  filter(Industry == "Newspaper and book retailing") %>%
-  group_by(Industry) %>%
-  index_by(Year = year(Month)) %>%
+print_retail <- aus_retail |>
+  filter(Industry == "Newspaper and book retailing") |>
+  group_by(Industry) |>
+  index_by(Year = year(Month)) |>
   summarise(Turnover = sum(Turnover))
-aus_economy <- global_economy %>%
+aus_economy <- global_economy |>
   filter(Code == "AUS")
-print_retail %>%
-  left_join(aus_economy, by = "Year") %>%
-  mutate(Adjusted_turnover = Turnover / CPI * 100) %>%
-  pivot_longer(c(Turnover, Adjusted_turnover), values_to = "Turnover") %>%
-  mutate(name = factor(name, levels=c("Turnover","Adjusted_turnover"))) %>%
+print_retail |>
+  left_join(aus_economy, by = "Year") |>
+  mutate(Adjusted_turnover = Turnover / CPI * 100) |>
+  pivot_longer(c(Turnover, Adjusted_turnover), values_to = "Turnover") |>
+  mutate(name = factor(name, levels=c("Turnover","Adjusted_turnover"))) |>
   ggplot(aes(x = Year, y = Turnover)) +
   geom_line() +
   facet_grid(name ~ ., scales = "free_y") +
@@ -95,41 +95,41 @@ Logarithms, in particular, are useful because they are more interpretable: chang
 ## Mathematical transformations
 
 ```{r food}
-food <- aus_retail %>%
-  filter(Industry == "Food retailing") %>%
+food <- aus_retail |>
+  filter(Industry == "Food retailing") |>
   summarise(Turnover = sum(Turnover))
 ```
 
 ```{r food-plot, echo = FALSE}
-food %>% autoplot(Turnover) +
+food |> autoplot(Turnover) +
   labs(y = "Turnover ($AUD)")
 ```
 
 ## Mathematical transformations
 
 ```{r food-sqrt1}
-food %>% autoplot(sqrt(Turnover)) +
+food |> autoplot(sqrt(Turnover)) +
   labs(y = "Square root turnover")
 ```
 
 ## Mathematical transformations
 
 ```{r food-cbrt}
-food %>% autoplot(Turnover^(1/3)) +
+food |> autoplot(Turnover^(1/3)) +
   labs(y = "Cube root turnover")
 ```
 
 ## Mathematical transformations
 
 ```{r food-log}
-food %>% autoplot(log(Turnover)) +
+food |> autoplot(log(Turnover)) +
   labs(y = "Log turnover")
 ```
 
 ## Mathematical transformations
 
 ```{r food-inverse}
-food %>% autoplot(-1/Turnover) +
+food |> autoplot(-1/Turnover) +
   labs(y = "Inverse turnover")
 ```
 
@@ -152,11 +152,11 @@ $$\pause
 ## Box-Cox transformations
 
 ```{r food-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/10, message=FALSE, fig.height=4.5, fig.width=9, aniopts='controls,buttonsize=0.3cm,width=13.5cm'}
-food %>%
-  mutate(!!!set_names(map(seq(0, 1, 0.01), ~ expr(fabletools::box_cox(Turnover, !!.x))), seq(0, 1, 0.01))) %>%
-  select(-Turnover) %>%
-  pivot_longer(-Month, names_to = "lambda", values_to = "Turnover") %>%
-  mutate(lambda = as.numeric(lambda)) %>%
+food |>
+  mutate(!!!set_names(map(seq(0, 1, 0.01), ~ expr(fabletools::box_cox(Turnover, !!.x))), seq(0, 1, 0.01))) |>
+  select(-Turnover) |>
+  pivot_longer(-Month, names_to = "lambda", values_to = "Turnover") |>
+  mutate(lambda = as.numeric(lambda)) |>
   ggplot(aes(x = Month, y = Turnover)) +
   geom_line() +
   transition_states(1 - lambda, state_length = 0) +
@@ -167,7 +167,7 @@ food %>%
 ## Box-Cox transformations
 
 ```{r food-lambda}
-food %>%
+food |>
   features(Turnover, features = guerrero)
 ```
 
@@ -180,7 +180,7 @@ food %>%
 ## Box-Cox transformations
 
 ```{r food-bc}
-food %>% autoplot(box_cox(Turnover, 0.0524)) +
+food |> autoplot(box_cox(Turnover, 0.0524)) +
   labs(y = "Box-Cox transformed turnover")
 ```
 

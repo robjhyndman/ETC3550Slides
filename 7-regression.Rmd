@@ -44,8 +44,8 @@ That is, the coefficients measure the **marginal effects**.
 ## Example: US consumption expenditure
 
 ```{r MultiPredictors, echo=FALSE, fig.height=4}
-us_change %>%
-  gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) %>%
+us_change |>
+  gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) |>
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
   geom_line() +
   facet_grid(vars(Measure), scales = "free_y") +
@@ -56,9 +56,9 @@ us_change %>%
 ## Example: US consumption expenditure
 
 ```{r ScatterMatrix, echo=FALSE, fig.height=4, fig.width=8}
-us_change %>%
-  as_tibble() %>%
-  select(-Quarter) %>%
+us_change |>
+  as_tibble() |>
+  select(-Quarter) |>
   GGally::ggpairs()
 ```
 
@@ -67,7 +67,7 @@ us_change %>%
 \fontsize{7}{7}\sf
 
 ```{r usestim, echo=TRUE}
-fit_consMR <- us_change %>%
+fit_consMR <- us_change |>
   model(lm = TSLM(Consumption ~ Income + Production + Unemployment + Savings))
 report(fit_consMR)
 ```
@@ -75,7 +75,7 @@ report(fit_consMR)
 ## Example: US consumption expenditure
 
 ```{r usfitted1, echo=FALSE}
-augment(fit_consMR) %>%
+augment(fit_consMR) |>
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Consumption, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
@@ -87,7 +87,7 @@ augment(fit_consMR) %>%
 ## Example: US consumption expenditure
 
 ```{r usfitted2, echo=FALSE, message=FALSE, warning=FALSE}
-augment(fit_consMR) %>%
+augment(fit_consMR) |>
   ggplot(aes(y=.fitted, x=Consumption)) +
     geom_point() +
     labs(y="Fitted (predicted values)",
@@ -99,7 +99,7 @@ augment(fit_consMR) %>%
 ## Example: US consumption expenditure
 
 ```{r, echo=TRUE}
-fit_consMR %>% gg_tsresiduals()
+fit_consMR |> gg_tsresiduals()
 ```
 
 # Some useful predictors for linear models
@@ -189,8 +189,8 @@ number of categories).
 ## Beer production revisited
 
 ```{r, echo=FALSE}
-recent_production <- aus_production %>% filter(year(Quarter) >= 1992)
-recent_production %>% autoplot(Beer) +
+recent_production <- aus_production |> filter(year(Quarter) >= 1992)
+recent_production |> autoplot(Beer) +
   labs(y="Megalitres",title ="Australian quarterly beer production")
 ```
 
@@ -207,14 +207,14 @@ $y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} 
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-fit_beer <- recent_production %>% model(TSLM(Beer ~ trend() + season()))
+fit_beer <- recent_production |> model(TSLM(Beer ~ trend() + season()))
 report(fit_beer)
 ```
 
 ## Beer production revisited
 
 ```{r, fig.height=2.4}
-augment(fit_beer) %>%
+augment(fit_beer) |>
   ggplot(aes(x = Quarter)) +
   geom_line(aes(y = Beer, colour = "Data")) +
   geom_line(aes(y = .fitted, colour = "Fitted")) +
@@ -225,7 +225,7 @@ augment(fit_beer) %>%
 ## Beer production revisited
 
 ```{r, fig.height=2.4}
-augment(fit_beer) %>%
+augment(fit_beer) |>
   ggplot(aes(x=Beer, y=.fitted, colour=factor(quarter(Quarter)))) +
     geom_point() +
     labs(y="Fitted", x="Actual values", title = "Quarterly beer production") +
@@ -236,13 +236,13 @@ augment(fit_beer) %>%
 ## Beer production revisited
 
 ```{r, echo=TRUE}
-fit_beer %>% gg_tsresiduals()
+fit_beer |> gg_tsresiduals()
 ```
 
 ## Beer production revisited
 
 ```{r, echo=TRUE}
-fit_beer %>% forecast %>% autoplot(recent_production)
+fit_beer |> forecast |> autoplot(recent_production)
 ```
 
 ## Fourier series
@@ -267,18 +267,18 @@ TSLM(y ~ trend() + fourier(K))
 \fontsize{8}{8}\sf
 
 ```{r fourierbeer, echo=TRUE}
-fourier_beer <- recent_production %>% model(TSLM(Beer ~ trend() + fourier(K=2)))
+fourier_beer <- recent_production |> model(TSLM(Beer ~ trend() + fourier(K=2)))
 report(fourier_beer)
 ```
 
 ## Harmonic regression: eating-out expenditure
 
 ```{r cafe, echo=TRUE}
-aus_cafe <- aus_retail %>% filter(
+aus_cafe <- aus_retail |> filter(
     Industry == "Cafes, restaurants and takeaway food services",
     year(Month) %in% 2004:2018
-  ) %>% summarise(Turnover = sum(Turnover))
-aus_cafe %>% autoplot(Turnover)
+  ) |> summarise(Turnover = sum(Turnover))
+aus_cafe |> autoplot(Turnover)
 ```
 
 ## Harmonic regression: eating-out expenditure
@@ -286,23 +286,23 @@ aus_cafe %>% autoplot(Turnover)
 \fontsize{8}{9}\sf
 
 ```{r cafefit, dependson='cafe', fig.height=5, echo=TRUE}
-fit <- aus_cafe %>%
+fit <- aus_cafe |>
   model(K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
         K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
         K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
         K4 = TSLM(log(Turnover) ~ trend() + fourier(K = 4)),
         K5 = TSLM(log(Turnover) ~ trend() + fourier(K = 5)),
         K6 = TSLM(log(Turnover) ~ trend() + fourier(K = 6)))
-glance(fit) %>% select(.model, r_squared, adj_r_squared, AICc)
+glance(fit) |> select(.model, r_squared, adj_r_squared, AICc)
 ```
 
 ## Harmonic regression: eating-out expenditure
 
 ```{r, echo=FALSE}
 cafe_plot <- function(...){
-  fit %>%
-    select(...) %>%
-    forecast() %>% autoplot(aus_cafe) +
+  fit |>
+    select(...) |>
+    forecast() |> autoplot(aus_cafe) +
     labs(title = sprintf("Log transformed %s, trend() + fourier(K = %s)", model_sum(select(fit,...)[[1]][[1]]), deparse(..1))) +
     geom_label(
       aes(x = yearmonth("2007 Jan"), y = 4250, label = paste0("AICc = ", format(AICc))),
@@ -388,11 +388,11 @@ Example: $x$ is advertising which has a delayed effect
 ## Example: Boston marathon winning times
 
 ```{r, fig.height=2.6, echo=TRUE}
-marathon <- boston_marathon %>%
-  filter(Event == "Men's open division") %>%
-  select(-Event) %>%
+marathon <- boston_marathon |>
+  filter(Event == "Men's open division") |>
+  select(-Event) |>
   mutate(Minutes = as.numeric(Time)/60)
-marathon %>% autoplot(Minutes) + labs(y="Winning times in minutes")
+marathon |> autoplot(Minutes) + labs(y="Winning times in minutes")
 ```
 
 ## Example: Boston marathon winning times
@@ -400,7 +400,7 @@ marathon %>% autoplot(Minutes) + labs(y="Winning times in minutes")
 \fontsize{9}{9}\sf
 
 ```{r, echo=TRUE}
-fit_trends <- marathon %>%
+fit_trends <- marathon |>
   model(
     # Linear trend
     linear = TSLM(Minutes ~ trend()),
@@ -418,12 +418,12 @@ fit_trends
 ## Example: Boston marathon winning times
 
 ```{r, echo=TRUE, eval=FALSE}
-fit_trends %>% forecast(h=10) %>% autoplot(marathon)
+fit_trends |> forecast(h=10) |> autoplot(marathon)
 ```
 
 ```{r, echo=FALSE, message=TRUE, warning=FALSE, fig.height=3.3}
-fc_trends <- fit_trends %>% forecast(h = 10)
-marathon %>%
+fc_trends <- fit_trends |> forecast(h = 10)
+marathon |>
   autoplot(Minutes) +
   geom_line(data = fitted(fit_trends),
             aes(y = .fitted, colour = .model)) +
@@ -435,8 +435,8 @@ marathon %>%
 ## Example: Boston marathon winning times
 
 ```{r residPiecewise, message=FALSE, warning=FALSE}
-fit_trends %>%
-  select(piecewise) %>%
+fit_trends |>
+  select(piecewise) |>
   gg_tsresiduals()
 ```
 
@@ -564,17 +564,17 @@ tscv_plot <- function(.init, .step, h = 1) {
   expand.grid(
     time = seq(26),
     .id = seq(trunc(20 / .step))
-  ) %>%
-    group_by(.id) %>%
+  ) |>
+    group_by(.id) |>
     mutate(
       observation = case_when(
         time <= ((.id - 1) * .step + .init) ~ "train",
         time %in% c((.id - 1) * .step + .init + h) ~ "test",
         TRUE ~ "unused"
       )
-    ) %>%
-    ungroup() %>%
-    filter(.id <= 26 - .init) %>%
+    ) |>
+    ungroup() |>
+    filter(.id <= 26 - .init) |>
     ggplot(aes(x = time, y = .id)) +
     geom_segment(
       aes(x = 0, xend = 27, y = .id, yend = .id),
@@ -592,11 +592,11 @@ tscv_plot <- function(.init, .step, h = 1) {
     theme(axis.title = element_text())
 }
 loocv_plot <- function() {
-  expand.grid(time = seq(26), .id = seq(26)) %>%
-    group_by(.id) %>%
-    mutate(observation = if_else(time == .id, "test", "train")) %>%
-    ungroup() %>%
-    filter(.id <= 20) %>%
+  expand.grid(time = seq(26), .id = seq(26)) |>
+    group_by(.id) |>
+    mutate(observation = if_else(time == .id, "test", "train")) |>
+    ungroup() |>
+    filter(.id <= 20) |>
     ggplot(aes(x = time, y = .id)) +
     geom_segment(
       aes(x = 0, xend = 27, y = .id, yend = .id),
@@ -711,15 +711,15 @@ $$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
 ## US Consumption
 
 ```{r usconsumptionf, echo=TRUE}
-fit_consBest <- us_change %>%
+fit_consBest <- us_change |>
   model(
     TSLM(Consumption ~ Income + Savings + Unemployment)
   )
 
 future_scenarios <- scenarios(
-  Increase = new_data(us_change, 4) %>%
+  Increase = new_data(us_change, 4) |>
     mutate(Income=1, Savings=0.5, Unemployment=0),
-  Decrease = new_data(us_change, 4) %>%
+  Decrease = new_data(us_change, 4) |>
     mutate(Income=-1, Savings=-0.5, Unemployment=0),
   names_to = "Scenario")
 
@@ -729,7 +729,7 @@ fc <- forecast(fit_consBest, new_data = future_scenarios)
 ## US Consumption
 
 ```{r usconsumptionf2, echo=TRUE}
-us_change %>% autoplot(Consumption) +
+us_change |> autoplot(Consumption) +
   labs(y="% change in US consumption") +
   autolayer(fc) +
   labs(title = "US consumption", y = "% change")

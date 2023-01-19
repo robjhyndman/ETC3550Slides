@@ -26,7 +26,7 @@ library(readr)
 ## Examples
 
 ```{r gasolinedata}
-us_gasoline %>% autoplot(Barrels) +
+us_gasoline |> autoplot(Barrels) +
   labs(x = "Year", y = "Thousands of barrels per day",
        title = "Weekly US finished motor gasoline products")
 ```
@@ -34,16 +34,16 @@ us_gasoline %>% autoplot(Barrels) +
 ## Examples
 
 ```{r callsdata, message=FALSE, warning=FALSE}
-calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") %>%
-  rename(time = `...1`) %>%
-  pivot_longer(-time, names_to="date", values_to="volume") %>%
+calls <- read_tsv("http://robjhyndman.com/data/callcenter.txt") |>
+  rename(time = `...1`) |>
+  pivot_longer(-time, names_to="date", values_to="volume") |>
   mutate(
     date = as.Date(date, format = "%d/%m/%Y"),
     datetime = as_datetime(date) + time
-  ) %>%
+  ) |>
   as_tsibble(index = datetime)
-calls %>%
-  fill_gaps() %>%
+calls |>
+  fill_gaps() |>
   autoplot(volume) +
   labs(x = "Weeks", y = "Call volume",
        title = "5 minute call volume at North American bank")
@@ -53,8 +53,8 @@ calls %>%
 
 ```{r, fig.height=5}
 library(sugrrants)
-calls %>%
-  filter(yearmonth(date) == yearmonth("2003 August")) %>%
+calls |>
+  filter(yearmonth(date) == yearmonth("2003 August")) |>
   ggplot(aes(x = time, y = volume)) +
   geom_line() +
   facet_calendar(date) +
@@ -65,10 +65,10 @@ calls %>%
 ## Examples
 
 ```{r turk}
-turkey_elec <- read_csv("data/turkey_elec.csv", col_names = "Demand") %>%
-  mutate(Date = seq(ymd("2000-01-01"), ymd("2008-12-31"), by = "day")) %>%
+turkey_elec <- read_csv("data/turkey_elec.csv", col_names = "Demand") |>
+  mutate(Date = seq(ymd("2000-01-01"), ymd("2008-12-31"), by = "day")) |>
   as_tsibble(index = Date)
-turkey_elec %>% autoplot(Demand) +
+turkey_elec |> autoplot(Demand) +
   labs(title = "Turkish daily electricity demand",
        x = "Year", y = "Electricity Demand (GW)")
 ```
@@ -121,21 +121,21 @@ s_{j,t}^{(i)} &= -s_{j,t-1}^{(i)}\sin \lambda_j^{(i)} + s_{j,t-1}^{*(i)}\cos \la
 \fontsize{12}{14}\sf
 
 ```{r gasoline, echo=TRUE, fig.height=4, eval = FALSE}
-gasoline %>% tbats() %>% forecast() %>% autoplot()
+gasoline |> tbats() |> forecast() |> autoplot()
 ```
 
 ## Complex seasonality
 \fontsize{12}{14}\sf
 
 ```{r callcentref, echo=TRUE, fig.height=4, eval = FALSE}
-calls %>% tbats() %>% forecast() %>% autoplot()
+calls |> tbats() |> forecast() |> autoplot()
 ```
 
 ## Complex seasonality
 \fontsize{12}{14}\sf
 
 ```{r telecf, echo=TRUE, fig.height=4, eval = FALSE}
-telec %>% tbats() %>% forecast() %>% autoplot()
+telec |> tbats() |> forecast() |> autoplot()
 ```
 
 ## TBATS model
@@ -273,17 +273,17 @@ This tends to reduce the effect of extreme input values, thus making the network
 \fontsize{11}{11}\sf
 
 ```{r sunspots, echo=TRUE}
-sunspots <- sunspot.year %>% as_tsibble()
-sunspots %>% autoplot(value)
+sunspots <- sunspot.year |> as_tsibble()
+sunspots |> autoplot(value)
 ```
 
 ## NNAR(9,5) model for sunspots
 \fontsize{11}{11}\sf
 
 ```{r sunspot-nnetar, echo=TRUE}
-sunspots <- sunspot.year %>% as_tsibble()
-fit <- sunspots %>% model(NNETAR(value))
-fit %>% forecast(h=20, times = 1) %>%
+sunspots <- sunspot.year |> as_tsibble()
+fit <- sunspots |> model(NNETAR(value))
+fit |> forecast(h=20, times = 1) |>
   autoplot(sunspots, level = NULL)
 ```
 
@@ -291,7 +291,7 @@ fit %>% forecast(h=20, times = 1) %>%
 \fontsize{11}{11}\sf
 
 ```{r sunspot-nnetar-pi, echo=TRUE}
-fit %>% forecast(h=20) %>%
+fit |> forecast(h=20) |>
   autoplot(sunspots)
 ```
 

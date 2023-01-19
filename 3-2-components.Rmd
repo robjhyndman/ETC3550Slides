@@ -1,5 +1,5 @@
 ---
-title: "Ch3. Time series decomposition"
+title: "3. Time series decomposition"
 author: "3.2 Time series components"
 date: "OTexts.org/fpp3/"
 classoption: aspectratio=169
@@ -67,8 +67,8 @@ $$
 \fontsize{11}{11}\sf
 
 ```{r usretail}
-us_retail_employment <- us_employment %>%
-  filter(year(Month) >= 1990, Title == "Retail Trade") %>%
+us_retail_employment <- us_employment |>
+  filter(year(Month) >= 1990, Title == "Retail Trade") |>
   select(-Series_ID)
 us_retail_employment
 ```
@@ -78,7 +78,7 @@ us_retail_employment
 ## US Retail Employment
 
 ```{r dable1}
-us_retail_employment %>%
+us_retail_employment |>
   autoplot(Employed) +
   labs(y="Persons (thousands)", title="Total employment in US retail")
 ```
@@ -89,7 +89,7 @@ us_retail_employment %>%
 \fontsize{11}{11}\sf
 
 ```{r dable2}
-us_retail_employment %>%
+us_retail_employment |>
   model(stl = STL(Employed))
 ```
 
@@ -99,7 +99,7 @@ us_retail_employment %>%
 \fontsize{11}{11}\sf
 
 ```{r dable3}
-dcmp <- us_retail_employment %>%
+dcmp <- us_retail_employment |>
   model(stl = STL(Employed))
 components(dcmp)
 ```
@@ -109,13 +109,13 @@ components(dcmp)
 ## US Retail Employment
 
 ```{r usretail-stl, fig.width=8, fig.height=5}
-components(dcmp) %>% autoplot()
+components(dcmp) |> autoplot()
 ```
 
 ## US Retail Employment
 
 ```{r dable4}
-us_retail_employment %>%
+us_retail_employment |>
   autoplot(Employed, color='gray') +
   autolayer(components(dcmp), trend, color='#D55E00') +
   labs(y="Persons (thousands)", title="Total employment in US retail")
@@ -126,7 +126,7 @@ us_retail_employment %>%
 ## US Retail Employment
 
 ```{r usretail3}
-components(dcmp) %>% gg_subseries(season_year)
+components(dcmp) |> gg_subseries(season_year)
 ```
 
 ## Seasonal adjustment
@@ -140,7 +140,7 @@ $$y_t / S_t = T_t \times R_t$$
 ## US Retail Employment
 
 ```{r usretail-sa}
-us_retail_employment %>%
+us_retail_employment |>
   autoplot(Employed, color='gray') +
   autolayer(components(dcmp), season_adjust, color='#0072B2') +
   labs(y="Persons (thousands)", title="Total employment in US retail")

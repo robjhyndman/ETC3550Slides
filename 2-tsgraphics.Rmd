@@ -20,9 +20,9 @@ output:
 source("setup.R")
 library(patchwork)
 
-global_economy <- global_economy %>%
+global_economy <- global_economy |>
   select(Year, Country, GDP, Imports, Exports, Population)
-tourism <- tourism %>%
+tourism <- tourism |>
   mutate(
     State = recode(State,
       "Australian Capital Territory" = "ACT",
@@ -114,7 +114,7 @@ mydata
 mydata <- tibble(
     year = 2012:2016,
     y = c(123, 39, 78, 52, 110)
-  ) %>%
+  ) |>
   as_tsibble(index = year)
 mydata
 ```
@@ -143,8 +143,8 @@ For observations more frequent than once per year, we need to use a time class f
 \fontsize{12}{13}\sf
 
 ```{r month-tsibble}
-z %>%
-  mutate(Month = yearmonth(Month)) %>%
+z |>
+  mutate(Month = yearmonth(Month)) |>
   as_tsibble(index = Month)
 ```
 
@@ -162,7 +162,7 @@ tribble(
   "Weekly", "`yearweek()`",
   "Daily", "`as_date()`, `ymd()`",
   "Sub-daily", "`as_datetime()`"
-) %>%
+) |>
   knitr::kable(booktabs = TRUE)
 ```
 
@@ -185,7 +185,7 @@ prison
 \fontsize{10}{11}\sf
 
 ```{r prison3}
-prison <- readr::read_csv("data/prison_population.csv") %>%
+prison <- readr::read_csv("data/prison_population.csv") |>
   mutate(Quarter = yearquarter(date))
 ```
 
@@ -197,8 +197,8 @@ prison
 \fontsize{10}{11}\sf
 
 ```{r prison4}
-prison <- readr::read_csv("data/prison_population.csv") %>%
-  mutate(Quarter = yearquarter(date)) %>%
+prison <- readr::read_csv("data/prison_population.csv") |>
+  mutate(Quarter = yearquarter(date)) |>
   select(-date)
 ```
 
@@ -210,9 +210,9 @@ prison
 \fontsize{10}{11}\sf
 
 ```{r prison5}
-prison <- readr::read_csv("data/prison_population.csv") %>%
-  mutate(Quarter = yearquarter(date)) %>%
-  select(-date) %>%
+prison <- readr::read_csv("data/prison_population.csv") |>
+  mutate(Quarter = yearquarter(date)) |>
+  select(-date) |>
   as_tsibble(
     index = Quarter,
     key = c(state, gender, legal, indigenous)
@@ -259,7 +259,7 @@ We can use the `filter()` function to select rows.
 \fontsize{8}{10}\sf
 
 ```{r pbs2}
-PBS %>%
+PBS |>
   filter(ATC2 == "A10")
 ```
 
@@ -271,8 +271,8 @@ We can use the `select()` function to select columns.
 \fontsize{8}{10}\sf
 
 ```{r pbs3}
-PBS %>%
-  filter(ATC2 == "A10") %>%
+PBS |>
+  filter(ATC2 == "A10") |>
   select(Month, Concession, Type, Cost)
 ```
 
@@ -284,9 +284,9 @@ We can use the `summarise()` function to summarise over keys.
 \fontsize{8}{10}\sf
 
 ```{r pbs4}
-PBS %>%
-  filter(ATC2 == "A10") %>%
-  select(Month, Concession, Type, Cost) %>%
+PBS |>
+  filter(ATC2 == "A10") |>
+  select(Month, Concession, Type, Cost) |>
   summarise(total_cost = sum(Cost))
 ```
 
@@ -298,10 +298,10 @@ We can use the `mutate()` function to create new variables.
 \fontsize{8}{10}\sf
 
 ```{r pbs5}
-PBS %>%
-  filter(ATC2 == "A10") %>%
-  select(Month, Concession, Type, Cost) %>%
-  summarise(total_cost = sum(Cost)) %>%
+PBS |>
+  filter(ATC2 == "A10") |>
+  select(Month, Concession, Type, Cost) |>
+  summarise(total_cost = sum(Cost)) |>
   mutate(total_cost = total_cost / 1e6)
 ```
 
@@ -313,10 +313,10 @@ We can use the `mutate()` function to create new variables.
 \fontsize{8}{10}\sf
 
 ```{r pbs6}
-PBS %>%
-  filter(ATC2 == "A10") %>%
-  select(Month, Concession, Type, Cost) %>%
-  summarise(total_cost = sum(Cost)) %>%
+PBS |>
+  filter(ATC2 == "A10") |>
+  select(Month, Concession, Type, Cost) |>
+  summarise(total_cost = sum(Cost)) |>
   mutate(total_cost = total_cost / 1e6) -> a10
 ```
 
@@ -334,7 +334,7 @@ options(width = 60)
 \fontsize{10}{10}\sf
 
 ```{r}
-a10 %>%
+a10 |>
   autoplot(total_cost)
 ```
 
@@ -342,7 +342,7 @@ a10 %>%
 \fontsize{10}{10}\sf
 
 ```{r}
-ansett %>%
+ansett |>
   autoplot(Passengers)
 ```
 
@@ -350,8 +350,8 @@ ansett %>%
 \fontsize{10}{10}\sf
 
 ```{r}
-ansett %>%
-  filter(Class == "Economy") %>%
+ansett |>
+  filter(Class == "Economy") |>
   autoplot(Passengers)
 ```
 
@@ -359,8 +359,8 @@ ansett %>%
 \fontsize{10}{10}\sf
 
 ```{r}
-ansett %>%
-  filter(Airports == "MEL-SYD") %>%
+ansett |>
+  filter(Airports == "MEL-SYD") |>
   autoplot(Passengers)
 ```
 
@@ -387,8 +387,8 @@ Cyclic
 \fontsize{9}{9}\sf
 
 ```{r}
-aus_production %>%
-  filter(year(Quarter) >= 1980) %>%
+aus_production |>
+  filter(year(Quarter) >= 1980) |>
   autoplot(Electricity) +
   labs(y = "GWh", title = "Australian electricity production")
 ```
@@ -397,7 +397,7 @@ aus_production %>%
 \fontsize{9}{9}\sf
 
 ```{r, warning=FALSE}
-aus_production %>%
+aus_production |>
   autoplot(Bricks) +
   labs(y = "million units", title = "Australian clay brick production")
 ```
@@ -406,8 +406,8 @@ aus_production %>%
 \fontsize{9}{9}\sf
 
 ```{r}
-us_employment %>%
-  filter(Title == "Retail Trade", year(Month) >= 1980) %>%
+us_employment |>
+  filter(Title == "Retail Trade", year(Month) >= 1980) |>
   autoplot(Employed / 1e3) +
   labs(y = "Million people", title = "Retail employment, USA")
 ```
@@ -416,8 +416,8 @@ us_employment %>%
 \fontsize{9}{9}\sf
 
 ```{r}
-gafa_stock %>%
-  filter(Symbol == "AMZN", year(Date) >= 2018) %>%
+gafa_stock |>
+  filter(Symbol == "AMZN", year(Date) >= 2018) |>
   autoplot(Close) +
   labs(y = "$US", title = "Amazon closing stock price")
 ```
@@ -426,7 +426,7 @@ gafa_stock %>%
 \fontsize{9}{9}\sf
 
 ```{r}
-pelt %>%
+pelt |>
   autoplot(Lynx) +
   labs(y="Number trapped", title = "Annual Canadian Lynx Trappings")
 ```
@@ -451,7 +451,7 @@ The timing of peaks and troughs is predictable with seasonal data, but unpredict
 \fontsize{10}{10}\sf
 
 ```{r, echo=TRUE, dependson="a10", fig.height=3.3}
-a10 %>% gg_season(total_cost, labels = "both") +
+a10 |> gg_season(total_cost, labels = "both") +
   labs(y = "$ million", title = "Seasonal plot: antidiabetic drug sales")
 ```
 
@@ -466,7 +466,7 @@ a10 %>% gg_season(total_cost, labels = "both") +
 \fontsize{10}{10}\sf
 
 ```{r, echo=TRUE, dependson="a10"}
-a10 %>%
+a10 |>
   gg_subseries(total_cost) +
   labs(y = "$ million", title = "Subseries plot: antidiabetic drug sales")
 ```
@@ -481,24 +481,24 @@ a10 %>%
 \fontsize{9}{9}\sf
 
 ```{r}
-beer <- aus_production %>%
-  select(Quarter, Beer) %>%
+beer <- aus_production |>
+  select(Quarter, Beer) |>
   filter(year(Quarter) >= 1992)
-beer %>% autoplot(Beer)
+beer |> autoplot(Beer)
 ```
 
 ## Quarterly Australian Beer Production
 \fontsize{9}{9}\sf
 
 ```{r}
-beer %>% gg_season(Beer, labels="right")
+beer |> gg_season(Beer, labels="right")
 ```
 
 ## Quarterly Australian Beer Production
 \fontsize{9}{9}\sf
 
 ```{r}
-beer %>% gg_subseries(Beer)
+beer |> gg_subseries(Beer)
 ```
 
 ## Multiple seasonal periods
@@ -512,30 +512,30 @@ vic_elec
 \fontsize{9}{9}\sf
 
 ```{r, dev = "png", dpi = 180}
-vic_elec %>% gg_season(Demand)
+vic_elec |> gg_season(Demand)
 ```
 
 ## Multiple seasonal periods
 \fontsize{9}{9}\sf
 
 ```{r, dev = "png", dpi = 180}
-vic_elec %>% gg_season(Demand, period = "week")
+vic_elec |> gg_season(Demand, period = "week")
 ```
 
 ## Multiple seasonal periods
 \fontsize{9}{9}\sf
 
 ```{r, dev = "png", dpi = 180}
-vic_elec %>% gg_season(Demand, period = "day")
+vic_elec |> gg_season(Demand, period = "day")
 ```
 
 ## Australian holidays
 \fontsize{9}{10}\sf
 
 ```{r holidays}
-holidays <- tourism %>%
-  filter(Purpose == "Holiday") %>%
-  group_by(State) %>%
+holidays <- tourism |>
+  filter(Purpose == "Holiday") |>
+  group_by(State) |>
   summarise(Trips = sum(Trips))
 ```
 
@@ -547,7 +547,7 @@ holidays
 \fontsize{9}{10}\sf
 
 ```{r holidays-plot, echo=TRUE, dependson="holidays"}
-holidays %>% autoplot(Trips) +
+holidays |> autoplot(Trips) +
   labs(y = "thousands of trips", title = "Australian domestic holiday nights")
 ```
 
@@ -555,7 +555,7 @@ holidays %>% autoplot(Trips) +
 \fontsize{9}{10}\sf
 
 ```{r graphics1, fig.width=4, fig.height=4, out.width="45%"}
-holidays %>% gg_season(Trips) +
+holidays |> gg_season(Trips) +
   labs(y = "thousands of trips", title = "Australian domestic holiday nights")
 ```
 
@@ -563,7 +563,7 @@ holidays %>% gg_season(Trips) +
 \fontsize{9}{10}\sf
 
 ```{r graphics2, fig.height=3.1}
-holidays %>%
+holidays |>
   gg_subseries(Trips) +
   labs(y = "thousands of trips", title = "Australian domestic holiday nights")
 ```
@@ -574,7 +574,7 @@ holidays %>%
 \fontsize{10}{10}\sf
 
 ```{r}
-new_production <- aus_production %>%
+new_production <- aus_production |>
   filter(year(Quarter) >= 1992)
 new_production
 ```
@@ -583,14 +583,14 @@ new_production
 \fontsize{10}{10}\sf
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
-new_production %>% gg_lag(Beer)
+new_production |> gg_lag(Beer)
 ```
 
 ## Example: Beer production
 \fontsize{10}{10}\sf
 
 ```{r, fig.height=6, fig.width=6, out.width="6.5cm"}
-new_production %>% gg_lag(Beer, geom='point')
+new_production |> gg_lag(Beer, geom='point')
 ```
 
 ## Lagged scatterplots
@@ -641,7 +641,7 @@ Results for first 9 lags for beer data:
 \fontsize{11}{13}\sf
 
 ```{r, echo=TRUE}
-new_production %>% ACF(Beer, lag_max = 9)
+new_production |> ACF(Beer, lag_max = 9)
 ```
 
 ## Autocorrelation
@@ -651,7 +651,7 @@ Results for first 9 lags for beer data:
 \fontsize{11}{13}\sf
 
 ```{r beeracf, fig.height=2}
-new_production %>% ACF(Beer, lag_max = 9) %>% autoplot()
+new_production |> ACF(Beer, lag_max = 9) |> autoplot()
 ```
 
   * Together, the autocorrelations at lags 1, 2, \dots, make up the \emph{autocorrelation} or ACF.
@@ -664,7 +664,7 @@ new_production %>% ACF(Beer, lag_max = 9) %>% autoplot()
 \fontsize{11}{13}\sf
 
 ```{r beeracf2, fig.height=2}
-new_production %>% ACF(Beer) %>% autoplot()
+new_production |> ACF(Beer) |> autoplot()
 ```
 
   * $r_{4}$  higher than for the other lags. This is due to **the seasonal pattern in the data**: the peaks tend to be **4 quarters** apart and the troughs tend to be **2 quarters** apart.
@@ -698,17 +698,17 @@ Artwork by @allison\_horst
 \fontsize{10}{10}\sf
 
 ```{r}
-retail <- us_employment %>%
+retail <- us_employment |>
   filter(Title == "Retail Trade", year(Month) >= 1980)
-retail %>% autoplot(Employed)
+retail |> autoplot(Employed)
 ```
 
 ## US retail trade employment
 \fontsize{10}{10}\sf
 
 ```{r}
-retail %>%
-  ACF(Employed, lag_max = 48) %>%
+retail |>
+  ACF(Employed, lag_max = 48) |>
   autoplot()
 ```
 
@@ -716,8 +716,8 @@ retail %>%
 \fontsize{10}{10}\sf
 
 ```{r}
-google_2015 <- gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) == 2015) %>%
+google_2015 <- gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) == 2015) |>
   select(Date, Close)
 google_2015
 ```
@@ -726,14 +726,14 @@ google_2015
 \fontsize{10}{10}\sf
 
 ```{r}
-google_2015 %>% autoplot(Close)
+google_2015 |> autoplot(Close)
 ```
 
 ## Google stock price
 \fontsize{10}{10}\sf
 
 ```{r}
-google_2015 %>%
+google_2015 |>
   ACF(Close, lag_max=100)
 ```
 
@@ -741,8 +741,8 @@ google_2015 %>%
 \fontsize{10}{10}\sf
 
 ```{r}
-google_2015 %>%
-  ACF(Close, lag_max = 100) %>%
+google_2015 |>
+  ACF(Close, lag_max = 100) |>
   autoplot()
 ```
 
@@ -761,13 +761,13 @@ tp3 <- autoplot(AirPassengers, value) +
   labs(x = "", y = "thousands", title = "3. Monthly air passengers")
 tp4 <- autoplot(mink, value) +
   labs(x = "", y = "thousands", title = "4. Annual mink trappings")
-acfb <- ACF(cowtemp, value) %>% autoplot() +
+acfb <- ACF(cowtemp, value) |> autoplot() +
   labs(x="", title="B") + ylim(-0.4,1)
-acfa <- ACF(USAccDeaths, value) %>% autoplot() +
+acfa <- ACF(USAccDeaths, value) |> autoplot() +
   labs(x = "", title = "A") + ylim(-0.4,1)
-acfd <- ACF(AirPassengers, value) %>% autoplot() +
+acfd <- ACF(AirPassengers, value) |> autoplot() +
   labs(x = "", title = "D") + ylim(-0.4,1)
-acfc <- ACF(mink, value) %>% autoplot() +
+acfc <- ACF(mink, value) |> autoplot() +
   labs(x = "", title ="C") + ylim(-0.4,1)
 (tp1 | tp2 | tp3 | tp4) / (acfa | acfb | acfc | acfd)
 ```
@@ -780,7 +780,7 @@ acfc <- ACF(mink, value) %>% autoplot() +
 ```{r wn}
 set.seed(30)
 wn <- tsibble(t = 1:50, y = rnorm(50), index = t)
-wn %>% autoplot(y)
+wn |> autoplot(y)
 ```
 
 \only<2>{
@@ -798,20 +798,20 @@ White noise data is uncorrelated across time with zero mean and constant varianc
 \fontsize{10}{10}\sf
 
 ```r
-wn %>% ACF(y)
+wn |> ACF(y)
 ```
 
 \fontsize{10}{10}\sf\tabcolsep=0.1cm
 
 ```{r wnacf, echo=FALSE, dependson="wn"}
-wn %>%
-  ACF(y, lag_max = 10) %>%
-  as_tibble() %>%
-  mutate(lag = as.numeric(lag)) %>%
-  pivot_wider(names_from = lag, values_from = acf) %>%
+wn |>
+  ACF(y, lag_max = 10) |>
+  as_tibble() |>
+  mutate(lag = as.numeric(lag)) |>
+  pivot_wider(names_from = lag, values_from = acf) |>
   rename_all(function(x) {
     paste("$r_{", x, "}$", sep = "")
-  }) %>%
+  }) |>
   knitr::kable(
     booktabs = TRUE,
     escape = FALSE, align = "c", digits = 3,
@@ -820,8 +820,8 @@ wn %>%
 ```
 
 ```{r, echo=FALSE, fig.height=1.5}
-wn %>%
-  ACF(y) %>%
+wn |>
+  ACF(y) |>
   autoplot()
 ```
 
@@ -846,9 +846,9 @@ These are the \alert{critical values}.
 \fontsize{10}{10}\sf
 
 ```{r, fig.height=2.7}
-pigs <- aus_livestock %>%
+pigs <- aus_livestock |>
   filter(State == "Victoria", Animal == "Pigs", year(Month) >= 2014)
-pigs %>% autoplot(Count/1e3) +
+pigs |> autoplot(Count/1e3) +
   labs(y = "Thousands", title = "Number of pigs slaughtered in Victoria")
 ```
 
@@ -856,7 +856,7 @@ pigs %>% autoplot(Count/1e3) +
 \fontsize{10}{10}\sf
 
 ```{r}
-pigs %>% ACF(Count) %>% autoplot()
+pigs |> ACF(Count) |> autoplot()
 ```
 
 ## Example: Pigs slaughtered
@@ -880,8 +880,8 @@ You can compute the daily changes in the Google stock price in 2018 using
 \fontsize{11.5}{15}\sf
 
 ```{r, eval = FALSE}
-dgoog <- gafa_stock %>%
-  filter(Symbol == "GOOG", year(Date) >= 2018) %>%
+dgoog <- gafa_stock |>
+  filter(Symbol == "GOOG", year(Date) >= 2018) |>
   mutate(diff = difference(Close))
 ```
 

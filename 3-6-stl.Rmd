@@ -1,5 +1,5 @@
 ---
-title: "Ch3. Time series decomposition"
+title: "3. Time series decomposition"
 author: "3.6 STL decomposition"
 date: "OTexts.org/fpp3/"
 classoption: aspectratio=169
@@ -40,16 +40,16 @@ library(gganimate)
 ## STL decomposition
 
 ```{r usretail, include=FALSE}
-us_retail_employment <- us_employment %>%
-  filter(year(Month) >= 1990, Title == "Retail Trade") %>%
+us_retail_employment <- us_employment |>
+  filter(year(Month) >= 1990, Title == "Retail Trade") |>
   select(-Series_ID)
 us_retail_employment
 ```
 
 ```{r stlwindow9, warning=FALSE, fig.width=8.5, fig.height=3.4}
-us_retail_employment %>%
-  model(STL(Employed ~ season(window=9), robust=TRUE)) %>%
-  components() %>% autoplot() +
+us_retail_employment |>
+  model(STL(Employed ~ season(window=9), robust=TRUE)) |>
+  components() |> autoplot() +
     labs(title = "STL decomposition: US retail employment")
 ```
 
@@ -62,13 +62,13 @@ stl_defs <- purrr::map(s_windows, function(s_window){
 })
 names(stl_defs) <- sprintf("season(window=%02d)", s_windows)
 
-us_retail_employment %>%
-  model(!!!stl_defs) %>%
-  components() %>%
-  as_tibble() %>%
+us_retail_employment |>
+  model(!!!stl_defs) |>
+  components() |>
+  as_tibble() |>
   pivot_longer(Employed:remainder,
                names_to = "component", names_ptypes = list(component = factor(levels = c("Employed", "trend", "season_year", "remainder"))),
-               values_to = "Employed") %>%
+               values_to = "Employed") |>
   ggplot(aes(x = Month, y = Employed)) +
   geom_line() +
   facet_grid(rows = vars(component), scales = "free_y") +
@@ -82,15 +82,15 @@ us_retail_employment %>%
 ## STL decomposition
 
 ```{r echo = TRUE, results = 'hide'}
-us_retail_employment %>%
-  model(STL(Employed ~ season(window=5))) %>%
+us_retail_employment |>
+  model(STL(Employed ~ season(window=5))) |>
   components()
 
-us_retail_employment %>%
+us_retail_employment |>
   model(STL(Employed ~ trend(window=15) +
                        season(window="periodic"),
             robust = TRUE)
-  ) %>% components()
+  ) |> components()
 ```
 
 \fontsize{12}{13}\sf
@@ -102,9 +102,9 @@ us_retail_employment %>%
 ## STL decomposition
 
 ```{r mstl, fig.width=8.5, fig.height=3.4}
-us_retail_employment %>%
-  model(STL(Employed)) %>%
-  components() %>% autoplot()
+us_retail_employment |>
+  model(STL(Employed)) |>
+  components() |> autoplot()
 ```
 
 \only<2>{\begin{textblock}{7}(8,0.2)\fontsize{11}{11}\sf
