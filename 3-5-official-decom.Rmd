@@ -1,0 +1,79 @@
+---
+title: "Ch3. Time series decomposition"
+author: "3.5 Methods used in official statistics"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## History of time series decomposition
+
+\fontsize{13}{15}\sf
+
+  *  Classical method originated in 1920s.
+  *  Census II method introduced in 1957. Basis for X-11 method and variants (including X-12-ARIMA, X-13-ARIMA)
+  *  STL method introduced in 1983
+  *  TRAMO/SEATS introduced in 1990s.
+\pause
+
+### National Statistics Offices
+ * ABS uses X-12-ARIMA
+ * US Census Bureau uses X-13ARIMA-SEATS
+ * Statistics Canada uses X-12-ARIMA
+ * ONS (UK) uses X-12-ARIMA
+ * EuroStat use X-13ARIMA-SEATS
+
+## X-11 decomposition
+
+**Advantages**
+
+  *  Relatively robust to outliers
+  *  Completely automated choices for trend and seasonal changes
+  *  Very widely tested on economic data over a long period of time.
+
+\pause
+
+**Disadvantages**
+
+  *  No prediction/confidence intervals
+  *  Ad hoc method with no underlying model
+  *  Only developed for quarterly and monthly data
+
+## Extensions: X-12-ARIMA and X-13-ARIMA
+
+  *  The X-11, X-12-ARIMA and X-13-ARIMA methods are based on Census II decomposition.
+  *  These allow adjustments for trading days and other explanatory variables.
+  *  Known outliers can be omitted.
+  *  Level shifts and ramp effects can be modelled.
+  *  Missing values estimated and replaced.
+  *  Holiday factors (e.g., Easter, Labour Day) can be estimated.
+
+## X-13ARIMA-SEATS
+
+**Advantages**
+
+  * Model-based
+  * Smooth trend estimate
+  * Allows estimates at end points
+  * Allows changing seasonality
+  * Developed for economic data
+
+\pause
+
+**Disadvantages**
+
+  *  Only developed for quarterly and monthly data
