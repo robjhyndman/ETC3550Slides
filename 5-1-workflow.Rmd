@@ -1,0 +1,138 @@
+---
+title: "5. The forecaster's toolbox"
+author: "5.1 A tidy forecasting workflow"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## A tidy forecasting workflow
+
+The process of producing forecasts can be split up into a few fundamental steps.
+
+1. Preparing data
+2. Data visualisation
+3. Specifying a model
+4. Model estimation
+5. Accuracy \& performance evaluation
+6. Producing forecasts
+
+## A tidy forecasting workflow
+
+```{r workflow, echo = FALSE}
+line_curve <- function(x, y, xend, yend, ...){
+  geom_curve(
+    aes(x = x, y = y, xend = xend, yend = yend),
+    arrow = arrow(type = "closed", length = unit(0.03, "npc")),
+    ...
+  )
+}
+
+ggplot() +
+  geom_text(
+    aes(x = x, y = y, label = label),
+    data = tribble(
+      ~ x, ~ y, ~ label,
+      1, 0, "Tidy",
+      7/3, 0, "Visualise",
+      3, 0.5, "Specify",
+      11/3, 0, "Estimate",
+      3, -0.5, "Evaluate",
+      5, 0, "Forecast"
+    ),
+    size = 5
+  ) +
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend),
+    data = tribble(
+      ~ x, ~ y, ~ xend, ~ yend,
+      1.3, 0, 1.9, 0,
+      4.1, 0, 4.6, 0
+    ),
+    arrow = arrow(type = "closed", length = unit(0.03, "npc"))
+  ) +
+  line_curve(7/3, 0.1, 8/3, 0.5, angle = 250, curvature = -0.3) +
+  line_curve(10/3, 0.5, 11/3, 0.1, angle = 250, curvature = -0.3) +
+  line_curve(8/3, -0.5, 7/3, -0.1, angle = 250, curvature = -0.3) +
+  line_curve(11/3, -0.1, 10/3, -0.5, angle = 250, curvature = -0.3) +
+  theme_void() +
+  xlim(0.8, 5.2) +
+  ylim(-0.6, 0.6) +
+  coord_equal(ratio = 1)
+```
+
+## Data preparation (tidy)
+\fontsize{10}{13}\sf
+
+```{r GDPpc, fig.height = 3.2}
+gdppc <- global_economy |>
+  mutate(GDP_per_capita = GDP/Population) |>
+  select(Year, Country, GDP, Population, GDP_per_capita)
+gdppc
+```
+
+## Data visualisation
+
+```{r GDP-plot, fig.height = 2.9}
+gdppc |>
+  filter(Country=="Sweden") |>
+  autoplot(GDP_per_capita) +
+    labs(title = "GDP per capita for Sweden", y = "$US")
+```
+
+## Model estimation
+
+The `model()` function trains models to data.
+
+\fontsize{10}{13}\sf
+
+```{r GDP-model, warning=FALSE}
+fit <- gdppc |>
+  model(trend_model = TSLM(GDP_per_capita ~ trend()))
+fit
+```
+
+\only<2>{\begin{textblock}{5}(9,4)
+\begin{alertblock}{}
+A \texttt{mable} is a model table, each cell corresponds to a fitted model.
+\end{alertblock}
+\end{textblock}}
+
+## Producing forecasts
+
+\fontsize{10}{13}\sf
+
+```{r GDP-fc, echo = TRUE, dependson='GDP-model', warning=FALSE}
+fit |> forecast(h = "3 years")
+```
+
+\only<2>{\begin{textblock}{5}(9,2)
+\begin{alertblock}{}
+A \texttt{fable} is a forecast table with point forecasts and distributions.
+\end{alertblock}
+\end{textblock}}
+
+## Visualising forecasts
+
+\footnotesize
+
+```{r GDP-fc-plot, warning=FALSE, message=FALSE, fig.height=3}
+fit |> forecast(h = "3 years") |>
+  filter(Country=="Sweden") |>
+  autoplot(gdppc) +
+    labs(title = "GDP per capita for Sweden", y = "$US")
+```

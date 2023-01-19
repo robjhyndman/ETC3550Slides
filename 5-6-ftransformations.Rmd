@@ -1,0 +1,116 @@
+---
+title: "5. The forecaster's toolbox"
+author: "5.6 Forecasting using transformations"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Modelling with transformations
+
+```{r food, echo=TRUE, fig.height=2.65}
+eggs <- prices |>
+  filter(!is.na(eggs)) |> select(eggs)
+eggs |> autoplot() +
+  labs(title="Annual egg prices",
+       y="$US (adjusted for inflation)")
+```
+
+## Modelling with transformations
+
+Transformations used in the left of the formula will be automatically back-transformed. To model log-transformed egg prices, you could use:
+
+\fontsize{13}{15}\sf
+
+```{r food-bt-fit, dependson='food'}
+fit <- eggs |>
+  model(RW(log(eggs) ~ drift()))
+fit
+```
+
+## Forecasting with transformations
+
+\fontsize{11}{12}\sf
+
+```{r food-bt-fc, dependson='food-bt-fit'}
+fc <- fit |>
+  forecast(h = 50)
+fc
+```
+
+## Forecasting with transformations
+
+```{r elec9,echo=TRUE,fig.height=3, dependson='food-bt-fc'}
+fc |> autoplot(eggs) +
+  labs(title="Annual egg prices",
+       y="US$ (adjusted for inflation)")
+```
+
+## Bias adjustment
+
+  * Back-transformed point forecasts are medians.
+  * Back-transformed PI have the correct coverage.
+
+\pause
+
+**Back-transformed means**
+
+Let $X$ be have mean $\mu$ and variance $\sigma^2$.
+
+Let $f(x)$ be back-transformation function, and $Y=f(X)$.
+
+Taylor series expansion about $\mu$:
+$$f(X) = f(\mu) + (X-\mu)f'(\mu) + \frac{1}{2}(X-\mu)^2f''(\mu).$$\pause\vspace*{-0.4cm}
+
+\begin{alertblock}{}
+\centerline{$\E[Y] = \E[f(X)] = f(\mu) + \frac12 \sigma^2 f''(\mu)$}
+\end{alertblock}
+
+## Bias adjustment
+
+\fontsize{13}{15}\sf
+
+**Box-Cox back-transformation:**
+\begin{align*}
+y_t &= \left\{\begin{array}{ll}
+        \exp(w_t)      & \quad \lambda = 0; \\
+        (\lambda W_t+1)^{1/\lambda}  & \quad \lambda \ne 0.
+\end{array}\right. \\
+f(x) &= \begin{cases}
+                        e^x & \quad\lambda=0;\\
+ (\lambda x + 1)^{1/\lambda} & \quad\lambda\ne0.
+ \end{cases}\\
+f''(x) &= \begin{cases}
+                        e^x & \quad\lambda=0;\\
+ (1-\lambda)(\lambda x + 1)^{1/\lambda-2} & \quad\lambda\ne0.
+ \end{cases}
+\end{align*}\pause
+\begin{alertblock}{}
+\centerline{$\E[Y] = \begin{cases}
+                        e^\mu\left[1+\frac{\sigma^2}{2}\right] & \quad\lambda=0;\\
+ (\lambda \mu + 1)^{1/\lambda}\left[1+\frac{\sigma^2(1-\lambda)}{2(\lambda\mu+1)^2}\right] & \quad\lambda\ne0.
+ \end{cases}$}
+\end{alertblock}
+
+## Bias adjustment
+
+```{r biasadj, fig.height=2.8, message=FALSE}
+fc |>
+  autoplot(eggs, level = 80, point_forecast = lst(mean, median)) +
+  labs(title="Annual egg prices",
+       y="US$ (adjusted for inflation)")
+```
