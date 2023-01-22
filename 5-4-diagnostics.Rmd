@@ -79,10 +79,8 @@ augment(fit) |>
 ```{r dj5, echo=TRUE, warning = FALSE, fig.height=2.8}
 augment(fit) |>
   autoplot(.resid) +
-  labs(
-    y = "$US",
-    title = "Residuals from naïve method"
-  )
+  labs(y = "$US",
+       title = "Residuals from naïve method")
 ```
 
 ## Facebook closing stock price
@@ -154,42 +152,12 @@ where $\ell$  is max lag being considered and $T$ is number of observations.
 
 ## Portmanteau tests
 
-  * If data are WN, $Q^*$ has $\chi^2$ distribution with  $(\ell - K)$ degrees of freedom where $K=$ no.\ parameters in model.
-  * When applied to raw data, set $K=0$.
-  * `lag` $= \ell$, `dof` $= K$
+  * If data are WN, $Q^*$ has $\chi^2$ distribution with  $\ell$ degrees of freedom.
+  * `lag` $= \ell$
 
 \fontsize{11}{12}\sf
 
 ```{r dj9, echo=TRUE}
 augment(fit) |>
-  features(.resid, ljung_box, lag = 10, dof = 0)
+  features(.resid, ljung_box, lag = 10)
 ```
-
-<!-- ## Your turn
-
-Compute seasonal naïve forecasts for quarterly Australian beer production from 1992.
-
-\fontsize{10}{12}\sf
-
-```{r, results = 'hide', fig.show='hide'}
-recent <- aus_production |> filter(year(Quarter) >= 1992)
-fit <- recent |> model(SNAIVE(Beer))
-fit |>
-  forecast() |>
-  autoplot(recent)
-```
-
-\fontsize{14}{15}\sf
-
-Test if the residuals are white noise.
-
-\fontsize{10}{12}\sf
-
-```{r, results = 'hide', fig.show='hide', warning = FALSE}
-augment(fit) |> features(.resid, ljung_box, lag = 10, dof = 0)
-gg_tsresiduals(fit)
-```
-
-\fontsize{14}{15}\sf
-
-What do you conclude? -->

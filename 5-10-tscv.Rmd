@@ -24,7 +24,7 @@ source("setup.R")
 tscv_plot <- function(.init, .step, h = 1) {
   expand.grid(
     time = seq(26),
-    .id = seq(trunc(20 / .step))
+    .id = seq(trunc(11 / .step))
   ) |>
     group_by(.id) |>
     mutate(
@@ -59,7 +59,7 @@ tscv_plot <- function(.init, .step, h = 1) {
 **Traditional evaluation**
 
 ```{r traintest1, fig.height=1, echo=FALSE, dependson="tscvplots"}
-tscv_plot(.init = 18, .step = 20, h = 1:8) +
+tscv_plot(.init = 18, .step = 10, h = 1:8) +
   geom_text(aes(x = 10, y = 0.8, label = "Training data"), color = "#0072B2") +
   geom_text(aes(x = 21, y = 0.8, label = "Test data"), color = "#D55E00") +
   ylim(1, 0)
@@ -69,8 +69,8 @@ tscv_plot(.init = 18, .step = 20, h = 1:8) +
 
 **Time series cross-validation**
 
-```{r tscvggplot1, echo=FALSE}
-tscv_plot(.init = 3, .step = 1, h = 1) +
+```{r tscvggplot1, echo=FALSE, fig.height=2.3}
+tscv_plot(.init = 8, .step = 1, h = 1) +
   geom_text(aes(x = 21, y = 0, label = "h = 1"), color = "#D55E00")
 ```
 
@@ -83,8 +83,8 @@ tscv_plot(.init = 3, .step = 1, h = 1) +
 
 **Time series cross-validation**
 
-```{r tscvggplot2, echo=FALSE,  dependson="tscvplots"}
-tscv_plot(.init = 3, .step = 1, h = 2) +
+```{r tscvggplot2, echo=FALSE,  dependson="tscvplots", fig.height=2.3}
+tscv_plot(.init = 8, .step = 1, h = 2) +
   geom_text(aes(x = 21, y = 0, label = "h = 2"), color = "#D55E00")
 ```
 
@@ -97,8 +97,8 @@ tscv_plot(.init = 3, .step = 1, h = 2) +
 
 **Time series cross-validation**
 
-```{r tscvggplot3, echo=FALSE,  dependson="tscvplots"}
-tscv_plot(.init = 3, .step = 1, h = 3) +
+```{r tscvggplot3, echo=FALSE,  dependson="tscvplots", fig.height=2.3}
+tscv_plot(.init = 8, .step = 1, h = 3) +
   geom_text(aes(x = 21, y = 0, label = "h = 3"), color = "#D55E00")
 ```
 
@@ -111,8 +111,8 @@ tscv_plot(.init = 3, .step = 1, h = 3) +
 
 **Time series cross-validation**
 
-```{r tscvggplot4, echo=FALSE,  dependson="tscvplots"}
-tscv_plot(.init = 3, .step = 1, h = 4) +
+```{r tscvggplot4, echo=FALSE,  dependson="tscvplots", fig.height=2.3}
+tscv_plot(.init = 8, .step = 1, h = 4) +
   geom_text(aes(x = 21, y = 0, label = "h = 4"), color = "#D55E00")
 ```
 

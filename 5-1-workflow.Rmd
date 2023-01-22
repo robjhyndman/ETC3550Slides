@@ -87,7 +87,7 @@ gdppc
 
 ## Data visualisation
 
-```{r GDP-plot, fig.height = 2.9}
+```{r GDP-plot, fig.height = 2.8}
 gdppc |>
   filter(Country == "Sweden") |>
   autoplot(GDP_per_capita) +
@@ -130,10 +130,9 @@ A \texttt{fable} is a forecast table with point forecasts and distributions.
 
 \footnotesize
 
-```{r GDP-fc-plot, warning=FALSE, message=FALSE, fig.height=3}
+```{r GDP-fc-plot, warning=FALSE, message=FALSE, fig.height=2.8}
 fit |>
   forecast(h = "3 years") |>
   filter(Country == "Sweden") |>
-  autoplot(gdppc) +
-  labs(title = "GDP per capita for Sweden", y = "$US")
+  autoplot(gdppc) + labs(title = "GDP per capita for Sweden", y = "$US")
 ```

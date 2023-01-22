@@ -163,10 +163,8 @@ print(brick_fc, n = 4)
 ```{r brick-fc-plot, warning=FALSE, message=FALSE, fig.height=2.6, dependson='brick-fc'}
 brick_fc |>
   autoplot(aus_production, level = NULL) +
-  labs(
-    title = "Clay brick production in Australia",
-    y = "Millions of bricks"
-  ) +
+  labs(title = "Clay brick production in Australia",
+       y = "Millions of bricks") +
   guides(colour = guide_legend(title = "Forecast"))
 ```
 

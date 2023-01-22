@@ -20,16 +20,6 @@ output:
 source("setup.R")
 ```
 
-```{r brick-model}
-brick_fit <- aus_production |>
-  filter(!is.na(Bricks)) |>
-  model(
-    Seasonal_naive = SNAIVE(Bricks),
-    Naive = NAIVE(Bricks),
-    Drift = RW(Bricks ~ drift()),
-    Mean = MEAN(Bricks)
-  )
-```
 
 ## Forecast distributions
 
@@ -70,8 +60,18 @@ where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
 ## Prediction intervals
 \fontsize{10}{12}\sf
 
-```{r brick-fc-interval}
-brick_fit <- aus_production |>
+```{r brick-fc-interval1}
+aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(Seasonal_naive = SNAIVE(Bricks)) |>
+  forecast(h = "5 years")
+```
+
+## Prediction intervals
+\fontsize{10}{12}\sf
+
+```{r brick-fc-interval2}
+aus_production |>
   filter(!is.na(Bricks)) |>
   model(Seasonal_naive = SNAIVE(Bricks)) |>
   forecast(h = "5 years") |>
@@ -79,10 +79,22 @@ brick_fit <- aus_production |>
 ```
 
 ## Prediction intervals
+\fontsize{10}{12}\sf
 
- * Point forecasts often useless without a measure of uncertainty (such as prediction intervals).
+```{r brick-fc-interval3}
+aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(Seasonal_naive = SNAIVE(Bricks)) |>
+  forecast(h = "5 years") |>
+  hilo(level = 95)  |>
+  unpack_hilo("95%")
+```
+
+## Prediction intervals
+
+ * Point forecasts are often useless without a measure of uncertainty (such as prediction intervals).
  * Prediction intervals require a stochastic model (with random errors, etc).
  * For most models, prediction intervals get wider as the forecast horizon increases.
  * Use `level` argument to control coverage.
  * Check residual assumptions before believing them.
- * Usually too narrow due to unaccounted uncertainty.
+ * Prediction intervals are usually too narrow due to unaccounted uncertainty.

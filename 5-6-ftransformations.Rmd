@@ -27,10 +27,7 @@ eggs <- prices |>
   filter(!is.na(eggs)) |>
   select(eggs)
 eggs |> autoplot() +
-  labs(
-    title = "Annual egg prices",
-    y = "$US (adjusted for inflation)"
-  )
+  labs(title = "Annual egg prices", y = "$US (adjusted for inflation)")
 ```
 
 ## Modelling with transformations
@@ -59,10 +56,8 @@ fc
 
 ```{r elec9,echo=TRUE,fig.height=3, dependson='food-bt-fc'}
 fc |> autoplot(eggs) +
-  labs(
-    title = "Annual egg prices",
-    y = "US$ (adjusted for inflation)"
-  )
+  labs(title = "Annual egg prices",
+       y = "US$ (adjusted for inflation)")
 ```
 
 ## Bias adjustment
@@ -116,8 +111,6 @@ f''(x) &= \begin{cases}
 ```{r biasadj, fig.height=2.8, message=FALSE}
 fc |>
   autoplot(eggs, level = 80, point_forecast = lst(mean, median)) +
-  labs(
-    title = "Annual egg prices",
-    y = "US$ (adjusted for inflation)"
-  )
+  labs(title = "Annual egg prices",
+       y = "US$ (adjusted for inflation)")
 ```
