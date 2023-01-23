@@ -139,27 +139,29 @@ $y_{T-5}$ & $(0.2)(0.8)^5$ & $(0.4)(0.6)^5$ & $(0.6)(0.4)^5$ & $(0.8)(0.2)^5$\\
 ## Simple Exponential Smoothing
 
 ```{r alpha-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/5, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-algeria_economy <- global_economy %>%
+algeria_economy <- global_economy |>
   filter(Country == "Algeria")
-alpha_anim <- purrr::map_dfr(set_names(
+alpha_anim <- purrr::map_dfr(
+  set_names(
     seq(0, 0.99, 0.01),
     seq(0, 0.99, 0.01)
   ),
   function(alpha) {
-    algeria_economy %>%
-      model(ETS(Exports ~
-        error("A") +
-        trend("N", alpha = alpha, alpha_range = c(-1, 1), beta_range = c(-1, 1)) +
-        season("N", gamma_range = c(-1, 1)),
-      bounds = "admissible"
-      )) %>%
-      augment() %>%
+    algeria_economy |>
+      model(ETS(
+        Exports ~
+          error("A") +
+          trend("N", alpha = alpha, alpha_range = c(-1, 1), beta_range = c(-1, 1)) +
+          season("N", gamma_range = c(-1, 1)),
+        bounds = "admissible"
+      )) |>
+      augment() |>
       as_tibble()
   },
   .id = "alpha"
-  ) %>%
+) |>
   mutate(alpha = as.numeric(alpha))
-alpha_anim %>%
+alpha_anim |>
   ggplot(aes(x = Year, y = Exports)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
@@ -202,7 +204,7 @@ $$
 \pause
 
 ```{r ses, echo=FALSE}
-fit <- algeria_economy %>%
+fit <- algeria_economy |>
   model(
     ETS(Exports ~ error("A") + trend("N") + season("N"))
   )
@@ -216,18 +218,18 @@ fit <- algeria_economy %>%
 
 ```{r alpha-static, fig.height=4, fig.width=8, echo=FALSE}
 alpha_static <- map_dfr(list(0, as.numeric(tidy(fit)[1, 4]), 1), function(alpha) {
-  fit <- algeria_economy %>%
+  fit <- algeria_economy |>
     model(ETS(Exports ~ error("A") + trend("N",
       alpha = alpha, alpha_range = c(-0.01, 1),
       beta_range = c(-1, 1)
     ) + season("N", gamma_range = c(-1, 1)), bounds = "admissible"))
-  fit %>%
-    augment() %>%
-    mutate(alpha = tidy(fit)$estimate[tidy(fit)$term == "alpha"]) %>%
+  fit |>
+    augment() |>
+    mutate(alpha = tidy(fit)$estimate[tidy(fit)$term == "alpha"]) |>
     as_tibble()
-}) %>%
+}) |>
   mutate(alpha = factor(format(alpha)))
-algeria_economy %>%
+algeria_economy |>
   ggplot(aes(x = Year, y = Exports)) +
   geom_line() +
   geom_line(aes(y = .fitted, colour = alpha), data = alpha_static) +
@@ -321,9 +323,9 @@ trend("N", alpha_range = c(0.2, 0.8))
 \fontsize{10}{10}\sf
 
 ```{r ses-fit, echo=TRUE, cache=TRUE}
-algeria_economy <- global_economy %>%
+algeria_economy <- global_economy |>
   filter(Country == "Algeria")
-fit <- algeria_economy %>%
+fit <- algeria_economy |>
   model(ANN = ETS(Exports ~ error("A") + trend("N") + season("N")))
 report(fit)
 ```
@@ -331,7 +333,7 @@ report(fit)
 ## Example: Algerian Exports
 
 ```{r ses-cmp0, echo = TRUE, fig.asp=0.7}
-components(fit) %>% autoplot()
+components(fit) |> autoplot()
 ```
 
 ## Example: Algerian Exports
@@ -339,15 +341,15 @@ components(fit) %>% autoplot()
 \fontsize{10}{10}\sf
 
 ```{r ses-cmp, echo = TRUE}
-components(fit) %>%
+components(fit) |>
   left_join(fitted(fit), by = c("Country", ".model", "Year"))
 ```
 
 ## Example: Algerian Exports
 
 ```{r ses-fc, echo=TRUE, cache=TRUE}
-fit %>%
-  forecast(h = 5) %>%
+fit |>
+  forecast(h = 5) |>
   autoplot(algeria_economy) +
   labs(y = "% of GDP", title = "Exports: Algeria")
 ```
@@ -386,29 +388,31 @@ Holt's linear method with additive errors.
 ## Exponential smoothing: trend/slope
 
 ```{r beta-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/5, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm', eval=TRUE}
-aus_economy <- global_economy %>% 
-  filter(Code == "AUS") %>%
+aus_economy <- global_economy |>
+  filter(Code == "AUS") |>
   mutate(Pop = Population / 1e6)
-beta_anim <- map_dfr(set_names(
-  seq(0, 0.99, by = 0.01),
-  seq(0, 0.99, by = 0.01)
-),
-function(beta) {
-  aus_economy %>%
-    model(ETS(Pop ~
-      error("A") +
-      trend("A", alpha = 0.001, alpha_range = c(-1, 1), beta = beta) +
-      season("N"),
-    bounds = "admissible"
-    )) %>%
-    augment() %>%
-    as_tibble()
-},
-.id = "beta"
-) %>%
+beta_anim <- map_dfr(
+  set_names(
+    seq(0, 0.99, by = 0.01),
+    seq(0, 0.99, by = 0.01)
+  ),
+  function(beta) {
+    aus_economy |>
+      model(ETS(
+        Pop ~
+          error("A") +
+          trend("A", alpha = 0.001, alpha_range = c(-1, 1), beta = beta) +
+          season("N"),
+        bounds = "admissible"
+      )) |>
+      augment() |>
+      as_tibble()
+  },
+  .id = "beta"
+) |>
   mutate(beta = as.numeric(beta))
-beta_anim %>%
-  left_join(select(aus_economy, Year), by = "Year") %>%
+beta_anim |>
+  left_join(select(aus_economy, Year), by = "Year") |>
   ggplot(aes(x = Year, y = Pop)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
@@ -451,9 +455,10 @@ trend("A", beta_range = c(0, 0.1))
 \fontsize{10}{10}\sf
 
 ```{r holt-fit, echo=TRUE}
-aus_economy <- global_economy %>% filter(Code == "AUS") %>%
+aus_economy <- global_economy |>
+  filter(Code == "AUS") |>
   mutate(Pop = Population / 1e6)
-fit <- aus_economy %>%
+fit <- aus_economy |>
   model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
 report(fit)
 ```
@@ -461,7 +466,7 @@ report(fit)
 ## Example: Australian population
 
 ```{r holt-cmp-plot, echo=TRUE, dependson='holt-fit', fig.height=5}
-components(fit) %>% autoplot()
+components(fit) |> autoplot()
 ```
 
 ## Example: Australian population
@@ -469,15 +474,15 @@ components(fit) %>% autoplot()
 \fontsize{10}{10}\sf
 
 ```{r holt-cmp, echo=TRUE, dependson='holt-fit'}
-components(fit) %>%
+components(fit) |>
   left_join(fitted(fit), by = c("Country", ".model", "Year"))
 ```
 
 ## Example: Australian population
 
 ```{r holt-fc, echo=TRUE, cache=TRUE, dependson='holt-fit'}
-fit %>%
-  forecast(h = 10) %>%
+fit |>
+  forecast(h = 10) |>
   autoplot(aus_economy) +
   labs(y = "Millions", title = "Population: Australia")
 ```
@@ -505,9 +510,9 @@ b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 -\beta^*)\phi b_{t-1}.
 ## Example: Australian population
 
 ```{r, echo=TRUE}
-aus_economy %>%
-  model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
-  forecast(h = 20) %>%
+aus_economy |>
+  model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) |>
+  forecast(h = 20) |>
   autoplot(aus_economy)
 ```
 
@@ -515,8 +520,8 @@ aus_economy %>%
 \fontsize{10}{10}\sf
 
 ```{r, echo=TRUE}
-fit <- aus_economy %>%
-  filter(Year <= 2010) %>%
+fit <- aus_economy |>
+  filter(Year <= 2010) |>
   model(
     ses = ETS(Pop ~ error("A") + trend("N") + season("N")),
     holt = ETS(Pop ~ error("A") + trend("A") + season("N")),
@@ -533,26 +538,26 @@ accuracy(fit)
 \fontsize{13}{15}\sf
 
 ```{r echo=FALSE}
-fit_terms <- tidy(fit) %>%
-  spread(.model, estimate) %>%
-  mutate(term = factor(term, levels = c("alpha", "beta", "phi", "l", "b"), labels = c("$\\alpha$", "$\\beta^*$", "$\\phi$", "$\\ell_0$", "$b_0$"))) %>%
+fit_terms <- tidy(fit) |>
+  spread(.model, estimate) |>
+  mutate(term = factor(term, levels = c("alpha", "beta", "phi", "l", "b"), labels = c("$\\alpha$", "$\\beta^*$", "$\\phi$", "$\\ell_0$", "$b_0$"))) |>
   arrange(term)
 
-fit_accuracy <- accuracy(fit) %>%
+fit_accuracy <- accuracy(fit) |>
   bind_rows(
-    forecast(fit, h = 9) %>%
+    forecast(fit, h = 9) |>
       accuracy(aus_economy)
-  ) %>%
-  gather(term, estimate, -Country, -.model, -.type) %>%
-  spread(.model, estimate) %>%
-  filter(term == "RMSE" | .type == "Test" & term %in% c("RMSE", "MAE", "MAPE", "MASE")) %>%
-  arrange(desc(.type), desc(term)) %>%
+  ) |>
+  gather(term, estimate, -Country, -.model, -.type) |>
+  spread(.model, estimate) |>
+  filter(term == "RMSE" | .type == "Test" & term %in% c("RMSE", "MAE", "MAPE", "MASE")) |>
+  arrange(desc(.type), desc(term)) |>
   unite("term", .type, term, sep = " ")
 
-bind_rows(fit_terms, fit_accuracy) %>%
-  select(term, ses, holt, damped) %>%
-  rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) %>%
-  mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) %>%
+bind_rows(fit_terms, fit_accuracy) |>
+  select(term, ses, holt, damped) |>
+  rename(SES = ses, `Linear trend` = holt, `Damped trend` = damped) |>
+  mutate_if(is.numeric, ~ ifelse(is.na(.), "", formatC(., format = "f", 2))) |>
   knitr::kable(booktabs = TRUE, align = "r")
 ```
 
@@ -598,20 +603,20 @@ s_{t} &= \gamma (y_{t}-\ell_{t-1}-b_{t-1}) + (1-\gamma)s_{t-m}
 ## Exponential smoothing: seasonality
 
 ```{r gamma-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/5, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
-j07 <- PBS %>%
-  filter(ATC2 == "J07") %>%
+j07 <- PBS |>
+  filter(ATC2 == "J07") |>
   summarise(Cost = sum(Cost))
 gamma_anim <- map_dfr(set_names(seq(0, 0.99, 0.01), seq(0, 0.99, 0.01)), function(gamma) {
-  j07 %>%
+  j07 |>
     model(ETS(Cost ~ error("A") + trend("N",
       alpha = 0.002, alpha_range = c(-1, 1), beta = 0.001,
       beta_range = c(-1, 1)
-    ) + season("A", gamma = gamma, gamma_range = c(-1, 1)), bounds = "admissible")) %>%
-    augment() %>%
+    ) + season("A", gamma = gamma, gamma_range = c(-1, 1)), bounds = "admissible")) |>
+    augment() |>
     as_tibble()
-}, .id = "gamma") %>%
+}, .id = "gamma") |>
   mutate(gamma = as.numeric(gamma))
-gamma_anim %>%
+gamma_anim |>
   ggplot(aes(x = Month, y = Cost)) +
   geom_line() +
   geom_line(aes(y = .fitted), colour = "blue") +
@@ -682,21 +687,21 @@ Holt-Winters multiplicative method with multiplicative errors.
 ## Example: Australian holiday tourism
 
 ```{r 7-HW, echo=TRUE}
-aus_holidays <- tourism %>%
-  filter(Purpose == "Holiday") %>%
+aus_holidays <- tourism |>
+  filter(Purpose == "Holiday") |>
   summarise(Trips = sum(Trips))
-fit <- aus_holidays %>%
+fit <- aus_holidays |>
   model(
     additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
     multiplicative = ETS(Trips ~ error("M") + trend("A") + season("M"))
   )
-fc <- fit %>% forecast()
+fc <- fit |> forecast()
 ```
 
 ## Example: Australian holiday tourism
 
 ```{r}
-fc %>%
+fc |>
   autoplot(aus_holidays, level = NULL) +
   labs(y = "Thousands", title = "Overnight trips")
 ```
@@ -711,19 +716,19 @@ components(fit)
 ## Estimated components
 
 ```{r fig-7-LevelTrendSeas, fig.width=8, fig.height=4, out.width="100%", echo=FALSE}
-components(fit) %>%
-  gather("state", "value", -.model, -Quarter, factor_key = TRUE) %>%
-  group_by(.model) %>%
-  group_split() %>%
+components(fit) |>
+  gather("state", "value", -.model, -Quarter, factor_key = TRUE) |>
+  group_by(.model) |>
+  group_split() |>
   purrr::map(
     ~ ggplot(., aes(x = Quarter, y = value)) +
       geom_line() +
       facet_grid(state ~ ., scales = "free") +
       labs(
         x = "Year", y = "",
-        title = stringr::str_to_title(unique(.$.model)) %>% paste("states")
+        title = stringr::str_to_title(unique(.$.model)) |> paste("states")
       )
-  ) %>%
+  ) |>
   wrap_plots(ncol = 2)
 ```
 
@@ -751,20 +756,20 @@ Apply Holt-Winters’ multiplicative method to the Gas data from `aus_production
 ## Holt-Winters with daily data
 
 ```{r hwdaily, echo=TRUE, eval=FALSE}
-sth_cross_ped <- pedestrian %>%
+sth_cross_ped <- pedestrian |>
   filter(
     Date >= "2016-07-01",
     Sensor == "Southern Cross Station"
-  ) %>%
-  index_by(Date) %>%
+  ) |>
+  index_by(Date) |>
   summarise(Count = sum(Count) / 1000)
-sth_cross_ped %>%
-  filter(Date <= "2016-07-31") %>%
+sth_cross_ped |>
+  filter(Date <= "2016-07-31") |>
   model(
     hw = ETS(Count ~ error("M") + trend("Ad") + season("M"))
-  ) %>%
-  forecast(h = "2 weeks") %>%
-  autoplot(sth_cross_ped %>% filter(Date <= "2016-08-14")) +
+  ) |>
+  forecast(h = "2 weeks") |>
+  autoplot(sth_cross_ped |> filter(Date <= "2016-08-14")) +
   labs(
     title = "Daily traffic: Southern Cross",
     y = "Pedestrians ('000)"
@@ -774,7 +779,6 @@ sth_cross_ped %>%
 ## Holt-Winters with daily data
 
 ```{r hwdaily_repeat, ref.label="hwdaily", echo=FALSE, eval=TRUE}
-
 ```
 
 # Innovations state space models
@@ -960,8 +964,8 @@ Method performed very well in M3 competition.
 \fontsize{10}{10}\sf
 
 ```{r popfit, echo=TRUE, cache=TRUE}
-fit <- global_economy %>%
-  mutate(Pop = Population / 1e6) %>%
+fit <- global_economy |>
+  mutate(Pop = Population / 1e6) |>
   model(ets = ETS(Pop))
 fit
 ```
@@ -970,7 +974,7 @@ fit
 \fontsize{10}{10}\sf
 
 ```{r popfc, echo=TRUE, cache=TRUE, dependson="popfit"}
-fit %>%
+fit |>
   forecast(h = 5)
 ```
 
@@ -978,9 +982,9 @@ fit %>%
 \fontsize{10}{10}\sf
 
 ```{r ausholidays-fit, echo=TRUE}
-holidays <- tourism %>%
+holidays <- tourism |>
   filter(Purpose == "Holiday")
-fit <- holidays %>% model(ets = ETS(Trips))
+fit <- holidays |> model(ets = ETS(Trips))
 fit
 ```
 
@@ -988,8 +992,8 @@ fit
 \fontsize{10}{10}\sf
 
 ```{r ausholidays-report}
-fit %>%
-  filter(Region == "Snowy Mountains") %>%
+fit |>
+  filter(Region == "Snowy Mountains") |>
   report()
 ```
 
@@ -997,17 +1001,17 @@ fit %>%
 \fontsize{10}{10}\sf
 
 ```{r ausholidays-components}
-fit %>%
-  filter(Region == "Snowy Mountains") %>%
+fit |>
+  filter(Region == "Snowy Mountains") |>
   components(fit)
 ```
 
 ## Example: Australian holiday tourism
 
 ```{r ausholidays-components-plot}
-fit %>%
-  filter(Region == "Snowy Mountains") %>%
-  components(fit) %>%
+fit |>
+  filter(Region == "Snowy Mountains") |>
+  components(fit) |>
   autoplot()
 ```
 
@@ -1015,14 +1019,15 @@ fit %>%
 \fontsize{10}{10}\sf
 
 ```{r ausholidays-forecast}
-fit %>% forecast()
+fit |> forecast()
 ```
 
 ## Example: Australian holiday tourism
 
 ```{r ausholidays-forecast-plot}
-fit %>% forecast() %>%
-  filter(Region == "Snowy Mountains") %>%
+fit |>
+  forecast() |>
+  filter(Region == "Snowy Mountains") |>
   autoplot(holidays) +
   labs(y = "Thousands", title = "Overnight trips")
 ```
@@ -1043,11 +1048,11 @@ $$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
 \fontsize{10}{10}\sf
 
 ```{r, echo = TRUE}
-aus_holidays <- tourism %>%
-  filter(Purpose == "Holiday") %>%
+aus_holidays <- tourism |>
+  filter(Purpose == "Holiday") |>
   summarise(Trips = sum(Trips))
-fit <- aus_holidays %>%
-  model(ets = ETS(Trips)) %>%
+fit <- aus_holidays |>
+  model(ets = ETS(Trips)) |>
   report()
 ```
 
@@ -1061,9 +1066,9 @@ residuals(fit, type = "response")
 
 ```{r, echo=FALSE}
 bind_rows(
-  residuals(fit) %>% mutate(Type = "Innovation residuals") %>% as_tibble(),
-  residuals(fit, type = "response") %>% mutate(Type = "Response residuals") %>% as_tibble()
-) %>%
+  residuals(fit) |> mutate(Type = "Innovation residuals") |> as_tibble(),
+  residuals(fit, type = "response") |> mutate(Type = "Response residuals") |> as_tibble()
+) |>
   ggplot(aes(x = Quarter, y = .resid)) +
   geom_line() +
   facet_grid(Type ~ ., scales = "free_y") +
@@ -1078,7 +1083,7 @@ fred <- options(width = 67)
 ```
 
 ```{r tourismresiduals, dependson="wider"}
-fit %>%
+fit |>
   augment()
 ```
 
@@ -1198,18 +1203,18 @@ PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on c
 ## Example: Corticosteroid drug sales
 
 ```{r h02-plot, echo = TRUE}
-h02 <- PBS %>%
-  filter(ATC2 == "H02") %>%
+h02 <- PBS |>
+  filter(ATC2 == "H02") |>
   summarise(Cost = sum(Cost))
-h02 %>% autoplot(Cost)
+h02 |> autoplot(Cost)
 ```
 
 ## Example: Corticosteroid drug sales
 \fontsize{8}{7.5}\sf
 
 ```{r, echo=TRUE}
-h02 %>%
-  model(ETS(Cost)) %>%
+h02 |>
+  model(ETS(Cost)) |>
   report()
 ```
 
@@ -1217,17 +1222,17 @@ h02 %>%
 \fontsize{8}{8}\sf
 
 ```{r, echo=TRUE}
-h02 %>%
-  model(ETS(Cost ~ error("A") + trend("A") + season("A"))) %>%
+h02 |>
+  model(ETS(Cost ~ error("A") + trend("A") + season("A"))) |>
   report()
 ```
 
 ## Example: Corticosteroid drug sales
 
 ```{r, echo=TRUE, fig.height=3}
-h02 %>%
-  model(ETS(Cost)) %>%
-  forecast() %>%
+h02 |>
+  model(ETS(Cost)) |>
+  forecast() |>
   autoplot(h02)
 ```
 
@@ -1235,22 +1240,22 @@ h02 %>%
 \fontsize{10}{12}\sf
 
 ```{r, echo=TRUE, results = "hide"}
-h02 %>%
+h02 |>
   model(
     auto = ETS(Cost),
     AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
-  ) %>%
+  ) |>
   accuracy()
 ```
 
 ```{r, echo=FALSE, eval=TRUE}
-h02 %>%
+h02 |>
   model(
     auto = ETS(Cost),
     AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
-  ) %>%
-  accuracy() %>%
-  transmute(Model = .model, MAE, RMSE, MAPE, MASE, RMSSE) %>%
+  ) |>
+  accuracy() |>
+  transmute(Model = .model, MAE, RMSE, MAPE, MASE, RMSSE) |>
   knitr::kable(booktabs = TRUE)
 ```
 

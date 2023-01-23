@@ -152,7 +152,6 @@ fc %>%
     y = "US$ (adjusted for inflation)"
   )
 
-
 ## US RETAIL EMPLOYMENT
 
 us_retail_employment <- us_employment %>%

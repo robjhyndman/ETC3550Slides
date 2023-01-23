@@ -133,11 +133,13 @@ should this affect leasing and sales policies?
 **Problem:** how to forecast passenger traffic on major routes?
 
 ```{r, fig.height=3.5, echo=FALSE}
-ansett %>%
-  filter(Airports == "MEL-SYD") %>%
+ansett |>
+  filter(Airports == "MEL-SYD") |>
   autoplot(Passengers) +
-  labs(title="Economy class passengers: Melbourne-Sydney",
-       y="Thousands")
+  labs(
+    title = "Economy class passengers: Melbourne-Sydney",
+    y = "Thousands"
+  )
 ```
 
 \vspace*{10cm}

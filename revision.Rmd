@@ -18,7 +18,7 @@ output:
 
 ```{r setup, include=FALSE}
 source("setup.R")
-melsyd <- tsibbledata::ansett %>%
+melsyd <- tsibbledata::ansett |>
   filter(Airports == "MEL-SYD")
 ```
 
@@ -144,8 +144,8 @@ should this affect leasing and sales policies?
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE}
-melsyd %>%
-  filter(Class == "Economy") %>%
+melsyd |>
+  filter(Class == "Economy") |>
   autoplot(Passengers) +
   labs(
     title = "Economy class passengers",

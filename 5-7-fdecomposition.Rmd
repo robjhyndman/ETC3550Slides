@@ -1,0 +1,95 @@
+---
+title: "5. The forecaster's toolbox"
+author: "5.7 Forecasting with decomposition"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Forecasting and decomposition
+
+\begin{block}{}
+$$y_t = \hat{S}_t + \hat{A}_t$$
+\vspace*{-0.5cm}\begin{itemize}\tightlist
+  \item $\hat{A}_t$ is seasonally adjusted component
+  \item $\hat{S}_t$ is seasonal component.
+\end{itemize}
+\end{block}
+
+  *  Forecast $\hat{S}_t$ using SNAIVE.
+  *  Forecast $\hat{A}_t$ using non-seasonal time series method.
+  *  Combine forecasts of $\hat{S}_t$ and $\hat{A}_t$ to get forecasts of original data.
+
+## US Retail Employment
+\fontsize{10}{11}\sf
+
+```{r usretail}
+us_retail_employment <- us_employment |>
+  filter(year(Month) >= 1990, Title == "Retail Trade") |>
+  select(-Series_ID)
+us_retail_employment
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+\fontsize{10}{11}\sf
+
+```{r usretail1, echo=TRUE, fig.height=3.2}
+dcmp <- us_retail_employment |>
+  model(STL(Employed)) |>
+  components() |>
+  select(-.model)
+dcmp
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+
+```{r usretail2, echo=TRUE, fig.height=2.6}
+dcmp |>
+  model(NAIVE(season_adjust)) |>
+  forecast() |>
+  autoplot(dcmp) +
+  labs(title = "Naive forecasts of seasonally adjusted data")
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+\fontsize{10}{11}\sf
+
+```{r usretail3, echo=TRUE, fig.height=2.4}
+us_retail_employment |>
+  model(stlf = decomposition_model(
+    STL(Employed ~ trend(window = 7), robust = TRUE),
+    NAIVE(season_adjust)
+  )) |>
+  forecast() |>
+  autoplot(us_retail_employment)
+```
+
+\vspace*{10cm}
+
+## Decomposition models
+
+`decomposition_model()` creates a decomposition model
+
+ * You must provide a method for forecasting the `season_adjust` series.
+ * A seasonal naive method is used by default for the `seasonal` components.
+ * The variances from both the seasonally adjusted and seasonal forecasts are combined.

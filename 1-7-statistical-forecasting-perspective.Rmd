@@ -1,0 +1,234 @@
+---
+title: "1. Getting started"
+author: "1.7 The statistical forecasting perspective"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3.5
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(patchwork)
+library(gganimate)
+austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") |>
+  as_tsibble(index = Year)
+melsyd <- tsibbledata::ansett |>
+  filter(Airports == "MEL-SYD")
+```
+
+## Random futures
+
+```{r austa, echo=FALSE}
+# Grab ABS data
+austa <- readxl::read_excel("data/340101.xlsx", sheet = "Data1", skip = 9) |>
+  rename(date = `Series ID`, value = A85375847A) |>
+  select(date, value) |>
+  transmute(
+    Month = yearmonth(date),
+    Visitors = value / 1e3
+  ) |>
+  bind_rows(tibble(
+    Month = yearmonth(seq(as.Date("2021-11-01"), by = "1 month", length = 2)),
+    Visitors = NA_real_
+  )) |>
+  as_tsibble(index = Month) |>
+  filter(Month >= yearmonth("2000 Jan"))
+# Fit ETS model
+fit <- austa |>
+  filter(Month < yearmonth("2018 Jan")) |>
+  model(ETS(Visitors))
+# Product forecasts
+fc <- forecast(fit, h = 48) |>
+  mutate(Month = as.Date(Month))
+# Simulate 100 future sample paths
+set.seed(1967)
+sim <- fit |>
+  generate(h = 48, times = 100) |>
+  mutate(
+    replicate = factor(.rep, levels = 1:100, labels = paste("Future", 1:100)),
+    .rep = as.numeric(.rep)
+  ) |>
+  as_tibble() |>
+  mutate(Month = as.Date(Month))
+# Nice colors
+cols <- scale_colour_manual(
+  values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", sample(rainbow(93))),
+  breaks = paste("Future", 1:100),
+  name = " "
+)
+# Now build up some plots with alignment
+p1 <- austa |>
+  mutate(Visitors = if_else(Month >= yearmonth("2018 Jan"), NA_real_, Visitors)) |>
+  as_tibble() |>
+  mutate(Month = as.Date(Month)) |>
+  ggplot(aes(x = Month, y = Visitors)) +
+  geom_line() +
+  labs(
+    x = "Month",
+    y = "Thousands of visitors",
+    title = "Total short-term visitors to Australia"
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2000-01-01"), by = "5 years", l = 5),
+    labels = paste("Jan", seq(2000, 2020, by = 5)),
+    minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
+  ) +
+  ylim(min(austa$Visitors, sim$.sim, na.rm = TRUE), max(austa$Visitors, sim$.sim, na.rm = TRUE))
+p2 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim |> filter(.rep <= 1)
+  )
+p3 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim |> filter(.rep <= 2)
+  )
+p4 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim |> filter(.rep <= 3)
+  )
+p5 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate),
+    data = sim |> filter(.rep <= 10)
+  )
+p6 <- p1 + cols +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, data = sim) +
+  guides(colour = "none")
+p7 <- p1 +
+  geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, col = "gray", data = sim) +
+  guides(colour = "none")
+p8 <- p7 + autolayer(fc, level = c(50, 90))
+p9 <- p8 + coord_cartesian(xlim = as.Date(c("2014-01-01", "2021-08-01"))) +
+  scale_x_date(
+    breaks = seq(as.Date("2000-01-01"), by = "2 years", l = 11),
+    labels = paste("Jan", seq(2000, 2020, by = 2)),
+    minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
+  )
+aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+```
+
+\forecast\pause
+
+```{r austa1, dependson="austa", echo=FALSE}
+aligned_plots[[1]]
+```
+
+## Random futures
+
+\forecast
+
+```{r austa2, dependson='austa', echo=FALSE}
+aligned_plots[[2]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa3, dependson='austa', echo=FALSE}
+aligned_plots[[3]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa4, dependson='austa', echo=FALSE}
+aligned_plots[[4]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa5, dependson='austa', echo=FALSE}
+aligned_plots[[5]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa6, dependson='austa', echo=FALSE}
+aligned_plots[[6]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa7, dependson='austa', echo=FALSE}
+aligned_plots[[7]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa8, dependson='austa', echo=FALSE}
+aligned_plots[[8]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa9, dependson='austa', echo=FALSE}
+aligned_plots[[9]]
+```
+
+\simfutures
+
+## Random futures
+
+\forecast
+
+```{r austa9b, dependson='austa', echo=FALSE}
+aligned_plots[[9]] +
+  geom_line(
+    colour = "black",
+    data = austa |> filter(Month >= yearmonth("2018 Jan")) |> mutate(Month = as.Date(Month))
+  )
+```
+
+\simfutures
+
+\only<2>{\begin{textblock}{8.5}(.3,6.5)\begin{alertblock}{}
+``He who sees the past as surprise-free is bound to have a future full of surprises.''\\\mbox{}\hfill{\small (Amos Tversky)}
+\end{alertblock}\end{textblock}
+}
+
+## Statistical forecasting
+
+\fontsize{14}{16}\sf
+
+- Thing to be forecast: a random variable, $y_t$.
+- Forecast distribution: If ${\cal I}$ is all observations, then $y_{t} |{\cal I}$ means "the random variable $y_{t}$ given what we know in ${\cal I}$.
+- The "point forecast" is the mean (or median) of $y_{t} |{\cal I}$
+- The "forecast variance" is $\text{var}[y_{t} |{\cal I}]$
+- A prediction interval or "interval forecast" is a range of values of $y_t$ with high probability.
+- With time series, ${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$.
+- $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).

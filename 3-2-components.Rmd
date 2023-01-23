@@ -1,0 +1,153 @@
+---
+title: "3. Time series decomposition"
+author: "3.2 Time series components"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Time series patterns
+
+**Recall**
+
+Trend
+:  pattern exists when there is a long-term increase or decrease in the data.
+
+Cyclic
+: pattern exists when data exhibit rises and falls that are *not of fixed period* (duration usually of at least 2 years).
+
+Seasonal
+: pattern exists when a series is influenced by seasonal factors (e.g., the quarter of the year, the month, or day of the week).
+
+## Time series decomposition
+
+\begin{block}{}\vspace*{-0.3cm}
+\[ y_t = f(S_t, T_t, R_t) \]
+\end{block}
+\begin{tabular}{@{}llp{8cm}@{}}
+where & $y_t=$ & data at period $t$ \\
+      & $T_t=$ & trend-cycle component at period $t$\\
+      & $S_t=$ & seasonal component at period $t$ \\
+      & $R_t=$ & remainder component at period $t$
+\end{tabular}
+\pause
+
+**Additive decomposition:** $y_t = S_t + T_t + R_t.$
+
+**Multiplicative decomposition:** $y_t = S_t \times T_t \times R_t.$
+
+## Time series decomposition
+\fontsize{13}{15}\sf
+
+  *  Additive model  appropriate if  magnitude of  seasonal fluctuations does not vary with level.
+  *  If seasonal are proportional to level of series, then multiplicative model appropriate.
+  *  Multiplicative decomposition more prevalent with economic series
+  *  Alternative: use a Box-Cox transformation, and then use additive decomposition.
+  *  Logs turn multiplicative relationship into an additive relationship:
+
+$$y_t = S_t \times T_t \times R_t \quad\Rightarrow\quad
+\log y_t = \log S_t + \log T_t + \log R_t.
+$$
+
+## US Retail Employment
+\fontsize{11}{11}\sf
+
+```{r usretail}
+us_retail_employment <- us_employment |>
+  filter(year(Month) >= 1990, Title == "Retail Trade") |>
+  select(-Series_ID)
+us_retail_employment
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+
+```{r dable1}
+us_retail_employment |>
+  autoplot(Employed) +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+\fontsize{11}{11}\sf
+
+```{r dable2}
+us_retail_employment |>
+  model(stl = STL(Employed))
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+\fontsize{11}{11}\sf
+
+```{r dable3}
+dcmp <- us_retail_employment |>
+  model(stl = STL(Employed))
+components(dcmp)
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+
+```{r usretail-stl, fig.width=8, fig.height=5}
+components(dcmp) |> autoplot()
+```
+
+## US Retail Employment
+
+```{r dable4}
+us_retail_employment |>
+  autoplot(Employed, color = "gray") +
+  autolayer(components(dcmp), trend, color = "#D55E00") +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
+```
+
+\vspace*{10cm}
+
+## US Retail Employment
+
+```{r usretail3}
+components(dcmp) |> gg_subseries(season_year)
+```
+
+## Seasonal adjustment
+
+  *  Useful by-product of decomposition:  an easy way to calculate seasonally adjusted data.
+  *  Additive decomposition: seasonally adjusted data given by
+$$y_t - S_t = T_t + R_t$$
+  *  Multiplicative decomposition: seasonally adjusted data given by
+$$y_t / S_t = T_t \times R_t$$
+
+## US Retail Employment
+
+```{r usretail-sa}
+us_retail_employment |>
+  autoplot(Employed, color = "gray") +
+  autolayer(components(dcmp), season_adjust, color = "#0072B2") +
+  labs(y = "Persons (thousands)", title = "Total employment in US retail")
+```
+
+## Seasonal adjustment
+
+  * We use estimates of $S$ based on past values to seasonally adjust a current value.
+  *  Seasonally adjusted series reflect **remainders** as well as **trend**. Therefore they are not "smooth" and "downturns" or "upturns" can be misleading.
+  *  It is better to use the trend-cycle component to look for turning points.

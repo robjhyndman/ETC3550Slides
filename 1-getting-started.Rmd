@@ -20,9 +20,9 @@ output:
 source("setup.R")
 library(patchwork)
 library(gganimate)
-austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") %>%
+austa <- readr::read_csv("http://OTexts.com/fpp3/extrafiles/austa.csv") |>
   as_tsibble(index = Year)
-melsyd <- tsibbledata::ansett %>%
+melsyd <- tsibbledata::ansett |>
   filter(Airports == "MEL-SYD")
 ```
 
@@ -108,35 +108,35 @@ Something is easier to forecast if:
 
 ```{r austa, echo=FALSE}
 # Grab ABS data
-austa <- readxl::read_excel("data/340101.xlsx", sheet="Data1", skip=9) %>%
-  rename(date = `Series ID`, value = A85375847A) %>%
-  select(date, value) %>%
+austa <- readxl::read_excel("data/340101.xlsx", sheet = "Data1", skip = 9) |>
+  rename(date = `Series ID`, value = A85375847A) |>
+  select(date, value) |>
   transmute(
     Month = yearmonth(date),
     Visitors = value / 1e3
-  ) %>%
+  ) |>
   bind_rows(tibble(
     Month = yearmonth(seq(as.Date("2021-11-01"), by = "1 month", length = 2)),
     Visitors = NA_real_
-  )) %>%
-  as_tsibble(index = Month) %>%
+  )) |>
+  as_tsibble(index = Month) |>
   filter(Month >= yearmonth("2000 Jan"))
 # Fit ETS model
-fit <- austa %>%
-  filter(Month < yearmonth("2018 Jan")) %>%
+fit <- austa |>
+  filter(Month < yearmonth("2018 Jan")) |>
   model(ETS(Visitors))
 # Product forecasts
-fc <- forecast(fit, h = 48) %>%
+fc <- forecast(fit, h = 48) |>
   mutate(Month = as.Date(Month))
 # Simulate 100 future sample paths
 set.seed(1967)
-sim <- fit %>%
-  generate(h = 48, times = 100) %>%
+sim <- fit |>
+  generate(h = 48, times = 100) |>
   mutate(
     replicate = factor(.rep, levels = 1:100, labels = paste("Future", 1:100)),
     .rep = as.numeric(.rep)
-  ) %>%
-  as_tibble() %>%
+  ) |>
+  as_tibble() |>
   mutate(Month = as.Date(Month))
 # Nice colors
 cols <- scale_colour_manual(
@@ -145,10 +145,10 @@ cols <- scale_colour_manual(
   name = " "
 )
 # Now build up some plots with alignment
-p1 <- austa %>%
-  mutate(Visitors = if_else(Month >= yearmonth("2018 Jan"), NA_real_, Visitors)) %>%
-  as_tibble() %>%
-  mutate(Month = as.Date(Month)) %>%
+p1 <- austa |>
+  mutate(Visitors = if_else(Month >= yearmonth("2018 Jan"), NA_real_, Visitors)) |>
+  as_tibble() |>
+  mutate(Month = as.Date(Month)) |>
   ggplot(aes(x = Month, y = Visitors)) +
   geom_line() +
   labs(
@@ -164,19 +164,19 @@ p1 <- austa %>%
   ylim(min(austa$Visitors, sim$.sim, na.rm = TRUE), max(austa$Visitors, sim$.sim, na.rm = TRUE))
 p2 <- p1 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim %>% filter(.rep <= 1)
+    data = sim |> filter(.rep <= 1)
   )
 p3 <- p1 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim %>% filter(.rep <= 2)
+    data = sim |> filter(.rep <= 2)
   )
 p4 <- p1 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim %>% filter(.rep <= 3)
+    data = sim |> filter(.rep <= 3)
   )
 p5 <- p1 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim %>% filter(.rep <= 10)
+    data = sim |> filter(.rep <= 10)
   )
 p6 <- p1 + cols +
   geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, data = sim) +
@@ -185,13 +185,13 @@ p7 <- p1 +
   geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, col = "gray", data = sim) +
   guides(colour = "none")
 p8 <- p7 + autolayer(fc, level = c(50, 90))
-p9 <- p8 + coord_cartesian(xlim=as.Date(c("2014-01-01","2021-08-01"))) +
+p9 <- p8 + coord_cartesian(xlim = as.Date(c("2014-01-01", "2021-08-01"))) +
   scale_x_date(
     breaks = seq(as.Date("2000-01-01"), by = "2 years", l = 11),
     labels = paste("Jan", seq(2000, 2020, by = 2)),
     minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
-  ) 
-aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8,p9)
+  )
+aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 ```
 
 \forecast\pause
@@ -288,7 +288,7 @@ aligned_plots[[9]]
 aligned_plots[[9]] +
   geom_line(
     colour = "black",
-    data = austa %>% filter(Month >= yearmonth("2018 Jan")) %>% mutate(Month = as.Date(Month))
+    data = austa |> filter(Month >= yearmonth("2018 Jan")) |> mutate(Month = as.Date(Month))
   )
 ```
 
@@ -403,8 +403,8 @@ should this affect leasing and sales policies?
 ## CASE STUDY 4: Airline
 
 ```{r, echo=FALSE}
-melsyd %>%
-  filter(Class == "Economy") %>%
+melsyd |>
+  filter(Class == "Economy") |>
   autoplot(Passengers) +
   labs(
     title = "Economy class passengers",

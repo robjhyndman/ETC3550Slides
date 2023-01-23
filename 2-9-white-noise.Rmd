@@ -1,0 +1,122 @@
+---
+title: "2. Time series graphics"
+author: "2.9 White noise"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Example: White noise
+\fontsize{10}{10}\sf
+
+```{r wn}
+set.seed(30)
+wn <- tsibble(t = 1:50, y = rnorm(50), index = t)
+wn |> autoplot(y)
+```
+
+\only<2>{
+\begin{textblock}{10}(.4,6.6)\fontsize{12}{13}\sf
+\begin{alertblock}{}
+White noise data is uncorrelated across time with zero mean and constant variance.
+
+(Technically, we require independence as well.)
+\end{alertblock}
+\end{textblock}}
+
+\vspace*{10cm}
+
+## Example: White noise
+\fontsize{10}{10}\sf
+
+```r
+wn |> ACF(y)
+```
+
+\fontsize{10}{10}\sf\tabcolsep=0.1cm
+
+```{r wnacf, echo=FALSE, dependson="wn"}
+wn |>
+  ACF(y, lag_max = 10) |>
+  as_tibble() |>
+  mutate(lag = as.numeric(lag)) |>
+  pivot_wider(names_from = lag, values_from = acf) |>
+  rename_all(function(x) {
+    paste("$r_{", x, "}$", sep = "")
+  }) |>
+  knitr::kable(
+    booktabs = TRUE,
+    escape = FALSE, align = "c", digits = 3,
+    format.args = list(nsmall = 3)
+  )
+```
+
+```{r, echo=FALSE, fig.height=1.5}
+wn |>
+  ACF(y) |>
+  autoplot()
+```
+
+\pause
+
+ * Sample autocorrelations for white noise series.
+ * Expect each autocorrelation to be close to zero.
+ * Blue lines show 95% critical values.
+
+\vspace*{10cm}
+
+## \large Sampling distribution of autocorrelations
+
+Sampling distribution of $r_k$ for white noise data is asymptotically N(0,$1/T$).\pause
+
+  *  95% of all $r_k$ for white noise must lie within $\pm 1.96/\sqrt{T}$.
+  * If this is not the case, the series is probably not WN.
+  * Common to plot lines at $\pm 1.96/\sqrt{T}$ when plotting ACF.
+These are the \alert{critical values}.
+
+## Example: Pigs slaughtered
+\fontsize{10}{10}\sf
+
+```{r, fig.height=2.7}
+pigs <- aus_livestock |>
+  filter(State == "Victoria", Animal == "Pigs", year(Month) >= 2014)
+pigs |> autoplot(Count / 1e3) +
+  labs(y = "Thousands", title = "Number of pigs slaughtered in Victoria")
+```
+
+## Example: Pigs slaughtered
+\fontsize{10}{10}\sf
+
+```{r}
+pigs |>
+  ACF(Count) |>
+  autoplot()
+```
+
+## Example: Pigs slaughtered
+
+Monthly total number of pigs slaughtered
+in the state of Victoria, Australia, from January 2014 through December 2018
+(Source: Australian Bureau of Statistics.)\pause
+
+  * Difficult to detect pattern in time plot.
+  * ACF shows significant autocorrelation for lag 2 and 12.
+  * Indicate some slight seasonality.
+
+\pause
+
+These show the series is **not a white noise series**.

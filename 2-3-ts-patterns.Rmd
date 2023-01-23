@@ -1,0 +1,102 @@
+---
+title: "2. Time series graphics"
+author: "2.3 Time series patterns"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 2.8
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Time series patterns
+
+Trend
+  : pattern exists when there is a long-term increase or decrease in the data.
+
+Seasonal
+  : pattern exists when a series is influenced by seasonal factors (e.g., the quarter of the year, the month, or day of the week).
+
+Cyclic
+  : pattern exists when data exhibit rises and falls that are \emph{not of fixed period} (duration usually of at least 2 years).
+
+## Time series components
+
+### Differences between seasonal and cyclic patterns:
+
+* seasonal pattern constant length; cyclic pattern variable length
+* average length of cycle longer than length of seasonal pattern
+* magnitude of cycle more variable than magnitude of seasonal pattern
+
+## Time series patterns
+\fontsize{9}{9}\sf
+
+```{r}
+aus_production |>
+  filter(year(Quarter) >= 1980) |>
+  autoplot(Electricity) +
+  labs(y = "GWh", title = "Australian electricity production")
+```
+
+## Time series patterns
+\fontsize{9}{9}\sf
+
+```{r, warning=FALSE}
+aus_production |>
+  autoplot(Bricks) +
+  labs(y = "million units", title = "Australian clay brick production")
+```
+
+## Time series patterns
+\fontsize{9}{9}\sf
+
+```{r}
+us_employment |>
+  filter(Title == "Retail Trade", year(Month) >= 1980) |>
+  autoplot(Employed / 1e3) +
+  labs(y = "Million people", title = "Retail employment, USA")
+```
+
+## Time series patterns
+\fontsize{9}{9}\sf
+
+```{r}
+gafa_stock |>
+  filter(Symbol == "AMZN", year(Date) >= 2018) |>
+  autoplot(Close) +
+  labs(y = "$US", title = "Amazon closing stock price")
+```
+
+## Time series patterns
+\fontsize{9}{9}\sf
+
+```{r}
+pelt |>
+  autoplot(Lynx) +
+  labs(y = "Number trapped", title = "Annual Canadian Lynx Trappings")
+```
+
+## Seasonal or cyclic?
+
+\alert{Differences between seasonal and cyclic patterns:}
+
+  * seasonal pattern constant length; cyclic pattern variable length
+  * average length of cycle longer than length of seasonal pattern
+  * magnitude of cycle more variable than magnitude of seasonal pattern
+
+\pause
+
+\begin{alertblock}{}
+The timing of peaks and troughs is predictable with seasonal data, but unpredictable in the long term with cyclic data.
+\end{alertblock}

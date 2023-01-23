@@ -1,0 +1,176 @@
+/*-- scss:defaults --*/
+
+// colors
+$body-bg: #f0f0f0 !default;
+$body-color: rgb(41, 31, 31);
+$link-color: #8f0000;
+$presentation-heading-color: #8f0000 !default;
+
+/*-- scss:rules --*/
+
+// Blockquotes white on orange with rounded corners
+.reveal .slide blockquote, .blockquote {
+  background-color: #906767;
+  color: #fff;
+  padding: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  font-size: 25px !important;
+}
+
+// Callout backgrounds
+div.callout-note.callout-style-default .callout-caption {
+  background-color: #a1b8c8 !important;
+}
+
+div.callout-warning.callout-style-default .callout-caption {
+  background-color: #c8ada1 !important;
+}
+
+div.callout-note.callout-style-default .callout-body {
+  font-size: 36px !important;
+}
+
+// headers
+.reveal h1 {
+  font-size: 1.4em !important;
+}
+.reveal h2 {
+  font-size: 1.2em !important;
+}
+.reveal h3 {
+  color: #8f0000 !important;
+  font-size: 1em !important;
+}
+.reveal h4 {
+  color: #8f0000 !important;
+  font-size: 0.8em !important;
+}
+
+// Remove ugly lines in tables
+.reveal table td {
+  border-bottom: 0px;
+}
+
+.quarto-title-author-name {
+  color: #8f0000 !important;
+}
+
+#title-slide {
+  text-align: right
+}
+
+.reveal .quarto-title-block .quarto-title-authors {
+  justify-content: right;
+}
+.reveal .quarto-title-block .quarto-title-authors .quarto-title-author {
+  padding-right: 0em;
+}
+
+// Big gap before author on front page
+p.author {
+  margin-top: 4em;
+}
+
+// Bigger code blocks
+.reveal pre.sourceCode code {
+  max-height: 600px;
+}
+
+// Class for tighter itemized lists
+.tightlist ul li, ol li, dl dd dt {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.reveal dl {
+  display:grid;
+  grid-template-columns: max-content auto;
+}
+
+.reveal dt {
+  grid-column-start: 1;
+}
+
+.reveal dd {
+  grid-column-start: 2;
+}
+
+// Class for tight tables
+.tighttable th, td {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.shiftup img {
+  margin: 0;
+}
+
+.shiftup p {
+  margin: 0;
+}
+
+.smallequations .katex {
+  font: normal 1em KaTeX_Main, Times New Roman, serif;
+}
+
+.smalltable {
+  font-size: 50% !important;
+}
+
+.smallcode {
+  font-size: 60% !important;
+  display: inline-block;
+}
+
+#title-slide h1 {
+  font-size: 60px !important;
+}
+
+.subtitle {
+  color: #863235;
+  font-size: 50px !important;
+}
+
+.fa-ul {
+  list-style-type: none!important;
+  margin-left: var(--fa-li-margin, 2.5em)!important;
+  padding-left: 0!important;
+}
+
+.reveal .slide aside, .reveal .slide div.aside {
+  position: absolute;
+  bottom: -50px;
+  font-size: 0.7em;
+  color: #808080;
+}
+
+.slbCaption {
+    font-family: var(--r-main-font);
+}
+
+/* file: style.css */
+.v-center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80%;
+}
+
+.reveal .footer {
+  color: #8f0000;
+}
+
+.wrapping {
+  float: right;
+  shape-margin: 50px;
+  width: 80%;
+}
+
+#fig-structure > figure > figcaption {
+  float: left;
+  clear: both;
+}

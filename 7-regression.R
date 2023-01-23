@@ -86,7 +86,6 @@ recent_production %>%
   ) %>%
   glance()
 
-
 # Fourier terms for cafe data
 
 aus_cafe <- aus_retail %>%
@@ -120,7 +119,6 @@ augment(fit) %>%
 glance(fit) %>%
   select(.model, sigma2, log_lik, AIC, AICc, BIC)
 
-
 # Boston Marathon
 
 marathon <- boston_marathon %>%
@@ -142,7 +140,6 @@ fit_trends <- marathon %>%
   )
 
 fit_trends
-
 
 fit_trends %>%
   select(piecewise) %>%
@@ -169,7 +166,6 @@ fit_trends %>%
 glance(fit_trends) %>%
   select(.model, r_squared, adj_r_squared, AICc, CV)
 
-
 # US consumption quarterly changes
 
 fit_all <- us_change %>%
@@ -195,7 +191,6 @@ fit_all <- us_change %>%
 glance(fit_all) %>%
   select(.model, AICc, CV) %>%
   arrange(AICc)
-
 
 us_change %>%
   model(

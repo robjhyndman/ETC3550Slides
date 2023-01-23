@@ -1,0 +1,187 @@
+---
+title: "5. The forecaster's toolbox"
+author: "5.8 Evaluating point forecast accuracy"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Training and test sets
+
+```{r traintest, fig.height=1, echo=FALSE, cache=TRUE}
+train <- 1:18
+test <- 19:24
+par(mar = c(0, 0, 0, 0))
+plot(0, 0, xlim = c(0, 26), ylim = c(0, 2), xaxt = "n", yaxt = "n", bty = "n", xlab = "", ylab = "", type = "n")
+arrows(0, 0.5, 25, 0.5, 0.05)
+points(train, train * 0 + 0.5, pch = 19, col = "#0072B2")
+points(test, test * 0 + 0.5, pch = 19, col = "#D55E00")
+text(26, 0.5, "time")
+text(10, 1, "Training data", col = "#0072B2")
+text(21, 1, "Test data", col = "#D55E00")
+```
+
+-   A model which fits the training data well will not necessarily forecast well.
+-   A perfect fit can always be obtained by using a model with enough parameters.
+-   Over-fitting a model to data is just as bad as failing to identify a systematic pattern in the data.
+  * The test set must not be used for *any* aspect of model development or calculation of forecasts.
+  * Forecast accuracy is based only on the test set.
+
+## Forecast errors
+
+Forecast "error": the difference between an observed value and its forecast.
+$$
+  e_{T+h} = y_{T+h} - \hat{y}_{T+h|T},
+$$
+where the training data is given by $\{y_1,\dots,y_T\}$
+
+- Unlike residuals, forecast errors on the test set involve multi-step forecasts.
+- These are *true* forecast errors as the test data is not used in computing $\hat{y}_{T+h|T}$.
+
+## Measures of forecast accuracy
+
+```{r beer-fc-1, echo=FALSE, fig.height=4}
+train <- aus_production |>
+  filter(between(year(Quarter), 1992, 2007))
+beer <- aus_production |>
+  filter(year(Quarter) >= 1992)
+beer_fc_plot <- train |>
+  model(
+    Mean = MEAN(Beer),
+    Naive = NAIVE(Beer),
+    Seasonal_naive = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  ) |>
+  forecast(h = 11) |>
+  autoplot(beer, level = NULL) +
+  labs(
+    title = "Forecasts for quarterly beer production",
+    y = "Megalitres"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
+beer_fc_plot
+```
+
+## Measures of forecast accuracy
+
+\begin{tabular}{rl}
+$y_{T+h}=$ & $(T+h)$th observation, $h=1,\dots,H$ \\
+$\pred{y}{T+h}{T}=$ & its forecast based on data up to time $T$. \\
+$e_{T+h} =$  & $y_{T+h} - \pred{y}{T+h}{T}$
+\end{tabular}
+
+\begin{block}{}\vspace*{-0.2cm}
+\begin{align*}
+\text{MAE} &= \text{mean}(|e_{T+h}|) \\[-0.2cm]
+\text{MSE} &= \text{mean}(e_{T+h}^2) \qquad
+&&\text{RMSE} &= \sqrt{\text{mean}(e_{T+h}^2)} \\[-0.1cm]
+\text{MAPE} &= 100\text{mean}(|e_{T+h}|/ |y_{T+h}|)
+\end{align*}\end{block}\pause\vspace*{-0.2cm}
+
+  * MAE, MSE, RMSE are all scale dependent.
+  * MAPE is scale independent but is only sensible if $y_t\gg 0$ for all $t$, and $y$ has a natural zero.
+
+## Measures of forecast accuracy
+
+\begin{block}{Mean Absolute Scaled Error}
+$$
+\text{MASE} = \text{mean}(|e_{T+h}|/Q)
+$$
+where $Q$ is a stable measure of the scale of the time series $\{y_t\}$.
+\end{block}
+Proposed by Hyndman and Koehler (IJF, 2006).
+
+For non-seasonal time series,
+$$
+  Q = (T-1)^{-1}\sum_{t=2}^T |y_t-y_{t-1}|
+$$
+works well. Then MASE is equivalent to MAE relative to a naïve method.
+
+\vspace*{10cm}
+
+## Measures of forecast accuracy
+
+\begin{block}{Mean Absolute Scaled Error}
+$$
+\text{MASE} = \text{mean}(|e_{T+h}|/Q)
+$$
+where $Q$ is a stable measure of the scale of the time series $\{y_t\}$.
+\end{block}
+Proposed by Hyndman and Koehler (IJF, 2006).
+
+For seasonal time series,
+$$
+  Q = (T-m)^{-1}\sum_{t=m+1}^T |y_t-y_{t-m}|
+$$
+works well. Then MASE is equivalent to MAE relative to a seasonal naïve method.
+
+\vspace*{10cm}
+
+## Measures of forecast accuracy
+
+```{r beer-fc-2, echo=FALSE, fig.height=4}
+beer_fc_plot
+```
+
+## Measures of forecast accuracy
+
+\fontsize{12}{14}\sf
+
+```{r beer-forecasts, results='hide'}
+recent_production <- aus_production |>
+  filter(year(Quarter) >= 1992)
+train <- recent_production |>
+  filter(year(Quarter) <= 2007)
+beer_fit <- train |>
+  model(
+    Mean = MEAN(Beer),
+    Naive = NAIVE(Beer),
+    Seasonal_naive = SNAIVE(Beer),
+    Drift = RW(Beer ~ drift())
+  )
+beer_fc <- beer_fit |>
+  forecast(h = 10)
+```
+
+## Measures of forecast accuracy
+\fontsize{9}{9}\sf
+
+```{r beer-train-accuracy, eval=FALSE}
+accuracy(beer_fit)
+```
+
+\vspace*{-0.3cm}
+
+```{r beer-train-table, echo=FALSE}
+accuracy(beer_fit) |>
+  arrange(.model) |>
+  select(.model, .type, RMSE, MAE, MAPE, MASE)
+```
+
+```{r beer-test-accuracy, eval=FALSE}
+accuracy(beer_fc, recent_production)
+```
+
+\vspace*{-0.3cm}
+
+```{r beer-test-table, echo=FALSE}
+accuracy(beer_fc, recent_production) |>
+  arrange(.model) |>
+  select(.model, .type, RMSE, MAE, MAPE, MASE)
+```
+
+\vspace*{10cm}

@@ -1,0 +1,100 @@
+---
+title: "5. The forecaster's toolbox"
+author: "5.5 Distributional forecasts"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+
+## Forecast distributions
+
+ * A forecast $\hat{y}_{T+h|T}$ is (usually) the mean of the conditional distribution $y_{T+h} \mid y_1, \dots, y_{T}$.
+ * Most time series models produce normally distributed forecasts.
+ * The forecast distribution describes the probability of observing any future value.
+
+## Forecast distributions
+
+Assuming residuals are normal, uncorrelated, sd = $\hat\sigma$:
+
+\begin{block}{}
+\begin{tabular}{ll}
+\bf Mean: & $y_{T+h|T} \sim N(\bar{y}, (1 + 1/T)\hat{\sigma}^2)$\\[0.2cm]
+\bf Naïve: & $y_{T+h|T} \sim N(y_T, h\hat{\sigma}^2)$\\[0.2cm]
+\bf Seasonal naïve: & $y_{T+h|T} \sim N(y_{T+h-m(k+1)}, (k+1)\hat{\sigma}^2)$\\[0.2cm]
+\bf Drift: & $y_{T+h|T} \sim N(y_T + \frac{h}{T-1}(y_T - y_1),h\frac{T+h}{T}\hat{\sigma}^2)$
+\end{tabular}
+\end{block}
+
+where $k$ is the integer part of $(h-1)/m$.
+
+Note that when $h=1$ and $T$ is large, these all give the same approximate forecast variance: $\hat{\sigma}^2$.
+
+## Prediction intervals
+
+ * A prediction interval gives a region within which we expect $y_{T+h}$ to lie with a specified probability.
+ * Assuming forecast errors are normally distributed, then a 95% PI is
+ \begin{alertblock}{}
+\centerline{$
+  \hat{y}_{T+h|T} \pm 1.96 \hat\sigma_h
+$}
+\end{alertblock}
+where $\hat\sigma_h$ is the st dev of the $h$-step distribution.
+
+ * When $h=1$, $\hat\sigma_h$ can be estimated from the residuals.
+
+## Prediction intervals
+\fontsize{10}{12}\sf
+
+```{r brick-fc-interval1}
+aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(Seasonal_naive = SNAIVE(Bricks)) |>
+  forecast(h = "5 years")
+```
+
+## Prediction intervals
+\fontsize{10}{12}\sf
+
+```{r brick-fc-interval2}
+aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(Seasonal_naive = SNAIVE(Bricks)) |>
+  forecast(h = "5 years") |>
+  hilo(level = 95)
+```
+
+## Prediction intervals
+\fontsize{10}{12}\sf
+
+```{r brick-fc-interval3}
+aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(Seasonal_naive = SNAIVE(Bricks)) |>
+  forecast(h = "5 years") |>
+  hilo(level = 95)  |>
+  unpack_hilo("95%")
+```
+
+## Prediction intervals
+
+ * Point forecasts are often useless without a measure of uncertainty (such as prediction intervals).
+ * Prediction intervals require a stochastic model (with random errors, etc).
+ * For most models, prediction intervals get wider as the forecast horizon increases.
+ * Use `level` argument to control coverage.
+ * Check residual assumptions before believing them.
+ * Prediction intervals are usually too narrow due to unaccounted uncertainty.

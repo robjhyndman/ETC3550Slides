@@ -55,10 +55,10 @@ source("setup.R")
 \fontsize{9}{9}\sf
 
 ```{r, fig.height=3.8}
-recent_prices <- prices %>% filter(!is.na(eggs))
-recent_prices %>%
-  model(ETS(log(eggs) ~ error("A") + trend("A") + season("N"))) %>%
-  forecast(h=50) %>%
+recent_prices <- prices |> filter(!is.na(eggs))
+recent_prices |>
+  model(ETS(log(eggs) ~ error("A") + trend("A") + season("N"))) |>
+  forecast(h = 50) |>
   autoplot(recent_prices)
 ```
 
@@ -73,18 +73,18 @@ recent_prices %>%
 \fontsize{9}{10}\sf\vspace*{-0.2cm}
 
 ```{r}
-aus_cafe <- aus_retail %>%
-  filter(Industry == "Cafes, restaurants and catering services") %>%
+aus_cafe <- aus_retail |>
+  filter(Industry == "Cafes, restaurants and catering services") |>
   summarise(Turnover = sum(Turnover))
-fc <- aus_cafe %>%
-  filter(Month <= yearmonth("2013 Sep")) %>%
+fc <- aus_cafe |>
+  filter(Month <= yearmonth("2013 Sep")) |>
   model(
     ETS = ETS(Turnover),
     ARIMA = ARIMA(Turnover)
-  ) %>%
+  ) |>
   mutate(
-    Combination = (ETS + ARIMA)/2
-  ) %>%
+    Combination = (ETS + ARIMA) / 2
+  ) |>
   forecast(h = "5 years")
 ```
 
@@ -92,15 +92,17 @@ fc <- aus_cafe %>%
 \fontsize{10}{10}\sf\vspace*{-0.2cm}
 
 ```{r combineplot, echo=TRUE, fig.height=4.2}
-fc %>% autoplot(aus_cafe, level = NULL) +
-  labs(x = "Year", y = "$ billion",
-       title = "Australian monthly expenditure on eating out")
+fc |> autoplot(aus_cafe, level = NULL) +
+  labs(
+    x = "Year", y = "$ billion",
+    title = "Australian monthly expenditure on eating out"
+  )
 ```
 
 ## Forecast combinations
 \fontsize{10}{15}\sf
 ```{r combineaccuracy, dependson="combine1"}
-fc %>% accuracy(aus_cafe)
+fc |> accuracy(aus_cafe)
 ```
 
 # Missing values
@@ -132,16 +134,16 @@ fc %>% accuracy(aus_cafe)
 \fontsize{12}{12}\sf
 ```{r}
 gold <- as_tsibble(forecast::gold)
-gold %>% autoplot(value)
+gold |> autoplot(value)
 ```
 
 ## Missing values
 \fontsize{12}{12}\sf
 ```{r, fig.height=3}
-gold_complete <- gold %>%
-  model(ARIMA(value)) %>%
+gold_complete <- gold |>
+  model(ARIMA(value)) |>
   interpolate(gold)
-gold_complete %>%
+gold_complete |>
   autoplot(value, colour = "red") +
   autolayer(gold, value)
 ```
@@ -152,9 +154,9 @@ gold_complete %>%
 \fontsize{11}{13}\sf
 
 ```{r, fig.height=3.4}
-fit <- gold %>%
+fit <- gold |>
   model(ARIMA(value))
-augment(fit) %>%
-  mutate(stdres = .resid/sd(.resid, na.rm=TRUE)) %>%
+augment(fit) |>
+  mutate(stdres = .resid / sd(.resid, na.rm = TRUE)) |>
   filter(abs(stdres) > 10)
 ```

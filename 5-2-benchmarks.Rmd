@@ -1,0 +1,198 @@
+---
+title: "5. The forecaster's toolbox"
+author: "5.2 Some simple forecasting methods"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Some simple forecasting methods
+\fontsize{13}{14}\sf
+
+### `MEAN(y)`: Average method
+
+  * Forecast of all future values is equal to mean of historical data $\{y_1,\dots,y_T\}$.
+  * Forecasts: $\hat{y}_{T+h|T} = \bar{y} = (y_1+\dots+y_T)/T$
+
+```{r mean-method-explained, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 2.7}
+bricks <- aus_production |>
+  filter(!is.na(Bricks)) |>
+  mutate(average = mean(Bricks))
+
+fc <- bricks |>
+  filter(row_number() == n()) |>
+  as_tibble() |>
+  unnest(Quarter = list(as.Date(Quarter) + months(c(0, 12 * 5))))
+
+bricks |>
+  ggplot(aes(x = Quarter, y = Bricks)) +
+  geom_line() +
+  geom_line(aes(y = average), colour = "#0072B2", linetype = "dashed") +
+  geom_line(aes(y = average), data = fc, colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
+```
+
+\vspace*{10cm}
+
+## Some simple forecasting methods
+\fontsize{13}{14}\sf
+
+### `NAIVE(y)`: Naïve method
+
+  * Forecasts equal to last observed value.
+  * Forecasts: $\hat{y}_{T+h|T} =y_T$.
+  * Consequence of efficient market hypothesis.
+
+```{r naive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.75}
+bricks |>
+  filter(!is.na(Bricks)) |>
+  model(NAIVE(Bricks)) |>
+  forecast(h = "5 years") |>
+  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
+  geom_point(data = slice(bricks, n()), aes(y = Bricks), colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
+```
+
+\vspace*{10cm}
+
+## Some simple forecasting methods
+\fontsize{13}{14}\sf
+
+### `SNAIVE(y ~ lag(m))`: Seasonal naïve method
+
+  * Forecasts equal to last value from same season.
+  * Forecasts: $\hat{y}_{T+h|T} =y_{T+h-m(k+1)}$, where $m=$ seasonal period and $k$ is the integer part of $(h-1)/m$.
+
+```{r snaive-method-explained, echo = FALSE, warning = FALSE, fig.height = 2.75}
+bricks |>
+  model(SNAIVE(Bricks ~ lag("year"))) |>
+  forecast(h = "5 years") |>
+  autoplot(filter(bricks, year(Quarter) > 1990), level = NULL) +
+  geom_point(data = slice(bricks, (n() - 3):n()), aes(y = Bricks), colour = "#0072B2") +
+  labs(title = "Clay brick production in Australia")
+```
+
+\vspace*{10cm}
+
+## Some simple forecasting methods
+\fontsize{13}{14}\sf
+
+### `RW(y ~ drift())`: Drift method
+
+ * Forecasts equal to last value plus average change.
+ * Forecasts:\vspace*{-.7cm}
+
+ \begin{align*}
+ \hat{y}_{T+h|T} & =  y_{T} + \frac{h}{T-1}\sum_{t=2}^T (y_t-y_{t-1})\\
+                 & = y_T + \frac{h}{T-1}(y_T -y_1).
+ \end{align*}\vspace*{-0.2cm}
+
+   * Equivalent to extrapolating a line drawn between first and last observations.
+
+## Some simple forecasting methods
+
+### Drift method
+
+```{r drift-method-explained, echo = FALSE, warning = FALSE}
+aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(RW(Bricks ~ drift())) |>
+  forecast(h = "5 years") |>
+  autoplot(aus_production, level = NULL) +
+  geom_line(
+    data = slice(aus_production, range(cumsum(!is.na(Bricks)))),
+    aes(y = Bricks), linetype = "dashed", colour = "#0072B2"
+  ) +
+  labs(title = "Clay brick production in Australia")
+```
+
+\vspace*{10cm}
+
+## Model fitting
+
+The `model()` function trains models to data.
+
+\fontsize{10}{11}\sf
+
+```{r brick-model}
+brick_fit <- aus_production |>
+  filter(!is.na(Bricks)) |>
+  model(
+    Seasonal_naive = SNAIVE(Bricks),
+    Naive = NAIVE(Bricks),
+    Drift = RW(Bricks ~ drift()),
+    Mean = MEAN(Bricks)
+  )
+```
+
+```{r brick-model2, echo=FALSE, dependson='brick-model'}
+brick_fit
+```
+
+## Producing forecasts
+
+\fontsize{10}{13}\sf
+
+```{r brick-fc, echo = TRUE, dependson='brick-model'}
+brick_fc <- brick_fit |>
+  forecast(h = "5 years")
+```
+
+```{r brick-fbl, echo = FALSE, dependson='brick-fc'}
+print(brick_fc, n = 4)
+```
+
+## Visualising forecasts
+
+\footnotesize
+
+```{r brick-fc-plot, warning=FALSE, message=FALSE, fig.height=2.6, dependson='brick-fc'}
+brick_fc |>
+  autoplot(aus_production, level = NULL) +
+  labs(title = "Clay brick production in Australia",
+       y = "Millions of bricks") +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+## Facebook closing stock price
+
+\fontsize{9}{10}\sf
+
+```{r fbf2, fig.show='hide'}
+# Extract training data
+fb_stock <- gafa_stock |>
+  filter(Symbol == "FB") |>
+  mutate(trading_day = row_number()) |>
+  update_tsibble(index = trading_day, regular = TRUE)
+
+# Specify, estimate and forecast
+fb_stock |>
+  model(
+    Mean = MEAN(Close),
+    Naive = NAIVE(Close),
+    Drift = RW(Close ~ drift())
+  ) |>
+  forecast(h = 42) |>
+  autoplot(fb_stock, level = NULL) +
+  labs(title = "Facebook closing stock price", y = "$US") +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+## Facebook closing stock price
+
+```{r ref.label='fbf2', echo=FALSE, fig.height=4}
+```
