@@ -418,7 +418,7 @@ us_retail_employment %>%
   *  Seasonal component allowed to change over time, and rate of change controlled by user.
   *  Smoothness of trend-cycle also controlled by user.
   *  Robust to outliers
-  *  Not trading day or calendar adjustments.
+  *  No trading day or calendar adjustments.
   *  Only additive.
   *  Take logs to get multiplicative decomposition.
   *  Use Box-Cox transformations to get other decompositions.

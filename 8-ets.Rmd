@@ -920,7 +920,7 @@ minimizing $L^*$.
 \text{AIC} = -2\log(\text{L}) + 2k
 \]
 \end{block}\vspace*{-0.2cm}
-where $L$ is the likelihood and $k$ is the number of parameters initial states estimated in the model.\pause
+where $L$ is the likelihood and $k$ is the number of parameters & initial states estimated in the model.\pause
 
 \begin{block}{Corrected AIC}
 \[
