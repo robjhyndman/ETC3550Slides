@@ -273,6 +273,12 @@
         "yaml"
       ]
     },
+    "boot": {
+      "Package": "boot",
+      "Version": "1.3-28.1",
+      "Source": "Repository",
+      "Requirements": []
+    },
     "bslib": {
       "Package": "bslib",
       "Version": "0.4.2",
