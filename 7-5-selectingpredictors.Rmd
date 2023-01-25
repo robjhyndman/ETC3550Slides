@@ -1,0 +1,231 @@
+---
+title: "7. Time series regression models"
+author: "7.5 Selecting predictors"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Comparing regression models
+
+Computer output for regression will always give the $R^2$ value. This is a
+useful summary of the model.
+
+* It is equal to the square of the correlation between $y$ and $\hat y$.
+* It is often called the ``coefficient of determination''.
+* It can also be calculated as follows:
+$$R^2 = \frac{\sum(\hat{y}_t - \bar{y})^2}{\sum(y_t-\bar{y})^2}
+$$
+* It is the proportion of variance accounted for (explained) by the predictors.
+
+## Comparing regression models
+\fontsize{13}{14}\sf
+
+However \dots
+
+* $R^2$  does not allow for ``degrees of freedom''.
+
+* Adding *any* variable tends to increase the value of $R^2$, even if that variable is irrelevant.
+\pause
+
+To overcome this problem, we can use *adjusted $R^2$*:
+
+\begin{block}{}
+\[
+\bar{R}^2 = 1-(1-R^2)\frac{T-1}{T-k-1}
+\]
+where $k=$ no.\ predictors and $T=$ no.\ observations.
+\end{block}
+
+\pause
+
+\begin{alertblock}{Maximizing $\bar{R}^2$ is equivalent to minimizing $\hat\sigma^2$.}
+\centerline{$\displaystyle
+\hat{\sigma}^2 = \frac{1}{T-k-1}\sum_{t=1}^T \varepsilon_t^2$
+}
+\end{alertblock}
+
+## Akaike's Information Criterion
+
+\begin{block}{}
+$$\text{AIC} = -2\log(L) + 2(k+2)$$
+\end{block}
+where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
+
+* AIC penalizes terms more heavily than $\bar{R}^2$.
+* Minimizing the AIC is asymptotically equivalent to minimizing MSE via **leave-one-out cross-validation** (for any linear regression).
+
+## Corrected AIC
+
+For small values of $T$, the AIC tends to select too many predictors, and so a bias-corrected version of the AIC has been developed.
+
+\begin{block}{}
+\[
+\text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{T-k-3}
+\]
+\end{block}
+
+As with the AIC, the AIC$_{\text{C}}$ should be minimized.
+
+## Bayesian Information Criterion
+
+\begin{block}{}
+\[
+\text{BIC} = -2\log(L) + (k+2)\log(T)
+\]
+\end{block}
+where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
+
+* BIC penalizes terms more heavily than AIC
+
+* Also called SBIC and SC.
+
+* Minimizing BIC is asymptotically equivalent to leave-$v$-out cross-validation when $v = T[1-1/(log(T)-1)]$.
+
+## Leave-one-out cross-validation
+
+For regression, leave-one-out cross-validation is faster and more efficient than time-series cross-validation.
+
+* Select one observation for test set, and use *remaining* observations in training set. Compute error on test observation.
+* Repeat using each possible observation as the test set.
+* Compute accuracy measure over all errors.
+
+```{r tscvplots, echo=FALSE}
+tscv_plot <- function(.init, .step, h = 1) {
+  expand.grid(
+    time = seq(26),
+    .id = seq(trunc(20 / .step))
+  ) |>
+    group_by(.id) |>
+    mutate(
+      observation = case_when(
+        time <= ((.id - 1) * .step + .init) ~ "train",
+        time %in% c((.id - 1) * .step + .init + h) ~ "test",
+        TRUE ~ "unused"
+      )
+    ) |>
+    ungroup() |>
+    filter(.id <= 26 - .init) |>
+    ggplot(aes(x = time, y = .id)) +
+    geom_segment(
+      aes(x = 0, xend = 27, y = .id, yend = .id),
+      arrow = arrow(length = unit(0.015, "npc")),
+      col = "black", size = .25
+    ) +
+    geom_point(aes(col = observation), size = 2) +
+    scale_y_reverse() +
+    scale_color_manual(values = c(train = "#0072B2", test = "#D55E00", unused = "gray")) +
+    # theme_void() +
+    # geom_label(aes(x = 28.5, y = 1, label = "time")) +
+    guides(col = FALSE) +
+    labs(x = "time", y = "") +
+    theme_void() +
+    theme(axis.title = element_text())
+}
+loocv_plot <- function() {
+  expand.grid(time = seq(26), .id = seq(26)) |>
+    group_by(.id) |>
+    mutate(observation = if_else(time == .id, "test", "train")) |>
+    ungroup() |>
+    filter(.id <= 20) |>
+    ggplot(aes(x = time, y = .id)) +
+    geom_segment(
+      aes(x = 0, xend = 27, y = .id, yend = .id),
+      arrow = arrow(length = unit(0.015, "npc")),
+      col = "black", size = .25
+    ) +
+    geom_point(aes(col = observation), size = 2) +
+    scale_y_reverse() +
+    scale_color_manual(values = c(train = "#0072B2", test = "#D55E00", unused = "gray")) +
+    guides(col = FALSE) +
+    labs(x = "time", y = "") +
+    theme_void() +
+    theme(axis.title = element_text())
+}
+```
+
+## Cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest1, fig.height=1, echo=FALSE, dependson="tscvplots"}
+tscv_plot(.init = 18, .step = 20, h = 1:8) +
+  geom_text(aes(x = 10, y = 0.8, label = "Training data"), color = "#0072B2") +
+  geom_text(aes(x = 21, y = 0.8, label = "Test data"), color = "#D55E00") +
+  ylim(1, 0)
+```
+
+\pause
+
+**Time series cross-validation**
+
+```{r tscvggplot1, echo=FALSE}
+tscv_plot(.init = 3, .step = 1, h = 1) +
+  geom_text(aes(x = 21, y = 0, label = "h = 1"), color = "#D55E00")
+```
+
+## Cross-validation {-}
+
+**Traditional evaluation**
+
+```{r traintest1a, fig.height=1, echo=FALSE, dependson="tscvplots"}
+tscv_plot(.init = 18, .step = 20, h = 1:8) +
+  geom_text(aes(x = 10, y = 0.8, label = "Training data"), color = "#0072B2") +
+  geom_text(aes(x = 21, y = 0.8, label = "Test data"), color = "#D55E00") +
+  ylim(1, 0)
+```
+
+**Leave-one-out cross-validation**
+
+```{r, echo=FALSE}
+loocv_plot() +
+  geom_text(aes(x = 21, y = 0, label = "h = 1"), color = "#ffffff")
+```
+
+\only<2>{\begin{textblock}{4}(6,6)\begin{block}{}\fontsize{13}{15}\sf
+CV = MSE on \textcolor[HTML]{D55E00}{test sets}\end{block}\end{textblock}}
+
+## Choosing regression variables
+
+**Best subsets regression**
+
+* Fit all possible regression models using one or more of the predictors.
+
+* Choose the best model based on one of the measures of predictive ability (CV, AIC, AICc).
+\pause
+
+**Warning!**
+
+* If there are a large number of predictors, this is not possible.
+
+* For example, 44 predictors leads to 18 trillion possible models!
+
+## Choosing regression variables
+
+**Backwards stepwise regression**
+
+* Start with a model containing all variables.
+* Try subtracting one variable at a time. Keep the model if it
+has lower CV or AICc.
+* Iterate until no further improvement.
+\pause
+
+**Notes**
+
+* Stepwise regression is not guaranteed to lead to the best possible
+model.
+* Inference on coefficients of final model will be wrong.

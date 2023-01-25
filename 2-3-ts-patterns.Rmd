@@ -13,7 +13,7 @@ output:
     fig_height: 2.8
     keep_tex: no
     includes:
-      in_header: header.tex
+      in_header: fpp3header.tex
 ---
 
 ```{r setup, include=FALSE}

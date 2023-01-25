@@ -19,10 +19,8 @@
 
 % Colors
 \setbeamercolor{description item}{fg=Orange}
-%\definecolor{MonashBlue}{RGB}{69,88,94}
-\definecolor{MonashBlue}{HTML}{7e3232}
+\definecolor{MonashBlue}{RGB}{30,95,139}
 \definecolor{burntorange}{rgb}{0.8, 0.33, 0.0}
-\definecolor{fpp3red}{HTML}{903232}
 
 % tikz diagrams
 \usepackage{tikz}
@@ -63,16 +61,3 @@ Simulated futures from an ETS model
 \def\fullwidth#1{\centerline{\includegraphics[height=27.1cm,width=16cm,keepaspectratio=true]{#1}}}
 \def\fullheight#1{\centerline{\includegraphics[height=7.65cm,width=25cm,keepaspectratio=true]{#1}}}
 \def\full#1{\centerline{\includegraphics[height=7.7cm,width=15cm,keepaspectratio=true]{#1}}}
-
-%% Title page
-
-% Title page
-\setbeamertemplate{title page}
-{\placefig{-0.01}{-0.01}{width=1.01\paperwidth,height=1.01\paperheight}{fpp3title.png}
-\begin{textblock}{7.5}(1,2.8)\usebeamerfont{title}
-{\color{fpp3red}\raggedright\par\inserttitle}
-\end{textblock}
-\begin{textblock}{9.5}(1,7)
-{\color{fpp3red}\raggedright{\insertauthor}\mbox{}\\[0.2cm]
-\insertdate}
-\end{textblock}}

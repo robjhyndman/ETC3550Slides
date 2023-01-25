@@ -1,0 +1,72 @@
+---
+title: "7. Time series regression models"
+author: "7.6 Forecasting with regression"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+
+## Ex-ante versus ex-post forecasts
+
+ * *Ex ante forecasts* are made using only information available in advance.
+    - require forecasts of predictors
+ * *Ex post forecasts* are made using later information on the predictors.
+    - useful for studying behaviour of forecasting models.
+
+ * trend, seasonal and calendar variables are all known in advance, so these don't need to be forecast.
+
+## Scenario based forecasting
+
+ * Assumes possible scenarios for the predictor variables
+ * Prediction intervals for scenario based forecasts do not include the uncertainty associated with the future values of the predictor variables.
+
+## Building a predictive regression model {-}
+
+ * If getting forecasts of predictors is difficult, you can use lagged predictors instead.
+$$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
+
+ * A different model for each forecast horizon $h$.
+
+## US Consumption
+
+```{r usconsumptionf, echo=TRUE}
+fit_consBest <- us_change |>
+  model(
+    TSLM(Consumption ~ Income + Savings + Unemployment)
+  )
+
+future_scenarios <- scenarios(
+  Increase = new_data(us_change, 4) |>
+    mutate(Income = 1, Savings = 0.5, Unemployment = 0),
+  Decrease = new_data(us_change, 4) |>
+    mutate(Income = -1, Savings = -0.5, Unemployment = 0),
+  names_to = "Scenario"
+)
+
+fc <- forecast(fit_consBest, new_data = future_scenarios)
+```
+
+## US Consumption
+
+```{r usconsumptionf2, echo=TRUE}
+us_change |> autoplot(Consumption) +
+  labs(y = "% change in US consumption") +
+  autolayer(fc) +
+  labs(title = "US consumption", y = "% change")
+```
