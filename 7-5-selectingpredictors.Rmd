@@ -33,7 +33,7 @@ $$
 * It is the proportion of variance accounted for (explained) by the predictors.
 
 ## Comparing regression models
-\fontsize{13}{14}\sf
+\fontsize{12}{13}\sf
 
 However \dots
 
@@ -104,11 +104,12 @@ For regression, leave-one-out cross-validation is faster and more efficient than
 * Repeat using each possible observation as the test set.
 * Compute accuracy measure over all errors.
 
+
 ```{r tscvplots, echo=FALSE}
 tscv_plot <- function(.init, .step, h = 1) {
   expand.grid(
     time = seq(26),
-    .id = seq(trunc(20 / .step))
+    .id = seq(trunc(11 / .step))
   ) |>
     group_by(.id) |>
     mutate(
@@ -141,7 +142,7 @@ loocv_plot <- function() {
     group_by(.id) |>
     mutate(observation = if_else(time == .id, "test", "train")) |>
     ungroup() |>
-    filter(.id <= 20) |>
+    filter(.id <= 11) |>
     ggplot(aes(x = time, y = .id)) +
     geom_segment(
       aes(x = 0, xend = 27, y = .id, yend = .id),
@@ -163,7 +164,7 @@ loocv_plot <- function() {
 **Traditional evaluation**
 
 ```{r traintest1, fig.height=1, echo=FALSE, dependson="tscvplots"}
-tscv_plot(.init = 18, .step = 20, h = 1:8) +
+tscv_plot(.init = 18, .step = 10, h = 1:8) +
   geom_text(aes(x = 10, y = 0.8, label = "Training data"), color = "#0072B2") +
   geom_text(aes(x = 21, y = 0.8, label = "Test data"), color = "#D55E00") +
   ylim(1, 0)
@@ -173,8 +174,8 @@ tscv_plot(.init = 18, .step = 20, h = 1:8) +
 
 **Time series cross-validation**
 
-```{r tscvggplot1, echo=FALSE}
-tscv_plot(.init = 3, .step = 1, h = 1) +
+```{r tscvggplot1, echo=FALSE, fig.height=2.3, dependson="tscvplots"}
+tscv_plot(.init = 8, .step = 1, h = 1) +
   geom_text(aes(x = 21, y = 0, label = "h = 1"), color = "#D55E00")
 ```
 
@@ -183,7 +184,7 @@ tscv_plot(.init = 3, .step = 1, h = 1) +
 **Traditional evaluation**
 
 ```{r traintest1a, fig.height=1, echo=FALSE, dependson="tscvplots"}
-tscv_plot(.init = 18, .step = 20, h = 1:8) +
+tscv_plot(.init = 18, .step = 10, h = 1:8) +
   geom_text(aes(x = 10, y = 0.8, label = "Training data"), color = "#0072B2") +
   geom_text(aes(x = 21, y = 0.8, label = "Test data"), color = "#D55E00") +
   ylim(1, 0)
@@ -191,9 +192,9 @@ tscv_plot(.init = 18, .step = 20, h = 1:8) +
 
 **Leave-one-out cross-validation**
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=2.3, dependson="tscvplots"}
 loocv_plot() +
-  geom_text(aes(x = 21, y = 0, label = "h = 1"), color = "#ffffff")
+  geom_text(aes(x = 11, y = 0, label = "h = 1"), color = "#ffffff")
 ```
 
 \only<2>{\begin{textblock}{4}(6,6)\begin{block}{}\fontsize{13}{15}\sf

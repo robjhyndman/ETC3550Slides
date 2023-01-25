@@ -40,7 +40,7 @@ x_{2,t} &= \left\{ \begin{array}{ll}
   (t-\tau) & t \ge \tau
 \end{array}\right.
 \end{align*}
-\pause\vspace*{1cm}
+\pause\vspace*{-.6cm}
 
 **Quadratic or higher order trend**
 \[
@@ -104,7 +104,7 @@ number of categories).
 
 ## Beer production revisited
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=2.7}
 recent_production <- aus_production |> filter(year(Quarter) >= 1992)
 recent_production |> autoplot(Beer) +
   labs(y = "Megalitres", title = "Australian quarterly beer production")
@@ -120,7 +120,7 @@ $y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} 
 * $d_{i,t} = 1$ if $t$ is quarter $i$ and 0 otherwise.
 
 ## Beer production revisited
-\fontsize{8}{8}\sf
+\fontsize{7}{7}\sf
 
 ```{r, echo=TRUE}
 fit_beer <- recent_production |> model(TSLM(Beer ~ trend() + season()))
@@ -182,7 +182,7 @@ TSLM(y ~ trend() + fourier(K))
 
 ## Harmonic regression: beer production
 
-\fontsize{8}{8}\sf
+\fontsize{7}{7}\sf
 
 ```{r fourierbeer, echo=TRUE}
 fourier_beer <- recent_production |> model(TSLM(Beer ~ trend() + fourier(K = 2)))
@@ -191,19 +191,17 @@ report(fourier_beer)
 
 ## Harmonic regression: eating-out expenditure
 
-```{r cafe, echo=TRUE}
+```{r cafe, echo=TRUE, fig.height=2.6}
 aus_cafe <- aus_retail |>
-  filter(
-    Industry == "Cafes, restaurants and takeaway food services",
-    year(Month) %in% 2004:2018
-  ) |>
+  filter(Industry == "Cafes, restaurants and takeaway food services",
+         year(Month) %in% 2004:2018) |>
   summarise(Turnover = sum(Turnover))
 aus_cafe |> autoplot(Turnover)
 ```
 
 ## Harmonic regression: eating-out expenditure
 
-\fontsize{8}{9}\sf
+\fontsize{7}{7}\sf
 
 ```{r cafefit, dependson='cafe', fig.height=5, echo=TRUE}
 fit <- aus_cafe |>
@@ -339,13 +337,13 @@ fit_trends
 
 ## Example: Boston marathon winning times
 
-```{r, echo=TRUE, eval=FALSE}
+```{r, echo=TRUE, eval=FALSE, fig.height=2.7}
 fit_trends |>
   forecast(h = 10) |>
   autoplot(marathon)
 ```
 
-```{r, echo=FALSE, message=TRUE, warning=FALSE, fig.height=3.3}
+```{r, echo=FALSE, message=TRUE, warning=FALSE, fig.height=3}
 fc_trends <- fit_trends |> forecast(h = 10)
 marathon |>
   autoplot(Minutes) +

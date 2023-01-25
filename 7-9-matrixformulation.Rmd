@@ -85,7 +85,7 @@ which is maximized when $(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})$ is
 \text{E}(y^* | \bm{y},\bm{X},\bm{x}^*) =
 \bm{x}^*\hat{\bm{\beta}} = \bm{x}^*(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}
 \]
-\end{block}
+\end{block}\vspace*{-0.2cm}
 where $\bm{x}^*$ is a row vector containing the values of the predictors for the forecasts (in the same format as $\bm{X}$).
 
 \pause
@@ -95,8 +95,9 @@ where $\bm{x}^*$ is a row vector containing the values of the predictors for the
 \text{Var}(y^* | \bm{X},\bm{x}^*) = \sigma^2 \left[1 + \bm{x}^* (\bm{X}'\bm{X})^{-1} (\bm{x}^*)'\right]
 \]
 \end{block}
-\pause
+\vspace*{-0.2cm}\pause
 
 * This ignores any errors in $\bm{x}^*$.
 * 95% prediction intervals assuming normal errors:
-$$\hat{y}^* \pm 1.96 \sqrt{\text{Var}(y^*| \bm{X},\bm{x}^*)}.$$
+
+\centerline{$\hat{y}^* \pm 1.96 \sqrt{\text{Var}(y^*| \bm{X},\bm{x}^*)}.$}

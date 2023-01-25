@@ -41,7 +41,7 @@ That is, the coefficients measure the **marginal effects**.
 
 ## Example: US consumption expenditure
 
-```{r MultiPredictors, echo=FALSE, fig.height=4}
+```{r MultiPredictors, echo=FALSE, fig.height=5, fig.width=10, out.height="120%"}
 us_change |>
   gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) |>
   ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
@@ -53,7 +53,7 @@ us_change |>
 
 ## Example: US consumption expenditure
 
-```{r ScatterMatrix, echo=FALSE, fig.height=4, fig.width=8}
+```{r ScatterMatrix, echo=FALSE, fig.height=5, fig.width=10, out.height="100%"}
 us_change |>
   as_tibble() |>
   select(-Quarter) |>
@@ -62,7 +62,7 @@ us_change |>
 
 ## Example: US consumption expenditure
 
-\fontsize{7}{7}\sf
+\fontsize{7}{6.8}\sf
 
 ```{r usestim, echo=TRUE}
 fit_consMR <- us_change |>
