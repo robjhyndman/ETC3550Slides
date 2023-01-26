@@ -1,0 +1,64 @@
+---
+title: "8. Exponential smoothing"
+author: "8.4 A taxonomy of methods"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+
+## Exponential smoothing methods
+\fontsize{12}{13}\sf
+
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+& &\multicolumn{3}{c}{\bf Seasonal Component} \\
+\multicolumn{2}{c|}{\bf Trend}& N & A & M\\
+\multicolumn{2}{c|}{\bf Component}  & (None)    & (Additive)  & (Multiplicative)\\
+\cline{3-5} &&&&\\[-0.4cm]
+N & (None) & (N,N) & (N,A) & (N,M)\\
+&&&&\\[-0.4cm]
+A & (Additive) & (A,N) & (A,A) & (A,M)\\
+&&&&\\[-0.4cm]
+A\damped & (Additive damped) & (A\damped,N) & (A\damped,A) & (A\damped,M)
+\end{tabular}
+\end{block}\fontsize{12}{13}\sf
+
+\begin{tabular}{lp{9.7cm}}
+\alert{(N,N)}:        & Simple exponential smoothing\\
+\alert{(A,N)}:        & Holt's linear method\\
+\alert{(A\damped,N)}: & Additive damped trend method\\
+\alert{(A,A)}:~~      & Additive Holt-Winters' method\\
+\alert{(A,M)}:        & Multiplicative Holt-Winters' method\\
+\alert{(A\damped,M)}: & Damped multiplicative Holt-Winters' method
+\end{tabular}
+
+\only<2>{\begin{textblock}{5}(10,6)
+\begin{alertblock}{}\fontsize{12}{14}\sf
+There are also multiplicative trend methods (not recommended).
+\end{alertblock}
+\end{textblock}}
+
+
+## Exponential smoothing methods
+
+\full{figs/pegelstable}
+
+\begin{textblock}{10}(.5,8)\footnotesize
+$\phi_h = \phi + \phi^2 + \dots + \phi^h$\\
+$k$ is the integer part of $(h-1)/m$
+\end{textblock}

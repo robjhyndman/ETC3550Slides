@@ -1,0 +1,239 @@
+---
+title: "8. Exponential smoothing"
+author: "8.5 Innovations state space models"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+
+## Models and methods
+
+### Methods
+
+  * Algorithms that return point forecasts.
+
+### Models
+
+  * Generate same point forecasts but can also generate forecast distributions.
+  * A stochastic (or random) data generating process that can generate an entire forecast distribution.
+  * Allow for "proper" model selection.
+
+## ETS(A,N,N): SES with additive errors
+
+\begin{block}{Component form}\vspace*{-0.9cm}
+\begin{align*}
+\text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
+\text{Smoothing equation}&&\ell_{t} &= \alpha y_{t} + (1 - \alpha)\ell_{t-1}
+\end{align*}
+\end{block}\pause
+Forecast error: $e_t = y_t - \pred{y}{t}{t-1} = y_t - \ell_{t-1}$.\pause
+\begin{block}{Error correction form}\vspace*{-0.9cm}
+\begin{align*}
+y_t &= \ell_{t-1} + e_t\\
+\ell_{t}
+         &= \ell_{t-1}+\alpha( y_{t}-\ell_{t-1})\\
+         &= \ell_{t-1}+\alpha e_{t}
+\end{align*}
+\end{block}\pause\vspace*{-0.2cm}
+
+Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\text{NID}(0,\sigma^2)$.
+
+## ETS(A,N,N): SES with additive errors
+
+\begin{block}{}\vspace*{-0.9cm}
+\begin{align*}
+\text{Measurement equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
+\text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
+\end{align*}
+\end{block}
+where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
+
+  * "innovations" or "single source of error" because equations have the same error process, $\varepsilon_t$.
+  * Measurement equation: relationship between observations and states.
+  * State equation(s): evolution of the state(s) through time.
+
+## ETS(M,N,N): SES with multiplicative errors.
+
+  * Specify relative errors  $\varepsilon_t=\frac{y_t-\pred{y}{t}{t-1}}{\pred{y}{t}{t-1}}\sim \text{NID}(0,\sigma^2)$
+  * Substituting $\pred{y}{t}{t-1}=\ell_{t-1}$ gives:
+    * $y_t = \ell_{t-1}+\ell_{t-1}\varepsilon_t$
+    * $e_t = y_t - \pred{y}{t}{t-1} = \ell_{t-1}\varepsilon_t$
+
+ \pause
+\begin{block}{}\vspace*{-0.9cm}
+\begin{align*}
+\text{Measurement equation}&& y_t &= \ell_{t-1}(1 + \varepsilon_t)\\
+\text{State equation}&& \ell_t&=\ell_{t-1}(1+\alpha \varepsilon_t)
+\end{align*}
+\end{block}
+\pause\vspace*{-0.2cm}
+
+  * Models with additive and multiplicative errors with the same parameters generate the same point forecasts but different prediction intervals.
+
+## Specifying the model
+
+```{r ann-spec, echo = TRUE, eval=FALSE}
+ETS(y ~ error("A") + trend("N") + season("N"))
+ETS(y ~ error("M") + trend("N") + season("N"))
+```
+
+By default, an optimal value for $\alpha$ and $\ell_0$ is used.
+
+$\alpha$ can be chosen manually in `trend()`.
+
+```{r alpha-spec, echo = TRUE, eval = FALSE}
+trend("N", alpha = 0.5)
+trend("N", alpha_range = c(0.2, 0.8))
+```
+
+## ETS(A,A,N)
+
+Holt's linear method with additive errors.
+
+  * Assume $\varepsilon_t=y_t-\ell_{t-1}-b_{t-1} \sim \text{NID}(0,\sigma^2)$.
+  * Substituting into the error correction equations for Holt's linear method\vspace*{-0.2cm}
+  \begin{align*}
+      y_t&=\ell_{t-1}+b_{t-1}+\varepsilon_t\\
+      \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
+      b_t&=b_{t-1}+\alpha\beta^* \varepsilon_t
+  \end{align*}
+  * For simplicity, set $\beta=\alpha \beta^*$.
+
+## ETS(M,A,N)
+
+Holt's linear method with multiplicative errors.
+
+  * Assume $\varepsilon_t=\frac{y_t-(\ell_{t-1}+b_{t-1})}{(\ell_{t-1}+b_{t-1})}$
+  * Following a similar approach as above, the innovations state space model underlying Holt's linear method with multiplicative errors is specified as\vspace*{-0.4cm}
+  \begin{align*}
+      y_t&=(\ell_{t-1}+b_{t-1})(1+\varepsilon_t)\\
+      \ell_t&=(\ell_{t-1}+b_{t-1})(1+\alpha \varepsilon_t)\\
+      b_t&=b_{t-1}+\beta(\ell_{t-1}+b_{t-1}) \varepsilon_t
+  \end{align*}
+  where again  $\beta=\alpha \beta^*$ and $\varepsilon_t \sim \text{NID}(0,\sigma^2)$.
+
+## Specifying the model
+
+```{r aan-spec, echo = TRUE, eval=FALSE}
+ETS(y ~ error("A") + trend("A") + season("N"))
+ETS(y ~ error("M") + trend("A") + season("N"))
+```
+
+By default, optimal values for $\beta$ and $b_0$ are used.
+
+$\beta$ can be chosen manually in `trend()`.
+
+```{r beta-spec, echo = TRUE, eval = FALSE}
+trend("A", beta = 0.004)
+trend("A", beta_range = c(0, 0.1))
+```
+
+## ETS(A,A,A)
+
+Holt-Winters additive method with additive errors.
+
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\text{Forecast equation} && \hat{y}_{t+h|t} &= \ell_{t} + hb_{t} + s_{t+h-m(k+1)}\\
+\text{Observation equation}&& y_t&=\ell_{t-1}+b_{t-1}+s_{t-m} + \varepsilon_t\\
+\text{State equations}&& \ell_t&=\ell_{t-1}+b_{t-1}+\alpha \varepsilon_t\\
+&&        b_t&=b_{t-1}+\beta \varepsilon_t \\
+&&s_t &= s_{t-m} + \gamma\varepsilon_t
+\end{align*}
+\end{block}
+
+* Forecast errors: $\varepsilon_{t} = y_t - \hat{y}_{t|t-1}$
+* $k$ is integer part of $(h-1)/m$.
+
+<!-- ## Your turn -->
+<!-- \large -->
+
+<!--  * Write down the model for ETS(A,N,A) -->
+
+## ETS(M,A,M)
+
+Holt-Winters multiplicative method with multiplicative errors.
+
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\text{Forecast equation} && \hat{y}_{t+h|t} &= (\ell_{t} + hb_{t}) s_{t+h-m(k+1)}\\
+\text{Observation equation}&& y_t&= (\ell_{t-1}+b_{t-1})s_{t-m}(1 + \varepsilon_t)\\
+\text{State equations}&& \ell_t&=(\ell_{t-1}+b_{t-1})(1+\alpha \varepsilon_t)\\
+&&        b_t&=b_{t-1} +\beta(\ell_{t-1}+b_{t-1}) \varepsilon_t \\
+&&s_t &= s_{t-m}(1 + \gamma\varepsilon_t)
+\end{align*}
+\end{block}
+
+* Forecast errors: $\varepsilon_{t} = (y_t - \hat{y}_{t|t-1})/\hat{y}_{t|t-1}$
+* $k$ is integer part of $(h-1)/m$.
+
+## Specifying the model
+
+```{r aaa-spec, echo = TRUE, eval=FALSE}
+ETS(y ~ error("A") + trend("A") + season("A"))
+ETS(y ~ error("M") + trend("A") + season("M"))
+```
+
+By default, optimal values for $\gamma$ and $s_0,s_{-1},\dots,s_{-m+1}$ are used.
+
+$\gamma$ can be chosen manually in `season()`.
+
+```{r gamma-spec, echo = TRUE, eval = FALSE}
+season("A", gamma = 0.004)
+season("A", gamma_range = c(0, 0.1))
+```
+
+
+## ETS models
+\fontsize{11}{12}\sf
+
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+  \multicolumn{2}{l}{\alert{\bf Additive Error}} &        \multicolumn{3}{c}{\bf Seasonal Component}         \\
+          \multicolumn{2}{c|}{\bf Trend}         &         N         &         A         &         M         \\
+        \multicolumn{2}{c|}{\bf Component}       &     ~(None)~      &    (Additive)     & (Multiplicative)  \\ \cline{3-5}
+           &                                     &                   &                   &  \\[-0.4cm]
+  N        & (None)                              &       A,N,N       &       A,N,A       &    A,N,M     \\
+           &                                     &                   &                   &  \\[-0.4cm]
+  A        & (Additive)                          &       A,A,N       &       A,A,A       &    A,A,M     \\
+           &                                     &                   &                   &  \\[-0.4cm]
+  A\damped & (Additive damped)                   &   A,A\damped,N    &   A,A\damped,A    & A,A\damped,M
+\end{tabular}
+\end{block}
+
+\begin{block}{}
+\begin{tabular}{ll|ccc}
+  \multicolumn{2}{l}{\alert{\bf Multiplicative Error}} &     \multicolumn{3}{c}{\bf Seasonal Component}      \\
+             \multicolumn{2}{c|}{\bf Trend}            &      N       &         A         &        M         \\
+           \multicolumn{2}{c|}{\bf Component}          &   ~(None)~   &    (Additive)     & (Multiplicative) \\ \cline{3-5}
+           &                                           &              &                   &  \\[-0.4cm]
+  N        & (None)                                    &    M,N,N     &       M,N,A       &      M,N,M       \\
+           &                                           &              &                   &  \\[-0.4cm]
+  A        & (Additive)                                &    M,A,N     &       M,A,A       &      M,A,M       \\
+           &                                           &              &                   &  \\[-0.4cm]
+  A\damped & (Additive damped)                         & M,A\damped,N &   M,A\damped,A    &   M,A\damped,M
+\end{tabular}
+\end{block}
+
+## Additive error models
+
+\placefig{0}{1.5}{width=16.cm,trim=0 120 0 0,clip=true}{fig_7_ets_add.pdf}
+
+## Multiplicative error models
+
+\placefig{0}{1.5}{width=16.cm,trim=0 120 0 0,clip=true}{fig_7_ets_multi.pdf}

@@ -1,0 +1,191 @@
+---
+title: "8. Exponential smoothing"
+author: "8.3 Methods with seasonality"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(patchwork)
+library(gganimate)
+library(purrr)
+library(rlang)
+library(magick)
+```
+
+
+## Holt-Winters additive method
+
+Holt and Winters extended Holt's method to capture seasonality.
+\begin{block}{Component form}\vspace*{-0.9cm}
+\begin{align*}
+\pred{y}{t+h}{t} &= \ell_{t} + hb _{t} + s_{t+h-m(k+1)} \\
+\ell_{t} &= \alpha(y_{t} - s_{t-m}) + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
+b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 - \beta^*)b_{t-1}\\
+s_{t} &= \gamma (y_{t}-\ell_{t-1}-b_{t-1}) + (1-\gamma)s_{t-m}
+\end{align*}
+\end{block}\fontsize{12}{14}\sf
+
+  * $k=$ integer part of $(h-1)/m$. Ensures estimates from the final year are used for forecasting.
+  * Parameters:&nbsp; $0\le \alpha\le 1$,&nbsp; $0\le \beta^*\le 1$,&nbsp; $0\le \gamma\le 1-\alpha$&nbsp;  and $m=$  period of seasonality (e.g. $m=4$ for quarterly data).
+
+## Holt-Winters additive method
+
+  * Seasonal component is usually expressed as
+        $s_{t} = \gamma^* (y_{t}-\ell_{t})+ (1-\gamma^*)s_{t-m}.$
+  * Substitute in for $\ell_t$:
+        $s_{t} = \gamma^*(1-\alpha) (y_{t}-\ell_{t-1}-b_{t-1})+ [1-\gamma^*(1-\alpha)]s_{t-m}$
+  * We set $\gamma=\gamma^*(1-\alpha)$.
+  * The usual parameter restriction is $0\le\gamma^*\le1$, which translates to $0\le\gamma\le(1-\alpha)$.
+
+## Exponential smoothing: seasonality
+
+```{r gamma-anim, cache=TRUE, echo=FALSE, fig.show='animate', interval=1/5, message=FALSE, fig.height=5, fig.width=8, aniopts='controls,buttonsize=0.3cm,width=11.5cm'}
+j07 <- PBS |>
+  filter(ATC2 == "J07") |>
+  summarise(Cost = sum(Cost))
+gamma_anim <- map_dfr(set_names(seq(0, 0.99, 0.01), seq(0, 0.99, 0.01)), function(gamma) {
+  j07 |>
+    model(ETS(Cost ~ error("A") + trend("N",
+      alpha = 0.002, alpha_range = c(-1, 1), beta = 0.001,
+      beta_range = c(-1, 1)
+    ) + season("A", gamma = gamma, gamma_range = c(-1, 1)), bounds = "admissible")) |>
+    augment() |>
+    as_tibble()
+}, .id = "gamma") |>
+  mutate(gamma = as.numeric(gamma))
+gamma_anim |>
+  ggplot(aes(x = Month, y = Cost)) +
+  geom_line() +
+  geom_line(aes(y = .fitted), colour = "blue") +
+  transition_manual(gamma) +
+  labs(
+    y = "$AUD",
+    title = "Medicare Australia cost of vaccine scripts: seasonality (gamma = {format(as.numeric(as.character(current_frame)), nsmall=2)})"
+  )
+```
+
+## Holt-Winters multiplicative method
+\fontsize{13}{13.5}\sf\vspace*{-0.1cm}
+
+Seasonal variations change in proportion to the level of the series.
+
+\begin{block}{Component form}\vspace*{-0.7cm}
+    \begin{align*}
+        \pred{y}{t+h}{t} &= (\ell_{t} + hb_{t})s_{t+h-m(k+1)} \\
+        \ell_{t} &= \alpha \frac{y_{t}}{s_{t-m}} + (1 - \alpha)(\ell_{t-1} + b_{t-1})\\
+        b_{t} &= \beta^*(\ell_{t}-\ell_{t-1}) + (1 - \beta^*)b_{t-1}        \\
+        s_{t} &= \gamma \frac{y_{t}}{(\ell_{t-1} + b_{t-1})} + (1 - \gamma)s_{t-m}
+    \end{align*}
+\end{block}\vspace*{-0.2cm}\fontsize{13}{14}\sf
+
+  * $k$ is integer part of $(h-1)/m$.
+  * Additive method: $s_t$ in absolute terms --- within each year $\sum_i s_i \approx 0$.
+  * Multiplicative method: $s_t$ in relative terms --- within each year $\sum_i s_i \approx m$.
+
+## Example: Australian holiday tourism
+
+```{r 7-HW, echo=TRUE}
+aus_holidays <- tourism |>
+  filter(Purpose == "Holiday") |>
+  summarise(Trips = sum(Trips))
+fit <- aus_holidays |>
+  model(
+    additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
+    multiplicative = ETS(Trips ~ error("M") + trend("A") + season("M"))
+  )
+fc <- fit |> forecast()
+```
+
+## Example: Australian holiday tourism
+
+```{r}
+fc |>
+  autoplot(aus_holidays, level = NULL) +
+  labs(y = "Thousands", title = "Overnight trips")
+```
+
+## Estimated components
+\fontsize{10}{11}\sf
+
+```{r, echo = TRUE}
+components(fit)
+```
+
+## Estimated components
+
+```{r fig-7-LevelTrendSeas, fig.width=8, fig.height=4, out.width="100%", echo=FALSE}
+components(fit) |>
+  gather("state", "value", -.model, -Quarter, factor_key = TRUE) |>
+  group_by(.model) |>
+  group_split() |>
+  purrr::map(
+    ~ ggplot(., aes(x = Quarter, y = value)) +
+      geom_line() +
+      facet_grid(state ~ ., scales = "free") +
+      labs(
+        x = "Year", y = "",
+        title = stringr::str_to_title(unique(.$.model)) |> paste("states")
+      )
+  ) |>
+  wrap_plots(ncol = 2)
+```
+
+## Holt-Winters damped method
+Often the single most accurate forecasting method for seasonal data:
+\begin{block}{}\vspace*{-0.4cm}
+\begin{align*}
+\pred{y}{t+h}{t} &= [\ell_{t} + (\phi+\phi^2 + \dots + \phi^{h})b_{t}]s_{t+h-m(k+1)} \\
+\ell_{t} &= \alpha(y_{t} / s_{t-m}) + (1 - \alpha)(\ell_{t-1} + \phi b_{t-1})\\
+b_{t} &= \beta^*(\ell_{t} - \ell_{t-1}) + (1 - \beta^*)\phi b_{t-1}       \\
+s_{t} &= \gamma \frac{y_{t}}{(\ell_{t-1} + \phi b_{t-1})} + (1 - \gamma)s_{t-m}
+\end{align*}
+\end{block}
+
+<!--
+## Your turn
+
+Apply Holt-Winters’ multiplicative method to the Gas data from `aus_production`.
+
+ 1. Why is multiplicative seasonality necessary here?
+ 1. Experiment with making the trend damped.
+ 1. Check that the residuals from the best method look like white noise.
+ -->
+
+## Holt-Winters with daily data
+
+```{r hwdaily, echo=TRUE, eval=FALSE}
+sth_cross_ped <- pedestrian |>
+  filter(
+    Date >= "2016-07-01",
+    Sensor == "Southern Cross Station"
+  ) |>
+  index_by(Date) |>
+  summarise(Count = sum(Count) / 1000)
+sth_cross_ped |>
+  filter(Date <= "2016-07-31") |>
+  model(hw = ETS(Count ~ error("M") + trend("Ad") + season("M"))) |>
+  forecast(h = "2 weeks") |>
+  autoplot(sth_cross_ped |> filter(Date <= "2016-08-14")) +
+  labs(
+    title = "Daily traffic: Southern Cross",
+    y = "Pedestrians ('000)"
+  )
+```
+
+## Holt-Winters with daily data
+
+```{r hwdaily_repeat, ref.label="hwdaily", echo=FALSE, eval=TRUE}
+```

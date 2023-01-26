@@ -1,0 +1,160 @@
+---
+title: "8. Exponential smoothing"
+author: "8.7 Forecasting with ETS models"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## Forecasting with ETS models
+
+\alert{Traditional point forecasts:} iterate the equations for $t=T+1,T+2,\dots,T+h$ and set all $\varepsilon_t=0$ for $t>T$.\pause
+
+* Not the same as $\text{E}(y_{t+h} | \bm{x}_t)$ unless seasonality is additive.
+* `fable` uses $\text{E}(y_{t+h} | \bm{x}_t)$.
+* Point forecasts for ETS(A,\*,\*) are identical to ETS(M,\*,\*) if the parameters are the same.
+
+## Example: ETS(A,A,N)
+
+\vspace*{-1.3cm}
+
+\begin{align*}
+y_{T+1} &= \ell_T + b_T  + \varepsilon_{T+1}\\
+\hat{y}_{T+1|T} & = \ell_{T}+b_{T}\\
+y_{T+2}         & = \ell_{T+1} + b_{T+1} + \varepsilon_{T+2}\\
+                & =
+                      (\ell_T + b_T + \alpha\varepsilon_{T+1}) +
+                      (b_T + \beta \varepsilon_{T+1}) +
+                      \varepsilon_{T+2} \\
+\hat{y}_{T+2|T} &= \ell_{T}+2b_{T}
+\end{align*}
+etc.
+
+## Example: ETS(M,A,N)
+
+\vspace*{-1.3cm}
+
+\begin{align*}
+y_{T+1} &= (\ell_T + b_T )(1+ \varepsilon_{T+1})\\
+\hat{y}_{T+1|T} & = \ell_{T}+b_{T}.\\
+y_{T+2}         & = (\ell_{T+1} + b_{T+1})(1 + \varepsilon_{T+2})\\
+                & = \left\{
+                    (\ell_T + b_T) (1+ \alpha\varepsilon_{T+1}) +
+                    \left[b_T + \beta (\ell_T + b_T)\varepsilon_{T+1}\right]
+                    \right\}
+                   (1 + \varepsilon_{T+2}) \\
+\hat{y}_{T+2|T} &= \ell_{T}+2b_{T}
+\end{align*}
+etc.
+
+## Forecasting with ETS models
+
+\alert{Prediction intervals:} can only be generated using the models.
+
+  * The prediction intervals will differ between models with additive and multiplicative errors.
+  * Exact formulae for some models.
+  * More general to simulate future sample paths, conditional on the last estimate of the states, and to obtain prediction intervals from the percentiles of these simulated future paths.
+
+## Prediction intervals
+
+\begin{block}{}
+PI for most ETS models: $\hat{y}_{T+h|T} \pm c \sigma_h$, where $c$ depends on coverage probability and $\sigma_h$ is forecast standard deviation.
+\end{block}
+
+\fontsize{10}{14}\sf\vspace*{0.2cm}
+
+\hspace*{-0.8cm}\begin{tabular}{ll}
+(A,N,N) & $\sigma_h = \sigma^2\Big[1 + \alpha^2(h-1)\Big]$\\[0.25cm]
+(A,A,N) & $\sigma_h = \sigma^2\Big[1 + (h-1)\big\{\alpha^2 + \alpha\beta h + \frac16\beta^2h(2h-1)\big\}\Big]$\\[0.25cm]
+(A,A$_d$,N) & $\sigma_h = \sigma^2\Big[1 + \alpha^2(h-1) + \frac{\beta\phi h}{(1-\phi)^2} \left\{2\alpha(1-\phi) +\beta\phi\right\}- \frac{\beta\phi(1-\phi^h)}{(1-\phi)^2(1-\phi^2)} \left\{ 2\alpha(1-\phi^2)+ \beta\phi(1+2\phi-\phi^h)\right\}\Big]$\\[0.25cm]
+(A,N,A) &              $\sigma_h = \sigma^2\Big[1 + \alpha^2(h-1) + \gamma k(2\alpha+\gamma)\Big]$\\[0.25cm]
+(A,A,A) &              $\sigma_h = \sigma^2\Big[1 + (h-1)\big\{\alpha^2 + \alpha\beta h + \frac16\beta^2h(2h-1)\big\} + \gamma k \big\{2\alpha+ \gamma + \beta m (k+1)\big\} \Big]$\\[0.25cm]
+(A,A$_d$,A) &  $\sigma_h = \sigma^2\Big[1 + \alpha^2(h-1) +\frac{\beta\phi h}{(1-\phi)^2} \left\{2\alpha(1-\phi)  + \beta\phi \right\} - \frac{\beta\phi(1-\phi^h)}{(1-\phi)^2(1-\phi^2)} \left\{ 2\alpha(1-\phi^2)+ \beta\phi(1+2\phi-\phi^h)\right\}$ \\
+  & \hspace*{1.5cm}$\mbox{} + \gamma k(2\alpha+\gamma)  + \frac{2\beta\gamma\phi}{(1-\phi)(1-\phi^m)}\left\{k(1-\phi^m) - \phi^m(1-\phi^{mk})\right\}\Big]$
+\end{tabular}
+
+## Example: Corticosteroid drug sales
+
+```{r h02-plot, echo = TRUE, fig.height=2.8}
+h02 <- PBS |>
+  filter(ATC2 == "H02") |>
+  summarise(Cost = sum(Cost))
+h02 |> autoplot(Cost)
+```
+
+## Example: Corticosteroid drug sales
+\fontsize{8}{7.5}\sf
+
+```{r, echo=TRUE}
+h02 |>
+  model(ETS(Cost)) |>
+  report()
+```
+
+## Example: Corticosteroid drug sales
+\fontsize{8}{8}\sf
+
+```{r, echo=TRUE}
+h02 |>
+  model(ETS(Cost ~ error("A") + trend("A") + season("A"))) |>
+  report()
+```
+
+## Example: Corticosteroid drug sales
+
+```{r, echo=TRUE, fig.height=3}
+h02 |>
+  model(ETS(Cost)) |>
+  forecast() |>
+  autoplot(h02)
+```
+
+## Example: Corticosteroid drug sales
+\fontsize{10}{12}\sf
+
+```{r, echo=TRUE, results = "hide"}
+h02 |>
+  model(
+    auto = ETS(Cost),
+    AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
+  ) |>
+  accuracy()
+```
+
+```{r, echo=FALSE, eval=TRUE}
+h02 |>
+  model(
+    auto = ETS(Cost),
+    AAA = ETS(Cost ~ error("A") + trend("A") + season("A"))
+  ) |>
+  accuracy() |>
+  transmute(Model = .model, MAE, RMSE, MAPE, MASE, RMSSE) |>
+  knitr::kable(booktabs = TRUE)
+```
+
+<!--
+## Your turn
+
+* Use `ETS()` on some of these series:\vspace*{0.2cm}
+
+> `tourism`, `gafa_stock`, `pelt`
+
+* Does it always give good forecasts?
+
+* Find an example where it does not work well. Can you figure out why?
+
+ -->
