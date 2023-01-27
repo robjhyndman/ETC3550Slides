@@ -1,0 +1,67 @@
+---
+title: "9. ARIMA models"
+author: "9.2 Backshift notation"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+## Backshift notation
+\fontsize{14}{15}\sf
+
+A very useful notational device is the backward shift operator, $B$, which is used as follows:
+$$
+  B y_{t} = y_{t - 1}
+$$\pause
+In other words, $B$, operating on $y_{t}$, has the effect of **shifting the data back one period**. \pause
+
+Two applications of $B$ to $y_{t}$ **shifts the data back two periods**:
+$$
+  B(By_{t}) = B^{2}y_{t} = y_{t-2}
+$$\pause
+For monthly data, if we wish to shift attention to "the same month last year", then $B^{12}$ is used, and the notation is $B^{12}y_{t} = y_{t-12}$.
+
+## Backshift notation
+
+The backward shift operator is convenient for describing the process of *differencing*. \pause
+
+A first-order difference can be written as
+$$
+  y'_{t} = y_{t} - y_{t-1} = y_t - By_{t} = (1 - B)y_{t}
+$$\pause
+Similarly, if second-order differences (i.e., first differences of first differences) have to be computed, then:
+\[
+  y''_{t} = y_{t} - 2y_{t - 1} + y_{t - 2} = (1 - B)^{2} y_{t}
+\]
+
+## Backshift notation
+
+* Second-order difference is denoted $(1- B)^{2}$.
+* *Second-order difference* is not the same as a *second difference*, which would be denoted $1- B^{2}$;
+* In general, a $d$th-order difference can be written as
+$$
+  (1 - B)^{d} y_{t}
+$$
+* A seasonal difference followed by a first difference can be written as
+$$
+  (1-B)(1-B^m)y_t
+$$
+
+## Backshift notation
+
+The "backshift" notation is convenient because the terms can be multiplied together to see the combined effect.
+\begin{align*}
+  (1-B)(1-B^m)y_t & = (1 - B - B^m + B^{m+1})y_t \\
+                  & = y_t-y_{t-1}-y_{t-m}+y_{t-m-1}.
+\end{align*}\pause
+For monthly data, $m=12$ and we obtain the same result as earlier.

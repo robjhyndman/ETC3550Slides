@@ -1,0 +1,288 @@
+---
+title: "9. ARIMA models"
+author: "9.5 Non-seasonal ARIMA models"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 2.8
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(patchwork)
+library(purrr)
+```
+
+## ARIMA models
+
+\begin{tabular}{@{}rl}
+\textbf{AR}: & autoregressive (lagged observations as inputs)\\
+\textbf{I}: & integrated (differencing to make series stationary)\\
+\textbf{MA}: & moving average (lagged errors as inputs)
+\end{tabular}
+
+\pause
+
+###
+An ARIMA model is rarely interpretable in terms of visible data structures like trend and seasonality. But it can capture a huge range of time series patterns.
+
+
+## ARIMA models
+
+\begin{block}{Autoregressive Moving Average models:}\vspace*{-0.7cm}
+\begin{align*}
+  y_{t} &= c + \phi_{1}y_{t - 1} + \cdots + \phi_{p}y_{t - p} \\
+        & \hspace*{2.4cm}\text{} + \theta_{1}\varepsilon_{t - 1} + \cdots + \theta_{q}\varepsilon_{t - q} + \varepsilon_{t}.
+\end{align*}
+\end{block}\pause
+
+* Predictors include both **lagged values of $y_t$ and lagged errors.**
+* Conditions on AR coefficients ensure stationarity.
+* Conditions on MA coefficients ensure invertibility.
+\pause
+
+### Autoregressive Integrated Moving Average models
+* Combine ARMA model with **differencing**.
+* $(1-B)^d y_t$ follows an ARMA model.
+
+## ARIMA models
+\fontsize{13}{15}\sf
+\alert{Autoregressive Integrated Moving Average models}
+\begin{block}{ARIMA($p, d, q$) model}
+\begin{tabular}{rl}
+AR:& $p =$ order of the autoregressive part\\
+I: & $d =$ degree of first differencing involved\\
+MA:& $q =$ order of the moving average part.
+\end{tabular}
+\end{block}
+
+* White noise model: ARIMA(0,0,0)
+* Random walk: ARIMA(0,1,0) with no constant
+* Random walk with drift: ARIMA(0,1,0) with \rlap{const.}
+* AR($p$): ARIMA($p$,0,0)
+* MA($q$): ARIMA(0,0,$q$)
+
+## Backshift notation for ARIMA
+
+* ARMA model:\vspace*{-1cm}\newline
+\parbox{12cm}{\small\begin{align*}
+\hspace*{-1cm}
+y_{t} &= c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
+           + \varepsilon_{t} + \theta_{1}B\varepsilon_{t} + \cdots + \theta_qB^q\varepsilon_{t} \\
+\hspace*{-1cm} \text{or}\quad
+      & (1-\phi_1B - \cdots - \phi_p B^p) y_t = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t
+\end{align*}}
+
+* ARIMA(1,1,1) model:\vspace*{-0.5cm}
+
+\[
+\begin{array}{c c c c}
+(1 - \phi_{1} B) & (1 - B) y_{t} &= &c + (1 + \theta_{1} B) \varepsilon_{t}\\
+{\uparrow} & {\uparrow} & &{\uparrow}\\
+{\text{AR(1)}} & {\text{First}} &  &{\text{MA(1)}}\\
+& {\hbox to 0cm{\hss\text{difference}\hss}}\\
+\end{array}
+\]\pause\vspace*{-0.2cm}
+$$\text{Expand:}\qquad
+  y_t = c + y_{t-1} + \phi_1 y_{t-1}- \phi_1 y_{t-2} + \theta_1\varepsilon_{t-1} + \varepsilon_t
+$$
+
+## R model
+
+\begin{block}{Intercept form}
+  \centerline{$(1-\phi_1B - \cdots - \phi_p B^p) y_t' = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
+\end{block}
+
+\begin{block}{Mean form}
+  \centerline{$(1-\phi_1B - \cdots - \phi_p B^p)(y_t' - \mu) = (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
+\end{block}
+
+ * $y_t' = (1-B)^d y_t$
+ * $\mu$ is the mean of $y_t'$.
+ * $c = \mu(1-\phi_1 - \cdots - \phi_p )$.
+ * fable uses intercept form
+
+## Egyptian exports
+
+```{r egyptexportsauto, echo=TRUE}
+global_economy |>
+  filter(Code == "EGY") |>
+  autoplot(Exports) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
+```
+
+## Egyptian exports
+\fontsize{10}{9}\sf
+
+```{r, echo=TRUE, dependson="egyptexportsauto"}
+fit <- global_economy |>
+  filter(Code == "EGY") |>
+  model(ARIMA(Exports))
+report(fit)
+```
+
+\pause\vspace*{-0.6cm}
+
+```{r egyptexportsmodel, include=FALSE, warning=FALSE, dependson="egyptexportsauto"}
+stopifnot(identical(
+  unlist(fit[1, 2][[1]][[1]]$fit$spec),
+  c(p = 2L, d = 0L, q = 1L, P = 0, D = 0, Q = 0, constant = TRUE, period = 1)
+))
+coef <- rlang::set_names(tidy(fit)$estimate, tidy(fit)$term)
+```
+
+### ARIMA(2,0,1) model:
+$$
+  y_t = `r sprintf("%.2f", coef['constant'])`
+         + `r sprintf("%.2f", coef['ar1'])` y_{t-1}
+          `r sprintf("%.2f", coef['ar2'])` y_{t-2}
+          `r sprintf("%.2f", coef['ma1'])` \varepsilon_{t-1}
+          + \varepsilon_{t},
+$$
+where $\varepsilon_t$ is white noise with a standard deviation of $`r sprintf("%.3f", sqrt(glance(fit)$sigma2))` = \sqrt{`r sprintf("%.3f", glance(fit)$sigma2)`}$.
+
+## Egyptian exports
+
+```{r, echo=TRUE, fig.height=4}
+gg_tsresiduals(fit)
+```
+
+## Egyptian exports
+
+```{r egyptexportsf, dependson="egyptexportsauto"}
+fit |>
+  forecast(h = 10) |>
+  autoplot(global_economy) +
+  labs(y = "% of GDP", title = "Egyptian Exports")
+```
+
+## Understanding ARIMA models
+\fontsize{14}{16}\sf
+
+* If $c=0$ and $d=0$, the long-term forecasts will go to zero.
+* If $c=0$ and $d=1$, the long-term forecasts will go to a non-zero constant.
+* If $c=0$ and $d=2$, the long-term forecasts will follow a straight line.
+
+* If $c\ne0$ and $d=0$, the long-term forecasts will go to the mean of the data.
+* If $c\ne0$ and $d=1$, the long-term forecasts will follow a straight line.
+* If $c\ne0$ and $d=2$, the long-term forecasts will follow a quadratic trend.
+
+## Understanding ARIMA models
+\fontsize{14}{16}\sf
+
+### Forecast variance and $d$
+  * The higher the value of $d$, the more rapidly the prediction intervals increase in size.
+  * For $d=0$, the long-term forecast standard deviation will go to the standard deviation of the historical data.
+
+### Cyclic behaviour
+  * For cyclic forecasts, $p\ge2$ and some restrictions on coefficients are required.
+  * If $p=2$, we need $\phi_1^2+4\phi_2<0$. Then average cycle of length
+\[
+  (2\pi)/\left[\text{arc cos}(-\phi_1(1-\phi_2)/(4\phi_2))\right].
+\]
+
+## Partial autocorrelations
+
+\fontsize{13}{14}\sf
+
+\alert{Partial autocorrelations} measure relationship\newline between $y_{t}$ and $y_{t - k}$, when the effects of other time lags --- $1, 2, 3, \dots, k - 1$ --- are removed.\pause
+\begin{block}{}
+\begin{align*}
+\alpha_k &= \text{$k$th partial autocorrelation coefficient}\\
+         &= \text{equal to the estimate of $\phi_k$ in regression:}\\
+         & \hspace*{0.8cm} y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_k y_{t-k} +\varepsilon_t.
+\end{align*}
+\end{block}\pause
+
+* Varying number of terms on RHS gives $\alpha_k$ for different values of $k$.
+* $\alpha_1=\rho_1$
+* same critical values of $\pm 1.96/\sqrt{T}$ as for ACF.
+* Last significant $\alpha_k$ indicates the order of an AR model.
+
+## Egyptian exports
+
+```{r, eval=FALSE}
+egypt <- global_economy |> filter(Code == "EGY")
+egypt |> ACF(Exports) |> autoplot()
+egypt |> PACF(Exports) |> autoplot()
+```
+
+```{r, echo=FALSE}
+p1 <- global_economy |>
+  filter(Code == "EGY") |>
+  ACF(Exports) |>
+  autoplot()
+p2 <- global_economy |>
+  filter(Code == "EGY") |>
+  PACF(Exports) |>
+  autoplot()
+p1 | p2
+```
+
+## Egyptian exports
+
+```{r, echo=TRUE, fig.height=3.25}
+global_economy |>
+  filter(Code == "EGY") |>
+  gg_tsdisplay(Exports, plot_type = "partial")
+```
+
+## ACF and PACF interpretation
+
+**AR(1)**
+\begin{align*}
+\hspace*{1cm}
+  \rho_k &= \phi_1^k\qquad\text{for $k=1,2,\dots$};\\
+\alpha_1 &= \phi_1 \qquad\alpha_k = 0\qquad\text{for $k=2,3,\dots$}.
+\end{align*}
+
+So we have an AR(1) model when
+
+  * autocorrelations exponentially decay
+  * there is a single significant partial autocorrelation.
+
+## ACF and PACF interpretation
+
+**AR($p$)**
+
+  * ACF dies out in an exponential or damped sine-wave manner
+  * PACF has all zero spikes beyond the $p$th spike
+
+So we have an AR($p$) model when
+
+  * the ACF is exponentially decaying or sinusoidal
+  * there is a significant spike at lag $p$ in PACF, but none beyond $p$
+
+## ACF and PACF interpretation
+
+**MA(1)**
+\begin{align*}
+\hspace*{1cm}\rho_1 &= \theta_1/(1 + \theta_1^2)\qquad \rho_k = 0\qquad\text{for $k=2,3,\dots$};\\
+\alpha_k &= -(-\theta_1)^k/(1 + \theta_1^2 + \dots + \theta_1^{2k})
+\end{align*}
+
+So we have an MA(1) model when
+
+ * the PACF is exponentially decaying and
+ * there is a single significant spike in ACF
+
+## ACF and PACF interpretation
+
+**MA($q$)**
+
+ * PACF dies out in an exponential or damped sine-wave manner
+ * ACF has all zero spikes beyond the $q$th spike
+
+So we have an MA($q$) model when
+
+  * the PACF is exponentially decaying or sinusoidal
+  * there is a significant spike at lag $q$ in ACF, but none beyond $q$

@@ -1,0 +1,50 @@
+---
+title: "9. ARIMA models"
+author: "9.6 Estimation and order selection"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 3
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(patchwork)
+library(purrr)
+```
+
+
+## Maximum likelihood estimation
+
+Having identified the model order, we need to estimate the parameters $c$, $\phi_1,\dots,\phi_p$, $\theta_1,\dots,\theta_q$.\pause
+
+* MLE is very similar to least squares estimation obtained by minimizing
+$$
+  \sum_{t-1}^T e_t^2
+$$
+* The `ARIMA()` function allows CLS or MLE estimation.
+* Non-linear optimization must be used in either case.
+* Different software will give different estimates.
+
+## Information criteria
+
+\alert{Akaike's Information Criterion (AIC):}
+\centerline{$\text{AIC} = -2 \log(L) + 2(p+q+k+1),$}
+where $L$ is the likelihood of the data, $k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pause
+
+\alert{Corrected AIC:}
+\centerline{$\text{AICc} = \text{AIC} + \displaystyle\frac{2(p+q+k+1)(p+q+k+2)}{T-p-q-k-2}.$}\pause
+
+\alert{Bayesian Information Criterion:}
+\centerline{$\text{BIC} = \text{AIC} + [\log(T)-2](p+q+k+1).$}
+\pause
+\begin{block}{}Good models are obtained by minimizing either the AIC, \text{AICc}\ or BIC\@. Our preference is to use the \text{AICc}.\end{block}
