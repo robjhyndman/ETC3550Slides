@@ -1,0 +1,121 @@
+---
+title: "10. Dynamic regression models"
+author: "10.1 Estimation"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 2.8
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(readr)
+
+vic_elec_daily <- vic_elec |>
+  filter(year(Time) == 2014) |>
+  index_by(Date = date(Time)) |>
+  summarise(
+    Demand = sum(Demand) / 1e3,
+    Temperature = max(Temperature),
+    Holiday = any(Holiday)
+  ) |>
+  mutate(Day_Type = case_when(
+    Holiday ~ "Holiday",
+    wday(Date) %in% 2:6 ~ "Weekday",
+    TRUE ~ "Weekend"
+  ))
+```
+
+## Regression with ARIMA errors
+
+\begin{block}{Regression models}\vspace*{-0.2cm}
+\[
+  y_t = \beta_0 + \beta_1 x_{1,t} + \dots + \beta_k x_{k,t} + \varepsilon_t,
+\]
+\end{block}\vspace*{-0.3cm}
+
+  * $y_t$ modeled as function of $k$ explanatory variables
+$x_{1,t},\dots,x_{k,t}$.
+  * In regression, we assume that $\varepsilon_t$ is WN.
+  * Now we want to allow $\varepsilon_t$ to be autocorrelated.
+\vspace*{0.3cm}
+\pause
+\begin{alertblock}{Example: ARIMA(1,1,1) errors}\vspace*{-0.7cm}
+\begin{align*}
+  y_t &= \beta_0 + \beta_1 x_{1,t} + \dots + \beta_k x_{k,t} + \eta_t,\\
+      & (1-\phi_1B)(1-B)\eta_t = (1+\theta_1B)\varepsilon_t,
+\end{align*}
+\end{alertblock}
+\rightline{where $\varepsilon_t$ is white noise.}
+
+## Residuals and errors
+
+\begin{alertblock}{Example: $\eta_t$ = ARIMA(1,1,1)}\vspace*{-0.7cm}
+\begin{align*}
+  y_t &= \beta_0 + \beta_1 x_{1,t} + \dots + \beta_k x_{k,t} + \eta_t,\\
+      & (1-\phi_1B)(1-B)\eta_t = (1+\theta_1B)\varepsilon_t,
+\end{align*}\end{alertblock}\pause
+
+  * Be careful in distinguishing $\eta_t$ from $\varepsilon_t$.
+  * Only the errors $\varepsilon_t$ are assumed to be white noise.
+  * In ordinary regression, $\eta_t$ is assumed to be white noise and so $\eta_t = \varepsilon_t$.
+
+## Estimation
+
+If we minimize $\sum \eta_t^2$ (by using ordinary regression):
+
+  1. Estimated coefficients $\hat{\beta}_0,\dots,\hat{\beta}_k$ are no longer optimal as some information ignored;
+  2. Statistical tests associated with the model (e.g., t-tests on the coefficients) are incorrect.
+  3. $p$-values for coefficients usually too small (``spurious regression'').
+  4. AIC of fitted models misleading.
+
+\pause
+
+ * Minimizing $\sum \varepsilon_t^2$ avoids these problems.
+ * Maximizing likelihood similar to minimizing $\sum \varepsilon_t^2$.
+
+## Regression with ARIMA errors
+
+\begin{block}{Model with ARIMA(1,1,1) errors}\vspace*{-0.7cm}
+\begin{align*}
+  y_t &= \beta_0 + \beta_1 x_{1,t} + \dots + \beta_k x_{k,t} + \eta_t,\\
+      & (1-\phi_1B)(1-B)\eta_t = (1+\theta_1B)\varepsilon_t,
+\end{align*}
+\end{block}\pause
+
+\begin{block}{Equivalent to model with ARIMA(1,0,1) errors}\vspace*{-0.7cm}
+\begin{align*}
+  y'_t &= \beta_1 x'_{1,t} + \dots + \beta_k x'_{k,t} + \eta'_t,\\
+       & (1-\phi_1B)\eta'_t = (1+\theta_1B)\varepsilon_t,
+\end{align*}
+\end{block}
+where $y'_t=y_t-y_{t-1}$, $x'_{t,i}=x_{t,i}-x_{t-1,i}$ and  $\eta'_t=\eta_t-\eta_{t-1}$.
+
+## Regression with ARIMA errors
+\fontsize{14}{14}\sf
+
+Any regression with an ARIMA error can be rewritten as a regression with an ARMA error by differencing all variables with the same differencing operator as in the ARIMA model.\pause
+
+\begin{block}{Original data}\vspace*{-0.7cm}
+\begin{align*}
+  y_t & = \beta_0 + \beta_1 x_{1,t} + \dots + \beta_k x_{k,t} + \eta_t\\
+  \mbox{where}\quad
+      & \phi(B)(1-B)^d\eta_t = \theta(B)\varepsilon_t
+\end{align*}
+\end{block}\pause\vspace*{-0.1cm}
+\begin{block}{After differencing all variables}\vspace*{-0.1cm}
+$$
+  y'_t  = \beta_1 x'_{1,t} + \dots + \beta_k x'_{k,t} + \eta'_t.
+$$
+where\newline\mbox{}\hfill
+$\phi(B)\eta'_t = \theta(B)\varepsilon_t$, ~~ $y_t' = (1-B)^dy_t$, ~~ $x_{i,t}' = (1-B)^dx_{i,t}$, ~~$\eta_t' = (1-B)^d \eta_t$
+\end{block}

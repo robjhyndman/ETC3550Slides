@@ -1,0 +1,141 @@
+---
+title: "10. Dynamic regression models"
+author: "10.1 Estimation"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 2.8
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(readr)
+
+vic_elec_daily <- vic_elec |>
+  filter(year(Time) == 2014) |>
+  index_by(Date = date(Time)) |>
+  summarise(
+    Demand = sum(Demand) / 1e3,
+    Temperature = max(Temperature),
+    Holiday = any(Holiday)
+  ) |>
+  mutate(Day_Type = case_when(
+    Holiday ~ "Holiday",
+    wday(Date) %in% 2:6 ~ "Weekday",
+    TRUE ~ "Weekend"
+  ))
+```
+
+## Stochastic \& deterministic trends
+
+\begin{block}{Deterministic trend}
+$$ y_t = \beta_0 + \beta_1 t + \eta_t  \qquad \text{where $\eta_t \sim \text{ARIMA}(p,0,q)$}
+$$
+\end{block}\pause
+
+\begin{block}{Stochastic trend}
+$$y_t = \beta_0 + \beta_1 t + \eta_t \qquad \text{where $\eta_t\sim \text{ARIMA}(p,1,q)$}
+$$
+\pause
+Difference both sides:\vspace*{-0.3cm}
+$$y_t = \beta_1 + \eta'_t \qquad \text{where $\eta'_t\sim \text{ARIMA}(p,0,q)$}
+$$
+\end{block}
+
+## Air transport passengers Australia
+
+```{r}
+aus_airpassengers |>
+  autoplot(Passengers) +
+  labs(y = "Passengers (millions)", title = "Total air passengers")
+```
+
+## Air transport passengers Australia
+
+**Deterministic trend**
+
+\fontsize{10}{10}\sf
+
+```{r, echo=TRUE}
+fit_deterministic <- aus_airpassengers |>
+  model(ARIMA(Passengers ~ 1 + trend() + pdq(d = 0)))
+report(fit_deterministic)
+```
+
+```{r austaparams, echo=FALSE, dependson='deterministictrend'}
+coef <- rlang::set_names(tidy(fit_deterministic)$estimate, tidy(fit_deterministic)$term)
+phi1 <- coef["ar1"]
+intercept <- coef["intercept"]
+slope <- coef["trend()"]
+sigma2 <- glance(fit_deterministic)$sigma2
+```
+
+\only<2>{\begin{textblock}{5}(9,4.5)
+\begin{block}{}\vspace*{-0.2cm}\fontsize{12}{13}\sf
+\begin{align*}
+  y_t &= `r sprintf("%.3f", intercept)` + `r sprintf("%.3f", slope)` t + \eta_t \\
+  \eta_t &= `r sprintf("%.3f", phi1)` \eta_{t-1}  + \varepsilon_t\\
+  \varepsilon_t &\sim \text{NID}(0,`r sprintf("%.3f", sigma2)`).
+\end{align*}
+\end{block}
+\end{textblock}}
+
+\vspace*{10cm}
+
+## Air transport passengers Australia
+
+**Stochastic trend**
+
+\fontsize{10}{10}\sf
+
+```{r, echo=TRUE}
+fit_stochastic <- aus_airpassengers |>
+  model(ARIMA(Passengers ~ 1 + pdq(d = 1)))
+report(fit_stochastic)
+```
+
+```{r austaparams2, echo=FALSE, dependson='stochastictrend'}
+coef <- rlang::set_names(tidy(fit_stochastic)$estimate, tidy(fit_stochastic)$term)
+drift <- coef["constant"]
+sigma2 <- glance(fit_stochastic)$sigma2
+```
+
+\only<2>{\begin{textblock}{5}(9,4.5)
+\begin{block}{}\vspace*{-0.2cm}\fontsize{12}{13}\sf
+\begin{align*}
+  y_t-y_{t-1} &= `r sprintf("%.3f", drift)` + \varepsilon_t,\\
+  y_t &= y_0 + `r sprintf("%.3f", drift)` t + \eta_t \\
+  \eta_t &= \eta_{t-1} + \varepsilon_{t}\\
+  \varepsilon_t &\sim \text{NID}(0,`r sprintf("%.3f", sigma2)`).
+\end{align*}
+\end{block}
+\end{textblock}}
+
+\vspace*{10cm}
+
+## Air transport passengers Australia
+
+```{r, fig.height=2.2}
+aus_airpassengers |>
+  autoplot(Passengers) +
+  autolayer(fit_stochastic |> forecast(h = 20),
+    colour = "#0072B2", level = 95) +
+  autolayer(fit_deterministic |> forecast(h = 20),
+    colour = "#D55E00", alpha = 0.65, level = 95) +
+  labs(y = "Air passengers (millions)", title = "Forecasts from trend models")
+```
+
+## Forecasting with trend
+
+  * Point forecasts are almost identical, but prediction intervals differ.
+  * Stochastic trends have much wider prediction intervals because the errors are non-stationary.
+  * Be careful of forecasting with deterministic trends too far ahead.

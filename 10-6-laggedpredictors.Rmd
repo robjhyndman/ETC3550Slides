@@ -1,0 +1,191 @@
+---
+title: "10. Dynamic regression models"
+author: "10.6 Lagged predictors"
+date: "OTexts.org/fpp3/"
+classoption: aspectratio=169
+titlepage: fpp3title.png
+titlecolor: fpp3red
+toc: false
+output:
+  binb::monash:
+    colortheme: monashwhite
+    fig_width: 7.5
+    fig_height: 2.8
+    keep_tex: no
+    includes:
+      in_header: fpp3header.tex
+---
+
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(readr)
+
+vic_elec_daily <- vic_elec |>
+  filter(year(Time) == 2014) |>
+  index_by(Date = date(Time)) |>
+  summarise(
+    Demand = sum(Demand) / 1e3,
+    Temperature = max(Temperature),
+    Holiday = any(Holiday)
+  ) |>
+  mutate(Day_Type = case_when(
+    Holiday ~ "Holiday",
+    wday(Date) %in% 2:6 ~ "Weekday",
+    TRUE ~ "Weekend"
+  ))
+```
+
+## Lagged predictors
+
+Sometimes a change in $x_t$ does not affect $y_t$ instantaneously\pause
+\begin{block}{}
+\begin{itemize}
+  \item $y_t=$ sales, $x_t=$ advertising.
+  \item $y_t=$ stream flow, $x_t=$ rainfall.
+  \item $y_t=$ size of herd, $x_t=$ breeding stock.
+\end{itemize}
+\end{block}
+\pause
+
+  * These are dynamic systems with input ($x_t$) and output $(y_t)$.
+  * $x_t$ is often a leading indicator.
+  * There can be multiple predictors.
+
+## Lagged predictors
+
+The model include present and past values of predictor:
+\begin{block}{}
+\centerline{$
+y_t = a + \gamma_0x_t + \gamma_1x_{t-1} + \dots + \gamma_kx_{t-k} + \eta_t$}
+\end{block}
+where $\eta_t$ is an ARIMA process.\pause
+
+**Rewrite model as **\vspace*{-0.6cm}
+\begin{align*}
+y_{t} & = a+ (\gamma_{0} + \gamma_{1} B + \gamma_{2} B^{2} + \dots + \gamma_{k} B^{k}) x_{t} +\eta_t \\
+      & = a+ \gamma(B) x_{t} +\eta_t.
+\end{align*}\pause\vspace*{-1.2cm}
+
+  * $\gamma(B)$ is called a \textit{transfer function} since it describes how
+change in $x_t$ is transferred to $y_t$.
+  * $x$ can influence $y$, but $y$ is not allowed to influence $x$.
+
+## Example: Insurance quotes and TV adverts
+
+```{r tvadvert, fig.height=2.4}
+insurance |>
+  pivot_longer(Quotes:TVadverts) |>
+  ggplot(aes(x = Month, y = value)) +
+  geom_line() +
+  facet_grid(vars(name), scales = "free_y") +
+  labs(y = NULL, title = "Insurance advertising and quotations")
+```
+
+## Example: Insurance quotes and TV adverts
+
+```{r tvadvertpairs, dependson='tvadvertdata', echo=FALSE}
+insurance |>
+  mutate(
+    lag1 = lag(TVadverts),
+    lag2 = lag(lag1)
+  ) |>
+  as_tibble() |>
+  select(-Month) |>
+  rename(lag0 = TVadverts) |>
+  pivot_longer(-Quotes, names_to = "Lag", values_to = "TV_advert") |>
+  ggplot(aes(x = TV_advert, y = Quotes)) +
+  geom_point() +
+  facet_grid(. ~ Lag) +
+  labs(title = "Insurance advertising and quotations")
+```
+
+## Example: Insurance quotes and TV adverts
+
+```{r, echo=TRUE}
+fit <- insurance |>
+  # Restrict data so models use same fitting period
+  mutate(Quotes = c(NA, NA, NA, Quotes[4:40])) |>
+  # Estimate models
+  model(
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts)),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
+      lag(TVadverts, 2)),
+    ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts) +
+      lag(TVadverts, 2) + lag(TVadverts, 3))
+  )
+```
+
+## Example: Insurance quotes and TV adverts
+\fontsize{10}{10}\sf
+
+```{r, echo=TRUE, results = 'hide'}
+glance(fit)
+```
+```{r, echo = FALSE}
+glance(fit) |>
+  transmute(`Lag order` = 0:3, sigma2, log_lik, AIC, AICc, BIC) |>
+  knitr::kable()
+```
+
+## Example: Insurance quotes and TV adverts
+
+\fontsize{10}{10}\sf
+
+```{r tvadvertagain, echo=TRUE}
+fit_best <- insurance |>
+  model(ARIMA(Quotes ~ pdq(d = 0) + TVadverts + lag(TVadverts)))
+report(fit_best)
+```
+
+\pause
+\vspace{-1em}
+
+```{r tvadvertparam, echo=FALSE, dependson="tvadvertagain"}
+# Store coefficients
+tidy_fit <- tidy(fit_best)
+coef <- rlang::set_names(tidy_fit$estimate, tidy_fit$term)
+phi1 <- coef["ar1"]
+ma1 <- coef["ma1"]
+ma2 <- coef["ma2"]
+intercept <- coef["intercept"]
+gamma0 <- coef["TVadverts"]
+gamma1 <- coef["lag(TVadverts)"]
+```
+\vspace*{0.2cm}
+
+###
+\vspace*{-0.2cm}\begin{align*}
+  y_t &= `r sprintf("%.3f", intercept)` +
+         `r sprintf("%.3f", gamma0)` x_t +
+         `r sprintf("%.3f", gamma1)` x_{t-1} + \eta_t,\\
+  \eta_t &= `r sprintf("%.3f", phi1)` \eta_{t-1} +
+                                     \varepsilon_t +
+            `r sprintf("%.3f", ma1)` \varepsilon_{t-1} +
+            `r sprintf("%.3f", ma2)` \varepsilon_{t-2},
+\end{align*}
+
+## Example: Insurance quotes and TV adverts
+
+```{r, echo=TRUE, fig.height=3}
+advert_a <- new_data(insurance, 20) |>
+  mutate(TVadverts = 10)
+forecast(fit_best, advert_a) |> autoplot(insurance)
+```
+
+## Example: Insurance quotes and TV adverts
+
+```{r, echo=TRUE, fig.height=3}
+advert_b <- new_data(insurance, 20) |>
+  mutate(TVadverts = 8)
+forecast(fit_best, advert_b) |> autoplot(insurance)
+```
+
+## Example: Insurance quotes and TV adverts
+
+```{r, echo=TRUE, fig.height=3}
+advert_c <- new_data(insurance, 20) |>
+  mutate(TVadverts = 6)
+forecast(fit_best, advert_c) |> autoplot(insurance)
+```
