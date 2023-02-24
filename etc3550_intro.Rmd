@@ -35,10 +35,10 @@ source("setup.R")
 \begin{block}{Tutors}
 \begin{itemize}\itemsep=0cm\parskip=0cm
 \item \textbf{Mitchell O'Hara-Wild}
-\item Yashpal Ramakrishnaiah
+\item Nan Qu
 \item Elena Sanina
-\item Ryan Thompson
-\item Fin Yang
+\item Xiaoqian Wang
+\item Zhixiang (Elvis) Yang
 \end{itemize}
 \end{block}
 
@@ -59,6 +59,7 @@ source("setup.R")
    - $>3$ million downloads per year
 
 ## Unit objectives
+\fontsize{13}{15}\sf
 
   1. To obtain an understanding of common statistical methods used in business and economic forecasting.
   2. To develop the computer skills required to forecast business and economic time series data;
@@ -66,7 +67,10 @@ source("setup.R")
 
 ### Teaching and learning approach
 
-Two 50 minute lectures and one 80 minute tutorial each week for 12 weeks.
+* Recorded lectures embedded in the textbook at [OTexts.com/fpp3](https://OTexts.com/fpp3)
+* No scheduled activities on Monday (other than week 1)
+* One 50 minute lecture each Wednesday for 12 weeks.
+* One 80 minute tutorial each week for 12 weeks.
 
 ## R
 \fontsize{14}{15}\sf
@@ -147,18 +151,20 @@ library(fpp3)
 ## Assessment
 \vspace*{-0.2cm}
 
-  - 8 or 9 short assignments, worth a total of 20%.
-  - One project due towards the end of the semester, worth 20%.
+  - Four assignments and one larger project: 40%
   - Exam (2 hours): 60%.
 
 \pause
 
 \begin{block}{}\small\centering
-\begin{tabular}{lll}
+\begin{tabular}{llr}
 	  \textbf{Task}  & \textbf{Due Date}     & \textbf{Value} \\
   \midrule
-    Assignments    & Sun 11:55pm each week & 2 or 4\% each\\
-	  Project        & Fri 20 May            & 20\%           \\
+    Assignment 1    & Sun 12 March & 2\% \\
+    Assignment 2    & Sun 26 March & 6\% \\
+    Assignment 3    & Sun 16 April & 6\% \\
+    Assignment 4    & Sun 30 April & 6\% \\
+    Project        & Sun 21 May            & 20\%           \\
 	  Final exam     & Official exam period  & 60\%
 \end{tabular}
 \end{block}
@@ -166,10 +172,7 @@ library(fpp3)
 \pause\vspace*{-0.3cm}
 
   - Need at least 45\% for exam, and 50\% for total.
-
-\pause\begin{alertblock}{} 
-\textbf{ETC5550 students:}\\ One assignment different, and extra exam question.
-\end{alertblock}
+  - \textbf{ETC5550 students:} Extra exam question.
 
 ## Moodle site
 \fontsize{18}{24}\sf

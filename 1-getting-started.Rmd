@@ -28,10 +28,6 @@ melsyd <- tsibbledata::ansett |>
 
 # What can we forecast?
 
-## Forecasts that aren't forecasts
-
-\fullheight{hopecasts2}
-
 ## What can we forecast?
 
 \only<1>{\fullheight{AusBOM}}
@@ -90,226 +86,46 @@ Something is easier to forecast if:
  3. the future is somewhat similar to the past
  4. the forecasts cannot affect the thing we are trying to forecast.
 
-# Time series data and random futures
 
-## Time series data
+# Assignment 1
 
-  - Four-yearly Olympic winning times
-  - Annual Google profits
-  - Quarterly Australian beer production
-  - Monthly rainfall
-  - Weekly retail sales
-  - Daily IBM stock prices
-  - Hourly electricity demand
-  - 5-minute freeway traffic counts
-  - Time-stamped stock transaction data
+## Assignment 1: forecast the following series
+\small
 
-## Random futures
+  1. Google closing stock price in $USD on 20 March 2023.
+  2. Maximum temperature at Melbourne airport on 4 April 2023.
+  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2023.
+  4. The seasonally adjusted estimate of total employment for April 2023. ABS CAT 6202, to be released around mid May 2023.
+  5. Google closing stock price in $USD on 22 May 2023.
 
-```{r austa, echo=FALSE}
-# Grab ABS data
-austa <- readxl::read_excel("data/340101.xlsx", sheet = "Data1", skip = 9) |>
-  rename(date = `Series ID`, value = A85375847A) |>
-  select(date, value) |>
-  transmute(
-    Month = yearmonth(date),
-    Visitors = value / 1e3
-  ) |>
-  bind_rows(tibble(
-    Month = yearmonth(seq(as.Date("2021-11-01"), by = "1 month", length = 2)),
-    Visitors = NA_real_
-  )) |>
-  as_tsibble(index = Month) |>
-  filter(Month >= yearmonth("2000 Jan"))
-# Fit ETS model
-fit <- austa |>
-  filter(Month < yearmonth("2018 Jan")) |>
-  model(ETS(Visitors))
-# Product forecasts
-fc <- forecast(fit, h = 48) |>
-  mutate(Month = as.Date(Month))
-# Simulate 100 future sample paths
-set.seed(1967)
-sim <- fit |>
-  generate(h = 48, times = 100) |>
-  mutate(
-    replicate = factor(.rep, levels = 1:100, labels = paste("Future", 1:100)),
-    .rep = as.numeric(.rep)
-  ) |>
-  as_tibble() |>
-  mutate(Month = as.Date(Month))
-# Nice colors
-cols <- scale_colour_manual(
-  values = c("#D55E00", "#0072B2", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", sample(rainbow(93))),
-  breaks = paste("Future", 1:100),
-  name = " "
-)
-# Now build up some plots with alignment
-p1 <- austa |>
-  mutate(Visitors = if_else(Month >= yearmonth("2018 Jan"), NA_real_, Visitors)) |>
-  as_tibble() |>
-  mutate(Month = as.Date(Month)) |>
-  ggplot(aes(x = Month, y = Visitors)) +
-  geom_line() +
-  labs(
-    x = "Month",
-    y = "Thousands of visitors",
-    title = "Total short-term visitors to Australia"
-  ) +
-  scale_x_date(
-    breaks = seq(as.Date("2000-01-01"), by = "5 years", l = 5),
-    labels = paste("Jan", seq(2000, 2020, by = 5)),
-    minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
-  ) +
-  ylim(min(austa$Visitors, sim$.sim, na.rm = TRUE), max(austa$Visitors, sim$.sim, na.rm = TRUE))
-p2 <- p1 + cols +
-  geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim |> filter(.rep <= 1)
-  )
-p3 <- p1 + cols +
-  geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim |> filter(.rep <= 2)
-  )
-p4 <- p1 + cols +
-  geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim |> filter(.rep <= 3)
-  )
-p5 <- p1 + cols +
-  geom_line(aes(y = .sim, group = replicate, colour = replicate),
-    data = sim |> filter(.rep <= 10)
-  )
-p6 <- p1 + cols +
-  geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, data = sim) +
-  guides(colour = "none")
-p7 <- p1 +
-  geom_line(aes(y = .sim, group = replicate, colour = replicate), alpha = 0.5, col = "gray", data = sim) +
-  guides(colour = "none")
-p8 <- p7 + autolayer(fc, level = c(50, 90))
-p9 <- p8 + coord_cartesian(xlim = as.Date(c("2014-01-01", "2021-08-01"))) +
-  scale_x_date(
-    breaks = seq(as.Date("2000-01-01"), by = "2 years", l = 11),
-    labels = paste("Jan", seq(2000, 2020, by = 2)),
-    minor_breaks = seq(as.Date("2001-01-01"), by = "1 year", l = 25)
-  )
-aligned_plots <- align_patches(p1, p2, p3, p4, p5, p6, p7, p8, p9)
-```
+\begin{block}{Due Sunday 12 March}
+For each of these, give a point forecast and an 80\% prediction interval.
+\end{block}\pause
+\begin{alertblock}{}
+Prize: \$50 Amazon gift voucher
+\end{alertblock}
 
-\forecast\pause
+## Assignment 1: scoring
+\small
 
-```{r austa1, dependson="austa", echo=FALSE}
-aligned_plots[[1]]
-```
+$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
 
-## Random futures
+### Point forecasts:
 
-\forecast
+$$\text{Absolute Error} = |Y-F|
+$$
 
-```{r austa2, dependson='austa', echo=FALSE}
-aligned_plots[[2]]
-```
+ * Rank results for all students in class
+ * Add ranks across all five items
 
-\simfutures
+### Prediction intervals:
 
-## Random futures
+$$
+\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
+$$
 
-\forecast
-
-```{r austa3, dependson='austa', echo=FALSE}
-aligned_plots[[3]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa4, dependson='austa', echo=FALSE}
-aligned_plots[[4]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa5, dependson='austa', echo=FALSE}
-aligned_plots[[5]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa6, dependson='austa', echo=FALSE}
-aligned_plots[[6]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa7, dependson='austa', echo=FALSE}
-aligned_plots[[7]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa8, dependson='austa', echo=FALSE}
-aligned_plots[[8]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa9, dependson='austa', echo=FALSE}
-aligned_plots[[9]]
-```
-
-\simfutures
-
-## Random futures
-
-\forecast
-
-```{r austa9b, dependson='austa', echo=FALSE}
-aligned_plots[[9]] +
-  geom_line(
-    colour = "black",
-    data = austa |> filter(Month >= yearmonth("2018 Jan")) |> mutate(Month = as.Date(Month))
-  )
-```
-
-\simfutures
-
-\only<2>{\begin{textblock}{8.5}(.3,6.5)\begin{alertblock}{}
-``He who sees the past as surprise-free is bound to have a future full of surprises.''\\\mbox{}\hfill{\small (Amos Tversky)}
-\end{alertblock}\end{textblock}
-}
-
-## Statistical forecasting
-
-\fontsize{14}{16}\sf
-
-- Thing to be forecast: a random variable, $y_t$.
-- Forecast distribution: If ${\cal I}$ is all observations, then $y_{t} |{\cal I}$ means "the random variable $y_{t}$ given what we know in ${\cal I}$.
-- The "point forecast" is the mean (or median) of $y_{t} |{\cal I}$
-- The "forecast variance" is $\text{var}[y_{t} |{\cal I}]$
-- A prediction interval or "interval forecast" is a range of values of $y_t$ with high probability.
-- With time series, ${y}_{t|t-1} = y_t | \{y_1,y_2,\dots,y_{t-1}\}$.
-- $\hat{y}_{T+h|T} =\text{E}[y_{T+h} | y_1,\dots,y_T]$ (an $h$-step forecast taking account of all observations up to time $T$).
+ * Rank results for all students
+ * Add ranks across all five items
 
 # Some case studies
 
@@ -431,43 +247,3 @@ Not the real data! Or is it?
 the Grand Prix, advertising campaigns, competition behaviour, etc.
   * They have a highly capable team of people who are able to do
 most of the computing.
-
-# Assignment 1
-
-## Assignment 1: forecast the following series
-\small
-
-  1. Google closing stock price on 21 March 2022.
-  2. Maximum temperature at Melbourne airport on 5 April 2022.
-  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2022.
-  4. The seasonally adjusted estimate of total employment for April 2022. ABS CAT 6202, to be released around mid May 2022.
-  5. Google closing stock price on 23 May 2022.
-
-\begin{block}{Due Sunday 13 March}
-For each of these, give a point forecast and an 80\% prediction interval.
-\end{block}\pause
-\begin{alertblock}{}
-Prize: \$50 Amazon gift voucher
-\end{alertblock}
-
-## Assignment 1: scoring
-\small
-
-$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
-
-### Point forecasts:
-
-$$\text{Absolute Error} = |Y-F|
-$$
-
- * Rank results for all students in class
- * Add ranks across all five items
-
-### Prediction intervals:
-
-$$
-\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
-$$
-
- * Rank results for all students
- * Add ranks across all five items
