@@ -47,8 +47,8 @@ source("setup.R")
 ## Brief bio
 
   - Professor of Statistics, Monash University
-  - Head, Department of Econometrics & Business Statistics
-  - Editor-in-Chief, *International Journal of Forecasting*, 2005--2018
+  - Co-author of most popular forecasting textbook in the world
+  - Developer of most popular forecasting software in the world
 
 ### How my forecasting methodology is used:
    - Pharmaceutical Benefits Scheme
@@ -56,7 +56,7 @@ source("setup.R")
    - Australian tourism demand
    - Ageing population
    - COVID-19 cases
-   - $>3$ million downloads per year
+   - TAC large claims
 
 ## Unit objectives
 \fontsize{13}{15}\sf
@@ -71,82 +71,6 @@ source("setup.R")
 * No scheduled activities on Monday (other than week 1)
 * One 50 minute lecture each Wednesday for 12 weeks.
 * One 80 minute tutorial each week for 12 weeks.
-
-## R
-\fontsize{14}{15}\sf
-
-![](figs/Rlogo.png){height=1.5cm}
-
-Available for download from CRAN:
-
-https://cran.r-project.org
-
-\vspace*{-0.3cm}\noindent\rule{\textwidth}{1pt}
-
-![](figs/RStudio-Logo-Flat.png){height=1.5cm}
-
-Available for download from RStudio:
-
-https://www.rstudio.com/products/rstudio/download/
-
-<!-- \placefig{.4}{1.2}{width=6cm}{figs/Rlogo} -->
-
-<!-- \placefig{7}{3.5}{width=5.5cm}{figs/RStudio-Ball} -->
-
-## Key reference
-
-\begin{block}{}\bf
-\hangafter=1\hangindent=.3cm
- {Hyndman, R.~J. \& Athanasopoulos, G. (2021) \emph{Forecasting: principles and practice}, 3rd edition}
-\end{block}\pause
-\begin{alertblock}{}\Large
-\centerline{\bf OTexts.org/fpp3/}
-\end{alertblock}
-
-\pause
-
-  * Free and online
-  * Data sets in associated R packages
-  * R code for examples
-
-## Main packages
-
-\placefig{4.2}{1.4}{width=3.8cm}{tsibble.png}
-\placefig{8.0}{1.4}{width=3.8cm}{tsibbledata.png}
-\placefig{2.3}{4.65}{width=3.8cm}{tidyverse.png}
-\placefig{6.1}{4.65}{width=3.8cm}{feasts.png}
-\placefig{9.9}{4.65}{width=3.8cm}{fable.png}
-
-## Main packages
-
-```r
-# Install required packages (do once)
-install.packages(c("tidyverse", "fpp3"))
-```
-
-\pause
-
-```r
-# At the start of each session
-library(fpp3)
-```
-
-## Outline
-
-\hbox{\hspace*{-0.5cm}\begin{tabular}{rp{8cm}l}
-\toprule
-\textbf{Week} & \textbf{Topic}                      & \textbf{Chapter} \\
-\midrule
-1             & Introduction to forecasting and R   & 1 \\
-2             & Time series graphics                & 2 \\
-3             & Time series decomposition           & 3 \\
-4             & The forecaster's toolbox            & 5\\
-5--6          & Exponential smoothing               & 8  \\
-7--9          & Forecasting with ARIMA models       & 9 \\
-10--11        & Multiple regression and forecasting & 7 \\
-11--12        & Dynamic regression                  & 10 \\
-\bottomrule
-\end{tabular}}
 
 ## Classes
 
@@ -170,6 +94,39 @@ library(fpp3)
 
 * All lectures will be recorded and posted on Moodle
 * One tutorial will be recorded each week and posted on Moodle.
+
+## Key reference
+
+\begin{block}{}\bf
+\hangafter=1\hangindent=.3cm
+ {Hyndman, R.~J. \& Athanasopoulos, G. (2021) \emph{Forecasting: principles and practice}, 3rd edition}
+\end{block}\pause
+\begin{alertblock}{}\Large
+\centerline{\bf OTexts.org/fpp3/}
+\end{alertblock}
+
+\pause
+
+  * Free and online
+  * Data sets in associated R packages
+  * R code for examples
+
+## Outline
+
+\hbox{\hspace*{-0.5cm}\begin{tabular}{rp{8cm}l}
+\toprule
+\textbf{Week} & \textbf{Topic}                      & \textbf{Chapter} \\
+\midrule
+1             & Introduction to forecasting and R   & 1 \\
+2             & Time series graphics                & 2 \\
+3             & Time series decomposition           & 3 \\
+4             & The forecaster's toolbox            & 5\\
+5--6          & Exponential smoothing               & 8  \\
+7--9          & Forecasting with ARIMA models       & 9 \\
+10--11        & Multiple regression and forecasting & 7 \\
+11--12        & Dynamic regression                  & 10 \\
+\bottomrule
+\end{tabular}}
 
 ## Assessment
 \vspace*{-0.2cm}
@@ -207,13 +164,6 @@ library(fpp3)
 ###
 **Please don't send emails. Use the forum.**
 
-## Exercises Week 1
-\fontsize{18}{24}\sf
-
- * Make sure you are familiar with R, RStudio and the tidyverse packages.
- * Do first five chapters of `learnr.numbat.space`.
- * Assignment 1
-
 ## International Institute of Forecasters
 
 \placefig{1}{3}{width=4cm}{iifLOGO2}
@@ -226,3 +176,92 @@ library(fpp3)
   \end{itemize}
   \end{block}
 \end{textblock}
+
+## R
+\fontsize{14}{15}\sf
+
+![](figs/Rlogo.png){height=1.5cm}
+
+Available for download from CRAN:
+
+https://cran.r-project.org
+
+\vspace*{-0.3cm}\noindent\rule{\textwidth}{1pt}
+
+![](figs/RStudio-Logo-Flat.png){height=1.5cm}
+
+Available for download from RStudio:
+
+https://www.rstudio.com/products/rstudio/download/
+
+<!-- \placefig{.4}{1.2}{width=6cm}{figs/Rlogo} -->
+
+<!-- \placefig{7}{3.5}{width=5.5cm}{figs/RStudio-Ball} -->
+
+## Main packages
+
+\placefig{4.2}{1.4}{width=3.8cm}{tsibble.png}
+\placefig{8.0}{1.4}{width=3.8cm}{tsibbledata.png}
+\placefig{2.3}{4.65}{width=3.8cm}{tidyverse.png}
+\placefig{6.1}{4.65}{width=3.8cm}{feasts.png}
+\placefig{9.9}{4.65}{width=3.8cm}{fable.png}
+
+## Main packages
+
+```r
+# Install required packages (do once)
+install.packages(c("tidyverse", "fpp3"))
+```
+
+\pause
+
+```r
+# At the start of each session
+library(fpp3)
+```
+
+## Exercises Week 1
+\fontsize{18}{24}\sf
+
+ * Make sure you are familiar with R, RStudio and the tidyverse packages.
+ * Do first five chapters of `learnr.numbat.space`.
+ * Assignment 1
+
+## Assignment 1: forecast the following series
+\small
+
+  1. Google closing stock price in $USD on 20 March 2023.
+  2. Maximum temperature at Melbourne airport on 4 April 2023.
+  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2023.
+  4. The seasonally adjusted estimate of total employment for April 2023. ABS CAT 6202, to be released around mid May 2023.
+  5. Google closing stock price in $USD on 22 May 2023.
+
+\begin{block}{Due Sunday 12 March}
+For each of these, give a point forecast and an 80\% prediction interval.
+\end{block}\pause
+\begin{alertblock}{}
+Prize: \$50 Amazon gift voucher
+\end{alertblock}
+
+## Assignment 1: scoring
+\small
+
+$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
+
+### Point forecasts:
+
+$$\text{Absolute Error} = |Y-F|
+$$\vspace*{-1cm}
+
+ * Rank results for all students in class
+ * Add ranks across all five items
+
+### Prediction intervals:
+
+$$
+\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
+$$\vspace*{-1cm}
+
+ * $u_+ = \text{max}(u,0)$
+ * Rank results for all students
+ * Add ranks across all five items

@@ -87,46 +87,6 @@ Something is easier to forecast if:
  4. the forecasts cannot affect the thing we are trying to forecast.
 
 
-# Assignment 1
-
-## Assignment 1: forecast the following series
-\small
-
-  1. Google closing stock price in $USD on 20 March 2023.
-  2. Maximum temperature at Melbourne airport on 4 April 2023.
-  3. The difference in points (Collingwood minus Essendon) scored in the AFL match between Collingwood and Essendon for the Anzac Day clash. 25 April 2023.
-  4. The seasonally adjusted estimate of total employment for April 2023. ABS CAT 6202, to be released around mid May 2023.
-  5. Google closing stock price in $USD on 22 May 2023.
-
-\begin{block}{Due Sunday 12 March}
-For each of these, give a point forecast and an 80\% prediction interval.
-\end{block}\pause
-\begin{alertblock}{}
-Prize: \$50 Amazon gift voucher
-\end{alertblock}
-
-## Assignment 1: scoring
-\small
-
-$Y=$ actual, $F=$ point forecast, $[L,U]=$ prediction interval
-
-### Point forecasts:
-
-$$\text{Absolute Error} = |Y-F|
-$$
-
- * Rank results for all students in class
- * Add ranks across all five items
-
-### Prediction intervals:
-
-$$
-\text{Interval Score} = (U - L) + 10(L - Y)_+ + 10 (Y-U)_+
-$$
-
- * Rank results for all students
- * Add ranks across all five items
-
 # Some case studies
 
 ## CASE STUDY 1: Paperware company
