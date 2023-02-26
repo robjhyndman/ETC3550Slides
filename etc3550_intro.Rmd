@@ -148,6 +148,29 @@ library(fpp3)
 \bottomrule
 \end{tabular}}
 
+## Classes
+
+### Lectures
+
+**Week 1**: Monday 11am in-person. Wednesday 3pm online
+
+**Weeks 2--11**: Wednesday 3pm online
+
+**Week 12**: Wednesday 3pm in-person
+
+\pause
+
+### Tutorials
+
+* In-person unless you're overseas.
+
+\pause
+
+###
+
+* All lectures will be recorded and posted on Moodle
+* One tutorial will be recorded each week and posted on Moodle.
+
 ## Assessment
 \vspace*{-0.2cm}
 
