@@ -5,7 +5,7 @@ date: "OTexts.org/fpp3/"
 classoption: aspectratio=169
 titlepage: title16x9.png
 titlecolor: burntorange
-toc: true
+toc: false
 output:
   binb::monash:
     colortheme: monashwhite
