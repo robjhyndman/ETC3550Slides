@@ -13,6 +13,13 @@ aus_production |>
 aus_production |>
   autoplot(Tobacco) +
   labs(
+    title = "Australian tobacco production",
+    y = "million units"
+  )
+
+aus_production |>
+  autoplot(Bricks) +
+  labs(
     title = "Australian clay brick production",
     y = "million units"
   )
@@ -33,6 +40,14 @@ gafa_stock |>
     y = "$US"
   )
 
+gafa_stock |>
+  filter(Symbol == "AMZN", year(Date) >= 2018) |>
+  ggplot(aes(x = Date, y = Close)) +
+  geom_line() +
+  labs(
+    title = "Amazon closing stock price",
+    y = "$US"
+  )
 
 
 ## Snowy mountains tourism -------------------------------------------------------------------------
@@ -42,8 +57,7 @@ snowy <- tourism |>
   summarise(Trips = sum(Trips))
 snowy |> autoplot(Trips)
 
-snowy |>
-  gg_season(Trips, labels = "right")
+snowy |> gg_season(Trips, labels="both")
 snowy |> gg_subseries(Trips)
 
 snowy |> gg_lag(Trips)
