@@ -1,240 +1,143 @@
 library(fpp3)
 
-## ---- GDP ----------------------------------------------------------------
+## ---- Holiday tourism by state------------------------------------------------
 
-gdppc <- global_economy %>%
-  mutate(GDP_per_capita = GDP / Population) %>%
-  select(Year, Country, GDP, Population, GDP_per_capita)
-gdppc
+holidays <- tourism |>
+  as_tibble() |>
+  filter(Purpose == "Holiday") |>
+  summarise(Trips = sum(Trips), .by = c("State", "Quarter")) |>
+  as_tsibble(index = Quarter, key = State)
 
-gdppc %>%
-  filter(Country == "Sweden") %>%
-  autoplot(GDP_per_capita) +
-  labs(title = "GDP per capita for Sweden", y = "$US")
 
-fit <- gdppc %>%
-  model(trend_model = TSLM(GDP_per_capita ~ trend()))
+## Fit models ------------------------------------------------------------------
 
-fc <- fit %>% forecast(h = "3 years")
-
-fc %>%
-  filter(Country == "Sweden") %>%
-  autoplot(gdppc) +
-  labs(title = "GDP per capita for Sweden", y = "$US")
-
-## ---- Bricks ------------------------------------------------------------
-
-brick_fit <- aus_production %>%
-  filter(!is.na(Bricks)) %>%
+fit <- holidays |>
   model(
-    Seasonal_naive = SNAIVE(Bricks),
-    Naive = NAIVE(Bricks),
-    Drift = RW(Bricks ~ drift()),
-    Mean = MEAN(Bricks)
+    Seasonal_naive = SNAIVE(Trips),
+    Naive = NAIVE(Trips),
+    Drift = RW(Trips ~ drift()),
+    Mean = MEAN(Trips)
   )
 
-brick_fc <- brick_fit %>%
-  forecast(h = "5 years")
+## Check residuals
 
-brick_fc %>%
-  filter(.model == "Seasonal_naive") %>%
-  autoplot(aus_production)
+fit |>
+  filter(State == "Victoria") |>
+  select(Seasonal_naive) |>
+  gg_tsresiduals()
 
-z <- brick_fc %>%
-  hilo(level = 95) %>%
-  pull(`95%`)
-z$lower
+augment(fit) |>
+  filter(State == "Victoria", .model == "Seasonal_naive") |>
+  features(.innov, ljung_box, lag = 8)
 
-brick_fc %>%
-  autoplot(aus_production, level = NULL) +
-  labs(
-    title = "Clay brick production for Australia",
-    y = "Millions of bricks"
-  ) +
-  guides(colour = guide_legend(title = "Forecast"))
+## Which model fits best?
 
-## ---- Facebook -------------------------------------------------------------------
+accuracy(fit) |>
+  group_by(.model) |>
+  summarise(
+    RMSSE = sqrt(mean(RMSSE^2)),
+    MAPE = mean(MAPE)
+  ) |>
+  arrange(RMSSE)
 
-# Extract training data
-fb_stock <- gafa_stock %>%
-  filter(Symbol == "FB") %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
+## Produce forecasts
 
-fb_stock %>% autoplot(Close) +
-  labs(
-    title = "Facebook closing stock price",
-    y = "$US"
+holidays_fc <- fit |>
+  forecast(h = "4 years")
+
+holidays_fc |>
+  autoplot(holidays, level = NULL)
+
+holidays_fc |>
+  filter(.model == "Seasonal_naive") |>
+  autoplot(holidays)
+
+holidays_fc |>
+  hilo(level = 95) |>
+  mutate(
+    lower = `95%`$lower,
+    upper = `95%`$upper
   )
 
-# Specify, estimate and forecast
-fb_stock %>%
+# Now try a decomposition forecasting model
+
+stl_fit <- holidays |>
   model(
-    Mean = MEAN(Close),
-    Naive = NAIVE(Close),
-    Drift = RW(Close ~ drift())
-  ) %>%
-  forecast(h = 42) %>%
-  autoplot(fb_stock, level = NULL) +
-  labs(
-    title = "Facebook closing stock price",
-    y = "$US"
-  ) +
-  guides(colour = guide_legend(title = "Forecast"))
+    stlf = decomposition_model(
+      STL(Trips),
+      NAIVE(season_adjust)
+    ))
+stl_fit |>
+  forecast(h = "4 years") |>
+  autoplot(holidays)
 
-fit <- fb_stock %>% model(NAIVE(Close))
-
-augment(fit) %>%
-  filter(trading_day > 1100) %>%
-  ggplot(aes(x = trading_day)) +
-  geom_line(aes(y = Close, colour = "Data")) +
-  geom_line(aes(y = .fitted, colour = "Fitted"))
-
-augment(fit) %>%
-  autoplot(.resid) +
-  labs(
-    y = "$US",
-    title = "Residuals from naïve method"
+accuracy(stl_fit) |>
+  summarise(
+    RMSSE = sqrt(mean(RMSSE^2)),
+    MAPE = mean(MAPE)
   )
 
-augment(fit) %>%
-  ggplot(aes(x = .resid)) +
-  geom_histogram(bins = 150) +
-  labs(title = "Histogram of residuals")
+# Use a test set of last 2 years to check forecast accuracy
 
-augment(fit) %>%
-  ACF(.resid) %>%
-  autoplot() +
-  labs(title = "ACF of residuals")
+training <- holidays |>
+  filter(Quarter <= max(Quarter) - 8)
 
-gg_tsresiduals(fit)
-
-augment(fit) %>%
-  features(.resid, ljung_box, lag = 10, dof = 0)
-
-fc <- fb_stock %>%
+training_fit <- training |>
   model(
-    Mean = MEAN(Close),
-    Naive = NAIVE(Close),
-    Drift = RW(Close ~ drift())
-  ) %>%
-  forecast(h = 42)
-
-## EGG PRICES
-
-eggs <- prices %>%
-  filter(!is.na(eggs)) %>%
-  select(eggs)
-eggs %>%
-  autoplot(log(eggs)) +
-  labs(
-    title = "Annual egg prices",
-    y = "$US (adjusted for inflation)"
+    Seasonal_naive = SNAIVE(Trips),
+    Naive = NAIVE(Trips),
+    Drift = RW(Trips ~ drift()),
+    Mean = MEAN(Trips),
+    stlf = decomposition_model(
+      STL(Trips),
+      NAIVE(season_adjust)
+    )
   )
 
-fit <- eggs %>%
-  model(rwdrift = RW(log(eggs) ~ drift()))
-fit
-fc <- fit %>%
-  forecast(h = 50)
-fc
+test_fc <- training_fit |>
+  forecast(h = "4 years")
 
-fc %>% autoplot(eggs) +
-  labs(
-    title = "Annual egg prices",
-    y = "US$ (adjusted for inflation)"
-  )
+test_fc |>
+  autoplot(holidays, level = NULL)
 
-fc %>%
-  autoplot(eggs, level = 80, point_forecast = lst(mean, median)) +
-  labs(
-    title = "Annual egg prices",
-    y = "US$ (adjusted for inflation)"
-  )
+test_fc |>
+  accuracy(holidays) |>
+  group_by(.model) |>
+  summarise(
+    RMSSE = sqrt(mean(RMSSE^2)),
+    MAPE = mean(MAPE)
+  ) |>
+  arrange(RMSSE)
 
-## US RETAIL EMPLOYMENT
+# Now use time series cross-validation to check forecast accuracy
 
-us_retail_employment <- us_employment %>%
-  filter(year(Month) >= 1990, Title == "Retail Trade") %>%
-  select(-Series_ID)
-
-us_retail_employment %>%
-  autoplot(Employed)
-
-dcmp <- us_retail_employment %>%
-  model(STL(Employed)) %>%
-  components()
-
-autoplot(dcmp)
-
-dcmp <- dcmp %>% select(-.model)
-dcmp %>% autoplot(season_adjust)
-
-dcmp %>%
-  model(NAIVE(season_adjust)) %>%
-  forecast() %>%
-  autoplot(dcmp) +
-  labs(title = "Naive forecasts of seasonally adjusted data")
-
-dcmp %>% autoplot(season_year)
-
-dcmp %>%
-  model(SNAIVE(season_year)) %>%
-  forecast() %>%
-  autoplot(dcmp) +
-  labs(title = "Seasonal naive forecasts of seasonal component")
-
-us_retail_employment %>%
-  model(stlf = decomposition_model(
-    STL(Employed),
-    NAIVE(season_adjust),
-    SNAIVE(season_year)
-  )) %>%
-  forecast() %>%
-  autoplot(us_retail_employment)
-
-## BEER PRODUCTION
-
-recent_production <- aus_production %>%
-  filter(year(Quarter) >= 1992)
-recent_production %>% autoplot(Beer)
-train <- recent_production %>%
-  filter(year(Quarter) <= 2007)
-beer_fit <- train %>%
-  model(
-    Mean = MEAN(Beer),
-    Naive = NAIVE(Beer),
-    Seasonal_naive = SNAIVE(Beer),
-    Drift = RW(Beer ~ drift())
-  )
-beer_fc <- beer_fit %>%
-  forecast(h = 10)
-
-accuracy(beer_fc, recent_production)
-accuracy(beer_fit)
-
-## CROSS-VALIDATION: FACEBOOK
-
-fb_stock <- gafa_stock %>%
-  filter(Symbol == "FB") %>%
-  mutate(trading_day = row_number()) %>%
-  update_tsibble(index = trading_day, regular = TRUE)
-
-fb_stock %>%
-  autoplot(Close)
-
-fb_stretch <- fb_stock %>%
-  stretch_tsibble(.init = 3, .step = 1) %>%
+holiday_stretch <- holidays |>
+  stretch_tsibble(.init = 12, .step = 1) |>
   filter(.id != max(.id))
 
-fit_cv <- fb_stretch %>%
-  model(RW(Close ~ drift()))
+cv_fit <- holiday_stretch |>
+  model(
+    Seasonal_naive = SNAIVE(Trips),
+    Naive = NAIVE(Trips),
+    Drift = RW(Trips ~ drift()),
+    Mean = MEAN(Trips),
+    stlf = decomposition_model(
+      STL(Trips),
+      NAIVE(season_adjust)
+    )
+  )
 
-fc_cv <- fit_cv %>%
-  forecast(h = 1)
+cv_fc <- cv_fit |>
+  forecast(h = 12) |>
+  group_by(.id, State, .model) |>
+  mutate(h = row_number()) |>
+  ungroup() |>
+  as_fable(response = "Trips", distribution = Trips)
 
-fc_cv %>% accuracy(fb_stock)
+cv_fc |>
+  accuracy(holidays, by = c("h", ".model", "State")) |>
+  group_by(.model, h) |>
+  summarise(RMSSE = sqrt(mean(RMSSE^2))) |>
+  ggplot(aes(x=h, y=RMSSE, group=.model, col=.model)) +
+  geom_line()
 
-fb_stock %>%
-  model(RW(Close ~ drift())) %>%
-  accuracy()
