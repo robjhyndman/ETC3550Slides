@@ -50,7 +50,7 @@ holidays_fc |>
 
 holidays_fc |>
   filter(.model == "Seasonal_naive") |>
-  autoplot(holidays)
+  autoplot(holidays, show_gap = FALSE)
 
 holidays_fc |>
   hilo(level = 95) |>
