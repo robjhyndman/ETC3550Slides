@@ -2,139 +2,86 @@ library(fpp3)
 
 # Algerian Exports
 
-algeria_economy <- global_economy %>%
+algeria_economy <- global_economy |>
   filter(Country == "Algeria")
-algeria_economy %>% autoplot(Exports)
-fit <- algeria_economy %>%
+algeria_economy |>
+  autoplot(Exports)
+fit <- algeria_economy |>
   model(
     ANN = ETS(Exports ~ error("A") + trend("N") + season("N")),
     MNN = ETS(Exports ~ error("M") + trend("N") + season("N")),
-    autoNN = ETS(Exports ~ trend("N") + season("N")),
+    auto = ETS(Exports)
   )
-fit %>%
-  select(ANN) %>%
+fit |>
+  select(ANN) |>
   report()
-fit %>%
-  select(MNN) %>%
-  report()
-fit %>%
-  select(autoNN) %>%
-  report()
-
-tidy(fit)
-glance(fit)
-
-components(fit) %>% autoplot()
-
-components(fit) %>%
-  left_join(fitted(fit), by = c("Country", ".model", "Year"))
-
-fit %>%
-  forecast(h = 5) %>%
-  filter(.model == "MNN") %>%
-  autoplot(algeria_economy) +
-  ylab("Exports (% of GDP)") + xlab("Year")
-
-# Australian population
-
-aus_economy <- global_economy %>%
-  filter(Code == "AUS") %>%
-  mutate(Pop = Population / 1e6)
-aus_economy %>% autoplot(Pop)
-aus_economy %>%
-  model(auto = ETS(Pop)) %>%
-  report()
-
-fit <- aus_economy %>%
-  model(AAN = ETS(Pop ~ error("A") + trend("A") + season("N")))
-report(fit)
-
-components(fit) %>% autoplot()
-
-components(fit) %>%
-  left_join(fitted(fit), by = c("Country", ".model", "Year"))
-
-fit %>%
-  forecast(h = 10) %>%
-  autoplot(aus_economy) +
-  ylab("Population") + xlab("Year")
-
-aus_economy %>%
-  model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
-  report()
-
-aus_economy %>%
-  model(holt = ETS(Pop ~ error("A") + trend("Ad") + season("N"))) %>%
-  forecast(h = 10) %>%
-  autoplot(aus_economy)
-aus_economy %>%
-  filter(Year <= 2010) %>%
-  autoplot(Pop)
-fit <- aus_economy %>%
-  filter(Year <= 2010) %>%
-  model(
-    ses = ETS(Pop ~ error("A") + trend("N") + season("N")),
-    holt = ETS(Pop ~ error("A") + trend("A") + season("N")),
-    damped = ETS(Pop ~ error("A") + trend("Ad") + season("N"))
-  )
 
 tidy(fit)
 accuracy(fit)
 glance(fit)
-forecast(fit) %>% accuracy(aus_economy)
 
-fit <- global_economy %>%
+components(fit) |> autoplot()
+
+components(fit) |>
+  left_join(fitted(fit), by = c("Country", ".model", "Year"))
+
+fc <- fit |>
+  forecast(h=5)
+
+fc |>
+  filter(.model == "MNN") |>
+  autoplot(algeria_economy) +
+  ylab("Exports (% of GDP)") + xlab("Year")
+
+# Repeat with test set
+
+fit <- algeria_economy |>
+  filter(Year <= 2012) |>
   model(
-    ets = ETS(Population)
+    ANN = ETS(Exports ~ error("A") + trend("N") + season("N")),
+    MNN = ETS(Exports ~ error("M") + trend("N") + season("N")),
+    auto = ETS(Exports)
   )
-fc <- fit %>%
-  forecast(h = 10)
 
-## Aus holidays
+fc <- fit |>
+  forecast(h=5)
 
-aus_holidays <- tourism %>%
-  filter(Purpose == "Holiday") %>%
-  summarise(Trips = sum(Trips))
-aus_holidays %>% autoplot(Trips)
-fit <- aus_holidays %>%
+fc |>
+  autoplot(algeria_economy, level=NULL) +
+  ylab("Exports (% of GDP)") + xlab("Year")
+
+fc |> accuracy(algeria_economy)
+
+# Repeat with tscv
+
+alg_exports_stretch <- algeria_economy |>
+  stretch_tsibble(.init = 5, .step = 1)
+
+cv_fit <- alg_exports_stretch |>
   model(
-    additive = ETS(Trips ~ error("A") + trend("A") + season("A")),
-    multiplicative = ETS(Trips ~ error("M") + trend("A") + season("M")),
-    auto = ETS(Trips)
+    ANN = ETS(Exports ~ error("A") + trend("N") + season("N")),
+    MNN = ETS(Exports ~ error("M") + trend("N") + season("N")),
+    naive = NAIVE(Exports),
+    drift = RW(Exports ~ drift()),
+    autoNN = ETS(Exports ~ trend("N") + season("N")),
   )
-fit %>%
-  select(multiplicative) %>%
-  report()
-fc <- fit %>% forecast()
 
-fc %>%
-  autoplot(aus_holidays) + xlab("Year") +
-  ylab("Overnight trips (thousands)")
+cv_fc <- cv_fit |>
+  forecast(h = 12) |>
+  group_by(.id, .model) |>
+  mutate(h = row_number()) |>
+  ungroup() |>
+  as_fable(response = "Exports", distribution = Exports)
 
-components(fit) %>% autoplot()
+cv_fc |>
+  accuracy(algeria_economy, by = c("h", ".model")) |>
+  group_by(.model, h) |>
+  summarise(RMSSE = sqrt(mean(RMSSE^2))) |>
+  ggplot(aes(x=h, y=RMSSE, group=.model, col=.model)) +
+  geom_line()
 
-fit %>%
-  select(multiplicative) %>%
-  components() %>%
-  autoplot()
-
-# Daily pedestrian data
-
-sth_cross_ped <- pedestrian %>%
-  filter(
-    Date >= "2016-07-01",
-    Sensor == "Southern Cross Station"
-  ) %>%
-  index_by(Date) %>%
-  summarise(Count = sum(Count) / 1000)
-sth_cross_ped %>%
-  filter(Date <= "2016-07-31") %>%
-  model(
-    hw = ETS(Count ~ error("M") + trend("Ad") + season("M"))
-  ) %>%
-  forecast(h = "2 weeks") %>%
-  autoplot(sth_cross_ped %>% filter(Date <= "2016-08-14")) +
-  labs(
-    title = "Daily traffic: Southern Cross",
-    y = "Pedestrians ('000)"
-  )
+cv_fc |>
+  accuracy(algeria_economy, by = c("h", ".model")) |>
+  group_by(.model) |>
+  summarise(RMSSE = sqrt(mean(RMSSE^2))) |>
+  arrange(RMSSE)
