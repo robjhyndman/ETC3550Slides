@@ -25,6 +25,14 @@ components(fit) |> autoplot()
 components(fit) |>
   left_join(fitted(fit), by = c("Country", ".model", "Year"))
 
+fit |>
+  select(ANN) |>
+  gg_tsresiduals()
+
+fit |>
+  augment() |>
+  features(.innov, ljung_box, lag = 10)
+
 fc <- fit |>
   forecast(h=5)
 
