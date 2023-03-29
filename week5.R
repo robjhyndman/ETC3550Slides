@@ -13,12 +13,12 @@ fit <- algeria_economy |>
     auto = ETS(Exports)
   )
 fit |>
-  select(ANN) |>
+  select(MNN) |>
   report()
 
 tidy(fit)
-accuracy(fit)
 glance(fit)
+accuracy(fit)
 
 components(fit) |> autoplot()
 
@@ -63,15 +63,15 @@ fc |> accuracy(algeria_economy)
 # Repeat with tscv
 
 alg_exports_stretch <- algeria_economy |>
-  stretch_tsibble(.init = 5, .step = 1)
+  stretch_tsibble(.init = 10, .step = 1)
 
 cv_fit <- alg_exports_stretch |>
   model(
     ANN = ETS(Exports ~ error("A") + trend("N") + season("N")),
     MNN = ETS(Exports ~ error("M") + trend("N") + season("N")),
-    naive = NAIVE(Exports),
-    drift = RW(Exports ~ drift()),
     autoNN = ETS(Exports ~ trend("N") + season("N")),
+    naive = NAIVE(Exports),
+    drift = RW(Exports ~ drift())
   )
 
 cv_fc <- cv_fit |>
