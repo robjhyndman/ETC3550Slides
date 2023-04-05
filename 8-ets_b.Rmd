@@ -45,6 +45,20 @@ library(magick)
 
 \alert{\textbf{S}easonality:} None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
 
+## ETS(A,N,N): SES with additive errors
+
+\begin{block}{ETS(A,N,N) model}\vspace*{-0.3cm}
+\begin{align*}
+\text{Observation equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
+\text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
+\end{align*}
+\end{block}
+where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
+
+  * "innovations" or "single source of error" because equations have the same error process, $\varepsilon_t$.
+  * Measurement equation: relationship between observations and states.
+  * State equation(s): evolution of the state(s) through time.
+
 ## ETS(A,A,N)
 
 Holt's methods method with additive errors.\phantom{p}

@@ -104,14 +104,14 @@ Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\t
 
 \begin{block}{ETS(A,N,N) model}\vspace*{-0.8cm}
 \begin{align*}
-\text{Measurement equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
+\text{Observation equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
 \text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
 \end{align*}
 \end{block}
 where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 
   * "innovations" or "single source of error" because equations have the same error process, $\varepsilon_t$.
-  * Measurement equation: relationship between observations and states.
+  * Observation equation: relationship between observations and states.
   * State equation(s): evolution of the state(s) through time.
 
 ## ETS(M,N,N): SES with multiplicative errors.
@@ -124,7 +124,7 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
  \pause
 \begin{block}{ETS(M,N,N) model}\vspace*{-0.8cm}
 \begin{align*}
-\text{Measurement equation}&& y_t &= \ell_{t-1}(1 + \varepsilon_t)\\
+\text{Observation equation}&& y_t &= \ell_{t-1}(1 + \varepsilon_t)\\
 \text{State equation}&& \ell_t&=\ell_{t-1}(1+\alpha \varepsilon_t)
 \end{align*}
 \end{block}

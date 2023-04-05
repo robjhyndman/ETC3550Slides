@@ -33,13 +33,9 @@ fit <- aus_holidays |>
     auto = ETS(Trips)
   )
 
-fit <- aus_holidays |> model(ETS(Trips))
-
-
 fit |>
   select(multiplicative) |>
   report()
-
 
 components(fit) |> autoplot()
 
@@ -51,9 +47,10 @@ fit |>
 fit |> augment()
 
 residuals(fit)
-residuals(fit, type = "response")
+residuals(fit, type = "innov")
 
 fit |>
+  select(multiplicative) |>
   gg_tsresiduals()
 
 fc <- fit |> forecast()
@@ -92,19 +89,22 @@ fit <- h02 |>
     forbidden = ETS(Cost ~ error("A") + trend("Ad") + season("M"))
   )
 
-fit |> accuracy()
 fit |> glance()
+fit |> accuracy()
 fit |> tidy()
 
 # Example of STL + ETS
 
-h02 |>
+stl_fit <- h02 |>
   model(
     decomposition_model(
       STL(Cost),
       ETS(season_adjust),
       SNAIVE(season_year)
     )
-  ) |>
+  )
+stl_fit |> report()
+
+stl_fit |>
   forecast(h = 24) |>
   autoplot(h02)
