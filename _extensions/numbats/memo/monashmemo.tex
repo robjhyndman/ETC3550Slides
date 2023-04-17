@@ -1,0 +1,401 @@
+\documentclass[$if(fontsize)$$fontsize$$else$10pt$endif$,$if(lang)$$babel-lang$,$endif$$if(papersize)$$papersize$$else$a4paper$endif$,$for(classoption)$$classoption$$sep$,$endfor$]{article}
+\usepackage{float}
+$if(fontfamily)$
+\usepackage[$for(fontfamilyoptions)$$fontfamilyoptions$$sep$,$endfor$]{$fontfamily$}
+\usepackage[tabular,lf]{sourcesanspro}
+$else$
+\usepackage[default,tabular,lf]{sourcesanspro}
+\usepackage[cmintegrals]{newtxsf}
+\usepackage[italic,eulergreek]{mathastext}
+$endif$
+\usepackage{setspace}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[$if(fontenc)$$fontenc$$else$T1$endif$]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{csquotes}
+$if(euro)$
+  \usepackage{eurosym}
+$endif$
+\else % if luatex or xelatex
+$if(mathspec)$
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{unicode-math}
+  \fi
+$else$
+  \usepackage{unicode-math}
+$endif$
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+$for(fontfamilies)$
+  \newfontfamily{$fontfamilies.name$}[$fontfamilies.options$]{$fontfamilies.font$}
+$endfor$
+$if(euro)$
+  \newcommand{\euro}{€}
+$endif$
+$if(mainfont)$
+    \setmainfont[$for(mainfontoptions)$$mainfontoptions$$sep$,$endfor$]{$mainfont$}
+$endif$
+$if(sansfont)$
+    \setsansfont[$for(sansfontoptions)$$sansfontoptions$$sep$,$endfor$]{$sansfont$}
+$endif$
+$if(monofont)$
+    \setmonofont[Mapping=tex-ansi$if(monofontoptions)$,$for(monofontoptions)$$monofontoptions$$sep$,$endfor$$endif$]{$monofont$}
+$endif$
+$if(mathfont)$
+$if(mathspec)$
+  \ifxetex
+    \setmathfont(Digits,Latin,Greek)[$for(mathfontoptions)$$mathfontoptions$$sep$,$endfor$]{$mathfont$}
+  \else
+    \setmathfont[$for(mathfontoptions)$$mathfontoptions$$sep$,$endfor$]{$mathfont$}
+  \fi
+$else$
+  \setmathfont[$for(mathfontoptions)$$mathfontoptions$$sep$,$endfor$]{$mathfont$}
+$endif$
+$endif$
+$if(CJKmainfont)$
+    \usepackage{xeCJK}
+    \setCJKmainfont[$for(CJKoptions)$$CJKoptions$$sep$,$endfor$]{$CJKmainfont$}
+$endif$
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[$for(microtypeoptions)$$microtypeoptions$$sep$,$endfor$]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
+\usepackage{fancybox}
+$if(verbatim-in-note)$
+\usepackage{fancyvrb}
+$endif$
+\usepackage[unicode=true]{hyperref}
+$if(colorlinks)$
+\PassOptionsToPackage{usenames,dvipsnames}{color} % color is loaded by hyperref
+$endif$
+\hypersetup{
+$if(title-meta)$
+            pdftitle={$title-meta$},
+$endif$
+$if(author-meta)$
+            pdfauthor={$author-meta$},
+$endif$
+$if(keywords)$
+            pdfkeywords={$for(keywords)$$keywords$$sep$, $endfor$},
+$endif$
+$if(colorlinks)$
+            colorlinks=true,
+            linkcolor=$if(linkcolor)$$linkcolor$$else$Maroon$endif$,
+            citecolor=$if(citecolor)$$citecolor$$else$Blue$endif$,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$Blue$endif$,
+$else$
+            pdfborder={0 0 0},
+$endif$
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+$if(verbatim-in-note)$
+\VerbatimFootnotes % allows verbatim text in footnotes
+$endif$
+$if(geometry)$
+\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$else$
+\usepackage{geometry}
+\geometry{left=2cm,right=2cm,top=2.5cm,bottom=2.5cm}
+$endif$
+$if(lang)$
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[shorthands=off,$for(babel-otherlangs)$$babel-otherlangs$,$endfor$main=$babel-lang$]{babel}
+$if(babel-newcommands)$
+  $babel-newcommands$
+$endif$
+\else
+  \usepackage{polyglossia}
+  \setmainlanguage[$polyglossia-lang.options$]{$polyglossia-lang.name$}
+$for(polyglossia-otherlangs)$
+  \setotherlanguage[$polyglossia-otherlangs.options$]{$polyglossia-otherlangs.name$}
+$endfor$
+\fi
+$endif$
+\usepackage[style=authoryear-comp,backend=biber, natbib=true,$for(biblatexoptions)$$biblatexoptions$$sep$,$endfor$]{biblatex}
+$for(bibliography)$
+\addbibresource{$bibliography$}
+$endfor$
+$if(listings)$
+\usepackage{listings}
+$endif$
+$if(lhs)$
+\lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
+$endif$
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+$if(tables)$
+\usepackage{longtable,booktabs}
+% Fix footnotes in tables (requires footnote package)
+\IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{long table}}{}
+$endif$
+$if(graphics)$
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+$endif$
+$if(links-as-notes)$
+% Make links footnotes instead of hotlinks:
+\renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+$endif$
+$if(strikeout)$
+\usepackage[normalem]{ulem}
+% avoid problems with \sout in headers with hyperref:
+\pdfstringdefDisableCommands{\renewcommand{\sout}{}}
+$endif$
+$if(indent)$
+$else$
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+$endif$
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+$if(numbersections)$
+\setcounter{secnumdepth}{$if(secnumdepth)$$secnumdepth$$else$5$endif$}
+$else$
+\setcounter{secnumdepth}{0}
+$endif$
+$if(dir)$
+\ifxetex
+  % load bidi as late as possible as it modifies e.g. graphicx
+  $if(latex-dir-rtl)$
+  \usepackage[RTLdocument]{bidi}
+  $else$
+  \usepackage{bidi}
+  $endif$
+\fi
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \TeXXeTstate=1
+  \newcommand{\RL}[1]{\beginR #1\endR}
+  \newcommand{\LR}[1]{\beginL #1\endL}
+  \newenvironment{RTL}{\beginR}{\endR}
+  \newenvironment{LTR}{\beginL}{\endL}
+\fi
+$endif$
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+$if(title)$
+\title{$title$}
+$endif$
+$if(subtitle)$
+\providecommand{\subtitle}[1]{}
+\subtitle{$subtitle$}
+$endif$
+
+$if(author)$
+\author{$author$}
+$endif$
+
+%% MONASH STUFF
+
+%% CAPTIONS
+\RequirePackage{caption}
+\DeclareCaptionStyle{italic}[justification=centering]
+ {labelfont={bf},textfont={it},labelsep=colon}
+\captionsetup[figure]{style=italic,format=hang,singlelinecheck=true}
+\captionsetup[table]{style=italic,format=hang,singlelinecheck=true}
+
+%% FONT
+\usepackage{bm,url}
+
+%% HEADERS AND FOOTERS
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\lfoot{}\cfoot{}\rfoot{}
+$if(title)$
+\lhead{\textsf{$title$}}
+$else$
+\lhead{}
+$endif$
+\rhead{\textsf{\thepage}}
+\setlength{\headheight}{15pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[C]{\sffamily\thepage} % except the center
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+%% MATHS
+\RequirePackage{bm,amsmath}
+\allowdisplaybreaks
+
+%% GRAPHICS
+\RequirePackage{graphicx}
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.15}
+\renewcommand{\floatpagefraction}{0.8}
+
+%\RequirePackage[section]{placeins}
+
+%% SECTION TITLES
+\RequirePackage[compact,sf,bf]{titlesec}
+\titleformat{\section}[block]
+  {\fontsize{15}{17}\bfseries\sffamily}
+  {\thesection}
+  {0.4em}{}
+\titleformat{\subsection}[block]
+  {\fontsize{12}{14}\bfseries\sffamily}
+  {\thesubsection}
+  {0.4em}{}
+\titlespacing{\section}{0pt}{*3}{*1}
+\titlespacing{\subsection}{0pt}{*1}{*0.5}
+
+%% LINE AND PAGE BREAKING
+\sloppy
+\raggedbottom
+\usepackage[bottom]{footmisc}
+\clubpenalty = 10000
+\widowpenalty = 10000
+\brokenpenalty = 10000
+\RequirePackage{microtype}
+
+%% HYPERLINKS
+\RequirePackage{xcolor} % Needed for links
+\definecolor{darkblue}{rgb}{0,0,.6}
+\RequirePackage{url}
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{\RequirePackage{hyperref}}
+\makeatother
+\hypersetup{
+     citecolor=0 0 0,
+     breaklinks=true,
+     bookmarksopen=true,
+     bookmarksnumbered=true,
+     linkcolor=darkblue,
+     urlcolor=blue,
+     citecolor=darkblue,
+     colorlinks=true}
+
+\usepackage[showonlyrefs]{mathtools}
+
+%% BIBLIOGRAPHY
+
+\makeatletter
+\@ifpackageloaded{biblatex}{}{\usepackage[style=authoryear-comp, backend=biber, natbib=true]{biblatex}}
+\makeatother
+\ExecuteBibliographyOptions{bibencoding=utf8,minnames=1,maxnames=3, maxbibnames=99,dashed=false,terseinits=true,giveninits=true,uniquename=false,uniquelist=false,doi=false, isbn=false,url=true,sortcites=false}
+\DeclareFieldFormat{url}{\texttt{\url{#1}}}
+\DeclareFieldFormat[article]{pages}{#1}
+\DeclareFieldFormat[inproceedings]{pages}{\lowercase{pp.}#1}
+\DeclareFieldFormat[incollection]{pages}{\lowercase{pp.}#1}
+\DeclareFieldFormat[article]{volume}{\mkbibbold{#1}}
+\DeclareFieldFormat[article]{number}{\mkbibparens{#1}}
+\DeclareFieldFormat[article]{title}{\MakeCapital{#1}}
+\DeclareFieldFormat[article]{url}{}
+%\DeclareFieldFormat[book]{url}{}
+%\DeclareFieldFormat[inbook]{url}{}
+%\DeclareFieldFormat[incollection]{url}{}
+%\DeclareFieldFormat[inproceedings]{url}{}
+\DeclareFieldFormat[inproceedings]{title}{#1}
+\DeclareFieldFormat{shorthandwidth}{#1}
+%\DeclareFieldFormat{extrayear}{}
+% No dot before number of articles
+\usepackage{xpatch}
+\xpatchbibmacro{volume+number+eid}{\setunit*{\adddot}}{}{}{}
+% Remove In: for an article.
+\renewbibmacro{in:}{%
+  \ifentrytype{article}{}{%
+  \printtext{\bibstring{in}\intitlepunct}}}
+\AtEveryBibitem{\clearfield{month}}
+\AtEveryCitekey{\clearfield{month}}
+\makeatletter
+\DeclareDelimFormat[cbx@textcite]{nameyeardelim}{\addspace}
+\makeatother
+\renewcommand*{\finalnamedelim}{%
+  %\ifnumgreater{\value{liststop}}{2}{\finalandcomma}{}% there really should be no funny Oxford comma business here
+  \addspace\&\space}
+
+%%% Change title format
+\usepackage{color,titling,framed}
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{1cm}
+\setlength{\TPVertModule}{1cm}
+
+\pretitle{%
+$if(branding)$%
+\begin{textblock}{4}(1.9,0.85)\includegraphics[height=1.5cm]{_extensions/numbats/memo/monash2}\end{textblock}%
+\begin{textblock}{4}(17.25,0.8)\includegraphics[height=1.5cm]{_extensions/numbats/memo/MBSPortrait}\end{textblock}%
+\begin{textblock}{6}(13,28)\includegraphics[height=0.7cm]{_extensions/numbats/memo/AACSB}~~~
+        \includegraphics[height=0.7cm]{_extensions/numbats/memo/EQUIS}~~~
+        \includegraphics[height=0.7cm]{_extensions/numbats/memo/AMBA}
+\end{textblock}
+$endif$
+\vspace*{-1.2cm}
+\LARGE\bfseries}
+\posttitle{\vspace*{0.3cm}\par}
+\preauthor{\large}
+\postauthor{\hfill}
+\predate{\small}
+\postdate{\vspace*{0.1cm}}
+
+\raggedbottom
+
+\usepackage[australian]{babel}
+$if(date)$
+\date{$date$}
+$else$
+\date{\today}
+$endif$
+
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+
+\begin{document}
+$if(title)$
+$if(branding)$\vspace*{0cm}$else$\vspace*{-2cm}$endif$
+\definecolor{shadecolor}{RGB}{210,210,210}
+\begin{snugshade}\sffamily
+\maketitle
+\end{snugshade}\vspace*{0.5cm}
+\definecolor{shadecolor}{RGB}{248,248,248}
+$endif$
+$if(spacing)$
+\setstretch{$spacing$}
+$else$
+\setstretch{1.2}
+$endif$
+
+$for(include-before)$
+$include-before$
+$endfor$
+
+$body$
+
+\printbibliography
+
+$for(include-after)$
+$include-after$
+$endfor$
+\end{document}

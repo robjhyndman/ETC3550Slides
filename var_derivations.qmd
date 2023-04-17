@@ -3,7 +3,7 @@ title: Deriving forecast variances
 author: Rob J Hyndman
 branding: false
 fontfamily: mathpazo
-output: monash::memo
+format: memo-pdf
 ---
 
 # Mean {-}

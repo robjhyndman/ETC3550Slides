@@ -1,0 +1,8 @@
+title: Monash Memo Format Template
+author: Rob J Hyndman
+version: 0.1.0
+contributes:
+  formats:
+    pdf:
+      template: monashmemo.tex
+      pdf-engine: pdflatex
