@@ -1,20 +1,23 @@
 ---
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch9. ARIMA models"
-date: "OTexts.org/fpp3/"
-classoption: aspectratio=169
-titlepage: title16x9.png
-titlecolor: burntorange
-toc: true
-output:
-  binb::monash:
-    colortheme: monashwhite
-    fig_width: 7.5
-    fig_height: 2.7
-    keep_tex: no
-    includes:
-      in_header: header.tex
+institute: "OTexts.org/fpp3/"
+pdf-engine: pdflatex
+fig-width: 7.5
+fig-height: 3.5
+format:
+  beamer:
+    theme: monash
+    aspectratio: 169
+    fontsize: 14pt
+    section-titles: false
+include-in-header: header.tex
+execute:
+  echo: false
+  message: false
+  warning: false
 ---
+
 
 ```{r setup, include=FALSE}
 source("setup.R")
@@ -35,99 +38,6 @@ library(purrr)
 ###
 An ARIMA model is rarely interpretable in terms of visible data structures like trend and seasonality. But it can capture a huge range of time series patterns.
 
-# Stationarity and differencing
-
-## Stationarity
-
-\begin{block}{Definition}
-If $\{y_t\}$ is a stationary time series, then for all $s$, the distribution of $(y_t,\dots,y_{t+s})$ does not depend on $t$.
-\end{block}\pause
-
-A **stationary series** is:
-
-* roughly horizontal
-* constant variance
-* no patterns predictable in the long-term
-
-## Stationary?
-
-```{r}
-gafa_stock |>
-  filter(Symbol == "GOOG", year(Date) == 2018) |>
-  autoplot(Close) +
-  labs(y = "Google closing stock price", x = "Day")
-```
-
-## Stationary?
-
-```{r}
-gafa_stock |>
-  filter(Symbol == "GOOG", year(Date) == 2018) |>
-  autoplot(difference(Close)) +
-  labs(y = "Google closing stock price", x = "Day")
-```
-
-## Stationary?
-
-```{r}
-global_economy |>
-  filter(Country == "Algeria") |>
-  autoplot(Exports) +
-  labs(y = "% of GDP", title = "Algerian Exports")
-```
-
-## Stationary?
-
-```{r}
-aus_production |>
-  autoplot(Bricks) +
-  labs(title = "Clay brick production in Australia")
-```
-
-## Stationary?
-
-```{r}
-prices |>
-  filter(year >= 1900) |>
-  autoplot(eggs) +
-  labs(y = "$US (1993)", title = "Price of a dozen eggs")
-```
-
-## Stationary?
-
-```{r}
-aus_livestock |>
-  filter(Animal == "Pigs", State == "Victoria") |>
-  autoplot(Count / 1e3) +
-  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
-```
-
-## Stationary?
-
-```{r}
-aus_livestock |>
-  filter(Animal == "Pigs", State == "Victoria", year(Month) >= 2010) |>
-  autoplot(Count / 1e3) +
-  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
-```
-
-## Stationary?
-
-```{r}
-aus_livestock |>
-  filter(Animal == "Pigs", State == "Victoria", year(Month) >= 2015) |>
-  autoplot(Count / 1e3) +
-  labs(y = "thousands", title = "Total pigs slaughtered in Victoria")
-```
-
-## Stationary?
-
-```{r}
-pelt |>
-  autoplot(Lynx) +
-  labs(y = "Number trapped", title = "Annual Canadian Lynx Trappings")
-```
-
 ## Stationarity
 
 \begin{block}{Definition}
@@ -137,53 +47,6 @@ If $\{y_t\}$ is a stationary time series, then for all $s$, the distribution of 
 Transformations help to **stabilize the variance**.
 
 For ARIMA modelling, we also need to **stabilize the mean**.
-
-## Non-stationarity in the mean
-\alert{Identifying non-stationary series}
-
-* time plot.
-* The ACF of stationary data drops to zero relatively quickly
-* The ACF of non-stationary data decreases slowly.
-* For non-stationary data, the value of $r_1$ is often large and positive.
-
-## Example: Google stock price
-
-```{r}
-google_2018 <- gafa_stock |>
-  filter(Symbol == "GOOG", year(Date) == 2018)
-```
-
-## Example: Google stock price
-
-```{r}
-google_2018 |>
-  autoplot(Close) +
-  labs(y = "Closing stock price ($USD)")
-```
-
-## Example: Google stock price
-
-```{r, fig.height=3.5}
-google_2018 |>
-  ACF(Close) |>
-  autoplot()
-```
-
-## Example: Google stock price
-
-```{r}
-google_2018 |>
-  autoplot(difference(Close)) +
-  labs(y = "Change in Google closing stock price ($USD)")
-```
-
-## Example: Google stock price
-
-```{r}
-google_2018 |>
-  ACF(difference(Close)) |>
-  autoplot()
-```
 
 ## Differencing
 
@@ -223,133 +86,6 @@ where $\varepsilon_t \sim NID(0,\sigma^2)$.
 
 \vspace*{10cm}
 
-## Second-order differencing
-
-Occasionally the differenced data will not appear stationary and it may be necessary to difference the data a second time:\pause
-\begin{align*}
-y''_{t} & = y'_{t} - y'_{t - 1} \\
-        & = (y_t - y_{t-1}) - (y_{t-1}-y_{t-2})\\
-        & = y_t - 2y_{t-1} +y_{t-2}.
-\end{align*}\pause
-
-* $y_t''$ will have $T-2$ values.
-* In practice, it is almost never necessary to go beyond second-order differences.
-
-## Seasonal differencing
-
-A seasonal difference is the difference between an observation and the corresponding observation from the previous year.\pause
-$$
- y'_t = y_t - y_{t-m}
-$$
-where $m=$ number of seasons.\pause
-
-* For monthly data $m=12$.
-* For quarterly data $m=4$.
-
-## Antidiabetic drug sales
-
-```{r, echo=TRUE}
-a10 <- PBS |>
-  filter(ATC2 == "A10") |>
-  summarise(Cost = sum(Cost) / 1e6)
-```
-
-## Antidiabetic drug sales
-
-```{r, echo=TRUE}
-a10 |> autoplot(
-  Cost
-)
-```
-
-## Antidiabetic drug sales
-
-```{r, echo=TRUE}
-a10 |> autoplot(
-  log(Cost)
-)
-```
-
-## Antidiabetic drug sales
-
-```{r, echo=TRUE}
-a10 |> autoplot(
-  log(Cost) |> difference(12)
-)
-```
-
-## Cortecosteroid drug sales
-
-```{r, echo=TRUE}
-h02 <- PBS |>
-  filter(ATC2 == "H02") |>
-  summarise(Cost = sum(Cost) / 1e6)
-```
-
-## Cortecosteroid drug sales
-
-```{r, echo=TRUE}
-h02 |> autoplot(
-  Cost
-)
-```
-
-## Cortecosteroid drug sales
-
-```{r, echo=TRUE}
-h02 |> autoplot(
-  log(Cost)
-)
-```
-
-## Cortecosteroid drug sales
-
-```{r, echo=TRUE}
-h02 |> autoplot(
-  log(Cost) |> difference(12)
-)
-```
-
-## Cortecosteroid drug sales
-
-```{r, echo=TRUE}
-h02 |> autoplot(
-  log(Cost) |> difference(12) |> difference(1)
-)
-```
-
-## Cortecosteroid drug sales
-
-* Seasonally differenced series is closer to being stationary.
-* Remaining non-stationarity can be removed with further first difference.
-
-If $y'_t = y_t - y_{t-12}$ denotes seasonally differenced series, then twice-differenced series is
-
-\begin{block}{}
-\begin{align*}
-y^*_t &= y'_t - y'_{t-1} \\
-      &= (y_t - y_{t-12}) - (y_{t-1} - y_{t-13}) \\
-      &= y_t - y_{t-1} - y_{t-12} + y_{t-13}\: .
-\end{align*}
-\end{block}\vspace*{10cm}
-
-## Seasonal differencing
-
-When both seasonal and first differences are applied\dots\pause
-
-* it makes no difference which is done first---the result will be the same.
-* If seasonality is strong, we recommend that seasonal differencing be done first because sometimes the resulting series will be stationary and there will be no need for further first difference.\pause
-
-It is important that if differencing is used, the differences are interpretable.
-
-## Interpretation of differencing
-
-* first differences are the change between **one observation and the next**;
-* seasonal differences are the change between **one year to the next**.
-\pause
-
-But taking lag 3 differences for yearly data, for example, results in a model which cannot be sensibly interpreted.
-
 ## Unit root tests
 
 \alert{Statistical tests to determine the required order of differencing.}
@@ -357,21 +93,6 @@ But taking lag 3 differences for yearly data, for example, results in a model wh
   1. Augmented Dickey Fuller test: null hypothesis is that the data are non-stationary and non-seasonal.
   2. Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test: null hypothesis is that the data are stationary and non-seasonal.
   3. Other tests available for seasonal data.
-
-## KPSS test
-\fontsize{11}{12}\sf
-
-```{r, echo=TRUE}
-google_2018 |>
-  features(Close, unitroot_kpss)
-```
-
-\pause
-
-```{r, echo=TRUE}
-google_2018 |>
-  features(Close, unitroot_ndiffs)
-```
 
 ## Automatically selecting differences
 
@@ -381,30 +102,6 @@ Seasonal strength $F_s = \max\big(0, 1-\frac{\text{Var}(R_t)}{\text{Var}(S_t+R_t
 
 If $F_s > 0.64$, do one seasonal difference.
 
-\fontsize{10}{11}\sf
-
-```{r, echo=TRUE}
-h02 |>
-  mutate(log_sales = log(Cost)) |>
-  features(log_sales, list(unitroot_nsdiffs, feat_stl))
-```
-
-## Automatically selecting differences
-\fontsize{10}{11}\sf
-
-```{r, echo=TRUE}
-h02 |>
-  mutate(log_sales = log(Cost)) |>
-  features(log_sales, unitroot_nsdiffs)
-h02 |>
-  mutate(d_log_sales = difference(log(Cost), 12)) |>
-  features(d_log_sales, unitroot_ndiffs)
-```
-
-<!-- ## Your turn
-
-For the `tourism` dataset, compute the total number of trips and find an appropriate differencing (after transformation if necessary) to obtain stationary data.
--->
 
 ## Backshift notation
 
@@ -429,9 +126,9 @@ $$
   y'_{t} = y_{t} - y_{t-1} = y_t - By_{t} = (1 - B)y_{t}
 $$\pause
 Similarly, if second-order differences (i.e., first differences of first differences) have to be computed, then:
-\[
+$$
   y''_{t} = y_{t} - 2y_{t - 1} + y_{t - 2} = (1 - B)^{2} y_{t}
-\]
+$$
 
 ## Backshift notation
 
@@ -645,14 +342,14 @@ y_{t} &= c + \phi_{1}By_{t} + \cdots + \phi_pB^py_{t}
 
 * ARIMA(1,1,1) model:\vspace*{-0.5cm}
 
-\[
+$$
 \begin{array}{c c c c}
 (1 - \phi_{1} B) & (1 - B) y_{t} &= &c + (1 + \theta_{1} B) \varepsilon_{t}\\
 {\uparrow} & {\uparrow} & &{\uparrow}\\
 {\text{AR(1)}} & {\text{First}} &  &{\text{MA(1)}}\\
 & {\hbox to 0cm{\hss\text{difference}\hss}}\\
 \end{array}
-\]\pause
+$$\pause
 $$\text{Expand:}\qquad
   y_t = c + y_{t-1} + \phi_1 y_{t-1}- \phi_1 y_{t-2} + \theta_1\varepsilon_{t-1} + \varepsilon_t
 $$
@@ -755,9 +452,9 @@ fit |>
 ### Cyclic behaviour
   * For cyclic forecasts, $p\ge2$ and some restrictions on coefficients are required.
   * If $p=2$, we need $\phi_1^2+4\phi_2<0$. Then average cycle of length
-\[
+$$
   (2\pi)/\left[\text{arc cos}(-\phi_1(1-\phi_2)/(4\phi_2))\right].
-\]
+$$
 
 # Estimation and order selection
 
@@ -893,9 +590,9 @@ where $L$ is the likelihood of the data, $k=1$ if $c\ne0$ and $k=0$ if $c=0$.\pa
 ## How does ARIMA() work?
 
 \begin{block}{A non-seasonal ARIMA process}
-\[
+$$
 \phi(B)(1-B)^dy_{t} = c + \theta(B)\varepsilon_t
-\]
+$$
 Need to select appropriate orders: \alert{$p,q, d$}
 \end{block}
 

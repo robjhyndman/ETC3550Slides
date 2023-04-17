@@ -1,19 +1,21 @@
 ---
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch2. Time series graphics"
-date: "OTexts.org/fpp3/"
-classoption: aspectratio=169
-titlepage: title16x9.png
-titlecolor: burntorange
-toc: false
-output:
-  binb::monash:
-    colortheme: monashwhite
-    fig_width: 7.5
-    fig_height: 3
-    keep_tex: no
-    includes:
-      in_header: header.tex
+institute: "OTexts.org/fpp3/"
+pdf-engine: pdflatex
+fig-width: 7.5
+fig-height: 3.5
+format:
+  beamer:
+    theme: monash
+    aspectratio: 169
+    fontsize: 14pt
+    section-titles: false
+include-in-header: header.tex
+execute:
+  echo: false
+  message: false
+  warning: false
 ---
 
 ```{r setup, include=FALSE}
@@ -39,41 +41,41 @@ tourism <- tourism |>
 
 ## `tsibble` objects
 
-\fontsize{10}{11.2}\sf
+\fontsize{10}{10.8}\sf
 
 ```{r, echo = TRUE}
 global_economy
 ```
 
-\only<2->{\begin{textblock}{.75}(2.15,3.7)
-\begin{alertblock}{}\fontsize{10}{10}\sf Index\phantom{dg}\end{alertblock}
+\only<2->{\begin{textblock}{.75}(1.65,3.4)
+\begin{alertblock}{}\fontsize{9}{9}\sf Index\phantom{dg}\end{alertblock}
 \end{textblock}}
-\only<3->{\begin{textblock}{1.6}(3.28,3.7)
-\begin{alertblock}{}\fontsize{10}{10}\sf Key\phantom{dg}\end{alertblock}
+\only<3->{\begin{textblock}{1.6}(2.78,3.4)
+\begin{alertblock}{}\fontsize{9}{9}\sf Key\phantom{dg}\end{alertblock}
 \end{textblock}}
-\only<4>{\begin{textblock}{6.7}(5.5,3.7)
-\begin{alertblock}{}\fontsize{10}{10}\sf Measured variables\phantom{dg}\end{alertblock}
+\only<4>{\begin{textblock}{6.7}(4.8,3.4)
+\begin{alertblock}{}\fontsize{9}{9}\sf Measured variables\phantom{dg}\end{alertblock}
 \end{textblock}}
 
 ## `tsibble` objects
 
-\fontsize{10}{11.3}\sf
+\fontsize{10}{10.8}\sf
 
 ```{r, echo = TRUE}
 tourism
 ```
 
-\only<2->{\begin{textblock}{1.1}(2.1,3.65)
-\begin{alertblock}{}\fontsize{10}{10}\sf Index\phantom{dg}\end{alertblock}
+\only<3->{\begin{textblock}{.98}(1.65,3.37)
+\begin{alertblock}{}\fontsize{9}{9}\sf Index\phantom{dg}\end{alertblock}
 \end{textblock}}
-\only<3->{\begin{textblock}{3.9}(3.65,3.65)
-\begin{alertblock}{}\fontsize{10}{10}\sf Keys\phantom{dg}\end{alertblock}
+\only<4->{\begin{textblock}{3.9}(3,3.37)
+\begin{alertblock}{}\fontsize{9}{9}\sf Keys\phantom{dg}\end{alertblock}
 \end{textblock}}
-\only<4-5>{\begin{textblock}{1.5}(7.95,3.65)
-\begin{alertblock}{}\fontsize{10}{10}\sf Measure\phantom{dg}\end{alertblock}
+\only<5>{\begin{textblock}{1.5}(7.4,3.37)
+\begin{alertblock}{}\fontsize{9}{9}\sf Measure\phantom{dg}\end{alertblock}
 \end{textblock}}
 
-\only<5>{\begin{textblock}{3}(9,5)
+\only<2->{\begin{textblock}{3}(9,5)
 \begin{block}{}\fontsize{10}{10}\sf Domestic visitor nights in thousands by state/region and purpose.\phantom{dg}\end{block}
 \end{textblock}}
 

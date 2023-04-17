@@ -1,19 +1,21 @@
 ---
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch8. Simple Exponential smoothing"
-date: "OTexts.org/fpp3/"
-classoption: aspectratio=169
-titlepage: title16x9.png
-titlecolor: burntorange
-toc: false
-output:
-  binb::monash:
-    colortheme: monashwhite
-    fig_width: 7.5
-    fig_height: 3
-    keep_tex: yes
-    includes:
-      in_header: header.tex
+institute: "OTexts.org/fpp3/"
+pdf-engine: pdflatex
+fig-width: 7.5
+fig-height: 3
+format:
+  beamer:
+    theme: monash
+    aspectratio: 169
+    fontsize: 14pt
+    section-titles: false
+include-in-header: header.tex
+execute:
+  echo: false
+  message: false
+  warning: false
 ---
 
 ```{r setup, include=FALSE}
@@ -34,6 +36,7 @@ library(magick)
   * Equivalent ETS state space models developed in the 1990s and 2000s.
 
 ## Big idea: control the rate of change
+\fontsize{13}{14}\sf
 
 $\alpha$ controls the flexibility of the **level**
 
@@ -64,6 +67,7 @@ $\gamma$ controls the flexibility of the **seasonality**
 
 ## Simple Exponential Smoothing
 
+\vspace*{0.2cm}
 \begin{block}{Iterative form}
 \centerline{$\pred{y}{t+1}{t} = \alpha y_t + (1-\alpha) \pred{y}{t}{t-1}$}
 \end{block}\pause
@@ -80,7 +84,9 @@ $\gamma$ controls the flexibility of the **seasonality**
 \end{block}
 
 ## Simple Exponential Smoothing
+\fontsize{14}{14}\sf
 
+\vspace*{0.2cm}
 \begin{block}{Component form}\vspace*{-0.8cm}
 \begin{align*}
 \text{Forecast equation}&&\pred{y}{t+h}{t} &= \ell_{t}\\
@@ -102,6 +108,7 @@ Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\t
 
 ## ETS(A,N,N): SES with additive errors
 
+\vspace*{0.2cm}
 \begin{block}{ETS(A,N,N) model}\vspace*{-0.8cm}
 \begin{align*}
 \text{Observation equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
@@ -121,13 +128,13 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
     * $y_t = \ell_{t-1}+\ell_{t-1}\varepsilon_t$
     * $e_t = y_t - \pred{y}{t}{t-1} = \ell_{t-1}\varepsilon_t$
 
- \pause
+\pause
 \begin{block}{ETS(M,N,N) model}\vspace*{-0.8cm}
 \begin{align*}
 \text{Observation equation}&& y_t &= \ell_{t-1}(1 + \varepsilon_t)\\
 \text{State equation}&& \ell_t&=\ell_{t-1}(1+\alpha \varepsilon_t)
 \end{align*}
 \end{block}
-\pause\vspace*{-0.2cm}
+\pause\vspace*{-0.3cm}
 
   * Models with additive and multiplicative errors with the same parameters generate the same point forecasts but different prediction intervals.

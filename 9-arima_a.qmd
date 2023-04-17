@@ -1,0 +1,192 @@
+---
+title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
+author: "Ch9. ARIMA models"
+institute: "OTexts.org/fpp3/"
+pdf-engine: pdflatex
+fig-width: 7.5
+fig-height: 3
+format:
+  beamer:
+    theme: monash
+    aspectratio: 169
+    fontsize: 14pt
+    section-titles: false
+include-in-header: header.tex
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+library(patchwork)
+library(purrr)
+```
+
+## ARIMA models
+
+\begin{tabular}{@{}rl}
+\textbf{AR}: & autoregressive (lagged observations as inputs)\\
+\textbf{I}: & integrated (differencing to make series stationary)\\
+\textbf{MA}: & moving average (lagged errors as inputs)
+\end{tabular}
+
+###
+An ARIMA model is rarely interpretable in terms of visible data structures like trend and seasonality. But it can capture a huge range of time series patterns.
+
+## Stationarity
+
+\vspace*{0.2cm}
+\begin{block}{Definition}
+If $\{y_t\}$ is a stationary time series, then for all $s$, the distribution of $(y_t,\dots,y_{t+s})$ does not depend on $t$.
+\end{block}\pause\vspace*{-0.3cm}
+
+Transformations help to **stabilize the variance**.\newline
+For ARIMA modelling, we also need to **stabilize the mean**.
+
+### Differencing
+
+* Differencing helps to **stabilize the mean**.
+* First differencing: *change* between consecutive observations: $y'_t = y_t - y_{t-1}$.
+* Seasonal differencing: *change* between years: $y'_t = y_t - y_{t-m}$.
+
+
+## Automatic differencing
+\vspace*{0.2cm}
+
+### Using unit root tests for first differencing
+
+  1. Augmented Dickey Fuller test: null hypothesis is that the data are non-stationary and non-seasonal.
+  2. Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test: null hypothesis is that the data are stationary and non-seasonal.
+
+### Seasonal strength
+
+STL decomposition: $y_t = T_t+S_t+R_t$
+
+Seasonal strength $F_s = \max\big(0, 1-\frac{\text{Var}(R_t)}{\text{Var}(S_t+R_t)}\big)$
+
+If $F_s > 0.64$, do one seasonal difference.
+
+
+## Random walk model
+
+If differenced series is white noise with zero mean:
+
+\begin{block}{}
+\centerline{$y_t-y_{t-1}=\varepsilon_t$ \hspace{0.4cm} or \hspace{0.4cm} $y_t=y_{t-1}+\varepsilon_t$}
+\end{block}\vspace*{-0.3cm}
+where $\varepsilon_t \sim NID(0,\sigma^2)$.
+
+* Model behind the \alert{naïve method}.
+* Forecast are equal to the last observation (future movements up or down are equally likely).
+
+\vspace*{10cm}
+
+## Random walk with drift model
+
+If differenced series is white noise with non-zero mean:
+
+\begin{block}{}
+\centerline{$y_t-y_{t-1}=c+\varepsilon_t$ \hspace{0.4cm} or \hspace{0.4cm} $y_t=c+y_{t-1}+\varepsilon_t$}
+\end{block}\vspace*{-0.3cm}
+where $\varepsilon_t \sim NID(0,\sigma^2)$.
+
+* $c$ is the \alert{average change} between consecutive observations.
+* Model behind the \alert{drift method}.
+
+\vspace*{10cm}
+
+## Backshift operator notation
+
+* $B$ shifts the data back one period. $B y_{t} = y_{t - 1}$
+* $B^2$ shifts the data back two periods: $B(By_{t}) = B^{2}y_{t} = y_{t-2}$
+* A difference can be written as $(1 - B) y_{t}$
+* A $d$th-order difference can be written as $(1 - B)^{d} y_{t}$
+* A seasonal difference followed by a first difference can be written as
+$(1-B)(1-B^m)y_t$
+
+## AR(1) model
+
+\begin{block}{}
+  \centerline{$y_{t} = c + \phi_1 y_{t - 1} + \varepsilon_{t}$}
+\end{block}
+
+* When $\phi_1=0$, $y_t$ is **equivalent to WN**
+* When $\phi_1=1$ and $c=0$, $y_t$ is **equivalent to a RW**
+* When $\phi_1=1$ and $c\ne0$, $y_t$ is **equivalent to a RW with drift**
+* When $\phi_1<0$, $y_t$ tends to **oscillate between positive and negative values**.
+
+## Autoregressive models
+
+A multiple regression with \textbf{lagged values} of $y_t$ as predictors.
+
+\vspace*{-1.2cm}
+\begin{align*}
+y_t &= c + \phi_{1}y_{t - 1} + \phi_{2}y_{t - 2} + \cdots + \phi_{p}y_{t - p} + \varepsilon_{t} \\
+&= c + (\phi_1 B + \phi_2 B^2 + \cdots + \phi_p B^p)y_t + \varepsilon_t
+\end{align*}\pause\vspace*{-1.2cm}
+\begin{align*}
+(1 - \phi_1 B - \phi_2 B^2 - \cdots - \phi_p B^p)y_t &= c + \varepsilon_t \\
+\phi(B) y_t &= c+\varepsilon_t
+\end{align*}
+
+* $\varepsilon_t$ is white noise.
+* $\phi(B) = (1 - \phi_1 B - \phi_2 B^2 - \cdots - \phi_p B^p)$
+
+## Stationarity conditions
+
+We normally restrict autoregressive models to stationary data, and then some constraints on the values of the parameters are required.
+
+\begin{block}{General condition for stationarity}
+  Complex roots of $\phi(z) = 1-\phi_1 z - \phi_2 z^2 - \dots - \phi_pz^p$ lie outside the unit circle on the complex plane.
+\end{block}\pause\vspace*{-0.3cm}
+
+* For $p=1$: $-1<\phi_1<1$.
+* For $p=2$:\newline $-1<\phi_2<1\qquad \phi_2+\phi_1 < 1 \qquad \phi_2 -\phi_1 < 1$.
+* More complicated conditions hold for $p\ge3$.
+* fable takes care of this.
+
+## Moving Average (MA) models
+A multiple regression with \textbf{past \emph{errors}} as predictors.
+
+
+\vspace*{-1.2cm}
+\begin{align*}
+  y_{t} &= c + \varepsilon_t + \theta_{1}\varepsilon_{t - 1} + \theta_{2}\varepsilon_{t - 2} + \cdots + \theta_{q}\varepsilon_{t - q}\\
+&= c + (1 + \theta_1 B + \theta_2 B^2 + \cdots + \theta_q B^q)\varepsilon_t \\
+&= c + \theta(B)\varepsilon_t
+\end{align*}\pause\vspace*{-1.2cm}
+
+* $\varepsilon_t$ is white noise.
+* $\theta(B) = (1 + \theta_1 B + \theta_2 B^2 + \cdots + \theta_q B^q)$
+
+## Invertibility
+
+\begin{block}{General condition for invertibility}
+  Complex roots of $\theta(z) = 1+\theta_1 z + \theta_2 z^2 + \dots + \theta_qz^q$ lie outside the unit circle on the complex plane.
+\end{block}\pause
+
+* For $q=1$: $-1<\theta_1<1$.
+* For $q=2$:\newline $-1<\theta_2<1\qquad \theta_2+\theta_1 >-1 \qquad \theta_1 -\theta_2 < 1$.
+* More complicated conditions hold for $q\ge3$.
+* fable takes care of this.
+
+## ARIMA models
+
+\fontsize{14}{14.5}\sf\vspace*{0.2cm}
+\begin{block}{ARIMA($p, d, q$) model:\qquad $\phi(B)(1-B)^dy_{t} = c + \theta(B)\varepsilon_{t}$}
+\begin{tabular}{rl}
+AR:& $p =$ order of the autoregressive part\\
+I: & $d =$ degree of first differencing involved\\
+MA:& $q =$ order of the moving average part.
+\end{tabular}
+\end{block}\pause\vspace*{-0.2cm}
+
+* Conditions on AR coefficients ensure stationarity.
+* Conditions on MA coefficients ensure invertibility.
+* White noise model: ARIMA(0,0,0)
+* Random walk: ARIMA(0,1,0) with no constant
+* Random walk with drift: ARIMA(0,1,0) with \rlap{const.}
+* AR($p$): ARIMA($p$,0,0)
+* MA($q$): ARIMA(0,0,$q$)

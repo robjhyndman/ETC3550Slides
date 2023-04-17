@@ -1,27 +1,27 @@
 library(fpp3)
 
-#### GOOGLE STOCK PRICE 2018 ----------------
+#### Amazon STOCK PRICE 2018 ----------------
 
-google_2018 <- gafa_stock |>
-  filter(Symbol == "GOOG", year(Date) == 2018)
+amazon_2018 <- gafa_stock |>
+  filter(Symbol == "AMZN", year(Date) == 2018)
 
-google_2018 |> autoplot(Close)
-google_2018 |>
+amazon_2018 |> autoplot(Close)
+amazon_2018 |>
   ACF(Close) |>
   autoplot()
 
-google_2018 |> autoplot(difference(Close)) +
+amazon_2018 |> autoplot(difference(Close)) +
   ylab("Google closing stock price") + xlab("Day")
 
-google_2018 |>
+amazon_2018 |>
   ACF(difference(Close)) |>
   autoplot()
 
-google_2018 |>
+amazon_2018 |>
   features(Close, unitroot_kpss)
-google_2018 |>
+amazon_2018 |>
   features(difference(Close), unitroot_kpss)
-google_2018 |>
+amazon_2018 |>
   features(Close, unitroot_ndiffs)
 
 ## A10 drugs

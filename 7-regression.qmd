@@ -1,19 +1,21 @@
 ---
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch7. Regression models"
-date: "OTexts.org/fpp3/"
-classoption: aspectratio=169
-titlepage: title16x9.png
-titlecolor: burntorange
-toc: true
-output:
-  binb::monash:
-    colortheme: monashwhite
-    fig_width: 7.5
-    fig_height: 2.7
-    keep_tex: no
-    includes:
-      in_header: header.tex
+institute: "OTexts.org/fpp3/"
+pdf-engine: pdflatex
+fig-width: 7.5
+fig-height: 3.5
+format:
+  beamer:
+    theme: monash
+    aspectratio: 169
+    fontsize: 14pt
+    section-titles: false
+include-in-header: header.tex
+execute:
+  echo: false
+  message: false
+  warning: false
 ---
 
 ```{r setup, include=FALSE}
@@ -25,9 +27,9 @@ source("setup.R")
 ## Multiple regression and forecasting
 
 \begin{block}{}\vspace*{-0.3cm}
-\[
+$$
   y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.
-\]
+$$
 \end{block}
 
 * $y_t$ is the variable we want to predict: the "response" variable
@@ -109,9 +111,9 @@ fit_consMR |> gg_tsresiduals()
 ## Trend
 
 **Linear trend**
-\[
+$$
   x_t = t
-\]
+$$
 
 * $t=1,2,\dots,T$
 * Strong assumption that trend will continue.
@@ -129,9 +131,9 @@ x_{2,t} &= \left\{ \begin{array}{ll}
 \pause\vspace*{1cm}
 
 **Quadratic or higher order trend**
-\[
+$$
   x_{1,t} =t,\quad x_{2,t}=t^2,\quad \dots
-\]
+$$
 \pause\vspace*{-0.5cm}
 
 \centerline{\textcolor{orange}{\textbf{NOT RECOMMENDED!}}}
@@ -514,9 +516,9 @@ However \dots
 To overcome this problem, we can use *adjusted $R^2$*:
 
 \begin{block}{}
-\[
+$$
 \bar{R}^2 = 1-(1-R^2)\frac{T-1}{T-k-1}
-\]
+$$
 where $k=$ no.\ predictors and $T=$ no.\ observations.
 \end{block}
 
@@ -543,9 +545,9 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
 For small values of $T$, the AIC tends to select too many predictors, and so a bias-corrected version of the AIC has been developed.
 
 \begin{block}{}
-\[
+$$
 \text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{T-k-3}
-\]
+$$
 \end{block}
 
 As with the AIC, the AIC$_{\text{C}}$ should be minimized.
@@ -553,9 +555,9 @@ As with the AIC, the AIC$_{\text{C}}$ should be minimized.
 ## Bayesian Information Criterion
 
 \begin{block}{}
-\[
+$$
 \text{BIC} = -2\log(L) + (k+2)\log(T)
-\]
+$$
 \end{block}
 where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
 
@@ -760,14 +762,14 @@ us_change |> autoplot(Consumption) +
 \pause
 
 Let $\bm{y} = (y_1,\dots,y_T)'$, $\bm{\varepsilon} = (\varepsilon_1,\dots,\varepsilon_T)'$, $\bm{\beta} = (\beta_0,\beta_1,\dots,\beta_k)'$ and
-\[
+$$
 \bm{X} = \begin{bmatrix}
 1      & x_{1,1} & x_{2,1} & \dots & x_{k,1}\\
 1      & x_{1,2} & x_{2,2} & \dots & x_{k,2}\\
 \vdots & \vdots  & \vdots  &       & \vdots\\
 1      & x_{1,T} & x_{2,T} & \dots & x_{k,T}
   \end{bmatrix}.
-\]\pause
+$$\pause
 Then
 
 ###
@@ -788,22 +790,22 @@ Differentiate wrt $\bm{\beta}$ gives
 \pause
 (The "normal equation".)\pause
 
-\[
+$$
 \hat{\sigma}^2 = \frac{1}{T-k-1}(\bm{y} - \bm{X}\hat{\bm{\beta}})'(\bm{y} - \bm{X}\hat{\bm{\beta}})
-\]
+$$
 
 \structure{Note:} If you fall for the dummy variable trap, $(\bm{X}'\bm{X})$ is a singular matrix.
 
 ## Likelihood
 
 If the errors are iid and normally distributed, then
-\[
+$$
 \bm{y} \sim \text{N}(\bm{X}\bm{\beta},\sigma^2\bm{I}).
-\]\pause
+$$\pause
 So the likelihood is
-\[
+$$
 L = \frac{1}{\sigma^T(2\pi)^{T/2}}\exp\left(-\frac1{2\sigma^2}(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})\right)
-\]\pause
+$$\pause
 which is maximized when $(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})$ is minimized.\pause
 
 \centerline{\alert{So \textbf{MLE = OLS}.}}
@@ -811,20 +813,20 @@ which is maximized when $(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})$ is
 ## Multiple regression forecasts
 
 \begin{block}{Optimal forecasts}\vspace*{-0.2cm}
-\[
+$$
 \hat{y}^* =
 \text{E}(y^* | \bm{y},\bm{X},\bm{x}^*) =
 \bm{x}^*\hat{\bm{\beta}} = \bm{x}^*(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}
-\]
+$$
 \end{block}
 where $\bm{x}^*$ is a row vector containing the values of the predictors for the forecasts (in the same format as $\bm{X}$).
 
 \pause
 
 \begin{block}{Forecast variance}\vspace*{-0.2cm}
-\[
+$$
 \text{Var}(y^* | \bm{X},\bm{x}^*) = \sigma^2 \left[1 + \bm{x}^* (\bm{X}'\bm{X})^{-1} (\bm{x}^*)'\right]
-\]
+$$
 \end{block}
 \pause
 

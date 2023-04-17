@@ -1,20 +1,23 @@
 ---
 title: "ETC3550/ETC5550 Applied&nbsp;forecasting"
 author: "Ch8. Exponential smoothing"
-date: "OTexts.org/fpp3/"
-classoption: aspectratio=169
-titlepage: title16x9.png
-titlecolor: burntorange
-toc: false
-output:
-  binb::monash:
-    colortheme: monashwhite
-    fig_width: 7.5
-    fig_height: 3
-    keep_tex: yes
-    includes:
-      in_header: header.tex
+institute: "OTexts.org/fpp3/"
+pdf-engine: pdflatex
+fig-width: 7.5
+fig-height: 3
+format:
+  beamer:
+    theme: monash
+    aspectratio: 169
+    fontsize: 14pt
+    section-titles: false
+include-in-header: header.tex
+execute:
+  echo: false
+  message: false
+  warning: false
 ---
+
 
 ```{r setup, include=FALSE}
 source("setup.R")
@@ -46,8 +49,9 @@ library(magick)
 \alert{\textbf{S}easonality:} None (`"N"`), additive (`"A"`) or multiplicative (`"M"`)
 
 ## ETS(A,N,N): SES with additive errors
+\fontsize{14}{16}\sf\vspace*{0.2cm}
 
-\begin{block}{ETS(A,N,N) model}\vspace*{-0.3cm}
+\begin{block}{ETS(A,N,N) model}\vspace*{-0.8cm}
 \begin{align*}
 \text{Observation equation}&& y_t &= \ell_{t-1} + \varepsilon_t\\
 \text{State equation}&& \ell_t&=\ell_{t-1}+\alpha \varepsilon_t
@@ -63,7 +67,7 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 
 Holt's methods method with additive errors.\phantom{p}
 
-\begin{block}{}\vspace*{-0.4cm}
+\begin{block}{}\vspace*{-0.8cm}
 \begin{align*}
 \text{Forecast equation} && \hat{y}_{t+h|t} &= \ell_{t} + hb_{t}\\
 \text{Observation equation}&& y_t&=\ell_{t-1}+b_{t-1} + \varepsilon_t\\
@@ -80,7 +84,7 @@ Holt's methods method with additive errors.\phantom{p}
 
 Holt-Winters additive method with additive errors.\phantom{p}
 
-\begin{block}{}\vspace*{-0.4cm}
+\begin{block}{}\vspace*{-0.8cm}
 \begin{align*}
 \text{Forecast equation} && \hat{y}_{t+h|t} &= \ell_{t} + hb_{t} + s_{t+h-m(k+1)}\\
 \text{Observation equation}&& y_t&=\ell_{t-1}+b_{t-1}+s_{t-m} + \varepsilon_t\\
@@ -97,7 +101,7 @@ Holt-Winters additive method with additive errors.\phantom{p}
 
 Holt-Winters multiplicative method with multiplicative errors.
 
-\begin{block}{}\vspace*{-0.4cm}
+\begin{block}{}\vspace*{-0.8cm}
 \begin{align*}
 \text{Forecast equation} && \hat{y}_{t+h|t} &= (\ell_{t} + hb_{t}) s_{t+h-m(k+1)}\\
 \text{Observation equation}&& y_t&= (\ell_{t-1}+b_{t-1})s_{t-m}(1 + \varepsilon_t)\\
@@ -245,6 +249,7 @@ criterion).
 Method performed very well in M3 competition.
 
 ## Residuals
+\vspace*{0.2cm}
 
 ### Response residuals
 $$\hat{e}_t = y_t - \hat{y}_{t|t-1}$$

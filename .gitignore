@@ -7,3 +7,5 @@ elecBC*.pdf
 *.Rproj
 *.log
 .vscode/*
+
+/.quarto/

@@ -1,16 +1,28 @@
 %% This is the Monash beamer theme
 %% Created for Monash Business School
-%% Updated by Rob J Hyndman. 8 October 2018
+%% Updated by Rob J Hyndman. 16 April 2023
 
 \RequirePackage{beamerthememetropolis}
-% For binb, one can alter the color theme by by setting eg 'colortheme: monashblue' in the YAML header
-%\usecolortheme{monashwhite}
-\usefonttheme{monash}
+% Alter the color theme by setting eg 'colortheme: monashblue' in the YAML header
 
+% Fonts
+\usepackage[scale=0.85]{sourcecodepro}
+\usepackage{sourcesanspro}
+%\IfFileExists{carlito.sty}{\usepackage[lf,t]{carlito}}{\usepackage{bera}}
+
+%% Default color theme
+\usecolortheme{monashwhite}
+\def\shadecolor{\relax}
+
+% No section pages
+\metroset{sectionpage=none,subsectionpage=none}
+
+% Lets make descriptions and alerts bold
+\setbeamerfont{description item}{series=\bfseries}
+\setbeamerfont{alerted text}{series=\bfseries}
+
+% Footer progress bar
 \metroset{progressbar=foot}
-
-% Plenty of room
-\setbeamersize{text margin left=2em,text margin right=2em}
 
 % Rounded corners on boxes
 \useinnertheme{rounded}
@@ -37,6 +49,7 @@
 \setbeamertemplate{itemize item}[square]
 \setbeamertemplate{items}[mysquare]
 
+% Triangle and stars for nested itemize lists
 \usesubitemizeitemtemplate{%
     \tiny\raise1.5pt\hbox{\color{beamerstructure}$\blacktriangleright$}%
 }
@@ -44,44 +57,35 @@
     \tiny\raise1.5pt\hbox{\color{beamerstructure}$\bigstar$}%
 }
 
-\setbeamertemplate{section in toc}[square]
-\setbeamerfont{section number projected}{size=\large}
-\setbeamertemplate{section in toc shaded}[default][50]
-
-\usepackage{etoolbox}
-\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.2em}{}{}
-
-% Figure placement
+% Absolute figure placement
 \RequirePackage[absolute,overlay]{textpos}
 \setlength{\TPHorizModule}{1cm}
 \setlength{\TPVertModule}{1cm}
 \def\placefig#1#2#3#4{\begin{textblock}{.1}(#1,#2)\rlap{\includegraphics[#3]{#4}}\end{textblock}}
+\def\full#1{\vspace*{0.05cm}\centerline{\includegraphics[width=15cm,height=7.5cm,keepaspectratio=true]{#1}}}
 
 % Monash title page
-% For binb, one can alter the font size by setting eg 'titlefontsize: 20pt' in the YAML header
-\setbeamerfont{title}{series=\bfseries,parent=structure,size=\fontsize{24}{32}}
+% One can alter the font size by setting eg 'titlefontsize: 20pt' in the YAML header
+\setbeamerfont{title}{series=\bfseries,parent=structure,size=\fontsize{22}{28}}
 \setbeamertemplate{title page}
-{\placefig{-0.01}{-0.01}{width=1.01\paperwidth,height=1.01\paperheight}{titlepage}
+{\placefig{-0.01}{-0.01}{width=1.01\paperwidth,height=1.01\paperheight}{title16x9}
 \begin{textblock}{7.5}(1,2.8)\usebeamerfont{title}
-{\color{white}\raggedright\par\inserttitle}
+{\color{Orange}\raggedright\par\inserttitle}
 \end{textblock}
 \begin{textblock}{7.5}(1,7)
-{\color{white}\raggedright{\insertauthor}\mbox{}\\[0.2cm]
-\insertdate}
+{\color{Orange}\raggedright{\insertauthor}\mbox{}\\[0.2cm]
+\insertinstitute}
 \end{textblock}}
 
-% Reduce vertical space around displayed equations
-\preto\frame{%
-\setlength{\abovedisplayskip}{1pt}%
-\setlength{\belowdisplayskip}{4pt}%
-\setlength{\abovedisplayshortskip}{0pt}%
-\setlength{\belowdisplayshortskip}{0pt}}
-
-% Redefine shaded environment if it exists (for R plots)
-\ifcsname Shaded\endcsname
-  \definecolor{shadecolor}{RGB}{225,225,225}
-  \renewenvironment{Shaded}{\color{black}\begin{snugshade}\color{black}}{\end{snugshade}}
-\fi
-
-%%
-%% End of file `beamerthememonash.sty'.
+% Outline at start of each section
+\AtBeginSection[]{
+   \begin{frame}{Outline}
+   \tableofcontents[currentsection]
+   \end{frame}
+  }
+% Tighter table of contents
+\usepackage{etoolbox}
+\pretocmd{\section}{\addtocontents{toc}{\protect\addvspace{-40\p@}}}{}{}
+\setbeamertemplate{section in toc}[square]
+\setbeamerfont{section number projected}{size=\large}
+\setbeamertemplate{section in toc shaded}[default][50]
