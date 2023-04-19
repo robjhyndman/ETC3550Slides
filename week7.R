@@ -38,6 +38,19 @@ a10 |> autoplot(
   log(Cost) |> difference(lag = 12)
 )
 
+a10 |>
+  features(log(Cost), feat_stl)
+
+a10 |>
+  features(log(Cost) |> difference(lag=12), feat_stl)
+
+a10 |>
+  features(log(Cost), unitroot_nsdiffs)
+
+a10 |>
+  features(log(Cost) |> difference(lag=12), unitroot_ndiffs)
+
+
 ## H02 drugs
 
 h02 <- PBS |>
@@ -66,3 +79,5 @@ h02 |>
 h02 |>
   mutate(d_log_sales = difference(log(Cost), 12)) |>
   features(d_log_sales, unitroot_ndiffs)
+
+
