@@ -1,9 +1,9 @@
-SOURCES := $(wildcard *.Rmd)
-TARGETS=$(SOURCES:%.Rmd=%.pdf)
+SOURCES := $(wildcard *.qmd)
+TARGETS=$(SOURCES:%.qmd=%.pdf)
 
-%.pdf: %.Rmd
+%.pdf: %.qmd
 	@echo "$< -> $@"
-	@Rscript -e "rmarkdown::render('$<')"
+	quarto render '$<'
 
 default: $(TARGETS)
 
@@ -11,4 +11,3 @@ clean:
 	rm -rf $(TARGETS)
 	rm -rf *_cache
 	rm -rf *_files
-
