@@ -9,14 +9,14 @@ global_economy |>
 
 fit <- global_economy |>
   filter(Code == "EGY") |>
-  model(ARIMA(Exports))
+  model(ARIMA(Exports, stepwise = FALSE, approximation = FALSE,
+              order_constraint = p + q <= 10))
 report(fit)
 
 gg_tsresiduals(fit)
 
-augment(fit) |>
-  fit() |>
-  forecast(h = 10) |>
+fit |>
+  forecast(h = 50) |>
   autoplot(global_economy) +
   labs(y = "% of GDP", title = "Egyptian Exports")
 
@@ -37,24 +37,3 @@ fit1 <- global_economy |>
   filter(Code == "EGY") |>
   model(ARIMA(Exports ~ pdq(4, 0, 0)))
 report(fit1)
-
-## CAF EXPORTS
-
-global_economy |>
-  filter(Code == "CAF") |>
-  autoplot(Exports) +
-  labs(
-    title = "Central African Republic exports",
-    y = "% of GDP"
-  )
-
-global_economy |>
-  filter(Code == "CAF") |>
-  model(ARIMA(Exports)) |>
-  report()
-
-global_economy |>
-  filter(Code == "CAF") |>
-  model(ARIMA(Exports)) |>
-  forecast(h = 20) |>
-  autoplot(global_economy)
