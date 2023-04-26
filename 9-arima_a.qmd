@@ -11,6 +11,9 @@ format:
     aspectratio: 169
     fontsize: 14pt
     section-titles: false
+    knitr:
+      opts_chunk:
+        dev: "cairo_pdf"
 include-in-header: header.tex
 execute:
   echo: false

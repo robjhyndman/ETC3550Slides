@@ -11,6 +11,9 @@ format:
     aspectratio: 169
     fontsize: 14pt
     section-titles: false
+    knitr:
+      opts_chunk:
+        dev: "cairo_pdf"
 include-in-header: header.tex
 execute:
   echo: false
@@ -159,35 +162,3 @@ MA:& $q =$ order of the moving average part.
   * If $p=2$, we need $\phi_1^2+4\phi_2<0$. Then average cycle of length
 
 \centerline{$(2\pi)/\left[\text{arc cos}(-\phi_1(1-\phi_2)/(4\phi_2))\right].$}
-
-## Point forecasts
-
-1. Rearrange ARIMA equation so $y_t$ is on LHS.
-2. Rewrite equation by replacing $t$ by $T+h$.
-3. On RHS, replace future observations by their forecasts, future errors by zero, and past errors by corresponding residuals.
-
-Start with $h=1$. Repeat for $h=2,3,\dots$.
-
-## Prediction intervals
-\vspace*{0.2cm}\fontsize{14}{15}\sf
-
-\begin{block}{95\% prediction interval}
-$$\hat{y}_{T+h|T} \pm 1.96\sqrt{v_{T+h|T}}$$
-where $v_{T+h|T}$ is estimated forecast variance.
-\end{block}\pause\vspace*{-0.3cm}
-
-* $v_{T+1|T}=\hat{\sigma}^2$ for all ARIMA models regardless of parameters and orders.\pause
-* Multi-step prediction intervals for ARIMA(0,0,$q$):
-\centerline{$\displaystyle y_t = \varepsilon_t + \sum_{i=1}^q \theta_i \varepsilon_{t-i}.$}
-\centerline{$\displaystyle
-v_{T|T+h} = \hat{\sigma}^2 \left[ 1 + \sum_{i=1}^{h-1} \theta_i^2\right], \qquad\text{for~} h=2,3,\dots.$}
-
-## Prediction intervals
-
-* Prediction intervals **increase in size with forecast horizon**.
-* Prediction intervals can be difficult to calculate by hand
-* Calculations assume residuals are **uncorrelated** and **normally distributed**.
-* Prediction intervals tend to be too narrow.
-    * the uncertainty in the parameter estimates has not been accounted for.
-    * the ARIMA model assumes historical patterns will not change during the forecast period.
-    * the ARIMA model assumes uncorrelated future \rlap{errors}
