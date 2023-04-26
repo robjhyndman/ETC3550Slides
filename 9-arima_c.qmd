@@ -171,15 +171,15 @@ tibble(
   scale_fill_manual(values = cols) +
   coord_fixed() +
   guides(fill = "none") +
-  geom_text(aes(label = "ETS models", x = -1.5, y = 1.35), col = cols["ets"], fontface = "bold", size = 6, family = "Source Sans Pro") +
-  geom_text(aes(label = "Combination\n of components", x = -1.3, y = 0.5), col = cols["ets"], size = 2.8, fontface = "bold", family = "Source Sans Pro") +
-  geom_text(aes(label = "9 ETS models with\n multiplicative errors", x = -1.6, y = -0.5), col = cols["ets"], size = 2.8, family = "Source Sans Pro") +
-  geom_text(aes(label = "3 ETS models with\n additive errors and\n multiplicative\n seasonality", x = -1.3, y = -1.4), col = cols["ets"], size = 2.8, family = "Source Sans Pro") +
-  geom_text(aes(label = "ARIMA models", x = 1.5, y = 1.35), col = cols["arima"], fontface = "bold", size = 6, family = "Source Sans Pro") +
-  geom_text(aes(label = "Modelling\n autocorrelations", x = 1.3, y = 0.5), col = cols["arima"], size = 2.8, fontface = "bold", family = "Source Sans Pro") +
+  annotate("text", label = "ETS models", x = -1.5, y = 1.35, col = cols["ets"], fontface = "bold", size = 6, family = "Source Sans Pro") +
+  annotate("text", label = "Combination\n of components", x = -1.3, y = 0.5, col = cols["ets"], size = 2.8, fontface = "bold", family = "Source Sans Pro") +
+  annotate("text", label = "9 ETS models with\n multiplicative errors", x = -1.6, y = -0.5, col = cols["ets"], size = 2.8, family = "Source Sans Pro") +
+  annotate("text", label = "3 ETS models with\n additive errors and\n multiplicative\n seasonality", x = -1.3, y = -1.4, col = cols["ets"], size = 2.8, family = "Source Sans Pro") +
+  annotate("text", label = "ARIMA models", x = 1.5, y = 1.35, col = cols["arima"], fontface = "bold", size = 6, family = "Source Sans Pro") +
+  annotate("text", label = "Modelling\n autocorrelations", x = 1.3, y = 0.5, col = cols["arima"], size = 2.8, fontface = "bold", family = "Source Sans Pro") +
   annotate("text", label = TeX("Potentially $\\infty$ models"), x = 1.6, y = -0.6, col = cols["arima"], size = 2.8, family = "Source Sans Pro") +
-  geom_text(aes(label = "All stationary models\n Many large models", x = 1.25, y = -1.5), col = cols["arima"], size = 2.8, family = "Source Sans Pro") +
-  geom_text(aes(label = "6 fully additive\n ETS models", x = 0, y = -0.6), col = "#6b6859", size = 2.8, family = "Source Sans Pro") +
+  annotate("text", label = "All stationary models\n Many large models", x = 1.25, y = -1.5, col = cols["arima"], size = 2.8, family = "Source Sans Pro") +
+  annotate("text", label = "6 fully additive\n ETS models", x = 0, y = -0.6, col = "#6b6859", size = 2.8, family = "Source Sans Pro") +
   guides(colour = "none", fill = "none") +
   theme_void()
 ```
