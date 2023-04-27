@@ -47,6 +47,7 @@ source("setup.R")
 \end{block}
 
 ## Brief bio
+\fontsize{13}{16}\sf
 
   - Professor of Statistics, Monash University
   - Co-author of most popular forecasting textbook in the world
@@ -61,7 +62,7 @@ source("setup.R")
    - TAC large claims
 
 ## Unit objectives
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
   1. To obtain an understanding of common statistical methods used in business and economic forecasting.
   2. To develop the computer skills required to forecast business and economic time series data;
@@ -75,6 +76,7 @@ source("setup.R")
 * One 80 minute tutorial each week for 12 weeks.
 
 ## Classes
+\vspace*{0.2cm}
 
 ### Lectures
 

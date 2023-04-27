@@ -52,6 +52,7 @@ to produce sensible forecasts. They want me to fix it.
 \placefig{10.2}{1.4}{width=5.8cm}{tableware2}
 
 ## CASE STUDY 1: Paperware company
+\vspace*{0.2cm}
 
 ### Methods currently used
 

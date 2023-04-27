@@ -255,11 +255,10 @@ Method performed very well in M3 competition.
 \vspace*{0.2cm}
 
 ### Response residuals
-$$\hat{e}_t = y_t - \hat{y}_{t|t-1}$$
+\centerline{$\hat{e}_t = y_t - \hat{y}_{t|t-1}$}
 
 ### Innovation residuals
 Additive error model:
-$$\hat\varepsilon_t = y_t - \hat{y}_{t|t-1}$$
-
+\centerline{$\hat\varepsilon_t = y_t - \hat{y}_{t|t-1}$}
 Multiplicative error model:
-$$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$$
+\centerline{$\hat\varepsilon_t = \frac{y_t - \hat{y}_{t|t-1}}{\hat{y}_{t|t-1}}$}

@@ -96,9 +96,11 @@ tourism
 
 ## The `tsibble` index
 
-Common time index variables can be created with these functions:
+Time index variables can be created with these functions:
 
 ###
+\vspace*{-0.2cm}
+
 ```{r tstable2, echo=FALSE}
 tribble(
   ~`Frequency`, ~Function,

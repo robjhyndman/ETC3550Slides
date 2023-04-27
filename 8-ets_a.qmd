@@ -107,7 +107,7 @@ y_t &= \ell_{t-1} + e_t\\
 \end{align*}
 \end{block}\pause\vspace*{-0.2cm}
 
-Specify probability distribution for $e_t$, we assume $e_t = \varepsilon_t\sim\text{NID}(0,\sigma^2)$.
+Specify probability distribution: $e_t = \varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 
 ## ETS(A,N,N): SES with additive errors
 
@@ -138,6 +138,6 @@ where $\varepsilon_t\sim\text{NID}(0,\sigma^2)$.
 \text{State equation}&& \ell_t&=\ell_{t-1}(1+\alpha \varepsilon_t)
 \end{align*}
 \end{block}
-\pause\vspace*{-0.3cm}
+\pause\vspace*{-0.4cm}
 
   * Models with additive and multiplicative errors with the same parameters generate the same point forecasts but different prediction intervals.

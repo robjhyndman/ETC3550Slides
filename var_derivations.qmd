@@ -30,5 +30,3 @@ y_{T+h} &= y_{T+h-1} + \varepsilon_{T+h}\\
 \text{E}[y_{T+h|T}] &= y_T \\
 \text{V}[y_{T+h|T}] &= h\sigma^2\\
 \end{align*}
-
-\vspace*{20cm}

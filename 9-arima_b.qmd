@@ -75,7 +75,7 @@ We normally restrict autoregressive models to stationary data, and then some con
 \end{block}\pause\vspace*{-0.3cm}
 
 * For $p=1$: $-1<\phi_1<1$.
-* For $p=2$:\newline $-1<\phi_2<1\qquad \phi_2+\phi_1 < 1 \qquad \phi_2 -\phi_1 < 1$.
+* For $p=2$: $-1<\phi_2<1\qquad \phi_2+\phi_1 < 1 \qquad \phi_2 -\phi_1 < 1$.
 * More complicated conditions hold for $p\ge3$.
 * fable takes care of this.
 
@@ -100,7 +100,7 @@ A multiple regression with \textbf{past \emph{errors}} as predictors.
 \end{block}\pause
 
 * For $q=1$: $-1<\theta_1<1$.
-* For $q=2$:\newline $-1<\theta_2<1\qquad \theta_2+\theta_1 >-1 \qquad \theta_1 -\theta_2 < 1$.
+* For $q=2$: $-1<\theta_2<1\qquad \theta_2+\theta_1 >-1 \qquad \theta_1 -\theta_2 < 1$.
 * More complicated conditions hold for $q\ge3$.
 * fable takes care of this.
 
@@ -125,6 +125,7 @@ MA:& $q =$ order of the moving average part.
 
 
 ## R model
+\vspace*{0.2cm}
 
 \begin{block}{Intercept form}
   \centerline{$(1-\phi_1B - \cdots - \phi_p B^p) y_t' = c + (1 + \theta_1 B + \cdots + \theta_q B^q)\varepsilon_t$}
@@ -140,12 +141,11 @@ MA:& $q =$ order of the moving average part.
  * fable uses intercept form
 
 ## Understanding ARIMA models
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 * If $c=0$ and $d=0$, the long-term forecasts will go to zero.
 * If $c=0$ and $d=1$, the long-term forecasts will go to a non-zero constant.
 * If $c=0$ and $d=2$, the long-term forecasts will follow a straight line.
-
 * If $c\ne0$ and $d=0$, the long-term forecasts will go to the mean of the data.
 * If $c\ne0$ and $d=1$, the long-term forecasts will follow a straight line.
 * If $c\ne0$ and $d=2$, the long-term forecasts will follow a quadratic trend.
