@@ -25,11 +25,9 @@ execute:
 source("setup.R")
 ```
 
-# The linear model with time series
-
 ## Multiple regression and forecasting
 
-\begin{block}{}\vspace*{-0.3cm}
+\vspace*{0.2cm}\begin{block}{}\vspace*{-0.3cm}
 $$
   y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.
 $$
@@ -39,91 +37,18 @@ $$
 * Each $x_{j,t}$ is numerical and is called a "predictor".
  They are usually assumed to be known for all past and future times.
 * The coefficients $\beta_1,\dots,\beta_k$ measure the effect of each
-predictor after taking account of the effect of all other predictors
-in the model.
-
-That is, the coefficients measure the **marginal effects**.
-
+predictor *after taking account of the effect of all other predictors
+in the model*.
 * $\varepsilon_t$ is a white noise error term
-
-## Example: US consumption expenditure
-
-```{r MultiPredictors, echo=FALSE, fig.height=4}
-us_change |>
-  gather("Measure", "Change", Consumption, Income, Production, Savings, Unemployment) |>
-  ggplot(aes(x = Quarter, y = Change, colour = Measure)) +
-  geom_line() +
-  facet_grid(vars(Measure), scales = "free_y") +
-  labs(y = "") +
-  guides(colour = "none")
-```
-
-## Example: US consumption expenditure
-
-```{r ScatterMatrix, echo=FALSE, fig.height=4, fig.width=8}
-us_change |>
-  as_tibble() |>
-  select(-Quarter) |>
-  GGally::ggpairs()
-```
-
-## Example: US consumption expenditure
-
-\fontsize{7}{7}\sf
-
-```{r usestim, echo=TRUE}
-fit_consMR <- us_change |>
-  model(lm = TSLM(Consumption ~ Income + Production + Unemployment + Savings))
-report(fit_consMR)
-```
-
-## Example: US consumption expenditure
-
-```{r usfitted1, echo=FALSE}
-augment(fit_consMR) |>
-  ggplot(aes(x = Quarter)) +
-  geom_line(aes(y = Consumption, colour = "Data")) +
-  geom_line(aes(y = .fitted, colour = "Fitted")) +
-  labs(y = NULL, title = "Percent change in US consumption expenditure") +
-  scale_colour_manual(values = c(Data = "black", Fitted = "#D55E00")) +
-  guides(colour = guide_legend(title = NULL))
-```
-
-## Example: US consumption expenditure
-
-```{r usfitted2, echo=FALSE, message=FALSE, warning=FALSE}
-augment(fit_consMR) |>
-  ggplot(aes(y = .fitted, x = Consumption)) +
-  geom_point() +
-  labs(
-    y = "Fitted (predicted values)",
-    x = "Data (actual values)",
-    title = "Percentage change in US consumption expenditure"
-  ) +
-  geom_abline(intercept = 0, slope = 1)
-```
-
-## Example: US consumption expenditure
-
-```{r, echo=TRUE}
-fit_consMR |> gg_tsresiduals()
-```
-
-# Some useful predictors for linear models
 
 ## Trend
 
 **Linear trend**
-$$
-  x_t = t
-$$
 
-* $t=1,2,\dots,T$
-* Strong assumption that trend will continue.
-
-## Nonlinear trend
+\centerline{$x_t = t,\qquad t = 1,2,\dots,$}\pause
 
 **Piecewise linear trend with bend at $\tau$**
+\vspace*{-0.6cm}
 \begin{align*}
 x_{1,t} &= t \\
 x_{2,t} &= \left\{ \begin{array}{ll}
@@ -131,48 +56,17 @@ x_{2,t} &= \left\{ \begin{array}{ll}
   (t-\tau) & t \ge \tau
 \end{array}\right.
 \end{align*}
-\pause\vspace*{1cm}
+\pause\vspace*{-0.8cm}
 
 **Quadratic or higher order trend**
-$$
-  x_{1,t} =t,\quad x_{2,t}=t^2,\quad \dots
-$$
-\pause\vspace*{-0.5cm}
 
+\centerline{$x_{1,t} =t,\quad x_{2,t}=t^2,\quad \dots$}
+
+\pause\vspace*{-0.1cm}
 \centerline{\textcolor{orange}{\textbf{NOT RECOMMENDED!}}}
 
-## Dummy variables
-
-\begin{textblock}{6}(0.4,1.5)
-If a categorical variable takes only two values (e.g., `Yes'
-or `No'), then an equivalent numerical variable can be constructed
-taking value 1 if yes and 0 if no. This is called a \textbf{dummy variable}.
-\end{textblock}
-
-\placefig{7.7}{1.5}{width=5cm}{dummy2}
-
-## Dummy variables
-
-\begin{textblock}{6}(0.4,1.5)
-If there are more than two categories, then the variable can
-be coded using several dummy variables (one fewer than the total
-number of categories).
-
-\end{textblock}
-
-\placefig{7.7}{1.5}{width=7.3cm}{dummy3}
-
-## Beware of the dummy variable trap!
-* Using one dummy for each category gives too many dummy variables!
-
-* The regression will then be singular and inestimable.
-
-* Either omit the constant, or omit the dummy for one category.
-
-* The coefficients of the dummies are relative to the omitted category.
-
 ## Uses of dummy variables
-\fontsize{13}{15}\sf
+\fontsize{13}{14}\sf
 
 **Seasonal dummies**
 
@@ -185,7 +79,7 @@ number of categories).
 
 **Outliers**
 
-* If there is an outlier, you can use a dummy variable to remove its effect.
+* A dummy variable can remove its effect.
 
 \pause
 
@@ -193,197 +87,26 @@ number of categories).
 
 * For daily data: if it is a public holiday, dummy=1, otherwise dummy=0.
 
-## Beer production revisited
-
-```{r, echo=FALSE}
-recent_production <- aus_production |> filter(year(Quarter) >= 1992)
-recent_production |> autoplot(Beer) +
-  labs(y = "Megalitres", title = "Australian quarterly beer production")
-```
-
-\pause
-
-\begin{block}{Regression model}
-\centering
-$y_t = \beta_0 + \beta_1 t + \beta_2d_{2,t} + \beta_3 d_{3,t} + \beta_4 d_{4,t} + \varepsilon_t$
-\end{block}\vspace*{-0.3cm}
-
-* $d_{i,t} = 1$ if $t$ is quarter $i$ and 0 otherwise.
-
-## Beer production revisited
-\fontsize{8}{8}\sf
-
-```{r, echo=TRUE}
-fit_beer <- recent_production |> model(TSLM(Beer ~ trend() + season()))
-report(fit_beer)
-```
-
-## Beer production revisited
-
-```{r, fig.height=2.4}
-augment(fit_beer) |>
-  ggplot(aes(x = Quarter)) +
-  geom_line(aes(y = Beer, colour = "Data")) +
-  geom_line(aes(y = .fitted, colour = "Fitted")) +
-  labs(y = "Megalitres", title = "Australian quarterly beer production") +
-  scale_colour_manual(values = c(Data = "black", Fitted = "#D55E00"))
-```
-
-## Beer production revisited
-
-```{r, fig.height=2.4}
-augment(fit_beer) |>
-  ggplot(aes(x = Beer, y = .fitted, colour = factor(quarter(Quarter)))) +
-  geom_point() +
-  labs(y = "Fitted", x = "Actual values", title = "Quarterly beer production") +
-  scale_colour_brewer(palette = "Dark2", name = "Quarter") +
-  geom_abline(intercept = 0, slope = 1)
-```
-
-## Beer production revisited
-
-```{r, echo=TRUE}
-fit_beer |> gg_tsresiduals()
-```
-
-## Beer production revisited
-
-```{r, echo=TRUE}
-fit_beer |>
-  forecast() |>
-  autoplot(recent_production)
-```
-
-## Fourier series
-
-Periodic seasonality can be handled using pairs of Fourier terms:
-$$
-s_{k}(t) = \sin\left(\frac{2\pi k t}{m}\right)\qquad c_{k}(t) = \cos\left(\frac{2\pi k t}{m}\right)
-$$
-$$
-y_t = a + bt + \sum_{k=1}^K \left[\alpha_k s_k(t) + \beta_k c_k(t)\right] + \varepsilon_t$$
-
-* Every periodic function can be approximated by sums of sin and cos terms for large enough $K$.
-* Choose $K$ by minimizing AICc.
-* Called "harmonic regression"
-
-```r
-TSLM(y ~ trend() + fourier(K))
-```
-
-## Harmonic regression: beer production
-
-\fontsize{8}{8}\sf
-
-```{r fourierbeer, echo=TRUE}
-fourier_beer <- recent_production |> model(TSLM(Beer ~ trend() + fourier(K = 2)))
-report(fourier_beer)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r cafe, echo=TRUE}
-aus_cafe <- aus_retail |>
-  filter(
-    Industry == "Cafes, restaurants and takeaway food services",
-    year(Month) %in% 2004:2018
-  ) |>
-  summarise(Turnover = sum(Turnover))
-aus_cafe |> autoplot(Turnover)
-```
-
-## Harmonic regression: eating-out expenditure
-
-\fontsize{8}{9}\sf
-
-```{r cafefit, dependson='cafe', fig.height=5, echo=TRUE}
-fit <- aus_cafe |>
-  model(
-    K1 = TSLM(log(Turnover) ~ trend() + fourier(K = 1)),
-    K2 = TSLM(log(Turnover) ~ trend() + fourier(K = 2)),
-    K3 = TSLM(log(Turnover) ~ trend() + fourier(K = 3)),
-    K4 = TSLM(log(Turnover) ~ trend() + fourier(K = 4)),
-    K5 = TSLM(log(Turnover) ~ trend() + fourier(K = 5)),
-    K6 = TSLM(log(Turnover) ~ trend() + fourier(K = 6))
-  )
-glance(fit) |> select(.model, r_squared, adj_r_squared, AICc)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r, echo=FALSE}
-cafe_plot <- function(...) {
-  fit |>
-    select(...) |>
-    forecast() |>
-    autoplot(aus_cafe) +
-    labs(title = sprintf("Log transformed %s, trend() + fourier(K = %s)", model_sum(select(fit, ...)[[1]][[1]]), deparse(..1))) +
-    geom_label(
-      aes(x = yearmonth("2007 Jan"), y = 4250, label = paste0("AICc = ", format(AICc))),
-      data = glance(select(fit, ...))
-    ) +
-    geom_line(aes(y = .fitted), colour = "red", augment(select(fit, ...))) +
-    ylim(c(1500, 5100))
-}
-```
-
-```{r cafe1, dependson='cafe', fig.height=5, echo=FALSE}
-cafe_plot(K = 1)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r cafe2, dependson='cafe', fig.height=5, echo=FALSE}
-cafe_plot(K = 2)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r cafe3, dependson='cafe', fig.height=5, echo=FALSE}
-cafe_plot(K = 3)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r cafe4, dependson='cafe', fig.height=5, echo=FALSE}
-cafe_plot(K = 4)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r cafe5, dependson='cafe', fig.height=5, echo=FALSE}
-cafe_plot(K = 5)
-```
-
-## Harmonic regression: eating-out expenditure
-
-```{r cafe6, dependson='cafe', fig.height=5, echo=FALSE}
-cafe_plot(K = 6)
-```
-
-## Intervention variables
-
-**Spikes**
-
-* Equivalent to a dummy variable for handling an outlier.
-\pause
-
-**Steps**
-
-* Variable takes value 0 before the intervention and 1 afterwards.
-\pause
-
-**Change of slope**
-
-* Variables take values 0 before the intervention and values $\{1,2,3,\dots\}$ afterwards.
-
 ## Holidays
 
 **For monthly data**
 
 * Christmas: always in December so part of monthly seasonal effect
 * Easter: use a dummy variable $v_t=1$ if any part of Easter is in that month, $v_t=0$ otherwise.
-* Ramadan and Chinese new year similar.
+* Ramadan and Chinese New Year similar.
+
+## Fourier series
+
+Periodic seasonality can be handled using pairs of Fourier \rlap{terms:}\vspace*{-0.3cm}
+$$
+s_{k}(t) = \sin\left(\frac{2\pi k t}{m}\right)\qquad c_{k}(t) = \cos\left(\frac{2\pi k t}{m}\right)
+$$
+$$
+y_t = a + bt + \sum_{k=1}^K \left[\alpha_k s_k(t) + \beta_k c_k(t)\right] + \varepsilon_t$$\vspace*{-0.8cm}
+
+* Every periodic function can be approximated by sums of sin and cos terms for large enough $K$.
+* Choose $K$ by minimizing AICc or CV.
+* Called "harmonic regression"
 
 ## Distributed lags
 
@@ -391,133 +114,21 @@ Lagged values of a predictor.
 
 Example: $x$ is advertising which has a delayed effect
 
-\begin{align*}
+\vspace*{-0.8cm}\begin{align*}
   x_{1} &= \text{advertising for previous month;} \\
   x_{2} &= \text{advertising for two months previously;} \\
         & \vdots \\
   x_{m} &= \text{advertising for $m$ months previously.}
 \end{align*}
 
-## Example: Boston marathon winning times
-
-```{r, fig.height=2.6, echo=TRUE}
-marathon <- boston_marathon |>
-  filter(Event == "Men's open division") |>
-  select(-Event) |>
-  mutate(Minutes = as.numeric(Time) / 60)
-marathon |> autoplot(Minutes) + labs(y = "Winning times in minutes")
-```
-
-## Example: Boston marathon winning times
-
-\fontsize{9}{9}\sf
-
-```{r, echo=TRUE}
-fit_trends <- marathon |>
-  model(
-    # Linear trend
-    linear = TSLM(Minutes ~ trend()),
-    # Exponential trend
-    exponential = TSLM(log(Minutes) ~ trend()),
-    # Piecewise linear trend
-    piecewise = TSLM(Minutes ~ trend(knots = c(1940, 1980)))
-  )
-```
-
-```{r}
-fit_trends
-```
-
-## Example: Boston marathon winning times
-
-```{r, echo=TRUE, eval=FALSE}
-fit_trends |>
-  forecast(h = 10) |>
-  autoplot(marathon)
-```
-
-```{r, echo=FALSE, message=TRUE, warning=FALSE, fig.height=3.3}
-fc_trends <- fit_trends |> forecast(h = 10)
-marathon |>
-  autoplot(Minutes) +
-  geom_line(
-    data = fitted(fit_trends),
-    aes(y = .fitted, colour = .model)
-  ) +
-  autolayer(fc_trends, alpha = 0.5, level = 95) +
-  labs(
-    y = "Minutes",
-    title = "Boston marathon winning times"
-  )
-```
-
-## Example: Boston marathon winning times
-
-```{r residPiecewise, message=FALSE, warning=FALSE}
-fit_trends |>
-  select(piecewise) |>
-  gg_tsresiduals()
-```
-
-# Residual diagnostics
-
-## Multiple regression and forecasting
-For forecasting purposes, we require the following assumptions:
-
-* $\varepsilon_t$ are uncorrelated and zero mean
-
-* $\varepsilon_t$ are uncorrelated with each $x_{j,t}$.
-\pause
-
-It is **useful** to also have $\varepsilon_t \sim \text{N}(0,\sigma^2)$ when producing prediction intervals or doing statistical tests.
-
-## Residual plots
-
-Useful for spotting outliers and whether the linear model was
-appropriate.
-
-* Scatterplot of residuals $\varepsilon_t$ against each predictor $x_{j,t}$.
-
-* Scatterplot residuals against the fitted values $\hat y_t$
-
-* Expect to see scatterplots resembling a horizontal band with
-no values too far from the band and no patterns such as curvature or
-increasing spread.
-
-## Residual patterns
-
-* If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
-
-* If a plot of the residuals vs any predictor **not** in the model shows a pattern, then the predictor should be added to the model.
-
-* If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
-
-# Selecting predictors and forecast evaluation
-
-## Comparing regression models
-
-Computer output for regression will always give the $R^2$ value. This is a
-useful summary of the model.
-
-* It is equal to the square of the correlation between $y$ and $\hat y$.
-* It is often called the ``coefficient of determination''.
-* It can also be calculated as follows:
-$$R^2 = \frac{\sum(\hat{y}_t - \bar{y})^2}{\sum(y_t-\bar{y})^2}
-$$
-* It is the proportion of variance accounted for (explained) by the predictors.
-
 ## Comparing regression models
 \fontsize{13}{14}\sf
 
-However \dots
-
 * $R^2$  does not allow for ``degrees of freedom''.
-
 * Adding *any* variable tends to increase the value of $R^2$, even if that variable is irrelevant.
 \pause
 
 To overcome this problem, we can use *adjusted $R^2$*:
-
 \begin{block}{}
 $$
 \bar{R}^2 = 1-(1-R^2)\frac{T-1}{T-k-1}
@@ -535,40 +146,19 @@ where $k=$ no.\ predictors and $T=$ no.\ observations.
 
 ## Akaike's Information Criterion
 
-\begin{block}{}
-$$\text{AIC} = -2\log(L) + 2(k+2)$$
-\end{block}
-where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
+\vspace*{0.2cm}\begin{block}{}
+\centerline{$\text{AIC} = -2\log(L) + 2(k+2)$}
+\end{block}\vspace*{-0.5cm}
 
+* $L=$ likelihood
+* $k=$ \# predictors in model.
 * AIC penalizes terms more heavily than $\bar{R}^2$.
-* Minimizing the AIC is asymptotically equivalent to minimizing MSE via **leave-one-out cross-validation** (for any linear regression).
 
-## Corrected AIC
-
-For small values of $T$, the AIC tends to select too many predictors, and so a bias-corrected version of the AIC has been developed.
-
-\begin{block}{}
-$$
-\text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{T-k-3}
-$$
+\pause\begin{block}{}
+\centerline{$\text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{T-k-3}$}
 \end{block}
 
-As with the AIC, the AIC$_{\text{C}}$ should be minimized.
-
-## Bayesian Information Criterion
-
-\begin{block}{}
-$$
-\text{BIC} = -2\log(L) + (k+2)\log(T)
-$$
-\end{block}
-where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
-
-* BIC penalizes terms more heavily than AIC
-
-* Also called SBIC and SC.
-
-* Minimizing BIC is asymptotically equivalent to leave-$v$-out cross-validation when $v = T[1-1/(log(T)-1)]$.
+* Minimizing the AIC or AICc is asymptotically equivalent to minimizing MSE via **leave-one-out cross-validation** (for any linear regression).
 
 ## Leave-one-out cross-validation
 
@@ -673,38 +263,34 @@ loocv_plot() +
 \only<2>{\begin{textblock}{4}(6,6)\begin{block}{}\fontsize{13}{15}\sf
 CV = MSE on \textcolor[HTML]{D55E00}{test sets}\end{block}\end{textblock}}
 
+## Bayesian Information Criterion
+
+\begin{block}{}
+$$
+\text{BIC} = -2\log(L) + (k+2)\log(T)
+$$
+\end{block}
+where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
+
+* BIC penalizes terms more heavily than AIC
+* Also called SBIC and SC.
+* Minimizing BIC is asymptotically equivalent to leave-$v$-out cross-validation when $v = T[1-1/(log(T)-1)]$.
+
 ## Choosing regression variables
+\fontsize{14}{15}\sf
 
 **Best subsets regression**
 
 * Fit all possible regression models using one or more of the predictors.
-
 * Choose the best model based on one of the measures of predictive ability (CV, AIC, AICc).
 \pause
-
-**Warning!**
-
-* If there are a large number of predictors, this is not possible.
-
-* For example, 44 predictors leads to 18 trillion possible models!
-
-## Choosing regression variables
 
 **Backwards stepwise regression**
 
 * Start with a model containing all variables.
-* Try subtracting one variable at a time. Keep the model if it
-has lower CV or AICc.
+* Subtract one variable at a time. Keep model if lower CV.
 * Iterate until no further improvement.
-\pause
-
-**Notes**
-
-* Stepwise regression is not guaranteed to lead to the best possible
-model.
-* Inference on coefficients of final model will be wrong.
-
-# Forecasting with regression
+* Not guaranteed to lead to best model.
 
 ## Ex-ante versus ex-post forecasts
 
@@ -714,175 +300,3 @@ model.
     - useful for studying behaviour of forecasting models.
 
  * trend, seasonal and calendar variables are all known in advance, so these don't need to be forecast.
-
-## Scenario based forecasting
-
- * Assumes possible scenarios for the predictor variables
- * Prediction intervals for scenario based forecasts do not include the uncertainty associated with the future values of the predictor variables.
-
-## Building a predictive regression model {-}
-
- * If getting forecasts of predictors is difficult, you can use lagged predictors instead.
-$$y_{t}=\beta_0+\beta_1x_{1,t-h}+\dots+\beta_kx_{k,t-h}+\varepsilon_{t}$$
-
- * A different model for each forecast horizon $h$.
-
-## US Consumption
-
-```{r usconsumptionf, echo=TRUE}
-fit_consBest <- us_change |>
-  model(
-    TSLM(Consumption ~ Income + Savings + Unemployment)
-  )
-
-future_scenarios <- scenarios(
-  Increase = new_data(us_change, 4) |>
-    mutate(Income = 1, Savings = 0.5, Unemployment = 0),
-  Decrease = new_data(us_change, 4) |>
-    mutate(Income = -1, Savings = -0.5, Unemployment = 0),
-  names_to = "Scenario"
-)
-
-fc <- forecast(fit_consBest, new_data = future_scenarios)
-```
-
-## US Consumption
-
-```{r usconsumptionf2, echo=TRUE}
-us_change |> autoplot(Consumption) +
-  labs(y = "% change in US consumption") +
-  autolayer(fc) +
-  labs(title = "US consumption", y = "% change")
-```
-
-# Matrix formulation
-
-## Matrix formulation
-
-\begin{block}{}
-\centerline{$y_t = \beta_0 + \beta_1 x_{1,t} + \beta_2 x_{2,t} + \cdots + \beta_kx_{k,t} + \varepsilon_t.$}
-\end{block}
-\pause
-
-Let $\bm{y} = (y_1,\dots,y_T)'$, $\bm{\varepsilon} = (\varepsilon_1,\dots,\varepsilon_T)'$, $\bm{\beta} = (\beta_0,\beta_1,\dots,\beta_k)'$ and
-$$
-\bm{X} = \begin{bmatrix}
-1      & x_{1,1} & x_{2,1} & \dots & x_{k,1}\\
-1      & x_{1,2} & x_{2,2} & \dots & x_{k,2}\\
-\vdots & \vdots  & \vdots  &       & \vdots\\
-1      & x_{1,T} & x_{2,T} & \dots & x_{k,T}
-  \end{bmatrix}.
-$$\pause
-Then
-
-###
-\centerline{$\bm{y} = \bm{X}\bm{\beta} + \bm{\varepsilon}.$}
-
-## Matrix formulation
-
-**Least squares estimation**
-
-Minimize: $(\bm{y} - \bm{X}\bm{\beta})'(\bm{y} - \bm{X}\bm{\beta})$\pause
-
-Differentiate wrt $\bm{\beta}$ gives
-
-\begin{block}{}
-\centerline{$\hat{\bm{\beta}} = (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}$}
-\end{block}
-
-\pause
-(The "normal equation".)\pause
-
-$$
-\hat{\sigma}^2 = \frac{1}{T-k-1}(\bm{y} - \bm{X}\hat{\bm{\beta}})'(\bm{y} - \bm{X}\hat{\bm{\beta}})
-$$
-
-\structure{Note:} If you fall for the dummy variable trap, $(\bm{X}'\bm{X})$ is a singular matrix.
-
-## Likelihood
-
-If the errors are iid and normally distributed, then
-$$
-\bm{y} \sim \text{N}(\bm{X}\bm{\beta},\sigma^2\bm{I}).
-$$\pause
-So the likelihood is
-$$
-L = \frac{1}{\sigma^T(2\pi)^{T/2}}\exp\left(-\frac1{2\sigma^2}(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})\right)
-$$\pause
-which is maximized when $(\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})$ is minimized.\pause
-
-\centerline{\alert{So \textbf{MLE = OLS}.}}
-
-## Multiple regression forecasts
-
-\begin{block}{Optimal forecasts}\vspace*{-0.2cm}
-$$
-\hat{y}^* =
-\text{E}(y^* | \bm{y},\bm{X},\bm{x}^*) =
-\bm{x}^*\hat{\bm{\beta}} = \bm{x}^*(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}
-$$
-\end{block}
-where $\bm{x}^*$ is a row vector containing the values of the predictors for the forecasts (in the same format as $\bm{X}$).
-
-\pause
-
-\begin{block}{Forecast variance}\vspace*{-0.2cm}
-$$
-\text{Var}(y^* | \bm{X},\bm{x}^*) = \sigma^2 \left[1 + \bm{x}^* (\bm{X}'\bm{X})^{-1} (\bm{x}^*)'\right]
-$$
-\end{block}
-\pause
-
-* This ignores any errors in $\bm{x}^*$.
-* 95% prediction intervals assuming normal errors:
-$$\hat{y}^* \pm 1.96 \sqrt{\text{Var}(y^*| \bm{X},\bm{x}^*)}.$$
-
-<!-- ## Multiple regression forecasts
-
-\begin{block}{Fitted values}
-$$
-  \hat{\bm{y}} = \bm{X}\hat{\bm{\beta}} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y} = \bm{H}\bm{y}
-$$
-\end{block}
-where $\bm{H} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is the ``hat matrix''.\pause
-
-**Leave-one-out residuals**
-
-Let $h_1,\dots,h_T$ be the diagonal values of $\bm{H}$, then the cross-validation statistic is
-
-\begin{block}{}
-$$
-\text{CV} = \frac1T\sum_{t=1}^T[e_t/(1-h_t)]^2,
-$$
-\end{block}
-
-where $e_t$ is the residual obtained from fitting the model to all $T$ observations. -->
-
-# Correlation, causation and forecasting
-
-## Correlation is not causation
-* When $x$ is useful for predicting $y$, it is not necessarily causing $y$.
-
-* e.g., predict number of drownings $y$ using number of ice-creams sold $x$.
-
-* Correlations are useful for forecasting, even when there is no causality.
-
-* Better models usually involve causal relationships (e.g., temperature $x$ and people $z$ to predict drownings $y$).
-
-## Multicollinearity
-In regression analysis, multicollinearity occurs when:
-
-*  Two  predictors are highly  correlated (i.e., the correlation between them is close to $\pm1$).
-* A linear combination of some of the predictors is highly correlated  with another predictor.
-*  A linear combination of one subset of predictors is highly correlated with a linear combination of another
-  subset of predictors.
-
-## Multicollinearity
-
-If multicollinearity exists\dots
-
-* the numerical estimates of coefficients may be wrong (worse in Excel than in a statistics package)
-* don't rely on the $p$-values to determine significance.
-* there is no problem with model *predictions* provided the predictors used for forecasting are within the range used for fitting.
-* omitting variables can help.
-* combining variables can help.

@@ -79,13 +79,13 @@
 
 % Outline at start of each section
 \AtBeginSection[]{
-   \begin{frame}{Outline}
+   \begin{frame}{Outline}\vspace{0.4cm}
    \tableofcontents[currentsection]
    \end{frame}
   }
 % Tighter table of contents
 \usepackage{etoolbox}
-\pretocmd{\section}{\addtocontents{toc}{\protect\addvspace{-40\p@}}}{}{}
+\pretocmd{\section}{\addtocontents{toc}{\protect\addvspace{-20\p@}}}{}{}
 \setbeamertemplate{section in toc}[square]
 \setbeamerfont{section number projected}{size=\large}
 \setbeamertemplate{section in toc shaded}[default][50]
