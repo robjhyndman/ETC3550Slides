@@ -124,7 +124,7 @@ Example: $x$ is advertising which has a delayed effect
 ## Comparing regression models
 \fontsize{13}{14}\sf
 
-* $R^2$  does not allow for ``degrees of freedom''.
+* $R^2$  does not allow for "degrees of freedom".
 * Adding *any* variable tends to increase the value of $R^2$, even if that variable is irrelevant.
 \pause
 
