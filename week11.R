@@ -87,8 +87,6 @@ elec_fit |>
   geom_line() +
   geom_line(aes(y = .fitted), col = "red")
 
-accuracy(elec_fit)
-
 # Forecast one day ahead
 vic_next_day <- new_data(vic_elec_daily, 1) |>
   mutate(Temperature = 26, Day_Type = "Holiday")
@@ -203,4 +201,4 @@ gg_tsresiduals(calls_fit, lag = 338)
 
 calls_fit |>
   forecast(h = 1690) |>
-  autoplot(calls_mdl)
+  autoplot(calls_mdl |> filter(idx > 20000))
