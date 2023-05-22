@@ -38,7 +38,7 @@ melsyd <- tsibbledata::ansett |>
 
 \pause
 
-**Maximum temperature at Melbourne airport on 12 April 2021.** (Q2)
+**Maximum temperature at Melbourne airport** (Q2)
 
 * Weather is relatively stationary over similar time of year and recent years.
 * So take mean and var of max temp in April over last 10 years.
@@ -48,7 +48,7 @@ melsyd <- tsibbledata::ansett |>
 **Difference in points in AFL match** (Q3)
 
 * Teams vary in strength from year to year.
-* Could look at distribution of for-against points from 2020 across all games for each team. Assume distributions independent.
+* Could look at distribution of for-against points for last few years across all games for each team. Assume distributions independent.
 
 \pause
 
@@ -82,6 +82,7 @@ to produce sensible forecasts. They want me to fix it.
 ## CASE STUDY 1: Paperware company
 
 ### Methods currently used
+\vspace*{0.2cm}
 
 A
 : 12 month average
@@ -172,103 +173,12 @@ the Grand Prix, advertising campaigns, competition behaviour, etc.
   * They have a highly capable team of people who are able to do
 most of the computing.
 
-# Review of topics covered
-
-## 1. Introduction to forecasting and R
-
-  - Time series data and `tsibble` objects.
-  - What makes things hard/easy to forecast. \pause
-
-## 2. Time series graphics
-
-  - Time plots
-  - Seasonal plots
-  - Seasonal subseries plots
-  - Lag plots
-  - ACF
-  - White noise
-
-## 3: Time series decomposition
-
-  - Describing a time series: seasonality, trend, cycles, changing variance, unusual features.
-  - Transformations (and adjustments)
-  - Difference between seasonality and cyclicity.
-  - Interpreting a decomposition.
-  - Seasonal adjustment.
-  - Forecasting and decomposition.
-
-## 5. The forecasters' toolbox
-
-  - Four benchmark methods: naïve, seasonal naïve, drift, mean.
-  - Forecasting involves distributions of future observations.
-  - Residual diagnostics: white noise, ACF, LB test.
-  - Problem of over-fitting.
-  - Out-of-sample accuracy. Training/test sets.
-  - Measures of forecast accuracy: MAE, MSE, RMSE, MAPE, MASE.
-  - Time series cross-validation.
-  - One-step prediction intervals based on RMSE from residuals.
-
-## 8: Exponential smoothing
-
-  - Simple exponential smoothing.
-  - Holt's local trend method.
-  - Damped trend methods.
-  - Holt-Winters seasonal method (additive and multiplicative versions).
-  - ETS state space formulation.
-  - Interpretation of output in R.
-  - Computing forecasts by setting future $\varepsilon_t$ to 0.
-  - Assumptions for prediction intervals.
-  - You have access to formula in the textbook.
-
-## 9: ARIMA models
-
-  - Stationarity.
-  - Transformations
-  - Differencing (first- and seasonal-differences). What to use when.
-  - White noise, random walk, random walk with drift, AR($p$), MA($q$), ARMA($p$,$q$), ARIMA($p,d,q$), ARIMA($p,d,q$)($P,D,Q$)$_m$.
-  - ACF, PACF.  Model identification.
-  - ARIMA models, Seasonal ARIMA models
-  - Order selection and goodness of fit (AICc)
-  - Interpretation of output in R.
-
-## 9: ARIMA models (cont'd)
-
-  - Backshift operator notation.
-  - Expanding out an ARIMA model for forecasting.
-  - Finding point forecasts for given ARIMA process.
-  - Assumptions for prediction intervals.
-  - One-step prediction intervals based on RMSE.
-  - Effect of differencing on forecasts.
-  - Effect of a constant on forecasts.
-  - ARIMA vs ETS.
-
-## 7: Multiple regression
-
-  - Interpretation of coefficients and R output and residual diagnostics.
-  - Dummy variables, seasonal dummies, piecewise linear trends, interventions.
-  - Harmonic regression.
-  - Variable selection.
-  - AIC, AICc, BIC, $R^2$, adjusted $R^2$.
-  - Ex ante vs ex post forecasts.
-  - Scenario forecasting.
-  - (Matrix formulation.)
-
-## 10: Dynamic regression models
-
-  - Problems with OLS and autocorrelated errors.
-  - Regression with ARIMA errors.
-  - Difference between regression residuals and ARIMA (innovation) residuals.
-  - Dynamic harmonic regression (and other specifications). Review the last lecture examples.
-  - Stochastic vs deterministic trends.
-  - Using lagged predictors
-  - Forecasting for dynamic regression models with ARIMA errors
-
 # Exam
 
-## Exam: 9.00am (AEST) 15 June
-\fontsize{13}{15}\sf
+## Exam: 5.00pm (AEST) 13 June
+\fontsize{13}{14}\sf
 
-Five Sections, all to be attempted.
+Five Sections, all to be attempted.\vspace*{-0.1cm}
 
 A
 : Short answers/explanations. Write about 1/4 page on four topics (out of six possible topics). Nuanced answers required. \pause
@@ -279,28 +189,26 @@ B
 C, D, E
 : Benchmarks, ETS models, ARIMA models, Dynamic regression models, forecast evaluation.\pause
 
-Sections \alert{B}, \alert{C}, \alert{D} and \alert{E} require interpretation of R output, but no coding. \pause
-
-###
-  $\bullet$ [\alert{E-Assessment}](https://www.monash.edu/students/admin/exams/electronic-exams)\qquad\qquad\qquad $\bullet$ Open access\qquad\qquad\qquad $\bullet$ Invigilated\newline
-  $\bullet$ 2 hours 10 minutes + (30 minutes to upload images).
+* Interpretation of R output, but no coding.
+* Closed book
+* Allowed: a calculator, 1 A4 double-sided sheet of notes, 5 working sheets
 
 ## Preparing for the exam
 
-  - Exams from 2019--2021 on Moodle already.
-  - Solutions to follow soon.
-  - Exercises. Make sure you have done them all (especially the last two topics - revise the lecture examples)!
+  - Exams from 2018--2022 on Moodle already.
+  - Solutions available from 5 June
+  - Exercises. Make sure you have done them all (especially the last two topics -- revise the lecture examples)!
   - Identify your weak points and practice them.
   - Write your own summary of the material.
   - Practice explaining the material to a class-mate.
 
 ## Help available
 
-  * See us during the consultation times (for details refer to the moodle page.
+  * See us during the consultation times (for details refer to the moodle page).
   * Discuss on the moodle forum.
 
 ## Useful resources for forecasters
-\fontsize{14}{15}\sf
+\fontsize{14}{14}\sf
 
 \alert{Organization:}
 
@@ -308,10 +216,9 @@ Sections \alert{B}, \alert{C}, \alert{D} and \alert{E} require interpretation of
 
 \alert{Annual Conference:}
 
- * International Symposium on Forecasting
+ * International Symposium on Forecasting\vspace*{-0.2cm}
 
-    *   Oxford, UK, July 4-7, 2022.
-    *   Free to our student members ($25).
+    *   Charlottesville, Virginia, June 25--28, 2023
 
 \alert{Journals:}
 
@@ -319,7 +226,7 @@ Sections \alert{B}, \alert{C}, \alert{D} and \alert{E} require interpretation of
  * Foresight (the practitioner's journal)
 
 ###
-Links to all of the above at **www.forecasters.org**
+Links to all of the above at **forecasters.org**
 
 ## IIF Best Student Award
 \fontsize{14}{16}\sf
