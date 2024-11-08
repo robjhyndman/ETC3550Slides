@@ -194,7 +194,7 @@ https://cran.r-project.org
 
 Available for download from RStudio:
 
-https://www.rstudio.com/products/rstudio/download/
+https://posit.co/download/rstudio-desktop/
 
 <!-- \placefig{.4}{1.2}{width=6cm}{figs/Rlogo} -->
 
